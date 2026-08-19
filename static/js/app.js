@@ -369,6 +369,9 @@ function openTemplateInEditor(tpl) {
   if (badgeName) badgeName.innerText = `${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}`;
   
   const defaultBtn = document.getElementById('btn-set-default');
+  const renameBtn = document.getElementById('btn-rename-template');
+  const deleteBtn = document.getElementById('btn-delete-template');
+
   if (defaultBtn) {
     if (tpl.id === activeTemplateId) {
       defaultBtn.innerText = "⭐ Varsayılan Model";
@@ -381,9 +384,100 @@ function openTemplateInEditor(tpl) {
     }
   }
 
+  // Fabrika Başlangıç Modeli Koruma Kuralı
+  if (tpl.is_locked || tpl.id === 'default') {
+    if (renameBtn) renameBtn.style.display = 'none';
+    if (deleteBtn) deleteBtn.style.display = 'none';
+  } else {
+    if (renameBtn) renameBtn.style.display = 'inline-flex';
+    if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+  }
+
   // Özel katmanları yükle
   renderCustomLayers(tpl.custom_layers || []);
   updateEditorPreview();
+}
+
+// -------------------------------------------------------------
+// MODEL ADI DEĞİŞTİRME & SİLME & ONAYLI KAYDETME
+// -------------------------------------------------------------
+
+function openRenameModal() {
+  const currentTpl = templatesList.find(t => t.id === editingTemplateId);
+  if (!currentTpl || currentTpl.is_locked) {
+    alert("Fabrika ayarı başlangıç modelinin adı değiştirilemez!");
+    return;
+  }
+
+  const modal = document.getElementById('modal-rename-template');
+  const input = document.getElementById('modal-inp-rename-name');
+  if (modal && input) {
+    input.value = currentTpl.name || '';
+    modal.style.display = 'flex';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function closeRenameModal() {
+  const modal = document.getElementById('modal-rename-template');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitRenameModal() {
+  const input = document.getElementById('modal-inp-rename-name');
+  const newName = input ? input.value.trim() : '';
+
+  if (!newName) {
+    alert("Lütfen geçerli bir model adı girin!");
+    return;
+  }
+
+  const currentTpl = templatesList.find(t => t.id === editingTemplateId);
+  if (!currentTpl) return;
+
+  currentTpl.name = newName;
+  closeRenameModal();
+  renderTemplateList();
+  openTemplateInEditor(currentTpl);
+
+  // Arka planda sunucuya kaydet
+  try {
+    await fetch(`${API_BASE}/api/templates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentTpl)
+    });
+  } catch(e) {}
+}
+
+async function deleteCurrentTemplate() {
+  const currentTpl = templatesList.find(t => t.id === editingTemplateId);
+  if (!currentTpl || currentTpl.is_locked || currentTpl.id === 'default') {
+    alert("Fabrika başlangıç modeli silinemez!");
+    return;
+  }
+
+  if (!confirm(`"${currentTpl.name}" modelini kalıcı olarak silmek istediğinize emin misiniz?`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/templates/${editingTemplateId}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      templatesList = templatesList.filter(t => t.id !== editingTemplateId);
+      editingTemplateId = 'default';
+      activeTemplateId = 'default';
+      await loadTemplates();
+      alert("✓ Model başarıyla silindi.");
+    }
+  } catch(e) {
+    templatesList = templatesList.filter(t => t.id !== editingTemplateId);
+    editingTemplateId = 'default';
+    renderTemplateList();
+  }
 }
 
 // -------------------------------------------------------------
@@ -561,6 +655,11 @@ function renderCustomLayers(layers) {
 // Şablonu Tüm Katmanlarıyla Kaydet
 async function saveTemplateFromEditor() {
   const currentTpl = templatesList.find(t => t.id === editingTemplateId) || {};
+  const tplName = currentTpl.name || "Mevcut Model";
+
+  if (!confirm(`"${tplName}" şablonu üzerindeki değişiklikleri kaydetmek istediğinize emin misiniz?`)) {
+    return;
+  }
   
   // Katmanları topla
   const customLayers = [];

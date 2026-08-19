@@ -274,6 +274,8 @@
 
               <!-- Sağ Aksiyonlar -->
               <div class="tool-group-actions">
+                <button class="btn-sm btn-secondary" id="btn-rename-template" onclick="openRenameModal()" title="Model Adını Değiştir" style="display: none;">✏️ Adı Değiştir</button>
+                <button class="btn-sm btn-danger" id="btn-delete-template" onclick="deleteCurrentTemplate()" title="Bu Modeli Sil" style="display: none;">🗑️ Sil</button>
                 <button class="btn-sm btn-secondary" id="btn-set-default" onclick="setCurrentTemplateAsDefault()">⭐️ Varsayılan Yap</button>
                 <button class="btn-sm btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
                 
@@ -469,6 +471,26 @@
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeNewModelModal()">İptal</button>
         <button class="btn-primary" onclick="submitNewModelModal()">✓ Modeli Oluştur</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UYGULAMA İÇİ MODEL ADI DEĞİŞTİRME MODALI -->
+  <div id="modal-rename-template" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Model Adını Değiştir</h3>
+        <button class="modal-close-btn" onclick="closeRenameModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Yeni Model Adı</label>
+          <input type="text" id="modal-inp-rename-name" placeholder="Yeni model adı..." onkeydown="if(event.key==='Enter') submitRenameModal()">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeRenameModal()">İptal</button>
+        <button class="btn-primary" onclick="submitRenameModal()">✓ Değişikliği Kaydet</button>
       </div>
     </div>
   </div>
