@@ -59,6 +59,7 @@ function switchTab(tabId) {
     if (buttons[1]) buttons[1].classList.add('active');
     heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
     subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
+    loadTemplates();
   } else if (tabId === 'tab-qr') {
     if (buttons[2]) buttons[2].classList.add('active');
     heading.innerText = '📱 Mobil QR Bağlantısı';
@@ -297,17 +298,39 @@ function openTemplateInEditor(tpl) {
   updateEditorPreview();
 }
 
-function createNewTemplate() {
-  editingTemplateId = null;
-  document.getElementById('txt-editing-tpl-title').innerText = "🎨 Yeni Etiket Modeli Oluştur";
-  document.getElementById('inp-tpl-name').value = "Yeni Özel Model";
-  document.getElementById('inp-tpl-desc').value = "Özel mağaza raf etiketi.";
-  document.getElementById('tpl-top-right-mode').value = "unit_price";
-  document.getElementById('badge-tpl-locked').style.display = 'none';
-  document.getElementById('btn-delete-template').style.display = 'none';
-  onEditorTopRightChange("unit_price");
-  document.getElementById('inp-tpl-custom-text').value = "";
-  updateEditorPreview();
+async function createNewTemplate() {
+  const modelName = prompt("Lütfen yeni etiket modeli için bir isim girin:\n(Örn: Kampanyalı Model, Şarküteri Rafı, QR Kodlu Etiket)");
+  
+  if (!modelName || !modelName.trim()) {
+    return; // Kullanıcı iptal etti veya boş bıraktı
+  }
+
+  const newId = `tpl_${Date.now()}`;
+  const newTpl = {
+    id: newId,
+    name: modelName.trim(),
+    description: "Özel mağaza etiket modeli.",
+    top_right_mode: "unit_price",
+    top_right_text: "",
+    is_locked: false
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/templates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTpl)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      activeTemplateId = newId;
+      editingTemplateId = newId;
+      await loadTemplates();
+      openTemplateInEditor(data.template || newTpl);
+    }
+  } catch(e) {
+    alert("Model oluşturulurken hata oluştu!");
+  }
 }
 
 function onEditorTopRightChange(mode) {

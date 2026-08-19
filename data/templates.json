@@ -1,42 +1,10 @@
 [
   {
     "id": "default",
-    "name": "Standart Market Rafı (Fabrika Ayarı)",
+    "name": "Varsayılan Standart Model (Fabrika Ayarı)",
     "is_locked": true,
     "top_right_mode": "empty",
     "top_right_text": "",
-    "description": "Görsel 2'ye tam uyumlu, tam genişlik başlık ve kalibre edilmiş başlangıç tasarımı."
-  },
-  {
-    "id": "tpl_unit_price",
-    "name": "Sade Birim Fiyatlı Şablon",
-    "is_locked": false,
-    "top_right_mode": "unit_price",
-    "top_right_text": "",
-    "description": "Sağ üstte zarif çerçeveli Birim Fiyat kutusu yer alır."
-  },
-  {
-    "id": "tpl_weight",
-    "name": "Gramaj / Net Miktar Rozetli",
-    "is_locked": false,
-    "top_right_mode": "weight",
-    "top_right_text": "NET: 35 GR",
-    "description": "Sağ üstte ürünün net ağırlık veya adet rozetini gösterir."
-  },
-  {
-    "id": "tpl_campaign",
-    "name": "Süper Fırsat / Kampanya Modeli",
-    "is_locked": false,
-    "top_right_mode": "campaign",
-    "top_right_text": "SÜPER FİYAT",
-    "description": "Sağ üstte siyah zemin üzerine beyaz dikkat çekici kampanya rozeti."
-  },
-  {
-    "id": "tpl_yerli",
-    "name": "Resmi Yerli Üretim Logolu",
-    "is_locked": false,
-    "top_right_mode": "yerli",
-    "top_right_text": "",
-    "description": "Sağ üstte resmi çift çerçeveli Yerli Üretim piktogramı ve birim fiyat kutusu."
+    "description": "Görsel 2 standart raf etiketi. Kilitli fabrika başlangıç tasarımıdır."
   }
 ]
