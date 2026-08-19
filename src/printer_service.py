@@ -8,16 +8,29 @@ def get_connected_usb_devices():
     """Windows PnP ve USB aygıtlarını sorgular."""
     devices = []
     try:
-        cmd = 'powershell -NoProfile -Command "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like \'*0C0C*\' -or $_.InstanceId -like \'*USBPRINT*\' } | Select-Object FriendlyName, InstanceId, Status, Class | ConvertTo-Json"'
+        cmd = 'powershell -NoProfile -Command "Get-PnpDevice -PresentOnly | Where-Object { ($_.InstanceId -like \'*USBPRINT*\') -or ($_.InstanceId -like \'*0C0C*\' -and $_.Class -eq \'USB\') -or ($_.Class -eq \'Printer\') } | Select-Object FriendlyName, InstanceId, Status, Class | ConvertTo-Json"'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore')
         if result.stdout and result.stdout.strip():
             import json
             try:
                 data = json.loads(result.stdout)
                 if isinstance(data, dict):
-                    devices.append(data)
-                elif isinstance(data, list):
-                    devices.extend(data)
+                    data = [data]
+                if isinstance(data, list):
+                    for d in data:
+                        fname = str(d.get('FriendlyName') or '').strip()
+                        iid = str(d.get('InstanceId') or '')
+                        if 'PNP0C0C' in iid or 'Kapama' in fname or 'ACPI' in iid:
+                            continue
+                        if not fname or len(fname) < 2 or fname.startswith('t\t') or fname == '_____':
+                            if 'USBPRINT' in iid:
+                                fname = "Termal Etiket Yazıcı (USBPRINT Portu)"
+                            elif '0C0C' in iid:
+                                fname = "USB Termal Aygıt (VID:0C0C)"
+                            else:
+                                fname = "USB Yazıcı Donanımı"
+                        d['FriendlyName'] = fname
+                        devices.append(d)
             except Exception:
                 pass
     except Exception:

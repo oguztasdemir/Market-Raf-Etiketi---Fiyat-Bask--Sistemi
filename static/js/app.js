@@ -161,6 +161,7 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '📱 Mobil QR Bağlantısı';
     if (subheading) subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
+    checkBackendAndDevices();
   } else if (tabId === 'tab-settings') {
     if (buttons[4]) buttons[4].classList.add('active');
     if (heading) heading.innerText = '⚙️ Sistem & Donanım Ayarları';
@@ -170,10 +171,18 @@ function switchTab(tabId) {
 }
 
 // 2. BACKEND & YAZICI DURUMU
-async function checkBackendAndDevices() {
+async function checkBackendAndDevices(isManual = false) {
   const badgeText = document.getElementById('backend-status-text');
   const printerSelect = document.getElementById('settings-printer-select');
   const sidebarPrinterName = document.getElementById('sidebar-printer-name');
+
+  // QR Paneli Cihaz Elemanları
+  const qrPrintersList = document.getElementById('qr-printers-list');
+  const qrPrintersCount = document.getElementById('qr-printers-count');
+  const qrUsbList = document.getElementById('qr-usb-list');
+  const qrUsbStatus = document.getElementById('qr-usb-status');
+  const qrNetIp = document.getElementById('qr-net-ip');
+  const qrActivePrinter = document.getElementById('qr-active-printer');
 
   try {
     const res = await fetch(`${API_BASE}/api/devices`);
@@ -181,13 +190,15 @@ async function checkBackendAndDevices() {
     const data = await res.json();
 
     if (data.usb_connected) {
-      badgeText.innerHTML = `USB: <strong>Termal Bağlı</strong>`;
+      if (badgeText) badgeText.innerHTML = `USB: <strong>Termal Bağlı</strong>`;
     } else {
-      badgeText.innerHTML = `Sunucu: <strong>Aktif</strong>`;
+      if (badgeText) badgeText.innerHTML = `Sunucu: <strong>Aktif</strong>`;
     }
 
-    if (data.default_printer && sidebarPrinterName) {
-      sidebarPrinterName.innerText = data.default_printer;
+    if (data.default_printer) {
+      selectedPrinter = data.default_printer;
+      if (sidebarPrinterName) sidebarPrinterName.innerText = data.default_printer;
+      if (qrActivePrinter) qrActivePrinter.innerText = data.default_printer;
     }
 
     if (printerSelect) {
@@ -197,13 +208,77 @@ async function checkBackendAndDevices() {
           const opt = document.createElement('option');
           opt.value = printer;
           opt.innerText = `🖨️ ${printer}`;
-          if (printer === data.default_printer) opt.selected = true;
+          if (printer === (selectedPrinter || data.default_printer)) opt.selected = true;
           printerSelect.appendChild(opt);
         });
       }
     }
+
+    // QR Bağlantısı Paneli Sağ Tarafını Doldur
+    if (qrPrintersList && data.printers) {
+      qrPrintersList.innerHTML = '';
+      if (qrPrintersCount) qrPrintersCount.innerText = `${data.printers.length} Yazıcı`;
+      
+      data.printers.forEach(printer => {
+        const isDefault = printer === (selectedPrinter || data.default_printer);
+        const item = document.createElement('div');
+        item.className = 'device-item-row';
+        item.innerHTML = `
+          <div class="device-item-name">
+            <span>${isDefault ? '⭐' : '🖨️'}</span>
+            <span>${printer}</span>
+          </div>
+          <div class="device-item-meta">
+            ${isDefault ? '<span class="badge-status-pill online">Varsayılan</span>' : '<span style="color:var(--text-muted);">Hazır</span>'}
+          </div>
+        `;
+        qrPrintersList.appendChild(item);
+      });
+    }
+
+    if (qrUsbList) {
+      qrUsbList.innerHTML = '';
+      const usbList = data.usb_devices || [];
+      if (qrUsbStatus) {
+        if (usbList.length > 0) {
+          qrUsbStatus.className = 'badge-status-pill online';
+          qrUsbStatus.innerText = `🟢 ${usbList.length} Aygıt Algılandı`;
+        } else {
+          qrUsbStatus.className = 'badge-status-pill offline';
+          qrUsbStatus.innerText = `🔴 Algılanmadı`;
+        }
+      }
+
+      if (usbList.length === 0) {
+        qrUsbList.innerHTML = `<div class="device-item-meta" style="padding:4px 0; color:var(--text-muted);">Doğrudan algılanan USB donanımı bulunamadı (Windows yazıcı kuyruğu kullanılabilir).</div>`;
+      } else {
+        usbList.forEach(usb => {
+          const item = document.createElement('div');
+          item.className = 'device-item-row';
+          item.innerHTML = `
+            <div class="device-item-name">
+              <span>🔌</span>
+              <span>${usb.FriendlyName || 'USB Aygıtı'}</span>
+            </div>
+            <div class="device-item-meta">
+              <span class="badge-status-pill online">Bağlı (OK)</span>
+            </div>
+          `;
+          qrUsbList.appendChild(item);
+        });
+      }
+    }
+
+    if (isManual) {
+      showToast("✓ Cihaz ve yazıcı listesi güncellendi.", "success");
+    }
+
   } catch (err) {
-    badgeText.innerHTML = `Durum: <strong>Yerel Mod</strong>`;
+    if (badgeText) badgeText.innerHTML = `Durum: <strong>Yerel Mod</strong>`;
+    if (qrUsbStatus) {
+      qrUsbStatus.className = 'badge-status-pill offline';
+      qrUsbStatus.innerText = `🔴 Çevrimdışı`;
+    }
   }
 }
 
@@ -214,15 +289,47 @@ async function loadMobileQrCode() {
     const data = await res.json();
     if (data.status === 'success') {
       const mobileUrl = data.mobile_url;
-      document.getElementById('inp-mobile-url').value = mobileUrl;
-      
+      const inp = document.getElementById('inp-mobile-url');
+      if (inp) inp.value = mobileUrl;
+
+      const qrNetIp = document.getElementById('qr-net-ip');
+      if (qrNetIp) qrNetIp.innerText = data.ip || '127.0.0.1';
+
       const qrContainer = document.getElementById('mobile-qr-canvas');
-      qrContainer.innerHTML = '';
-      QRCode.toCanvas(qrContainer, mobileUrl, {
-        width: 180,
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      });
+      if (qrContainer) {
+        qrContainer.innerHTML = '';
+
+        // 1. Canvas oluşturarak QRCode render et
+        const canvas = document.createElement('canvas');
+        canvas.style.borderRadius = '8px';
+        canvas.style.maxWidth = '100%';
+
+        let generated = false;
+        if (window.QRCode && typeof QRCode.toCanvas === 'function') {
+          try {
+            await QRCode.toCanvas(canvas, mobileUrl, {
+              width: 190,
+              margin: 1,
+              color: { dark: '#000000', light: '#ffffff' }
+            });
+            qrContainer.appendChild(canvas);
+            generated = true;
+          } catch (qrErr) {
+            console.warn("QRCode.toCanvas hatası:", qrErr);
+          }
+        }
+
+        // 2. Fallback: Yedek güvenilir QR Görseli
+        if (!generated) {
+          const img = document.createElement('img');
+          img.src = `https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(mobileUrl)}`;
+          img.alt = "Mobil QR Kodu";
+          img.style.width = "190px";
+          img.style.height = "190px";
+          img.style.borderRadius = "8px";
+          qrContainer.appendChild(img);
+        }
+      }
     }
   } catch (e) {
     console.error("QR oluşturma hatası:", e);
@@ -231,9 +338,49 @@ async function loadMobileQrCode() {
 
 function copyMobileUrl() {
   const inp = document.getElementById('inp-mobile-url');
+  if (!inp) return;
   inp.select();
   document.execCommand('copy');
-  alert("Mobil bağlantı linki kopyalandı:\n" + inp.value);
+  showToast("📋 Mobil bağlantı linki kopyalandı:\n" + inp.value, "success");
+}
+
+async function testPrinterQuick() {
+  const printer = selectedPrinter || "Termal Etiket Yazici";
+  try {
+    const res = await fetch(`${API_BASE}/api/print/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        printer: printer,
+        orientation: "POR",
+        width_mm: currentWidth || 76,
+        height_mm: currentHeight || 40,
+        x_offset: 0,
+        y_offset: 0,
+        copies: 1,
+        data: {
+          title1: "TEST BASKISI",
+          title2: "TERMAL RAF ETIKETI",
+          brand: "YARENLER",
+          origin: "TURKIYE",
+          date: document.getElementById('inp-date')?.value || "19 Agu 2026",
+          barcode: "8690504114925",
+          price: "99,90 TL",
+          top_right_mode: "empty",
+          top_right_text: ""
+        }
+      })
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✅ '${printer}' yazıcısına test etiketi gönderildi!`, "success");
+    } else {
+      showToast(`❌ Test baskısı başarısız: ${result.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`❌ Bağlantı hatası: ${err.message}`, "error");
+  }
 }
 
 // 4. STOK ARAMA & OTOMATİK DOLDURMA (5000+ Ürün)
@@ -241,10 +388,10 @@ let searchTimeout = null;
 function searchProducts(q) {
   clearTimeout(searchTimeout);
   const dropdown = document.getElementById('stock-dropdown');
-  q = q.trim();
+  q = (q || '').trim();
 
   if (!q) {
-    dropdown.style.display = 'none';
+    if (dropdown) dropdown.style.display = 'none';
     return;
   }
 
@@ -259,10 +406,11 @@ function searchProducts(q) {
           const item = document.createElement('div');
           item.className = 'stock-item';
           const title = p.title || p.title1 || '';
+          const brandInfo = p.brand ? ` | ${p.brand}` : '';
           item.innerHTML = `
             <div>
               <div class="stock-item-title">${title}</div>
-              <div class="stock-item-sub">Barkod: ${p.barcode}</div>
+              <div class="stock-item-sub">Barkod: ${p.barcode || '-'}${brandInfo}</div>
             </div>
             <div class="stock-item-price">${p.price || ''}</div>
           `;
@@ -274,8 +422,17 @@ function searchProducts(q) {
         dropdown.style.display = 'none';
       }
     } catch (e) {}
-  }, 200);
+  }, 120);
 }
+
+// Arama kutusu dışına tıklandığında dropdown'ı kapat
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('stock-dropdown');
+  const searchInp = document.getElementById('inp-stock-search');
+  if (dropdown && !dropdown.contains(e.target) && e.target !== searchInp) {
+    dropdown.style.display = 'none';
+  }
+});
 
 function selectProductFromStock(p) {
   const fullTitle = p.title || p.title1 || '';
@@ -1188,8 +1345,55 @@ function populateBrandFilterOptions() {
   if (currentVal) brandSelect.value = currentVal;
 }
 
+// Türkçe karakter ve büyük/küçük harf normalizasyonu (i/ı, ş/s, ğ/g, ü/u, ö/o, ç/c)
+function normalizeTurkish(str) {
+  if (!str) return '';
+  const charMap = {
+    'İ': 'i', 'I': 'i', 'ı': 'i', 'i': 'i',
+    'Ş': 's', 'ş': 's',
+    'Ğ': 'g', 'ğ': 'g',
+    'Ü': 'u', 'ü': 'u',
+    'Ö': 'o', 'ö': 'o',
+    'Ç': 'c', 'ç': 'c'
+  };
+  return String(str)
+    .replace(/[İIıiŞşĞğÜüÖöÇç]/g, ch => charMap[ch] || ch.toLowerCase())
+    .toLowerCase();
+}
+
+function getProductRelevanceScore(p, normQuery, queryTokens) {
+  const normTitle = normalizeTurkish(p.title || p.title1 || '');
+  const normBarcode = normalizeTurkish(p.barcode || '');
+  const normBrand = normalizeTurkish(p.brand || '');
+  
+  let score = 0;
+  if (normBarcode === normQuery) score += 1000;
+  else if (normBarcode.startsWith(normQuery)) score += 500;
+  else if (normBarcode.includes(normQuery)) score += 300;
+
+  if (normTitle === normQuery) score += 800;
+  else if (normTitle.startsWith(normQuery)) score += 400;
+  else if (normTitle.includes(normQuery)) score += 250;
+
+  if (queryTokens.every(tok => normTitle.includes(tok))) {
+    score += 150;
+    if (queryTokens.length > 0 && normTitle.startsWith(queryTokens[0])) {
+      score += 50;
+    }
+  }
+
+  if (normBrand && queryTokens.some(tok => normBrand.includes(tok))) {
+    score += 30;
+  }
+
+  score += Math.max(0, 40 - normTitle.length);
+  return score;
+}
+
 function onCatalogFilterChange() {
-  const searchTxt = (document.getElementById('catalog-search-inp')?.value || '').toLowerCase().trim();
+  const rawSearch = document.getElementById('catalog-search-inp')?.value || '';
+  const normSearch = normalizeTurkish(rawSearch).trim();
+  const searchTokens = normSearch ? normSearch.split(/\s+/).filter(Boolean) : [];
   const selectedBrand = document.getElementById('catalog-brand-select')?.value || 'ALL';
 
   // 1. Filtrele
@@ -1197,16 +1401,21 @@ function onCatalogFilterChange() {
     const matchesBrand = (selectedBrand === 'ALL') || (p.brand === selectedBrand);
     if (!matchesBrand) return false;
 
-    if (!searchTxt) return true;
-    const barcodeMatch = (p.barcode || '').includes(searchTxt);
-    const titleMatch = (p.title || '').toLowerCase().includes(searchTxt);
-    const brandMatch = (p.brand || '').toLowerCase().includes(searchTxt);
-    return barcodeMatch || titleMatch || brandMatch;
+    if (searchTokens.length === 0) return true;
+    const fullTarget = `${p.barcode || ''} ${p.title || ''} ${p.brand || ''}`;
+    const normFull = normalizeTurkish(fullTarget);
+    return searchTokens.every(tok => normFull.includes(tok));
   });
 
-  // 2. Eğer sütun sıralaması aktifse sırala
+  // 2. Eğer sütun sıralaması aktifse sırala, değilse arama varsa alakalılık puanına göre sırala
   if (currentSortColumn) {
     applyColumnSorting();
+  } else if (searchTokens.length > 0) {
+    filteredCatalogProducts.sort((a, b) => {
+      const scoreA = getProductRelevanceScore(a, normSearch, searchTokens);
+      const scoreB = getProductRelevanceScore(b, normSearch, searchTokens);
+      return scoreB - scoreA;
+    });
   }
 
   // 3. Render sayacını sıfırla ve çiz
@@ -1286,6 +1495,227 @@ function setupCatalogScrollListener() {
   });
 }
 
+// =========================================================
+// KATALOG ÇOKLU SEÇİM & TOPLU YAZDIRMA SİSTEMİ (ANCHOR RANGE SELECTION)
+// =========================================================
+let selectedBarcodes = new Set();
+let anchorIndex = -1; // İlk tıklanan referans başlangıç satırı (Anchor)
+let baseSelection = new Set(); // Ctrl/Tekli seçimlerin temel kümesi
+
+function showToast(msg, type = "info") {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '99999';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '10px';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const bg = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#0284c7';
+  toast.style.background = bg;
+  toast.style.color = '#ffffff';
+  toast.style.padding = '10px 18px';
+  toast.style.borderRadius = '8px';
+  toast.style.fontWeight = '700';
+  toast.style.fontSize = '13px';
+  toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.35)';
+  toast.style.transition = 'all 0.3s ease';
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(-10px)';
+  toast.innerText = msg;
+
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  }, 10);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function formatCatalogDate(p) {
+  if (p.updated_at) return p.updated_at;
+  if (p.date) {
+    if (p.date.includes(':')) return p.date;
+    return `${p.date} 15:47`;
+  }
+  const dateInp = document.getElementById('inp-date')?.value || '19 Ağu 2026';
+  return `${dateInp} 15:47`;
+}
+
+function handleCatalogRowClick(barcode, event) {
+  // Buton veya checkbox'a direkt tıklandıysa çift tetiklemeyi önle
+  if (event.target.closest('button') || event.target.tagName === 'BUTTON') return;
+  if (event.target.tagName === 'INPUT' && event.target.type === 'checkbox') return;
+
+  const clickedIdx = filteredCatalogProducts.findIndex(p => p.barcode === barcode);
+  if (clickedIdx === -1) return;
+
+  if (event.shiftKey && anchorIndex !== -1) {
+    // SHIFT + CLICK: İlk tıklanan çıpadan (Anchor) itibaren dinamik aralık
+    // Geri veya ileri tıklandığında eski aralık otomatik iptal edilir ve [anchor, yeni] aralığı seçilir
+    if (event.ctrlKey || event.metaKey) {
+      selectedBarcodes = new Set(baseSelection);
+    } else {
+      selectedBarcodes.clear();
+    }
+
+    const start = Math.min(anchorIndex, clickedIdx);
+    const end = Math.max(anchorIndex, clickedIdx);
+    for (let i = start; i <= end; i++) {
+      const item = filteredCatalogProducts[i];
+      if (item && item.barcode) {
+        selectedBarcodes.add(item.barcode);
+      }
+    }
+  } else if (event.ctrlKey || event.metaKey) {
+    // CTRL + CLICK: Tekli Ekle/Kaldır
+    if (selectedBarcodes.has(barcode)) {
+      selectedBarcodes.delete(barcode);
+    } else {
+      selectedBarcodes.add(barcode);
+    }
+    anchorIndex = clickedIdx;
+    baseSelection = new Set(selectedBarcodes);
+  } else {
+    // Normal Düz Tıklama: Yeni çıpa (Anchor) belirle ve seç
+    if (selectedBarcodes.size === 1 && selectedBarcodes.has(barcode)) {
+      // Zaten sadece bu seçiliyse kaldır
+      selectedBarcodes.clear();
+      anchorIndex = -1;
+      baseSelection.clear();
+    } else {
+      selectedBarcodes.clear();
+      selectedBarcodes.add(barcode);
+      anchorIndex = clickedIdx;
+      baseSelection = new Set([barcode]);
+    }
+  }
+
+  updateBatchActionBar();
+  updateRowSelections();
+}
+
+function onRowCheckboxChange(barcode, checked, event) {
+  const clickedIdx = filteredCatalogProducts.findIndex(p => p.barcode === barcode);
+  if (clickedIdx === -1) return;
+
+  if (event && event.shiftKey && anchorIndex !== -1) {
+    // Shift ile kutucuk tıklandığında dinamik aralık
+    selectedBarcodes.clear();
+    const start = Math.min(anchorIndex, clickedIdx);
+    const end = Math.max(anchorIndex, clickedIdx);
+    for (let i = start; i <= end; i++) {
+      const item = filteredCatalogProducts[i];
+      if (item && item.barcode) {
+        selectedBarcodes.add(item.barcode);
+      }
+    }
+  } else {
+    if (checked) {
+      selectedBarcodes.add(barcode);
+    } else {
+      selectedBarcodes.delete(barcode);
+    }
+    anchorIndex = clickedIdx;
+    baseSelection = new Set(selectedBarcodes);
+  }
+
+  updateBatchActionBar();
+  updateRowSelections();
+}
+
+function toggleSelectAllCatalog(checked) {
+  if (checked) {
+    filteredCatalogProducts.forEach(p => {
+      if (p.barcode) selectedBarcodes.add(p.barcode);
+    });
+    baseSelection = new Set(selectedBarcodes);
+  } else {
+    selectedBarcodes.clear();
+    baseSelection.clear();
+  }
+  anchorIndex = -1;
+  updateBatchActionBar();
+  updateRowSelections();
+}
+
+function clearCatalogSelection() {
+  selectedBarcodes.clear();
+  baseSelection.clear();
+  anchorIndex = -1;
+  const selectAllChk = document.getElementById('catalog-select-all-chk');
+  if (selectAllChk) {
+    selectAllChk.checked = false;
+    selectAllChk.indeterminate = false;
+  }
+  updateBatchActionBar();
+  updateRowSelections();
+}
+
+function updateBatchActionBar() {
+  const bar = document.getElementById('catalog-batch-bar');
+  const countEl = document.getElementById('batch-selected-count');
+  const btnPrint = document.getElementById('btn-batch-print');
+  const selectAllChk = document.getElementById('catalog-select-all-chk');
+
+  const count = selectedBarcodes.size;
+
+  if (bar) {
+    if (count > 0) {
+      bar.style.display = 'flex';
+      if (countEl) countEl.innerText = `${count} ürün seçildi`;
+      if (btnPrint) btnPrint.innerText = `🖨️ Seçili ${count} Ürünü Toplu Yazdır`;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  if (selectAllChk) {
+    if (filteredCatalogProducts.length > 0 && count >= filteredCatalogProducts.length) {
+      selectAllChk.checked = true;
+      selectAllChk.indeterminate = false;
+    } else if (count > 0) {
+      selectAllChk.checked = false;
+      selectAllChk.indeterminate = true;
+    } else {
+      selectAllChk.checked = false;
+      selectAllChk.indeterminate = false;
+    }
+  }
+}
+
+function updateRowSelections() {
+  const tbody = document.getElementById('catalog-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr[data-barcode]');
+  rows.forEach(tr => {
+    const barcode = tr.getAttribute('data-barcode');
+    const chk = tr.querySelector('.catalog-row-chk');
+    const isSelected = selectedBarcodes.has(barcode);
+
+    if (isSelected) {
+      tr.classList.add('selected-row');
+      if (chk) chk.checked = true;
+    } else {
+      tr.classList.remove('selected-row');
+      if (chk) chk.checked = false;
+    }
+  });
+}
+
 function renderCatalogTable(reset = true) {
   const tbody = document.getElementById('catalog-tbody');
   const statsBadge = document.getElementById('catalog-stats-badge');
@@ -1311,7 +1741,7 @@ function renderCatalogTable(reset = true) {
   if (itemsToRender.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
           🔍 Aradığınız kriterlere uygun ürün bulunamadı.
         </td>
       </tr>
@@ -1322,19 +1752,27 @@ function renderCatalogTable(reset = true) {
   const startIdx = reset ? 0 : tbody.children.length;
   const newChunk = itemsToRender.slice(startIdx);
 
-  const currentDateText = document.getElementById('inp-date')?.value || '19 Ağu 2026';
-
   const fragment = document.createDocumentFragment();
   newChunk.forEach(p => {
     const tr = document.createElement('tr');
+    const isSelected = selectedBarcodes.has(p.barcode);
+    if (isSelected) tr.className = 'selected-row';
+    tr.setAttribute('data-barcode', p.barcode);
+    tr.onclick = (e) => handleCatalogRowClick(p.barcode, e);
+
+    const displayDate = formatCatalogDate(p);
+
     tr.innerHTML = `
+      <td style="text-align: center;">
+        <input type="checkbox" class="catalog-row-chk" data-barcode="${p.barcode}" ${isSelected ? 'checked' : ''} onchange="onRowCheckboxChange('${p.barcode}', this.checked, event)">
+      </td>
       <td><span class="badge-brand">${p.brand || 'DİĞER'}</span></td>
       <td><span class="barcode-text">${p.barcode}</span></td>
       <td style="font-weight: 700; color: var(--text-main);">${p.title}</td>
       <td style="text-align: right;"><span class="price-text">${p.price}</span></td>
-      <td style="text-align: center;"><span class="date-text">${p.date || currentDateText}</span></td>
+      <td style="text-align: center;"><span class="date-text">${displayDate}</span></td>
       <td style="text-align: center;">
-        <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="printProductFromCatalog('${p.barcode}')" title="Bu ürünün etiketini yazdır">
+        <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="event.stopPropagation(); printProductFromCatalog('${p.barcode}')" title="Bu ürünün etiketini tasarımcıya yükle ve bas">
           🏷️ Bas
         </button>
       </td>
@@ -1343,6 +1781,11 @@ function renderCatalogTable(reset = true) {
   });
 
   tbody.appendChild(fragment);
+  updateBatchActionBar();
+}
+
+function selectProduct(p) {
+  selectProductFromStock(p);
 }
 
 function printProductFromCatalog(barcode) {
@@ -1355,3 +1798,80 @@ function printProductFromCatalog(barcode) {
   // 2. Etiket Çıkart sekmesini aç
   switchTab('tab-print');
 }
+
+async function submitBatchPrint() {
+  const count = selectedBarcodes.size;
+  if (count === 0) {
+    showToast("Lütfen önce tablodan yazdırılacak ürünleri seçin.", "warning");
+    return;
+  }
+
+  const selectedProducts = allCatalogProducts.filter(p => selectedBarcodes.has(p.barcode));
+  if (selectedProducts.length === 0) {
+    showToast("Seçilen ürünler bulunamadı.", "error");
+    return;
+  }
+
+  const copies = parseInt(document.getElementById('batch-copies-inp')?.value || '1') || 1;
+  const btnPrint = document.getElementById('btn-batch-print');
+  const origText = btnPrint ? btnPrint.innerText : '';
+
+  if (btnPrint) {
+    btnPrint.disabled = true;
+    btnPrint.innerText = `⏳ Yazdırılıyor (${count} Ürün)...`;
+  }
+
+  try {
+    const activeTpl = templatesList.find(t => t.id === activeTemplateId) || templatesList[0] || {};
+    const payload = {
+      products: selectedProducts,
+      printer: selectedPrinter,
+      orientation: "POR",
+      width_mm: currentWidth,
+      height_mm: currentHeight,
+      x_offset: parseInt(document.getElementById('settings-x-offset')?.value || 0),
+      y_offset: parseInt(document.getElementById('settings-y-offset')?.value || 0),
+      dpi: 203,
+      copies_per_item: copies,
+      template: activeTpl
+    };
+
+    const res = await fetch(`${API_BASE}/api/print/batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✓ ${result.message}`, "success");
+      clearCatalogSelection();
+    } else {
+      showToast(`❌ ${result.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`❌ Bağlantı hatası: ${err.message}`, "error");
+  } finally {
+    if (btnPrint) {
+      btnPrint.disabled = false;
+      btnPrint.innerText = origText;
+    }
+  }
+}
+
+// Klavye Kısayolları (Ctrl+A ile tümünü seç, Esc ile seçimi kaldır)
+document.addEventListener('keydown', (e) => {
+  const catalogTab = document.getElementById('tab-catalog');
+  if (catalogTab && catalogTab.classList.contains('active')) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        return; // Arama kutusunda yazı seçiliyorsa engelleme
+      }
+      e.preventDefault();
+      toggleSelectAllCatalog(true);
+    } else if (e.key === 'Escape') {
+      clearCatalogSelection();
+    }
+  }
+});

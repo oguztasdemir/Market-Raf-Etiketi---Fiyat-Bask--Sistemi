@@ -17,8 +17,11 @@ from flask import Flask, jsonify, request, send_from_directory, render_template
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+import math
+import datetime
+
 # Modüler kaynakları içeri aktar
-from src.zpl_generator import generate_market_shelf_zpl, clean_tr
+from src.zpl_generator import generate_market_shelf_zpl, clean_tr, get_online_or_system_date, MONTHS_TR
 from src.printer_service import (
     get_connected_usb_devices,
     get_windows_printers,
@@ -33,6 +36,7 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 PRODUCTS_FILE = os.path.join(DATA_DIR, "products.json")
+BLACKLIST_FILE = os.path.join(DATA_DIR, "black_list.json")
 TEMPLATES_FILE = os.path.join(DATA_DIR, "templates.json")
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
 
@@ -83,6 +87,7 @@ def add_cors_headers(response):
     return response
 
 @app.route("/api/print/send", methods=["OPTIONS"])
+@app.route("/api/print/batch", methods=["OPTIONS"])
 @app.route("/api/devices", methods=["OPTIONS"])
 @app.route("/api/preview/zpl", methods=["OPTIONS"])
 @app.route("/api/products", methods=["OPTIONS"])
@@ -148,22 +153,93 @@ def api_products_get_all():
     products = load_json(PRODUCTS_FILE, [])
     return jsonify({"status": "success", "products": products})
 
+@app.route("/api/blacklist", methods=["GET"])
+def api_blacklist_get_all():
+    """Kara listedeki (katalog dışı / manav / silinmiş) ürünleri listeler."""
+    blacklist = load_json(BLACKLIST_FILE, [])
+    return jsonify({"status": "success", "blacklist": blacklist, "count": len(blacklist)})
+
+def normalize_search_text(text: str) -> str:
+    """Türkçe karakterleri ve büyük/küçük harf farklarını arama için normalize eder."""
+    if not text:
+        return ""
+    text = str(text)
+    char_map = {
+        'İ': 'i', 'I': 'i', 'ı': 'i', 'i': 'i',
+        'Ş': 's', 'ş': 's',
+        'Ğ': 'g', 'ğ': 'g',
+        'Ü': 'u', 'ü': 'u',
+        'Ö': 'o', 'ö': 'o',
+        'Ç': 'c', 'ç': 'c',
+    }
+    return "".join(char_map.get(ch, ch.lower()) for ch in text)
+
+def score_product_match(p: dict, query_tokens: list, norm_query: str) -> int:
+    """Arama eşleşme kalitesine göre alakalılık (relevance) puanı üretir."""
+    norm_title = normalize_search_text(p.get("title") or p.get("title1") or "")
+    norm_barcode = normalize_search_text(p.get("barcode", ""))
+    norm_brand = normalize_search_text(p.get("brand", ""))
+    
+    score = 0
+    # 1. Tam barkod eşleşmesi
+    if norm_barcode == norm_query:
+        score += 1000
+    elif norm_barcode.startswith(norm_query):
+        score += 500
+    elif norm_query in norm_barcode:
+        score += 300
+
+    # 2. Tam başlık eşleşmesi veya başlangıcı
+    if norm_title == norm_query:
+        score += 800
+    elif norm_title.startswith(norm_query):
+        score += 400
+    elif norm_query in norm_title:
+        score += 250
+
+    # 3. Bütün kelimeler başlıkta mı?
+    if all(tok in norm_title for tok in query_tokens):
+        score += 150
+        # Başlık ilk aranan kelime ile başlıyorsa ekstra puan
+        if query_tokens and norm_title.startswith(query_tokens[0]):
+            score += 50
+    
+    # 4. Marka eşleşmesi
+    if norm_brand and any(tok in norm_brand for tok in query_tokens):
+        score += 30
+        
+    # 5. Başlık uzunluğuna göre ufak optimizasyon (daha kısa ve direkt başlıklar öne)
+    score += max(0, 40 - len(norm_title))
+    return score
+
 @app.route("/api/products/search", methods=["GET"])
 def api_products_search():
-    """Barkod veya ürün adına göre stok araması yapar."""
-    q = request.args.get("q", "").strip().lower()
+    """Barkod veya ürün adına göre akıllı stok araması yapar (Türkçe harf & çoklu kelime duyarsız)."""
+    q = request.args.get("q", "").strip()
     products = load_json(PRODUCTS_FILE, [])
     if not q:
         return jsonify({"status": "success", "products": products})
     
-    matches = [
-        p for p in products 
-        if q in str(p.get("barcode", "")).lower() or 
-           q in str(p.get("title", "")).lower() or
-           q in str(p.get("title1", "")).lower() or
-           q in str(p.get("brand", "")).lower()
-    ]
-    return jsonify({"status": "success", "products": matches})
+    norm_q = normalize_search_text(q)
+    tokens = [t for t in norm_q.split() if t]
+    
+    if not tokens:
+        return jsonify({"status": "success", "products": products})
+
+    matched_products = []
+    for p in products:
+        norm_full = normalize_search_text(
+            f"{p.get('barcode', '')} {p.get('title', '')} {p.get('title1', '')} {p.get('title2', '')} {p.get('brand', '')}"
+        )
+        if all(tok in norm_full for tok in tokens):
+            score = score_product_match(p, tokens, norm_q)
+            matched_products.append((score, p))
+
+    # Puana göre çoktan aza sırala
+    matched_products.sort(key=lambda x: x[0], reverse=True)
+    results = [p for _, p in matched_products]
+
+    return jsonify({"status": "success", "products": results})
 
 @app.route("/api/products/<barcode>", methods=["GET"])
 def api_product_get(barcode):
@@ -182,28 +258,40 @@ def api_product_save():
     barcode = str(data.get("barcode", "")).strip()
     title = str(data.get("title") or data.get("title1", "")).strip()
     price = str(data.get("price", "")).strip()
+    brand = str(data.get("brand", "")).strip() or "YARENLER"
 
     if not barcode or not title:
         return jsonify({"status": "error", "message": "Barkod ve Ürün Adı zorunludur."}), 400
     
+    now = datetime.datetime.now()
+    month_name = MONTHS_TR.get(now.month, 'Ağu')
+    date_only = f"{now.day} {month_name} {now.year}"
+    date_time = f"{now.day} {month_name} {now.year} {now.strftime('%H:%M')}"
+
     new_item = {
         "barcode": barcode,
         "title": title,
-        "price": price
+        "price": price,
+        "brand": brand,
+        "date": date_only,
+        "updated_at": date_time
     }
 
     products = load_json(PRODUCTS_FILE, [])
     found = False
     for i, p in enumerate(products):
         if str(p.get("barcode")) == barcode:
-            products[i] = new_item
+            # Mevcut diğer alanları koru
+            p.update(new_item)
+            new_item = p
+            products[i] = p
             found = True
             break
     if not found:
         products.append(new_item)
     
     save_json(PRODUCTS_FILE, products)
-    print(f"[STOK GÜNCELLENDİ] Barkod: {barcode} | Ürün: {title} | Fiyat: {price}")
+    print(f"[STOK GÜNCELLENDİ] Barkod: {barcode} | Ürün: {title} | Fiyat: {price} | Zaman: {date_time}")
     return jsonify({"status": "success", "product": new_item, "message": "Ürün stoğa kaydedildi."})
 
 # --- Şablon (Template) API ---
@@ -340,6 +428,86 @@ def api_print_send():
             "message": f"Yazdırma hatası: {str(e)}",
             "zpl": zpl_command
         }), 500
+
+@app.route("/api/print/batch", methods=["POST"])
+def api_print_batch():
+    """Toplu ürün etiketlerini tek bir ZPL işi olarak yazıcıya iletir."""
+    payload = request.json or {}
+    products = payload.get("products", [])
+    selected_printer = payload.get("printer") or "Termal Etiket Yazici"
+    orientation = payload.get("orientation", "POR")
+    width_mm = float(payload.get("width_mm") or 76)
+    height_mm = float(payload.get("height_mm") or 40)
+    x_offset = int(payload.get("x_offset") or 0)
+    y_offset = int(payload.get("y_offset") or 0)
+    dpi = int(payload.get("dpi") or 203)
+    copies_per_item = max(1, int(payload.get("copies_per_item") or 1))
+    template = payload.get("template") or {}
+
+    if not products:
+        return jsonify({"status": "error", "message": "Yazdırılacak ürün bulunamadı."}), 400
+
+    zpl_list = []
+    for p in products:
+        full_title = str(p.get("title") or p.get("title1") or "").strip()
+        parts = full_title.split()
+        if len(full_title) > 25 and len(parts) > 1:
+            mid = math.ceil(len(parts) / 2)
+            t1 = " ".join(parts[:mid])
+            t2 = " ".join(parts[mid:])
+        else:
+            t1 = full_title
+            t2 = str(p.get("title2") or "").strip()
+
+        # Etikette SADECE tarih yer alacak (saat etikete basılmaz)
+        raw_date = str(p.get("date") or get_online_or_system_date()).strip()
+        date_parts = raw_date.split()
+        if len(date_parts) >= 4 and ":" in date_parts[-1]:
+            label_date = " ".join(date_parts[:3])
+        else:
+            label_date = raw_date
+
+        data = {
+            "title1": t1,
+            "title2": t2,
+            "brand": str(p.get("brand") or "YARENLER"),
+            "origin": str(p.get("origin") or "TÜRKİYE"),
+            "date": label_date,
+            "unit_price": str(p.get("unit_price") or ""),
+            "barcode": str(p.get("barcode") or ""),
+            "price": str(p.get("price") or ""),
+            "top_right_mode": template.get("top_right_mode", "empty"),
+            "top_right_text": template.get("top_right_text", ""),
+            "custom_fields": template.get("custom_fields", [])
+        }
+
+        zpl = generate_market_shelf_zpl(
+            data,
+            orientation=orientation,
+            x_offset=x_offset,
+            y_offset=y_offset,
+            width_mm=width_mm,
+            height_mm=height_mm,
+            dpi=dpi,
+            copies=copies_per_item
+        )
+        zpl_list.append(zpl)
+
+    combined_zpl = "\n".join(zpl_list)
+    total_labels = len(products) * copies_per_item
+    print(f"\n[TOPLU BASKI] {len(products)} Ürün x {copies_per_item} Adet = {total_labels} Etiket -> Yazıcı: {selected_printer}")
+
+    try:
+        print_raw_zpl(selected_printer, combined_zpl, f"Toplu Etiket ({len(products)} Kalem)")
+        return jsonify({
+            "status": "success",
+            "item_count": len(products),
+            "total_labels": total_labels,
+            "message": f"{len(products)} ürün ({total_labels} adet etiket) başarıyla yazıcıya gönderildi!"
+        })
+    except Exception as e:
+        print(f"[YAZDIRMA HATASI] {e}")
+        return jsonify({"status": "error", "message": f"Yazdırma hatası: {str(e)}"}), 500
 
 def free_port(port=5000):
     """Port 5000'de asılı kalan eski işlemleri temizler."""

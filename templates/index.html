@@ -384,27 +384,52 @@
             </div>
           </div>
 
+          <!-- Toplu Seçim İşlem Çubuğu (Multi-select Batch Bar) -->
+          <div id="catalog-batch-bar" class="catalog-batch-bar" style="display: none;">
+            <div class="batch-left">
+              <span class="batch-selected-icon">✓</span>
+              <span id="batch-selected-count" class="batch-count-text">0 ürün seçildi</span>
+              <span class="batch-hint">(Shift: Aralık seçimi | Ctrl: Tekli seçim)</span>
+            </div>
+            <div class="batch-right">
+              <div class="batch-copies-box">
+                <label for="batch-copies-inp">Her birinden:</label>
+                <input type="number" id="batch-copies-inp" value="1" min="1" max="50" class="batch-copies-input">
+                <span>adet</span>
+              </div>
+              <button id="btn-batch-print" class="btn-batch-print" onclick="submitBatchPrint()">
+                🖨️ Seçilileri Toplu Yazdır
+              </button>
+              <button class="btn-batch-clear" onclick="clearCatalogSelection()" title="Tüm seçimleri temizle">
+                ✕ Temizle
+              </button>
+            </div>
+          </div>
+
           <!-- Ürün Listesi Tablosu (Sonsuz Scroll & Tıklanabilir Sıralama) -->
           <div class="catalog-table-wrapper" id="catalog-scroll-container">
             <table class="catalog-table">
               <thead>
                 <tr>
-                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 14%; min-width: 130px;">
+                  <th style="width: 40px; min-width: 40px; text-align: center;">
+                    <input type="checkbox" id="catalog-select-all-chk" onchange="toggleSelectAllCatalog(this.checked)" title="Tümünü Seç / Kaldır">
+                  </th>
+                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 13%; min-width: 120px;">
                     Firma <span class="sort-icon" id="sort-ico-brand">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 13%; min-width: 120px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 12%; min-width: 110px;">
                     Barkod <span class="sort-icon" id="sort-ico-barcode">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 45%; min-width: 250px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 42%; min-width: 240px;">
                     Ürün Adı <span class="sort-icon" id="sort-ico-title">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 11%; min-width: 90px; text-align: right;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 11%; min-width: 85px; text-align: right;">
                     Fiyat <span class="sort-icon" id="sort-ico-price">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 11%; min-width: 110px; text-align: center;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 14%; min-width: 135px; text-align: center;">
                     Değişme Tarihi <span class="sort-icon" id="sort-ico-date">↕</span>
                   </th>
-                  <th style="width: 6%; min-width: 70px; text-align: center;">İşlem</th>
+                  <th style="width: 6%; min-width: 65px; text-align: center;">İşlem</th>
                 </tr>
               </thead>
               <tbody id="catalog-tbody">
@@ -425,44 +450,119 @@
       <!-- =========================================================
            SEKME 4: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ)
            ========================================================= -->
+      <!-- =========================================================
+           SEKME 4: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ & DONANIMLAR)
+           ========================================================= -->
       <div id="tab-qr" class="tab-content">
         <div class="qr-panel-container">
-          
-          <div class="card qr-box-card">
-            <div class="qr-header">
-              <span style="font-size: 38px;">📱</span>
-              <h2>Mobil Reyon Barkod Terminali</h2>
-              <p>Telefonunuzun kamerasıyla bu QR kodu okutarak reyonlarda gezerek ürün okutup doğrudan termal yazıcıya etiket basabilirsiniz.</p>
+          <div class="qr-split-layout">
+            
+            <!-- SOL KART: QR KOD & MOBİL TERMİNAL -->
+            <div class="card qr-box-card">
+              <div class="qr-header">
+                <span style="font-size: 38px;">📱</span>
+                <h2>Mobil Reyon Barkod Terminali</h2>
+                <p>Telefonunuzun kamerasıyla bu QR kodu okutarak reyonlarda gezerek ürün okutup doğrudan termal yazıcıya etiket basabilirsiniz.</p>
+              </div>
+
+              <div class="qr-code-wrapper">
+                <div id="mobile-qr-canvas"></div>
+              </div>
+
+              <div class="qr-link-box">
+                <span style="font-size:12px; color:var(--text-muted);">Mobil Bağlantı Adresi:</span>
+                <div class="link-copy-row">
+                  <input type="text" id="inp-mobile-url" readonly value="http://192.168.1.XX:5000/mobile">
+                  <button class="btn-secondary" onclick="copyMobileUrl()">📋 Kopyala</button>
+                </div>
+              </div>
+
+              <div class="qr-steps">
+                <div class="step-item">
+                  <span class="step-num">1</span>
+                  <span>Telefonunuzun bilgisayarla <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</span>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">2</span>
+                  <span>Kamera ile yukarıdaki QR kodu okutun veya tarayıcınızdan linki açın.</span>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">3</span>
+                  <span>Reyonlarda gezerken ürün barkodunu kameraya gösterin, fiyatı onaylayıp <strong>"🖨️ YAZDIR"</strong> butonuna basın!</span>
+                </div>
+              </div>
             </div>
 
-            <div class="qr-code-wrapper">
-              <div id="mobile-qr-canvas"></div>
+            <!-- SAĞ KART: BAĞLI CİHAZLAR & DONANIM DURUMU -->
+            <div class="card qr-devices-card">
+              <div class="devices-card-header">
+                <div class="devices-header-title">
+                  <span style="font-size: 24px;">🔌</span>
+                  <div>
+                    <h3>Bağlı Cihazlar & Donanım</h3>
+                    <p>Sistemdeki termal etiket yazıcıları, USB bağlantı noktaları ve ağ durumu.</p>
+                  </div>
+                </div>
+                <button class="btn-refresh-devices" onclick="checkBackendAndDevices(true)" title="Cihazları Yeniden Tara">
+                  🔄 Yenile
+                </button>
+              </div>
+
+              <div class="device-sections-wrap">
+                <!-- 1. Yazıcı Kuyrukları -->
+                <div class="device-group-box">
+                  <div class="device-group-head">
+                    <span>🖨️ Windows Yazıcı Kuyrukları</span>
+                    <span id="qr-printers-count" class="badge-device-count">0 Yazıcı</span>
+                  </div>
+                  <div id="qr-printers-list" class="device-item-list">
+                    <div class="device-loading-text">Yazıcılar taranıyor...</div>
+                  </div>
+                </div>
+
+                <!-- 2. USB PnP Donanımları -->
+                <div class="device-group-box">
+                  <div class="device-group-head">
+                    <span>🔌 Algılanan USB Donanımları</span>
+                    <span id="qr-usb-status" class="badge-status-pill online">🟢 Bağlı</span>
+                  </div>
+                  <div id="qr-usb-list" class="device-item-list">
+                    <div class="device-loading-text">USB donanımları taranıyor...</div>
+                  </div>
+                </div>
+
+                <!-- 3. Ağ ve Sunucu Bilgileri -->
+                <div class="device-group-box">
+                  <div class="device-group-head">
+                    <span>🌐 Yerel Ağ & Sunucu</span>
+                    <span class="badge-status-pill online">🟢 Aktif (Port 5000)</span>
+                  </div>
+                  <div class="net-info-table">
+                    <div class="net-row">
+                      <span class="net-lbl">Yerel IP Adresi:</span>
+                      <strong id="qr-net-ip" class="net-val">192.168.1.XX</strong>
+                    </div>
+                    <div class="net-row">
+                      <span class="net-lbl">Mobil Erişim Portu:</span>
+                      <span class="net-val">5000 (HTTP)</span>
+                    </div>
+                    <div class="net-row">
+                      <span class="net-lbl">Seçili Yazıcı:</span>
+                      <strong id="qr-active-printer" class="net-val text-accent">Termal Etiket Yazici</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hızlı Test Butonu -->
+              <div class="devices-footer-box">
+                <button class="btn-quick-test-print" onclick="testPrinterQuick()">
+                  🧪 Seçili Yazıcıya Test Etiketi Bas
+                </button>
+              </div>
             </div>
 
-            <div class="qr-link-box">
-              <span style="font-size:12px; color:var(--text-muted);">Mobil Bağlantı Adresi:</span>
-              <div class="link-copy-row">
-                <input type="text" id="inp-mobile-url" readonly value="http://192.168.1.XX:5000/mobile">
-                <button class="btn-secondary" onclick="copyMobileUrl()">📋 Kopyala</button>
-              </div>
-            </div>
-
-            <div class="qr-steps">
-              <div class="step-item">
-                <span class="step-num">1</span>
-                <span>Telefonunuzun bilgisayarla <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</span>
-              </div>
-              <div class="step-item">
-                <span class="step-num">2</span>
-                <span>Kamera ile yukarıdaki QR kodu okutun veya tarayıcınızdan linki açın.</span>
-              </div>
-              <div class="step-item">
-                <span class="step-num">3</span>
-                <span>Reyonlarda gezerken ürün barkodunu kameraya gösterin, fiyatı onaylayıp <strong>"🖨️ YAZDIR"</strong> butonuna basın!</span>
-              </div>
-            </div>
           </div>
-
         </div>
       </div>
 
