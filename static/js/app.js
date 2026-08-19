@@ -6,8 +6,18 @@ let currentHeight = 40;
 let selectedPrinter = "Termal Etiket Yazici";
 let currentTopRightMode = 'empty';
 let activeTemplateId = 'default';
-let templatesList = [];
-let editingTemplateId = null;
+let editingTemplateId = 'default';
+
+let templatesList = [
+  {
+    id: "default",
+    name: "Varsayılan Standart Model",
+    is_locked: true,
+    top_right_mode: "empty",
+    top_right_text: "",
+    description: "Görsel 2 standart fabrika raf etiketi."
+  }
+];
 
 // Backend API URL
 const API_BASE = (window.location.protocol === 'file:' || !window.location.port || window.location.port === '5500') 
@@ -15,6 +25,7 @@ const API_BASE = (window.location.protocol === 'file:' || !window.location.port 
   : '';
 
 document.addEventListener('DOMContentLoaded', () => {
+  renderTemplateList();
   renderBarcode();
   checkBackendAndDevices();
   loadCurrentDate();
@@ -31,8 +42,10 @@ async function loadCurrentDate() {
     if (data.status === 'success' && data.date) {
       const dateInp = document.getElementById('inp-date');
       const dateLbl = document.getElementById('lbl-date');
+      const editorDateLbl = document.getElementById('editor-lbl-date');
       if (dateInp) dateInp.value = data.date;
       if (dateLbl) dateLbl.innerText = data.date;
+      if (editorDateLbl) editorDateLbl.innerText = data.date;
     }
   } catch(e) {}
 }
@@ -77,6 +90,7 @@ function switchTab(tabId) {
 async function checkBackendAndDevices() {
   const badgeText = document.getElementById('backend-status-text');
   const printerSelect = document.getElementById('settings-printer-select');
+  const sidebarPrinterName = document.getElementById('sidebar-printer-name');
 
   try {
     const res = await fetch(`${API_BASE}/api/devices`);
@@ -87,6 +101,10 @@ async function checkBackendAndDevices() {
       badgeText.innerHTML = `USB: <strong>Termal Bağlı</strong>`;
     } else {
       badgeText.innerHTML = `Sunucu: <strong>Aktif</strong>`;
+    }
+
+    if (data.default_printer && sidebarPrinterName) {
+      sidebarPrinterName.innerText = data.default_printer;
     }
 
     if (printerSelect) {
@@ -135,7 +153,7 @@ function copyMobileUrl() {
   alert("Mobil bağlantı linki kopyalandı:\n" + inp.value);
 }
 
-// 4. STOK ARAMA & OTOMATİK DOLDURMA (Sade: Barkod, Başlık, Fiyat)
+// 4. STOK ARAMA & OTOMATİK DOLDURMA (5000+ Ürün)
 let searchTimeout = null;
 function searchProducts(q) {
   clearTimeout(searchTimeout);
@@ -154,7 +172,7 @@ function searchProducts(q) {
       
       if (data.status === 'success' && data.products.length > 0) {
         dropdown.innerHTML = '';
-        data.products.forEach(p => {
+        data.products.slice(0, 30).forEach(p => {
           const item = document.createElement('div');
           item.className = 'stock-item';
           const title = p.title || p.title1 || '';
@@ -173,14 +191,23 @@ function searchProducts(q) {
         dropdown.style.display = 'none';
       }
     } catch (e) {}
-  }, 250);
+  }, 200);
 }
 
 function selectProductFromStock(p) {
-  document.getElementById('inp-prod-title-1').value = p.title || p.title1 || '';
-  document.getElementById('inp-prod-title-2').value = p.title2 || '';
+  const fullTitle = p.title || p.title1 || '';
+  // Uzunsa satırlara böl
+  if (fullTitle.length > 25) {
+    const parts = fullTitle.split(' ');
+    const mid = Math.ceil(parts.length / 2);
+    document.getElementById('inp-prod-title-1').value = parts.slice(0, mid).join(' ');
+    document.getElementById('inp-prod-title-2').value = parts.slice(mid).join(' ');
+  } else {
+    document.getElementById('inp-prod-title-1').value = fullTitle;
+    document.getElementById('inp-prod-title-2').value = p.title2 || '';
+  }
+  
   if (p.brand) document.getElementById('inp-brand').value = p.brand;
-  if (p.unit_price) document.getElementById('inp-unit-price').value = p.unit_price;
   document.getElementById('inp-barcode').value = p.barcode || '';
   document.getElementById('inp-price').value = p.price || '';
   
@@ -225,18 +252,29 @@ async function loadTemplates() {
   try {
     const res = await fetch(`${API_BASE}/api/templates`);
     const data = await res.json();
-    if (data.status === 'success') {
+    if (data.status === 'success' && data.templates && data.templates.length > 0) {
       templatesList = data.templates;
-      renderTemplateList();
-      applyTemplate(activeTemplateId);
     }
   } catch (e) {}
+  renderTemplateList();
+  applyTemplate(activeTemplateId);
 }
 
 function renderTemplateList() {
   const listEl = document.getElementById('template-list');
   if (!listEl) return;
   listEl.innerHTML = '';
+
+  if (!templatesList || templatesList.length === 0) {
+    templatesList = [{
+      id: "default",
+      name: "Varsayılan Standart Model",
+      is_locked: true,
+      top_right_mode: "empty",
+      top_right_text: "",
+      description: "Görsel 2 standart fabrika raf etiketi."
+    }];
+  }
 
   templatesList.forEach(tpl => {
     const card = document.createElement('div');
@@ -245,12 +283,12 @@ function renderTemplateList() {
     
     card.className = `tpl-item-card ${isSelected ? 'active' : ''}`;
     card.innerHTML = `
-      <div class="tpl-info">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <h4>${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}</h4>
+      <div class="tpl-info" style="width:100%;">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-bottom:4px;">
+          <h4 style="font-size:12.5px; font-weight:800; color:#f8fafc;">${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}</h4>
           ${isDefault ? '<span class="badge-default-active">⭐ Varsayılan</span>' : ''}
         </div>
-        <p>${tpl.description || ''}</p>
+        <p style="font-size:11px; color:var(--text-muted); line-height:1.3;">${tpl.description || ''}</p>
       </div>
     `;
     card.onclick = () => {
@@ -261,9 +299,9 @@ function renderTemplateList() {
     listEl.appendChild(card);
   });
 
-  // İlk açılışta ilk şablonu editöre yükle
-  if (!editingTemplateId && templatesList.length > 0) {
-    openTemplateInEditor(templatesList[0]);
+  const currentTpl = templatesList.find(t => t.id === (editingTemplateId || activeTemplateId)) || templatesList[0];
+  if (currentTpl) {
+    openTemplateInEditor(currentTpl);
   }
 }
 
@@ -288,7 +326,7 @@ function setCurrentTemplateAsDefault() {
   activeTemplateId = tpl.id;
   applyTemplate(activeTemplateId);
   renderTemplateList();
-  alert(`⭐ "${tpl.name}" artık baskılarda kullanılacak varsayılan model olarak ayarlandı!`);
+  alert(`⭐ "${tpl.name}" baskılarda kullanılacak varsayılan model olarak ayarlandı!`);
 }
 
 function openTemplateInEditor(tpl) {
@@ -408,9 +446,9 @@ function onEditorTopRightChange(mode) {
 
 // Editördeki Değişiklikleri Sağdaki Canlı Önizleme Etiketine Anında Yansıt
 function updateEditorPreview() {
-  const mode = document.getElementById('tpl-top-right-mode').value;
-  const customText = document.getElementById('inp-tpl-custom-text').value;
-  const tplName = document.getElementById('inp-tpl-name').value;
+  const mode = document.getElementById('tpl-top-right-mode') ? document.getElementById('tpl-top-right-mode').value : 'empty';
+  const customText = document.getElementById('inp-tpl-custom-text') ? document.getElementById('inp-tpl-custom-text').value : '';
+  const tplName = document.getElementById('inp-tpl-name') ? document.getElementById('inp-tpl-name').value : '';
   const badgeName = document.getElementById('editor-preview-name');
   if (badgeName) badgeName.innerText = tplName || "Önizleme";
 
@@ -459,7 +497,7 @@ function updateEditorPreview() {
     }
   }
 
-  // Editör barkodunu da çiz
+  // Editör barkodunu çiz
   try {
     JsBarcode("#editor-barcode-svg", "8690504114925", {
       format: "EAN13",
@@ -521,6 +559,7 @@ async function saveTemplateFromEditor() {
     const data = await res.json();
     if (data.status === 'success') {
       activeTemplateId = data.template.id;
+      editingTemplateId = data.template.id;
       await loadTemplates();
       alert("✓ Etiket modeli başarıyla kaydedildi!");
     }
@@ -547,7 +586,7 @@ async function deleteCurrentTemplate() {
   } catch (e) {}
 }
 
-// 6. CANLI ÖNİZLEME GÜNCELLEMELERİ
+// 6. CANLI ÖNİZLEME GÜNCELLEMELERİ (ANA EKRAN)
 function updateTopRightPreview(mode = currentTopRightMode, customText = "") {
   const box = document.getElementById('lbl-top-right-box');
   const titleArea = document.getElementById('lbl-title-area');
@@ -771,7 +810,7 @@ async function saveSettings() {
   }
 }
 
-// 9. ZOOM
+// 9. ZOOM KONTROLLERİ (ANA EKRAN)
 function adjustScale(factor) {
   currentScale = Math.min(Math.max(currentScale * factor, 0.5), 3.0);
   applyScale();
