@@ -231,10 +231,10 @@
            SEKME 2: ETİKET DÜZENLE (ŞABLON & MODEL TASARIMCISI)
            ========================================================= -->
       <div id="tab-design" class="tab-content">
-        <div class="design-layout">
+        <div class="design-layout-3col">
           
-          <!-- Sol: Kayıtlı Şablonlar Listesi -->
-          <div class="card" style="width: 320px; display: flex; flex-direction: column; gap: 12px;">
+          <!-- SÜTUN 1 (SOL): Kayıtlı Şablonlar Listesi -->
+          <div class="card design-col-left">
             <div class="card-header-flex">
               <h2 class="card-title">📋 Etiket Modelleri</h2>
               <button class="btn-sm btn-primary" onclick="createNewTemplate()">+ Yeni Model</button>
@@ -242,21 +242,21 @@
             <div id="template-list" class="template-card-list"></div>
           </div>
 
-          <!-- Sağ: Model Düzenleyici Formu -->
-          <div class="card" style="flex: 1; display: flex; flex-direction: column; gap: 14px;">
+          <!-- SÜTUN 2 (ORTA): Model Ayar & Özelleştirme Formu -->
+          <div class="card design-col-mid">
             <div class="card-header-flex">
-              <h2 class="card-title" id="txt-editing-tpl-title">🎨 Şablon Düzenle: Standart Raf</h2>
-              <span id="badge-tpl-locked" class="badge-locked">🔒 Fabrika Başlangıç Şablonu (Korumalı)</span>
+              <h2 class="card-title" id="txt-editing-tpl-title">🎨 Model Özelleştir</h2>
+              <span id="badge-tpl-locked" class="badge-locked">🔒 Fabrika Ayarı (Korumalı)</span>
             </div>
 
             <div class="form-group">
-              <label>Etiket Model Adı</label>
-              <input type="text" id="inp-tpl-name" value="Standart Market Rafı (Fabrika Ayarı)">
+              <label>Model Adı</label>
+              <input type="text" id="inp-tpl-name" value="Standart Market Rafı (Fabrika Ayarı)" oninput="updateEditorPreview()">
             </div>
 
             <div class="form-group">
-              <label>Model Açıklaması</label>
-              <input type="text" id="inp-tpl-desc" value="Görsel 2'ye tam uyumlu, tam genişlik başlık ve kalibre edilmiş başlangıç tasarımı.">
+              <label>Açıklama</label>
+              <input type="text" id="inp-tpl-desc" value="Görsel 2 standart raf etiketi.">
             </div>
 
             <div class="design-subbox">
@@ -277,9 +277,65 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: auto;">
-              <button id="btn-save-template" class="btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
-              <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Bu Modeli Sil</button>
+            <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 12px;">
+              <button id="btn-save-template" class="btn-primary" style="flex:1;" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
+              <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Sil</button>
+            </div>
+          </div>
+
+          <!-- SÜTUN 3 (SAĞ): CANLI MODEL ÖNİZLEME SAHNESİ -->
+          <div class="panel-right design-col-right">
+            <div class="stage-toolbar">
+              <div class="stage-info">
+                <span class="badge">Tasarım Önizlemesi</span>
+                <span id="editor-preview-name" class="badge-design">🔒 Standart Model</span>
+              </div>
+              <div class="zoom-actions">
+                <button onclick="adjustEditorScale(0.9)">-</button>
+                <span id="zoom-text-editor">100%</span>
+                <button onclick="adjustEditorScale(1.1)">+</button>
+                <button onclick="resetEditorScale()">Sıfırla</button>
+              </div>
+            </div>
+
+            <div class="printable-wrapper">
+              <!-- CANLI TASARIM ÖNİZLEME ETİKETİ -->
+              <div id="editor-shelf-label" class="market-label size-76x40">
+                
+                <!-- 1. Üst Bölüm -->
+                <div class="ml-top-row">
+                  <div class="ml-title-area full-width" id="editor-title-area">
+                    <div class="ml-title-line1" id="editor-lbl-title-1">ULK 398-6 PİKO PORTAKAL</div>
+                    <div class="ml-title-line2" id="editor-lbl-title-2">PİR PAT KAP</div>
+                  </div>
+                  <div class="ml-top-right-box" id="editor-lbl-top-right-box" style="display: none;"></div>
+                </div>
+
+                <!-- 2. Orta Bölüm -->
+                <div class="ml-mid-row">
+                  <div class="ml-brand-col">YARENLER</div>
+                  <div class="ml-legal-col">
+                    <div>Üretim Yeri: <strong>TÜRKİYE</strong></div>
+                    <div>Fiyatlarımıza Kdv Dahildir.</div>
+                    <div>Fiyat Değiştirme Tarihi: <span id="editor-lbl-date">19 Ağu 2026</span></div>
+                  </div>
+                </div>
+
+                <!-- 3. Alt Bölüm -->
+                <div class="ml-bottom-row">
+                  <div class="ml-barcode-col">
+                    <svg id="editor-barcode-svg"></svg>
+                  </div>
+                  <div class="ml-divider-col">
+                    <span>Satış</span>
+                    <span>Fiyatı</span>
+                  </div>
+                  <div class="ml-price-col">
+                    <span class="price-val">10,00 ₺</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
 

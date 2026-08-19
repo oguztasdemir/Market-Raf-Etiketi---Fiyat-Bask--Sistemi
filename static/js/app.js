@@ -239,10 +239,10 @@ function renderTemplateList() {
 
   templatesList.forEach(tpl => {
     const card = document.createElement('div');
-    card.className = `tpl-item-card ${tpl.id === activeTemplateId ? 'active' : ''}`;
+    card.className = `tpl-item-card ${tpl.id === (editingTemplateId || activeTemplateId) ? 'active' : ''}`;
     card.innerHTML = `
       <div class="tpl-info">
-        <h4>${tpl.is_locked ? '🔒 ' : ''}${tpl.name}</h4>
+        <h4>${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}</h4>
         <p>${tpl.description || ''}</p>
       </div>
     `;
@@ -254,6 +254,11 @@ function renderTemplateList() {
     };
     listEl.appendChild(card);
   });
+
+  // İlk açılışta ilk şablonu editöre yükle
+  if (!editingTemplateId && templatesList.length > 0) {
+    openTemplateInEditor(templatesList[0]);
+  }
 }
 
 function applyTemplate(tplId) {
@@ -271,7 +276,7 @@ function applyTemplate(tplId) {
 
 function openTemplateInEditor(tpl) {
   editingTemplateId = tpl.id;
-  document.getElementById('txt-editing-tpl-title').innerText = `🎨 Şablon Düzenle: ${tpl.name}`;
+  document.getElementById('txt-editing-tpl-title').innerText = `🎨 Model Düzenle: ${tpl.name}`;
   document.getElementById('inp-tpl-name').value = tpl.name;
   document.getElementById('inp-tpl-desc').value = tpl.description || '';
   document.getElementById('tpl-top-right-mode').value = tpl.top_right_mode || 'empty';
@@ -289,17 +294,20 @@ function openTemplateInEditor(tpl) {
 
   onEditorTopRightChange(tpl.top_right_mode || 'empty');
   document.getElementById('inp-tpl-custom-text').value = tpl.top_right_text || '';
+  updateEditorPreview();
 }
 
 function createNewTemplate() {
   editingTemplateId = null;
   document.getElementById('txt-editing-tpl-title').innerText = "🎨 Yeni Etiket Modeli Oluştur";
   document.getElementById('inp-tpl-name').value = "Yeni Özel Model";
-  document.getElementById('inp-tpl-desc').value = "Özel mağaza etiketi.";
+  document.getElementById('inp-tpl-desc').value = "Özel mağaza raf etiketi.";
   document.getElementById('tpl-top-right-mode').value = "unit_price";
   document.getElementById('badge-tpl-locked').style.display = 'none';
   document.getElementById('btn-delete-template').style.display = 'none';
   onEditorTopRightChange("unit_price");
+  document.getElementById('inp-tpl-custom-text').value = "";
+  updateEditorPreview();
 }
 
 function onEditorTopRightChange(mode) {
@@ -325,6 +333,94 @@ function onEditorTopRightChange(mode) {
       if (!inp.value) inp.value = "SÜPER FİYAT";
     }
   }
+  updateEditorPreview();
+}
+
+// Editördeki Değişiklikleri Sağdaki Canlı Önizleme Etiketine Anında Yansıt
+function updateEditorPreview() {
+  const mode = document.getElementById('tpl-top-right-mode').value;
+  const customText = document.getElementById('inp-tpl-custom-text').value;
+  const tplName = document.getElementById('inp-tpl-name').value;
+  const badgeName = document.getElementById('editor-preview-name');
+  if (badgeName) badgeName.innerText = tplName || "Önizleme";
+
+  const box = document.getElementById('editor-lbl-top-right-box');
+  const titleArea = document.getElementById('editor-title-area');
+  if (!box || !titleArea) return;
+
+  if (mode === 'empty') {
+    box.style.display = 'none';
+    titleArea.className = 'ml-title-area full-width';
+  } else {
+    box.style.display = 'flex';
+    titleArea.className = 'ml-title-area';
+
+    if (mode === 'unit_price') {
+      box.innerHTML = `
+        <div class="tr-unit-box">
+          <span class="u-label">Birim Fiyat:</span>
+          <span class="u-val">250,00 ₺/Kg</span>
+        </div>
+      `;
+    } else if (mode === 'weight') {
+      box.innerHTML = `<div class="tr-badge">${customText || 'NET: 35 GR'}</div>`;
+    } else if (mode === 'code') {
+      box.innerHTML = `<div class="tr-badge">${customText || 'REYON: A-04'}</div>`;
+    } else if (mode === 'campaign') {
+      box.innerHTML = `<div class="tr-badge-dark">${customText || 'SÜPER FİYAT'}</div>`;
+    } else if (mode === 'qr') {
+      box.innerHTML = `<div class="tr-qr-box" id="editor-qr-container"></div>`;
+      try {
+        QRCode.toCanvas(document.getElementById('editor-qr-container'), customText || 'https://market.com', { width: 32, margin: 0 });
+      } catch (e) {}
+    } else if (mode === 'yerli') {
+      box.innerHTML = `
+        <svg viewBox="0 0 160 65" width="75" height="30">
+          <rect x="1" y="1" width="158" height="63" rx="3" fill="none" stroke="#000" stroke-width="2.2" />
+          <path d="M10 18 L22 30 L34 18 L30 14 L22 22 L14 14 Z" fill="#000" />
+          <rect x="6" y="34" width="3" height="20" fill="#000" />
+          <rect x="12" y="34" width="5" height="20" fill="#000" />
+          <rect x="20" y="34" width="2" height="20" fill="#000" />
+          <rect x="25" y="34" width="6" height="20" fill="#000" />
+          <text x="42" y="28" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">YERLİ</text>
+          <text x="42" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">ÜRETİM</text>
+        </svg>
+      `;
+    }
+  }
+
+  // Editör barkodunu da çiz
+  try {
+    JsBarcode("#editor-barcode-svg", "8690504114925", {
+      format: "EAN13",
+      lineColor: "#000",
+      width: 1.15,
+      height: 22,
+      displayValue: true,
+      fontSize: 9,
+      font: "Inter",
+      textMargin: 1,
+      margin: 0
+    });
+  } catch(e) {}
+}
+
+let editorScale = 1;
+function adjustEditorScale(factor) {
+  editorScale = Math.min(Math.max(editorScale * factor, 0.5), 3.0);
+  applyEditorScale();
+}
+
+function resetEditorScale() {
+  editorScale = 1;
+  applyEditorScale();
+}
+
+function applyEditorScale() {
+  const el = document.getElementById('editor-shelf-label');
+  if (el) el.style.transform = `scale(${editorScale})`;
+  const zoomTxt = document.getElementById('zoom-text-editor');
+  if (zoomTxt) zoomTxt.innerText = `${Math.round(editorScale * 100)}%`;
 }
 
 async function saveTemplateFromEditor() {
@@ -374,6 +470,7 @@ async function deleteCurrentTemplate() {
     const data = await res.json();
     if (data.status === 'success') {
       activeTemplateId = 'default';
+      editingTemplateId = 'default';
       await loadTemplates();
       alert("✓ Model silindi.");
     }

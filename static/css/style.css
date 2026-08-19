@@ -709,12 +709,34 @@ input:focus, select:focus {
 }
 
 /* =========================================
-   SEKME 2: ETİKET DÜZENLE (DESIGN LAYOUT)
+   SEKME 2: ETİKET DÜZENLE (3 SÜTUNLU DÜZEN)
    ========================================= */
-.design-layout {
-  display: flex;
+.design-layout-3col {
+  display: grid;
+  grid-template-columns: 280px 360px 1fr;
   gap: 18px;
   flex: 1;
+}
+
+.design-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.design-col-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.design-col-right {
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .template-card-list {
@@ -722,7 +744,7 @@ input:focus, select:focus {
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  max-height: 520px;
+  max-height: calc(100vh - 240px);
 }
 
 .tpl-item-card {
@@ -738,6 +760,23 @@ input:focus, select:focus {
 }
 
 .tpl-item-card:hover {
+  background: #1e293b;
+}
+
+.tpl-item-card.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+}
+
+.tpl-info h4 {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tpl-info p {
+  font-size: 10px;
+  color: var(--text-muted);
+}
   background: #1e293b;
 }
 
