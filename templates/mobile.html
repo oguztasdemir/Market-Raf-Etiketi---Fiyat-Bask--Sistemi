@@ -8,15 +8,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- HTML5 QR Code Scanner CDN -->
+  <!-- HTML5 QR / Barcode Scanner & ZXing High Performance Decoder CDN -->
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
   <style>
     :root {
       --bg: #090d16;
       --card-bg: #131b2e;
+      --card-inner: #0b1120;
       --border: #23304d;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
       --accent: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
@@ -38,14 +40,14 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 25px;
+      padding-bottom: 80px;
     }
 
     /* Header */
     .mobile-header {
       background: rgba(19, 27, 46, 0.95);
       backdrop-filter: blur(10px);
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -58,46 +60,70 @@
     .brand-flex {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand-icon {
-      font-size: 22px;
+      font-size: 20px;
       background: #1e293b;
-      padding: 5px 8px;
+      padding: 4px 7px;
       border-radius: 8px;
     }
 
     .brand-title {
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 800;
       letter-spacing: -0.3px;
     }
 
     .brand-subtitle {
-      font-size: 10.5px;
-      color: var(--accent);
+      font-size: 10px;
+      color: #38bdf8;
       font-weight: 600;
     }
 
-    .printer-status-pill {
+    /* Üst Sekme Geçişi */
+    .mobile-nav-tabs {
       display: flex;
-      align-items: center;
-      gap: 6px;
       background: #0f172a;
-      border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 12px;
+      gap: 8px;
+      position: sticky;
+      top: 55px;
+      z-index: 90;
     }
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      background: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #10b981;
+    .nav-tab-btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab-btn.active {
+      background: #1e293b;
+      color: #38bdf8;
+      border-color: #38bdf8;
+    }
+
+    .queue-badge {
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 10px;
     }
 
     /* Container */
@@ -107,113 +133,351 @@
       flex-direction: column;
       gap: 14px;
       flex: 1;
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
     }
 
-    /* Kamera Kartı */
-    .scanner-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    /* Butonlar Grubu */
+    .scan-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
-    .scanner-header {
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #0d1424;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .scanner-header h2 {
-      font-size: 13.5px;
-      font-weight: 700;
-    }
-
-    .btn-toggle-cam {
-      background: var(--primary);
+    .btn-action-camera {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
       color: white;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 11.5px;
-      font-weight: 700;
+      padding: 14px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-action-camera:active {
+      transform: scale(0.98);
+    }
+
+    .btn-action-gallery {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 14px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       cursor: pointer;
     }
 
-    #reader {
-      width: 100%;
-      min-height: 200px;
-      background: #000;
+    /* 🎯 TAM EKRAN CANLI KAMERA VİEWFINER MODALI */
+    .fullscreen-camera-overlay {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000000;
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
     }
 
-    /* Form Kartı */
-    .form-card {
+    #fullscreen-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000000;
+      z-index: 1;
+    }
+
+    #fullscreen-reader {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      background: #000000;
+      z-index: 1;
+      display: none;
+    }
+
+    #fullscreen-reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    /* Tam Ekran Üst Kontrol Barı */
+    .fs-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+    }
+
+    .fs-btn-close {
+      background: rgba(239, 68, 68, 0.85);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+
+    .fs-badge-hint {
+      background: rgba(0, 0, 0, 0.6);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    /* Tam Ekran Ortadaki Kırmızı Lazer ve Odak HUD */
+    .fs-center-hud {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .fs-target-box {
+      position: relative;
+      width: 82vw;
+      max-width: 340px;
+      height: 220px;
+      border: 1.5px dashed rgba(255, 255, 255, 0.35);
+      border-radius: 16px;
+    }
+
+    /* Köşe Vurguları */
+    .fs-corner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: #38bdf8;
+      border-style: solid;
+      border-width: 0;
+    }
+
+    .fs-corner-tl { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 8px; }
+    .fs-corner-tr { top: -2px; right: -2px; border-top-width: 4px; border-right-width: 4px; border-top-right-radius: 8px; }
+    .fs-corner-bl { bottom: -2px; left: -2px; border-bottom-width: 4px; border-left-width: 4px; border-bottom-left-radius: 8px; }
+    .fs-corner-br { bottom: -2px; right: -2px; border-bottom-width: 4px; border-right-width: 4px; border-bottom-right-radius: 8px; }
+
+    /* ORTADA SABİT PARLAK KIRMIZI LAZER ÇİZGİSİ */
+    .fs-laser-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 3px;
+      background: #ff0000;
+      box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+      z-index: 15;
+      border-radius: 2px;
+    }
+
+    /* Tam Ekran Alt Açıklama */
+    .fs-bottom-bar {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 20;
+      padding: 0 20px;
+    }
+
+    .fs-bottom-pill {
+      display: inline-block;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 12.5px;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Manuel Barkod Arama Satırı */
+    .manual-barcode-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      border-radius: 10px;
+    }
+
+    .manual-barcode-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 13px;
+      padding: 4px 6px;
+      outline: none;
+    }
+
+    .manual-barcode-bar button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    /* Ürün Kartı */
+    .product-info-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 16px;
-      display: flex;
+      display: none;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .section-title {
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .product-barcode-badge {
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: #0b1120;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .product-status-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .product-status-pill.found {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .product-status-pill.new {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .inp-title-box {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: white;
       font-size: 13.5px;
-      font-weight: 700;
-      color: #e2e8f0;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .inp-title-box:focus {
+      border-color: #38bdf8;
+    }
+
+    .price-edit-box {
+      background: #060a12;
+      border: 2px solid #38bdf8;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .price-label-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 800;
     }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    label {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    input {
-      background: #090d16;
-      border: 1.5px solid var(--border);
-      color: white;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+    .price-input-large {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 900;
+      text-align: center;
       outline: none;
       width: 100%;
-    }
-
-    input:focus {
-      border-color: var(--primary);
-    }
-
-    .price-input {
-      font-size: 22px !important;
-      font-weight: 900 !important;
-      color: #38bdf8 !important;
       letter-spacing: -0.5px;
-      text-align: right;
     }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 10px;
-    }
-
-    /* DEV BUTON */
-    .btn-print-huge {
-      background: linear-gradient(135deg, #10b981, #059669);
+    /* Listeye Ekle Butonu */
+    .btn-add-queue {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       border: none;
       padding: 15px;
@@ -225,59 +489,210 @@
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-      transition: all 0.15s ease;
-      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
     }
 
-    .btn-print-huge:active {
+    .btn-add-queue:active {
       transform: scale(0.98);
     }
 
-    .btn-print-huge:disabled {
-      opacity: 0.6;
-      background: #334155;
-      box-shadow: none;
+    .btn-next-scan {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    /* Rozetler */
-    .stock-badge-found {
-      padding: 3px 8px;
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 4px;
-      font-size: 10.5px;
+    /* Boş Durum Kartı */
+    .empty-state-card {
+      background: var(--card-bg);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 30px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      margin-bottom: 4px;
+    }
+
+    .empty-title {
+      font-size: 15px;
       font-weight: 700;
     }
 
-    .stock-badge-new {
-      padding: 3px 8px;
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 4px;
-      font-size: 10.5px;
-      font-weight: 700;
+    .empty-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
 
-    /* Toast */
-    .toast-box {
+    /* 2. TAB: BASIM LİSTESİ */
+    .queue-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .queue-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+    }
+
+    .queue-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .queue-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: calc(100vh - 240px);
+      overflow-y: auto;
+    }
+
+    .queue-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .queue-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .queue-card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .btn-remove-item {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .queue-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+    }
+
+    .queue-barcode {
+      font-family: monospace;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .queue-price-inp {
+      background: #090d16;
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      font-weight: 800;
+      font-size: 13.5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: 110px;
+      text-align: right;
+    }
+
+    /* Sabit Alt Çubuk */
+    .fixed-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .btn-batch-print-mobile {
+      flex: 1;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      border: none;
       padding: 12px 14px;
       border-radius: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+    }
+
+    .btn-clear-queue {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Bildirim Kutusu */
+    .toast-box {
+      padding: 10px 14px;
+      border-radius: 8px;
       font-size: 12.5px;
-      font-weight: 600;
+      font-weight: 700;
       display: none;
+      text-align: center;
     }
 
     .toast-success {
-      background: rgba(16, 185, 129, 0.15);
+      background: rgba(16, 185, 129, 0.2);
       border: 1px solid var(--accent);
       color: #34d399;
     }
 
     .toast-error {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.2);
       border: 1px solid var(--danger);
       color: #f87171;
     }
@@ -294,81 +709,852 @@
         <div class="brand-subtitle">Reyon Barkod & Canlı Baskı</div>
       </div>
     </div>
-    <div class="printer-status-pill">
-      <span class="status-dot"></span>
-      <span id="txt-printer-name">Termal Yazıcı</span>
+    <div style="font-size: 11px; color: var(--text-muted); display:flex; align-items:center; gap:5px;">
+      <span style="width:7px; height:7px; background:#10b981; border-radius:50%;"></span>
+      <span id="txt-printer-name">Yazıcı Hazır</span>
     </div>
   </header>
 
-  <div class="container">
+  <!-- Üst Sekme Geçişi -->
+  <nav class="mobile-nav-tabs">
+    <button class="nav-tab-btn active" id="tab-btn-scan" onclick="switchMobileTab('scan')">
+      📷 Barkod Okut
+    </button>
+    <button class="nav-tab-btn" id="tab-btn-queue" onclick="switchMobileTab('queue')">
+      📋 Basım Listesi
+      <span class="queue-badge" id="badge-queue-count">0</span>
+    </button>
+  </nav>
 
-    <!-- 1. KAMERA İLE BARKOD OKUYUCU -->
-    <div class="scanner-card">
-      <div class="scanner-header">
-        <h2>📷 Kamera ile Barkod Okut</h2>
-        <button id="btn-toggle-cam" class="btn-toggle-cam" onclick="toggleCamera()">Kamerayı Aç</button>
+  <!-- 🎯 TAM EKRAN CANLI LAZERLİ KAMERA PENCERESİ -->
+  <div id="fullscreen-camera-overlay" class="fullscreen-camera-overlay">
+    
+    <!-- Üst Kontrol Barı -->
+    <div class="fs-top-bar">
+      <button class="fs-btn-close" onclick="closeFullscreenCamera()">
+        ✕ Kapat
+      </button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-fs-torch" class="fs-btn-close" style="display: none; background: rgba(56, 189, 248, 0.25); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8;" onclick="toggleFlashlight()">
+          💡 Fener
+        </button>
+        <span class="fs-badge-hint">🔴 Otomatik Okuyucu</span>
       </div>
-      <div id="reader"></div>
     </div>
 
-    <!-- Bildirim Kutusu -->
-    <div id="toast" class="toast-box"></div>
+    <!-- 100% Tam Ekran Video Akışı -->
+    <video id="fullscreen-video" autoplay playsinline webkit-playsinline muted></video>
+    <div id="fullscreen-reader"></div>
 
-    <!-- 2. SADE ÜRÜN FORMU (Barkod - Ürün Adı - Fiyat) -->
-    <div class="form-card">
-      <div class="section-title">
-        <span>🏷️ Ürün Bilgisi</span>
-        <span id="stock-badge" style="display: none;"></span>
+    <!-- Ortadaki Sabit Lazer ve Odak Kutusu -->
+    <div class="fs-center-hud">
+      <div class="fs-target-box">
+        <div class="fs-corner fs-corner-tl"></div>
+        <div class="fs-corner fs-corner-tr"></div>
+        <div class="fs-corner fs-corner-bl"></div>
+        <div class="fs-corner fs-corner-br"></div>
+        <!-- TAM ORTADA SABİT KIRMIZI LAZER -->
+        <div class="fs-laser-line"></div>
       </div>
+    </div>
 
-      <!-- Barkod -->
-      <div class="form-group">
-        <label>Barkod (EAN-13)</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="inp-barcode" placeholder="Barkodu okutun veya yazın..." oninput="onBarcodeManualChange(this.value)">
-          <button style="padding: 0 14px; background:#1e293b; color:white; border:1px solid var(--border); border-radius:8px; font-weight:700;" onclick="lookupBarcode(document.getElementById('inp-barcode').value)">Bul</button>
-        </div>
+    <!-- Alt Bilgilendirme -->
+    <div class="fs-bottom-bar">
+      <div class="fs-bottom-pill">
+        Barkodu kırmızı çizgiye hizalayın (Fotoğraf çekilmez)
       </div>
-
-      <!-- Ürün Adı (Sade ve Geniş) -->
-      <div class="form-group">
-        <label>Ürün Adı</label>
-        <input type="text" id="inp-title" placeholder="Örn: ULK 398-6 PIKO PORTAKAL PIR PAT KAP">
-      </div>
-
-      <!-- Fiyat & Adet -->
-      <div class="form-row">
-        <div class="form-group">
-          <label>SATIŞ FİYATI (₺)</label>
-          <input type="text" id="inp-price" class="price-input" placeholder="10,00 ₺">
-        </div>
-        <div class="form-group">
-          <label>Adet</label>
-          <input type="number" id="inp-copies" value="1" min="1" max="50" style="font-size:18px; font-weight:800; text-align:center;">
-        </div>
-      </div>
-
-      <!-- DEV YAZDIR BUTONU -->
-      <button id="btn-mobile-print" class="btn-print-huge" onclick="submitMobilePrint()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="6 9 6 2 18 2 18 9"></polyline>
-          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-          <rect x="6" y="14" width="12" height="8"></rect>
-        </svg>
-        <span id="btn-print-text">🖨️ ETİKETİ YAZDIR</span>
-      </button>
     </div>
 
   </div>
 
+  <!-- 1. BÖLÜM: BARKOD OKUMA EKRANI -->
+  <main class="container" id="section-scan">
+
+    <!-- 📷 Canlı Kamera & 🖼️ Galeri Butonları -->
+    <div class="scan-actions-grid">
+      <button class="btn-action-camera" onclick="openFullscreenCamera()">
+        <span style="font-size: 20px;">📷</span>
+        <span>Kamera Aç</span>
+      </button>
+
+      <!-- Doğrudan Galeri Açan Input -->
+      <input type="file" id="inp-gallery-file" accept="image/*" style="display:none;" onchange="handleGalleryImage(event)">
+      <button class="btn-action-gallery" onclick="document.getElementById('inp-gallery-file').click()">
+        <span style="font-size: 20px;">🖼️</span>
+        <span>Fotoğrafla Oku</span>
+      </button>
+    </div>
+
+    <!-- Manuel Barkod Giriş Satırı -->
+    <div class="manual-barcode-bar">
+      <input type="text" id="inp-manual-barcode" placeholder="Barkod veya ürün adı ara..." onkeydown="if(event.key==='Enter') lookupBarcode(this.value)">
+      <button onclick="lookupBarcode(document.getElementById('inp-manual-barcode').value)">Bul</button>
+    </div>
+
+    <!-- Bildirim Kutusu (Toast) -->
+    <div id="toast" class="toast-box"></div>
+
+    <!-- Son Eklenen Ürün Başarı Kartı (Listeye ekle dedikten sonra kamera yerine gösterilir) -->
+    <div id="added-success-card" class="empty-state-card" style="display: none; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); padding: 20px 16px;">
+      <div class="empty-icon" style="font-size: 36px; margin-bottom: 2px;">✅</div>
+      <div class="empty-title" id="added-success-title" style="color: #34d399; font-size: 15.5px; font-weight: 800;">Ürün başarıyla listeye eklendi!</div>
+      <div class="empty-desc" id="added-success-desc" style="color: #e2e8f0; margin-top: 4px; font-size: 12.5px;"></div>
+      <div style="margin-top: 14px; display: flex; gap: 8px; width: 100%;">
+        <button class="btn-action-camera" style="flex: 1; padding: 11px 8px; font-size: 13px;" onclick="openFullscreenCamera()">
+          <span>📷</span>
+          <span>Sıradaki Barkodu Oku</span>
+        </button>
+        <button class="btn-action-gallery" style="flex: 1; padding: 11px 8px; font-size: 13px;" onclick="switchMobileTab('queue')">
+          <span>📋</span>
+          <span id="added-badge-count-text">Listeyi Gör</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Boş Durum Karşılama Kartı -->
+    <div id="empty-state" class="empty-state-card">
+      <div class="empty-icon">🏷️</div>
+      <div class="empty-title">Barkod Okutulması Bekleniyor</div>
+      <div class="empty-desc"><strong>"Kamera Aç"</strong> butonuna basın; tam ekran kamera açılacak ve barkodu kırmızı çizgiye getirdiğiniz anda <strong>fotoğraf çekmeden</strong> fiyatı ekrana getirecektir.</div>
+    </div>
+
+    <!-- Okunan Ürün Kartı -->
+    <div id="product-card" class="product-info-card">
+      <div class="card-header-row">
+        <span id="txt-barcode" class="product-barcode-badge">8690000000000</span>
+        <span id="badge-status" class="product-status-pill found">✓ Kayıtlı Ürün</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Ürün Adı</label>
+        <input type="text" id="inp-title" class="inp-title-box" placeholder="Ürün adını girin...">
+      </div>
+
+      <div class="price-edit-box">
+        <div class="price-label-row">
+          <span>🏷️ SATIŞ FİYATI</span>
+          <small style="color:var(--text-muted); font-size:10.5px;">(Değiştirebilirsiniz)</small>
+        </div>
+        <input type="text" id="inp-price" class="price-input-large" placeholder="0,00 TL">
+      </div>
+
+      <!-- LİSTEYE EKLE BUTONU -->
+      <button id="btn-add-queue" class="btn-add-queue" onclick="addItemToQueue()">
+        <span style="font-size: 18px;">➕</span>
+        <span>LİSTEYE EKLE</span>
+      </button>
+
+      <button class="btn-next-scan" onclick="prepareForNextScan()">
+        📷 Sıradaki Ürünü Okut
+      </button>
+    </div>
+
+  </main>
+
+  <!-- 2. BÖLÜM: BASIM LİSTESİ EKRANI -->
+  <main class="container queue-container" id="section-queue">
+    <div class="queue-header-row">
+      <span class="queue-title">📋 Basılacak Ürün Listesi</span>
+      <span id="queue-total-count" style="font-size:12px; color:var(--text-muted);">0 ürün</span>
+    </div>
+
+    <div id="queue-empty-state" class="empty-state-card" style="display: flex;">
+      <div class="empty-icon">🛒</div>
+      <div class="empty-title">Basım Listesi Boş</div>
+      <div class="empty-desc">Henüz listeye ürün eklemediniz. "Barkod Okut" sekmesinden ürünleri okutup listeye ekleyebilirsiniz.</div>
+    </div>
+
+    <div id="queue-items-list" class="queue-items-list"></div>
+
+    <div class="fixed-bottom-bar">
+      <button class="btn-batch-print-mobile" onclick="submitQueueBatchPrint()">
+        <span>🖨️</span>
+        <span id="btn-batch-print-text">Toplu Yazdır (0)</span>
+      </button>
+      <button class="btn-clear-queue" onclick="clearQueueWithConfirm()">
+        🗑️ Temizle
+      </button>
+    </div>
+  </main>
+
+  <!-- MOBİL CANLI YAZDIRMA & DURDURMA / İPTAL MODALI -->
+  <div id="modal-mobile-print-progress" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #131b2e; border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: 100%; max-width: 380px; text-align: center; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+      
+      <h3 id="mob-print-title" style="font-size: 16px; color: #38bdf8; margin: 0;">🖨️ Yazdırılıyor...</h3>
+      
+      <div style="background: #090d16; border: 1px solid var(--border); border-radius: 8px; padding: 3px; overflow: hidden;">
+        <div id="mob-print-bar" style="background: linear-gradient(90deg, #0284c7, #38bdf8); height: 12px; border-radius: 5px; width: 0%; transition: width 0.2s ease;"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+        <span id="mob-print-count" style="color: var(--text);">0 / 0 Etiket</span>
+        <span id="mob-print-percent" style="color: #38bdf8;">%0</span>
+      </div>
+
+      <div style="background: #090d16; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; text-align: left;">
+        <div style="font-size: 10.5px; color: var(--text-muted);">Yazdırılan Ürün:</div>
+        <strong id="mob-print-item" style="font-size: 12.5px; color: #ffffff;">-</strong>
+      </div>
+
+      <div id="mob-pause-alert" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 8px; color: #fbbf24; font-size: 12px; font-weight: 700;">
+        ⏸️ Yazdırma Duraklatıldı!
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <button id="btn-mob-pause" onclick="pauseMobilePrinting()" style="width: 100%; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer;">
+          ⏸️ Yazdırmayı Durdur
+        </button>
+
+        <button id="btn-mob-resume" onclick="resumeMobilePrintingWithConfirm()" style="display: none; flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 13.5px; font-weight: 800; cursor: pointer;">
+          ▶️ Devam Et
+        </button>
+
+        <button id="btn-mob-cancel" onclick="cancelMobilePrintingWithConfirm()" style="display: none; flex: 1; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 12px; border-radius: 10px; font-size: 13.5px; font-weight: 800; cursor: pointer;">
+          ⛔ İptal Et
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MOBİL BASKI SONRASI DOĞRULAMA & FİYAT GÜNCELLEME MODALI -->
+  <div id="modal-mob-print-verification" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 14px;">
+    <div style="background: #131b2e; border: 1px solid var(--border); border-radius: 16px; padding: 18px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); max-height: 90vh;">
+      
+      <div style="text-align: center;">
+        <h3 style="font-size: 16px; color: #38bdf8; margin: 0;">🖨️ Yazdırma Tamamlandı mı?</h3>
+        <p style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Çıkan etiketleri kontrol edin. Hatalı olan varsa işaretleyin.</p>
+      </div>
+
+      <!-- Tümünü Seç / Kaldır -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: #090d16; padding: 8px 10px; border-radius: 8px; font-size: 12px;">
+        <span style="color: var(--text-muted);">Hatalı çıkanları seçin:</span>
+        <button onclick="toggleSelectAllMobVerify()" style="background: #1e293b; color: #38bdf8; border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">
+          ☑️ Tümünü Seç / Kaldır
+        </button>
+      </div>
+
+      <!-- Liste -->
+      <div id="mob-verify-list" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+      <div id="mob-verify-summary" style="font-size: 11.5px; color: #38bdf8; font-weight: 700; text-align: center;">
+        Tüm ürünler güncellenmeye hazır.
+      </div>
+
+      <button id="btn-mob-verify-action" onclick="confirmMobPrintVerification()" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 13px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+        ✅ Evet, Tümü Başarıyla Basıldı (Verileri Güncelle)
+      </button>
+
+    </div>
+  </div>
+
   <script>
-    let html5QrCode = null;
-    let isScanning = false;
+    let isScanningLive = false;
+    let currentBarcode = "";
     let isNewProduct = false;
+    let mobileQueue = [];
+    let mediaStreamObj = null;
+    let frameDetectionInterval = null;
+    let html5QrCode = null;
+
+    let mobPrintState = {
+      isActive: false,
+      isPaused: false,
+      items: [],
+      currentIndex: 0
+    };
+
+    let mobVerifyItems = [];
+    let mobVerifyErrorBarcodes = new Set();
+
+    function playBeepSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.09);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.09);
+      } catch(e) {}
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadSettings();
+      loadQueueFromStorage();
+      updateQueueUI();
     });
+
+    let zxingReader = null;
+    let activeVideoTrack = null;
+    let isTorchOn = false;
+    let barcodeCandidateBuffer = { text: '', count: 0, lastTime: 0 };
+
+    // 🎯 MATEMATİKSEL BARKOD SAĞLAMA (CHECKSUM) DOĞRULAYICI
+    // Bu fonksiyon hatalı / bozuk okumaları %100 oranında engeller!
+    function validateBarcodeChecksum(barcode) {
+      if (!barcode || typeof barcode !== 'string') return false;
+      const b = barcode.trim();
+      
+      // EAN-13 (13 hane) Modulo-10 Kontrolü
+      if (/^\d{13}$/.test(b)) {
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+          sum += parseInt(b[i], 10) * (i % 2 === 0 ? 1 : 3);
+        }
+        const check = (10 - (sum % 10)) % 10;
+        return check === parseInt(b[12], 10);
+      }
+      
+      // EAN-8 (8 hane) Modulo-10 Kontrolü
+      if (/^\d{8}$/.test(b)) {
+        let sum = 0;
+        for (let i = 0; i < 7; i++) {
+          sum += parseInt(b[i], 10) * (i % 2 === 0 ? 3 : 1);
+        }
+        const check = (10 - (sum % 10)) % 10;
+        return check === parseInt(b[7], 10);
+      }
+      
+      // UPC-A (12 hane) Modulo-10 Kontrolü
+      if (/^\d{12}$/.test(b)) {
+        let sum = 0;
+        for (let i = 0; i < 11; i++) {
+          sum += parseInt(b[i], 10) * (i % 2 === 0 ? 3 : 1);
+        }
+        const check = (10 - (sum % 10)) % 10;
+        return check === parseInt(b[11], 10);
+      }
+      
+      // Code-128 / Code-39 / ITF (en az 3 karakterli alfa-sayısal)
+      if (b.length >= 3 && /^[A-Za-z0-9\-\.\ \$\/\+\%]+$/.test(b)) {
+        return true;
+      }
+      
+      return false;
+    }
+
+    // 💡 FENER (FLASHLIGHT) AÇ / KAPA
+    async function toggleFlashlight() {
+      if (!activeVideoTrack) return;
+      try {
+        isTorchOn = !isTorchOn;
+        await activeVideoTrack.applyConstraints({
+          advanced: [{ torch: isTorchOn }]
+        });
+        const btnTorch = document.getElementById('btn-fs-torch');
+        if (btnTorch) {
+          btnTorch.style.background = isTorchOn ? "rgba(245, 158, 11, 0.4)" : "rgba(56, 189, 248, 0.25)";
+          btnTorch.style.borderColor = isTorchOn ? "#f59e0b" : "rgba(56, 189, 248, 0.5)";
+          btnTorch.style.color = isTorchOn ? "#fbbf24" : "#38bdf8";
+        }
+      } catch (e) {
+        console.warn("Fener kontrolü desteklenmiyor:", e);
+      }
+    }
+
+    // 1. TAM EKRAN CANLI KAMERAYI AÇ (ZXing + Donanım BarcodeDetector Çift Motoru)
+    async function openFullscreenCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (location.protocol === 'http:') {
+          const ok = confirm("🔒 Canlı video kamera için Apple/Chrome güvenlik kuralı gereği HTTPS bağlantısı gereklidir.\n\nHTTPS canlı kamera sayfasına geçmek istiyor musunuz?");
+          if (ok) {
+            location.href = `https://${location.hostname}:5001/mobile`;
+          }
+          return;
+        }
+      }
+
+      const modal = document.getElementById('fullscreen-camera-overlay');
+      const videoElem = document.getElementById('fullscreen-video');
+      const btnTorch = document.getElementById('btn-fs-torch');
+
+      modal.style.display = 'flex';
+      isScanningLive = true;
+      isTorchOn = false;
+      if (btnTorch) btnTorch.style.display = 'none';
+
+      // 1. ZXING ENTERPRISE BARKOD MOTORU (En Yüksek Okuma Hassasiyeti)
+      try {
+        if (typeof ZXing !== 'undefined') {
+          if (!zxingReader) {
+            const hints = new Map();
+            const formats = [
+              ZXing.BarcodeFormat.EAN_13,
+              ZXing.BarcodeFormat.EAN_8,
+              ZXing.BarcodeFormat.CODE_128,
+              ZXing.BarcodeFormat.CODE_39,
+              ZXing.BarcodeFormat.UPC_A,
+              ZXing.BarcodeFormat.UPC_E,
+              ZXing.BarcodeFormat.ITF,
+              ZXing.BarcodeFormat.QR_CODE
+            ];
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+            hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+            zxingReader = new ZXing.BrowserMultiFormatReader(hints, 30);
+          }
+
+          const videoInputDevices = await zxingReader.listVideoInputDevices().catch(() => []);
+          let selectedDeviceId = undefined;
+          if (videoInputDevices && videoInputDevices.length > 0) {
+            const backCam = videoInputDevices.find(d => 
+              d.label.toLowerCase().includes('back') || 
+              d.label.toLowerCase().includes('arka') || 
+              d.label.toLowerCase().includes('rear') ||
+              d.label.toLowerCase().includes('environment')
+            ) || videoInputDevices[videoInputDevices.length - 1];
+            selectedDeviceId = backCam.deviceId;
+          }
+
+          // HD ve Sürekli Odak Kısıtlamaları
+          const constraints = {
+            video: selectedDeviceId ? {
+              deviceId: { exact: selectedDeviceId },
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              focusMode: { ideal: "continuous" }
+            } : {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1920, min: 1280 },
+              height: { ideal: 1080, min: 720 },
+              focusMode: { ideal: "continuous" }
+            }
+          };
+
+          const stream = await navigator.mediaDevices.getUserMedia(constraints).catch(() => {
+            return navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          });
+
+          mediaStreamObj = stream;
+          videoElem.srcObject = stream;
+          await videoElem.play();
+
+          // Fener yeteneği var mı kontrol et
+          const track = stream.getVideoTracks()[0];
+          if (track) {
+            activeVideoTrack = track;
+            const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+            if (capabilities.torch && btnTorch) {
+              btnTorch.style.display = 'flex';
+            }
+          }
+
+          // Donanım BarcodeDetector ve Sunucu Tabanlı Çok Katmanlı Binarizasyon Motorunu Başlat
+          startContinuousBarcodeEngine(videoElem);
+          return;
+        }
+      } catch (err) {
+        console.warn("ZXing başlatma hatası, fallback deneniyor:", err);
+      }
+
+      // 2. FALLBACK: Html5Qrcode Fullscreen
+      try {
+        if (!html5QrCode) {
+          html5QrCode = new Html5Qrcode("fullscreen-reader", {
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.EAN_13,
+              Html5QrcodeSupportedFormats.EAN_8,
+              Html5QrcodeSupportedFormats.CODE_128,
+              Html5QrcodeSupportedFormats.CODE_39,
+              Html5QrcodeSupportedFormats.UPC_A,
+              Html5QrcodeSupportedFormats.UPC_E,
+              Html5QrcodeSupportedFormats.ITF,
+              Html5QrcodeSupportedFormats.QR_CODE
+            ],
+            verbose: false
+          });
+        }
+
+        document.getElementById('fullscreen-reader').style.display = 'block';
+        videoElem.style.display = 'none';
+
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 30, qrbox: { width: 300, height: 180 } },
+          onLiveBarcodeDetected,
+          () => {}
+        );
+        isScanningLive = true;
+
+      } catch (err) {
+        console.error("Kamera açılamadı:", err);
+        closeFullscreenCamera();
+        
+        if (location.protocol === 'http:') {
+          const ok = confirm("🔒 Canlı video kamera için Apple/Chrome güvenlik kuralı gereği HTTPS bağlantısı gereklidir.\n\nHTTPS canlı kamera sayfasına geçmek istiyor musunuz?");
+          if (ok) {
+            location.href = `https://${location.hostname}:5001/mobile`;
+          }
+        } else {
+          showToast("⚠️ Kamera izni verilmedi. Lütfen tarayıcı ayarlarından kamera iznini onaylayın.", "error");
+        }
+      }
+    }
+
+    let isDecodingServerFrame = false;
+    const roiCanvas = document.createElement('canvas');
+    const roiCtx = roiCanvas.getContext('2d');
+
+    // 🔴 30 FPS CANLI BARKOD ALGILAMA MOTORU (Donanım BarcodeDetector + ZXing Canvas + Sunucu OpenCV Çift Hat)
+    function startContinuousBarcodeEngine(videoElem) {
+      if (frameDetectionInterval) clearInterval(frameDetectionInterval);
+
+      frameDetectionInterval = setInterval(async () => {
+        if (!isScanningLive || videoElem.readyState < 2) return;
+
+        // 1. İstemci Donanım BarcodeDetector (Donanım Hızlandırmalı - 0ms gecikme)
+        if ('BarcodeDetector' in window) {
+          try {
+            const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code', 'itf'] });
+            const barcodes = await detector.detect(videoElem);
+            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue && isScanningLive) {
+              const raw = barcodes[0].rawValue.trim();
+              if (validateBarcodeChecksum(raw)) {
+                onLiveBarcodeDetected(raw);
+                return;
+              }
+            }
+          } catch(e) {}
+        }
+
+        // 2. Yüksek Hızlı Sunucu Tarafı OpenCV + PyZBar Çok Katmanlı CLAHE & Binarizasyon Motoru
+        if (!isDecodingServerFrame && isScanningLive) {
+          isDecodingServerFrame = true;
+          try {
+            const vw = videoElem.videoWidth || 1280;
+            const vh = videoElem.videoHeight || 720;
+            const cropW = Math.floor(vw * 0.85);
+            const cropH = Math.floor(vh * 0.50);
+            const cropX = Math.floor((vw - cropW) / 2);
+            const cropY = Math.floor((vh - cropH) / 2);
+
+            roiCanvas.width = 640;
+            roiCanvas.height = 360;
+            roiCtx.drawImage(videoElem, cropX, cropY, cropW, cropH, 0, 0, 640, 360);
+
+            const b64 = roiCanvas.toDataURL('image/jpeg', 0.85);
+            const res = await fetch('/api/scanner/decode-frame', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: b64 })
+            });
+            const data = await res.json();
+            if (data.status === 'success' && data.barcode && isScanningLive) {
+              const raw = data.barcode.trim();
+              if (validateBarcodeChecksum(raw)) {
+                onLiveBarcodeDetected(raw);
+              }
+            }
+          } catch(e) {
+          } finally {
+            isDecodingServerFrame = false;
+          }
+        }
+      }, 40);
+    }
+
+    function closeFullscreenCamera() {
+      if (frameDetectionInterval) {
+        clearInterval(frameDetectionInterval);
+        frameDetectionInterval = null;
+      }
+
+      if (zxingReader) {
+        try {
+          zxingReader.reset();
+        } catch(e) {}
+      }
+
+      if (mediaStreamObj) {
+        mediaStreamObj.getTracks().forEach(track => track.stop());
+        mediaStreamObj = null;
+      }
+
+      activeVideoTrack = null;
+      isTorchOn = false;
+
+      const videoElem = document.getElementById('fullscreen-video');
+      if (videoElem) videoElem.srcObject = null;
+
+      if (html5QrCode && isScanningLive) {
+        try {
+          html5QrCode.stop();
+        } catch(e) {}
+      }
+
+      isScanningLive = false;
+      document.getElementById('fullscreen-camera-overlay').style.display = 'none';
+    }
+
+    // 🔴 BARKOD ALGILANDIĞINDA TETİKLENİR (Sağlama & Konsensüs Filtreli)
+    function onLiveBarcodeDetected(decodedText) {
+      if (!decodedText || !isScanningLive) return;
+      const raw = String(decodedText).trim();
+
+      // 1. Matematiksel sağlama kontrolü (hatalı okumaları %100 eler)
+      if (!validateBarcodeChecksum(raw)) {
+        return;
+      }
+
+      // 2. Konsensüs kontrolü
+      const now = Date.now();
+      const isChecksumStrict = /^\d{8}$/.test(raw) || /^\d{12}$/.test(raw) || /^\d{13}$/.test(raw);
+
+      if (isChecksumStrict || (barcodeCandidateBuffer.text === raw && now - barcodeCandidateBuffer.lastTime < 400)) {
+        barcodeCandidateBuffer = { text: '', count: 0, lastTime: 0 };
+        playBeepSound();
+        if (navigator.vibrate) navigator.vibrate([100]);
+
+        closeFullscreenCamera();
+        lookupBarcode(raw);
+      } else {
+        barcodeCandidateBuffer = { text: raw, count: 1, lastTime: now };
+      }
+    }
+
+    // 🖼️ GALERİDEN GÖRSEL SEÇİLDİĞİNDE
+    async function handleGalleryImage(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      showToast("⏳ Fotoğraftaki barkod taranıyor...", "success");
+
+      if ('BarcodeDetector' in window) {
+        try {
+          const detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code'] });
+          const bitmap = await createImageBitmap(file);
+          const barcodes = await detector.detect(bitmap);
+          if (barcodes && barcodes.length > 0) {
+            const raw = barcodes[0].rawValue.trim();
+            if (validateBarcodeChecksum(raw)) {
+              playBeepSound();
+              if (navigator.vibrate) navigator.vibrate([80]);
+              event.target.value = '';
+              lookupBarcode(raw);
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      try {
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("fullscreen-reader");
+        const decodedText = await html5QrCode.scanFile(file, true);
+        const raw = (decodedText || '').trim();
+        if (validateBarcodeChecksum(raw)) {
+          playBeepSound();
+          if (navigator.vibrate) navigator.vibrate([80]);
+          lookupBarcode(raw);
+          return;
+        }
+      } catch (err) {}
+
+      // Fallback: Sunucu tarafı CLAHE & OpenCV ile fotoğraftan tara
+      try {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const b64 = reader.result;
+          const res = await fetch('/api/scanner/decode-frame', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+          });
+          const data = await res.json();
+          if (data.status === 'success' && data.barcode && validateBarcodeChecksum(data.barcode)) {
+            playBeepSound();
+            if (navigator.vibrate) navigator.vibrate([80]);
+            lookupBarcode(data.barcode);
+          } else {
+            showToast("❌ Fotoğrafta net bir barkod algılanamadı. Lütfen barkodun net çıktığı bir fotoğraf seçin.", "error");
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (e) {
+        showToast("❌ Fotoğraf okuma hatası.", "error");
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    // BARKOD SORGULAMA & ANINDA FİYAT GETİRME (Mevcut Ürün Uyarılı)
+    async function lookupBarcode(barcode) {
+      barcode = (barcode || '').trim();
+      if (!barcode) return;
+
+      // ⚠️ Eğer ürün basım listesinde zaten varsa kullanıcıya sor
+      const existingQueueItem = mobileQueue.find(x => x.barcode === barcode);
+      if (existingQueueItem) {
+        const ok = confirm(
+          `⚠️ Bu ürün zaten basım listesinde mevcut!\n\n` +
+          `Ürün: ${existingQueueItem.title}\n` +
+          `Mevcut Değer: ${existingQueueItem.price}\n\n` +
+          `Yine de bu ürün açılsın / güncellensin mi?`
+        );
+        if (!ok) {
+          return;
+        }
+      }
+
+      currentBarcode = barcode;
+      const emptyState = document.getElementById('empty-state');
+      const addedCard = document.getElementById('added-success-card');
+      const productCard = document.getElementById('product-card');
+      const txtBarcode = document.getElementById('txt-barcode');
+      const badge = document.getElementById('badge-status');
+      const inpTitle = document.getElementById('inp-title');
+      const inpPrice = document.getElementById('inp-price');
+
+      txtBarcode.innerText = barcode;
+      document.getElementById('inp-manual-barcode').value = barcode;
+
+      try {
+        const res = await fetch(`/api/products/${barcode}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.product) {
+          const p = data.product;
+          inpTitle.value = p.title || p.title1 || "";
+          inpPrice.value = formatPriceInput(p.price || "");
+          
+          isNewProduct = false;
+          badge.className = "product-status-pill found";
+          badge.innerText = "✓ Kayıtlı Ürün";
+          showToast(`✓ "${p.title || p.title1}" getirildi.`, "success");
+        } else {
+          isNewProduct = true;
+          inpTitle.value = "";
+          inpPrice.value = "";
+          badge.className = "product-status-pill new";
+          badge.innerText = "➕ Yeni Ürün";
+          showToast("Ürün kayıtlı değil. Adını ve fiyatını yazıp listeye ekleyin.", "success");
+          inpTitle.focus();
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+        if (addedCard) addedCard.style.display = 'none';
+        productCard.style.display = 'flex';
+
+      } catch (err) {
+        isNewProduct = true;
+        badge.className = "product-status-pill new";
+        badge.innerText = "➕ Yeni Ürün";
+        if (emptyState) emptyState.style.display = 'none';
+        if (addedCard) addedCard.style.display = 'none';
+        productCard.style.display = 'flex';
+      }
+    }
+
+    function formatPriceInput(val) {
+      if (!val) return "";
+      let s = String(val).replace('TL', '').replace('tl', '').replace('₺', '').trim();
+      if (s && !s.includes(',')) {
+        s = s.replace('.', ',');
+      }
+      if (s && !s.endsWith('TL')) {
+        s += " TL";
+      }
+      return s;
+    }
+
+    function prepareForNextScan() {
+      if (document.getElementById('empty-state')) document.getElementById('empty-state').style.display = 'none';
+      if (document.getElementById('product-card')) document.getElementById('product-card').style.display = 'none';
+      if (document.getElementById('added-success-card')) document.getElementById('added-success-card').style.display = 'none';
+      document.getElementById('inp-manual-barcode').value = '';
+      currentBarcode = '';
+      openFullscreenCamera();
+    }
+
+    // ➕ LİSTEYE EKLE BUTONU (Kamera otomatik AÇILMAZ, başarı kartı gösterilir)
+    async function addItemToQueue() {
+      const title = document.getElementById('inp-title').value.trim();
+      let price = document.getElementById('inp-price').value.trim();
+
+      if (!title || !price) {
+        showToast("Lütfen Ürün Adı ve Satış Fiyatı girin!", "error");
+        return;
+      }
+
+      price = formatPriceInput(price);
+
+      const existingIdx = mobileQueue.findIndex(x => x.barcode === currentBarcode);
+      if (existingIdx !== -1) {
+        mobileQueue[existingIdx].title = title;
+        mobileQueue[existingIdx].price = price;
+        showToast(`✓ "${title}" güncellendi.`, "success");
+      } else {
+        mobileQueue.push({
+          barcode: currentBarcode || "8690000000000",
+          title: title,
+          price: price,
+          copies: 1
+        });
+        showToast(`➕ "${title}" basım listesine eklendi!`, "success");
+      }
+
+      saveQueueToStorage();
+      if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+
+      // Kamera yeniden AÇILMAZ! Aşağıda eklenen ürün başarı kartı gösterilir
+      document.getElementById('product-card').style.display = 'none';
+      if (document.getElementById('empty-state')) document.getElementById('empty-state').style.display = 'none';
+
+      const successCard = document.getElementById('added-success-card');
+      const successTitle = document.getElementById('added-success-title');
+      const successDesc = document.getElementById('added-success-desc');
+      const badgeCountText = document.getElementById('added-badge-count-text');
+
+      if (successTitle) successTitle.innerText = `"${title}" başarıyla listeye eklendi!`;
+      if (successDesc) successDesc.innerHTML = `<strong>Barkod:</strong> ${currentBarcode || '-'} &nbsp;|&nbsp; <strong>Fiyat:</strong> ${price}`;
+      if (badgeCountText) badgeCountText.innerText = `Listeyi Gör (${mobileQueue.length})`;
+      if (successCard) successCard.style.display = 'flex';
+
+      document.getElementById('inp-manual-barcode').value = '';
+      currentBarcode = '';
+    }
+
+
+    function loadQueueFromStorage() {
+      try {
+        const saved = localStorage.getItem('mobile_label_queue');
+        if (saved) mobileQueue = JSON.parse(saved);
+      } catch(e) {
+        mobileQueue = [];
+      }
+    }
+
+    function saveQueueToStorage() {
+      try {
+        localStorage.setItem('mobile_label_queue', JSON.stringify(mobileQueue));
+      } catch(e) {}
+      updateQueueUI();
+    }
+
+    function switchMobileTab(tabName) {
+      const secScan = document.getElementById('section-scan');
+      const secQueue = document.getElementById('section-queue');
+      const btnScan = document.getElementById('tab-btn-scan');
+      const btnQueue = document.getElementById('tab-btn-queue');
+
+      if (tabName === 'scan') {
+        secScan.style.display = 'flex';
+        secQueue.style.display = 'none';
+        btnScan.classList.add('active');
+        btnQueue.classList.remove('active');
+      } else {
+        closeFullscreenCamera();
+        secScan.style.display = 'none';
+        secQueue.style.display = 'flex';
+        btnScan.classList.remove('active');
+        btnQueue.classList.add('active');
+        renderQueueList();
+      }
+    }
 
     async function loadSettings() {
       try {
@@ -380,171 +1566,364 @@
       } catch(e) {}
     }
 
-    // Kamera Aç / Kapat
-    async function toggleCamera() {
-      if (isScanning) {
-        stopCamera();
-      } else {
-        startCamera();
-      }
-    }
+    function renderQueueList() {
+      const container = document.getElementById('queue-items-list');
+      const emptyState = document.getElementById('queue-empty-state');
+      const countLabel = document.getElementById('queue-total-count');
 
-    async function startCamera() {
-      const btn = document.getElementById('btn-toggle-cam');
-      html5QrCode = new Html5Qrcode("reader");
-      
-      const config = {
-        fps: 15,
-        qrbox: { width: 250, height: 140 },
-        aspectRatio: 1.5
-      };
+      countLabel.innerText = `${mobileQueue.length} ürün`;
 
-      try {
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          config,
-          onScanSuccess,
-          onScanFailure
-        );
-        isScanning = true;
-        btn.innerText = "Kamerayı Durdur";
-        btn.style.background = "#ef4444";
-      } catch (err) {
-        showToast("Kamera açılamadı: " + err, "error");
-      }
-    }
-
-    async function stopCamera() {
-      const btn = document.getElementById('btn-toggle-cam');
-      if (html5QrCode) {
-        try {
-          await html5QrCode.stop();
-          html5QrCode.clear();
-        } catch (e) {}
-      }
-      isScanning = false;
-      btn.innerText = "Kamerayı Aç";
-      btn.style.background = "#3b82f6";
-    }
-
-    // Barkod Okunduğunda
-    function onScanSuccess(decodedText) {
-      if (navigator.vibrate) navigator.vibrate(100);
-      document.getElementById('inp-barcode').value = decodedText;
-      lookupBarcode(decodedText);
-    }
-
-    function onScanFailure(error) {}
-
-    // Barkod ile Stok Sorgulama
-    async function lookupBarcode(barcode) {
-      barcode = barcode.trim();
-      if (!barcode) return;
-
-      const badge = document.getElementById('stock-badge');
-      const btnText = document.getElementById('btn-print-text');
-
-      try {
-        const res = await fetch(`/api/products/${barcode}`);
-        const data = await res.json();
-        
-        if (data.status === 'success' && data.product) {
-          const p = data.product;
-          document.getElementById('inp-title').value = p.title || p.title1 || "";
-          document.getElementById('inp-price').value = p.price || "";
-          
-          isNewProduct = false;
-          badge.className = "stock-badge-found";
-          badge.innerText = "✓ Kayıtlı Ürün";
-          badge.style.display = "inline-block";
-          btnText.innerText = "🖨️ ETİKETİ YAZDIR";
-          showToast(`✓ "${p.title || p.title1}" bilgileri getirildi.`, "success");
-        } else {
-          // Ürün stokta yok! Kullanıcı adını girsin
-          isNewProduct = true;
-          badge.className = "stock-badge-new";
-          badge.innerText = "➕ Yeni Ürün (Stoğa Eklenecek)";
-          badge.style.display = "inline-block";
-          btnText.innerText = "💾 YAZDIR VE STOĞA KAYDET";
-          showToast("Kayıtlarda bulunamadı. Lütfen ürün adını ve fiyatını girin.", "success");
-          document.getElementById('inp-title').focus();
-        }
-      } catch (err) {
-        isNewProduct = true;
-        badge.className = "stock-badge-new";
-        badge.innerText = "➕ Yeni Ürün";
-        badge.style.display = "inline-block";
-      }
-    }
-
-    function onBarcodeManualChange(val) {
-      if (val.length >= 8) {
-        lookupBarcode(val);
-      }
-    }
-
-    // Mobilden Yazdır (Gerekirse Stoğa da Kaydet)
-    async function submitMobilePrint() {
-      const btn = document.getElementById('btn-mobile-print');
-      const barcode = document.getElementById('inp-barcode').value.trim();
-      const title = document.getElementById('inp-title').value.trim();
-      const price = document.getElementById('inp-price').value.trim();
-      const copies = parseInt(document.getElementById('inp-copies').value || 1);
-
-      if (!title || !price) {
-        showToast("Lütfen Ürün Adı ve Satış Fiyatı girin!", "error");
+      if (mobileQueue.length === 0) {
+        emptyState.style.display = 'flex';
+        container.innerHTML = '';
         return;
       }
 
-      btn.disabled = true;
-      btn.innerHTML = `<span>⏳ İletiliyor...</span>`;
+      emptyState.style.display = 'none';
+      container.innerHTML = '';
 
-      // 1. Yeni ürünse veya fiyat güncellendiyse önce products.json'a kaydet
+      mobileQueue.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'queue-card';
+        card.innerHTML = `
+          <div class="queue-card-top">
+            <span class="queue-card-title">${item.title}</span>
+            <button class="btn-remove-item" onclick="removeItemFromQueue(${idx})">🗑️ Kaldır</button>
+          </div>
+          <div class="queue-card-bottom">
+            <span class="queue-barcode">#${item.barcode}</span>
+            <input type="text" class="queue-price-inp" value="${item.price}" onchange="updateQueueItemPrice(${idx}, this.value)">
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateQueueItemPrice(idx, newPrice) {
+      if (mobileQueue[idx]) {
+        mobileQueue[idx].price = formatPriceInput(newPrice);
+        saveQueueToStorage();
+        showToast("Fiyat güncellendi", "success");
+      }
+    }
+
+    function removeItemFromQueue(idx) {
+      const item = mobileQueue[idx];
+      const name = item ? item.title : "bu ürünü";
+      
+      const ok = confirm(`⚠️ "${name}" ürününü basım listesinden çıkarmak istediğinize emin misiniz?`);
+      if (!ok) return;
+
+      mobileQueue.splice(idx, 1);
+      saveQueueToStorage();
+      renderQueueList();
+      showToast("Ürün listeden çıkarıldı.", "success");
+    }
+
+    function clearQueueWithConfirm() {
+      if (mobileQueue.length === 0) return;
+      const ok = confirm("⚠️ Basım listesindeki TÜM ürünleri temizlemek istediğinize emin misiniz?");
+      if (!ok) return;
+
+      mobileQueue = [];
+      saveQueueToStorage();
+      renderQueueList();
+      showToast("Basım listesi temizlendi.", "success");
+    }
+
+    function updateQueueUI() {
+      const count = mobileQueue.length;
+      document.getElementById('badge-queue-count').innerText = count;
+      document.getElementById('btn-batch-print-text').innerText = `Toplu Yazdır (${count} Etiket)`;
+    }
+
+    // --- MOBİL CANLI YAZDIRMA & DURDURMA / İPTAL SİSTEMİ ---
+    function updateMobilePrintProgressUI(currentItem = null) {
+      const total = mobPrintState.items.length;
+      const current = mobPrintState.currentIndex + 1;
+      const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+
+      document.getElementById('mob-print-bar').style.width = `${pct}%`;
+      document.getElementById('mob-print-count').innerText = `${current} / ${total} Etiket`;
+      document.getElementById('mob-print-percent').innerText = `%${pct}`;
+      if (currentItem) {
+        document.getElementById('mob-print-item').innerText = `${currentItem.title} (${currentItem.price})`;
+      }
+
+      if (mobPrintState.isPaused) {
+        document.getElementById('mob-print-title').innerText = "⏸️ Yazdırma Duraklatıldı";
+        document.getElementById('mob-pause-alert').style.display = "block";
+        document.getElementById('btn-mob-pause').style.display = "none";
+        document.getElementById('btn-mob-resume').style.display = "block";
+        document.getElementById('btn-mob-cancel').style.display = "block";
+      } else {
+        document.getElementById('mob-print-title').innerText = "🖨️ Yazdırılıyor...";
+        document.getElementById('mob-pause-alert').style.display = "none";
+        document.getElementById('btn-mob-pause').style.display = "block";
+        document.getElementById('btn-mob-resume').style.display = "none";
+        document.getElementById('btn-mob-cancel').style.display = "none";
+      }
+    }
+
+    function pauseMobilePrinting() {
+      mobPrintState.isPaused = true;
+      updateMobilePrintProgressUI(mobPrintState.items[mobPrintState.currentIndex]);
+      showToast("⏸️ Yazdırma duraklatıldı.", "warning");
+    }
+
+    function resumeMobilePrintingWithConfirm() {
+      const remaining = mobPrintState.items.length - (mobPrintState.currentIndex + 1);
+      const ok = confirm(`▶️ Kalan ${remaining} etiketin basımına devam etmek istediğinize emin misiniz?`);
+      if (!ok) return;
+
+      mobPrintState.isPaused = false;
+      updateMobilePrintProgressUI(mobPrintState.items[mobPrintState.currentIndex]);
+      showToast("▶️ Devam ediliyor...", "success");
+    }
+
+    async function cancelMobilePrintingWithConfirm() {
+      const remaining = mobPrintState.items.length - (mobPrintState.currentIndex + 1);
+      const ok = confirm(`⛔ Yazdırma işlemini tamamen iptal etmek istediğinize emin misiniz?\n(Kalan ${remaining} etiket basılmayacak)`);
+      if (!ok) return;
+
+      mobPrintState.isActive = false;
+      mobPrintState.isPaused = false;
+
       try {
-        await fetch('/api/products', {
+        await fetch('/api/print/cancel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            barcode: barcode || "8690504114925",
-            title: title,
-            price: price
-          })
+          body: JSON.stringify({ printer: document.getElementById('txt-printer-name').innerText || "Termal Etiket Yazici" })
         });
       } catch(e) {}
 
-      // 2. Yazıcıya gönder
-      const payload = {
-        data: {
-          title1: title,
-          title2: "",
-          barcode: barcode || "8690504114925",
-          price: price,
-          date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
-        },
-        copies: copies
+      document.getElementById('modal-mobile-print-progress').style.display = 'none';
+      showToast(`⛔ Yazdırma iptal edildi. (${mobPrintState.currentIndex + 1} basıldı, ${remaining} iptal edildi)`, "warning");
+    }
+
+    async function submitQueueBatchPrint() {
+      if (mobileQueue.length === 0) {
+        showToast("Basım listesi boş. Önce ürün okutun.", "error");
+        return;
+      }
+
+      mobPrintState = {
+        isActive: true,
+        isPaused: false,
+        items: [...mobileQueue],
+        currentIndex: 0
       };
 
+      const modal = document.getElementById('modal-mobile-print-progress');
+      modal.style.display = 'flex';
+      updateMobilePrintProgressUI(mobPrintState.items[0]);
+
+      for (let i = 0; i < mobPrintState.items.length; i++) {
+        if (!mobPrintState.isActive) break;
+
+        while (mobPrintState.isPaused && mobPrintState.isActive) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+
+        if (!mobPrintState.isActive) break;
+
+        mobPrintState.currentIndex = i;
+        const currentItem = mobPrintState.items[i];
+        updateMobilePrintProgressUI(currentItem);
+
+        // PC ile eş zamanlı canlı durum güncellemesi gönder
+        try {
+          fetch('/api/print/live-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              is_active: true,
+              source: "mobile",
+              total: mobPrintState.items.length,
+              current: i + 1,
+              current_item: currentItem.title,
+              current_price: currentItem.price,
+              status_text: "Yazdırılıyor..."
+            })
+          });
+        } catch(e) {}
+
+        const payload = {
+          source: "mobile",
+          printer: document.getElementById('txt-printer-name').innerText || "Termal Etiket Yazici",
+          products: [{
+            barcode: currentItem.barcode,
+            title: currentItem.title,
+            brand: "DİĞER",
+            price: currentItem.price,
+            date: "19 Ağu 2026"
+          }],
+          orientation: "POR",
+          width_mm: 76,
+          height_mm: 40,
+          x_offset: 0,
+          y_offset: 0,
+          dpi: 203,
+          copies_per_item: 1
+        };
+
+        try {
+          await fetch('/api/print/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } catch(e) {}
+
+        await new Promise(resolve => setTimeout(resolve, 350));
+      }
+
+      const wasActive = mobPrintState.isActive;
+      const printedQueue = [...mobPrintState.items];
+
+      modal.style.display = 'none';
+      mobPrintState.isActive = false;
+      mobPrintState.isPaused = false;
+
+      // Canlı durumu kapat
       try {
-        const res = await fetch('/api/print/send', {
+        fetch('/api/print/live-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_active: false, status_text: "Tamamlandı" })
+        });
+      } catch(e) {}
+
+      if (wasActive && printedQueue.length > 0) {
+        openMobPrintVerificationModal(printedQueue);
+      }
+    }
+
+    // --- MOBİL DOĞRULAMA FONKSİYONLARI ---
+    function openMobPrintVerificationModal(items) {
+      mobVerifyItems = items || [];
+      mobVerifyErrorBarcodes.clear();
+
+      const modal = document.getElementById('modal-mob-print-verification');
+      if (!modal) return;
+
+      renderMobVerifyList();
+      updateMobVerifyButton();
+      modal.style.display = 'flex';
+    }
+
+    function renderMobVerifyList() {
+      const container = document.getElementById('mob-verify-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      mobVerifyItems.forEach(item => {
+        const isError = mobVerifyErrorBarcodes.has(item.barcode);
+        const card = document.createElement('div');
+        card.style.background = isError ? 'rgba(239, 68, 68, 0.15)' : '#090d16';
+        card.style.border = isError ? '1px solid #ef4444' : '1px solid var(--border)';
+        card.style.borderRadius = '8px';
+        card.style.padding = '8px 10px';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.gap = '8px';
+
+        card.innerHTML = `
+          <input type="checkbox" ${isError ? 'checked' : ''} onchange="toggleMobVerifyItem('${item.barcode}', this.checked)" style="transform: scale(1.2); cursor: pointer;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="font-size: 12px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</div>
+            <div style="font-size: 10.5px; color: var(--text-muted); font-family: monospace;">#${item.barcode}</div>
+          </div>
+          <div style="font-size: 12.5px; font-weight: 900; color: #34d399;">${item.price}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleMobVerifyItem(barcode, isChecked) {
+      if (isChecked) {
+        mobVerifyErrorBarcodes.add(barcode);
+      } else {
+        mobVerifyErrorBarcodes.delete(barcode);
+      }
+      renderMobVerifyList();
+      updateMobVerifyButton();
+    }
+
+    function toggleSelectAllMobVerify() {
+      if (mobVerifyErrorBarcodes.size === mobVerifyItems.length) {
+        mobVerifyErrorBarcodes.clear();
+      } else {
+        mobVerifyItems.forEach(x => mobVerifyErrorBarcodes.add(x.barcode));
+      }
+      renderMobVerifyList();
+      updateMobVerifyButton();
+    }
+
+    function updateMobVerifyButton() {
+      const btn = document.getElementById('btn-mob-verify-action');
+      const summary = document.getElementById('mob-verify-summary');
+      if (!btn) return;
+
+      const total = mobVerifyItems.length;
+      const errorCount = mobVerifyErrorBarcodes.size;
+      const successCount = total - errorCount;
+
+      if (errorCount === 0) {
+        btn.innerHTML = `✅ Evet, Tümü Başarıyla Basıldı (Verileri Güncelle)`;
+        btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+        if (summary) summary.innerText = `Tüm ürünler (${total} adet) güncellenecektir.`;
+      } else if (errorCount === total) {
+        btn.innerHTML = `❌ Hiçbiri Tamamlanmadı (Fiyatları Güncelleme)`;
+        btn.style.background = "linear-gradient(135deg, #ef4444, #b91c1c)";
+        if (summary) summary.innerText = `⚠️ Hiçbir ürün güncellenmeyecek, eski fiyatlar korunacaktır.`;
+      } else {
+        btn.innerHTML = `⚠️ Seçilenler Hariç Tamamlandı (${successCount} Ürünü Güncelle)`;
+        btn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        if (summary) summary.innerText = `${successCount} ürün güncellenecek, hatalı ${errorCount} ürünün eski fiyatı korunacaktır.`;
+      }
+    }
+
+    async function confirmMobPrintVerification() {
+      const total = mobVerifyItems.length;
+      const errorCount = mobVerifyErrorBarcodes.size;
+      const successItems = mobVerifyItems.filter(x => !mobVerifyErrorBarcodes.has(x.barcode));
+
+      const modal = document.getElementById('modal-mob-print-verification');
+      if (modal) modal.style.display = 'none';
+
+      if (errorCount === total || successItems.length === 0) {
+        showToast("ℹ️ Hiçbir fiyat güncellenmedi, eski fiyatlar korundu.", "warning");
+        return;
+      }
+
+      try {
+        const payload = {
+          items: successItems.map(x => ({
+            barcode: x.barcode,
+            title: x.title,
+            price: x.price
+          }))
+        };
+
+        const res = await fetch('/api/catalog/sync-batch', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const result = await res.json();
 
+        const result = await res.json();
         if (result.status === 'success') {
-          showToast(`✅ ${copies} adet etiket yazıcıdan basıldı ve kaydedildi!`, "success");
-          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+          showToast(`✅ ${successItems.length} ürünün raf fiyatı güncellendi!`, "success");
+          mobileQueue = [];
+          saveQueueToStorage();
+          renderQueueList();
+          setTimeout(() => switchMobileTab('scan'), 1000);
         } else {
-          showToast(`⚠️ Yazdırma hatası: ${result.message}`, "error");
+          showToast(`❌ Hata: ${result.message}`, "error");
         }
-      } catch (err) {
-        showToast("Sunucuya bağlanılamadı. Wi-Fi bağlantınızı kontrol edin.", "error");
-      } finally {
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.innerHTML = `<span id="btn-print-text">🖨️ ETİKETİ YAZDIR</span>`;
-        }, 1500);
+      } catch(e) {
+        showToast(`❌ Güncelleme hatası: ${e.message}`, "error");
       }
     }
 

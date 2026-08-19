@@ -34,11 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   loadMobileQrCode();
   loadCatalog();
+  initDraftTracking();
 
   // F5 Yenilemelerinde Son Aktif Sekmeyi Aç
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = hashTab || localStorage.getItem('active_tab') || 'tab-print';
   switchTab(savedTab);
+
+  // Başlangıçta sunucudan veya yerelden kaydedilmemiş taslak/önbellek kontrolü
+  setTimeout(() => {
+    checkUnsavedDraftOnStartup();
+  }, 400);
 
   // Enter ile Onayla / Shift+Enter ile Alt Satıra Geç
   document.addEventListener('keydown', (e) => {
@@ -128,8 +134,8 @@ function switchTab(tabId) {
     activeTabEl.classList.add('active');
   }
 
-  // Katalog sekmesi için tam ekran kiti
-  if (tabId === 'tab-catalog') {
+  // Katalog ve Güncelleme sekmeleri için tam ekran kiti
+  if (tabId === 'tab-catalog' || tabId === 'tab-sync') {
     document.body.classList.add('on-catalog');
   } else {
     document.body.classList.remove('on-catalog');
@@ -156,14 +162,19 @@ function switchTab(tabId) {
   } else if (tabId === 'tab-catalog') {
     if (buttons[2]) buttons[2].classList.add('active');
     loadCatalog();
-  } else if (tabId === 'tab-qr') {
+  } else if (tabId === 'tab-sync') {
     if (buttons[3]) buttons[3].classList.add('active');
+    if (heading) heading.innerText = '📊 Katalog Güncelleme & Fiyat Senkronizasyonu';
+    if (subheading) subheading.innerText = 'Sistem Excel (.xlsx) stok listesini içe aktarın, fiyat farklarını tespit edin ve toplu etiket basın';
+    loadSyncStatus();
+  } else if (tabId === 'tab-qr') {
+    if (buttons[4]) buttons[4].classList.add('active');
     if (heading) heading.innerText = '📱 Mobil QR Bağlantısı';
     if (subheading) subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
     checkBackendAndDevices();
   } else if (tabId === 'tab-settings') {
-    if (buttons[4]) buttons[4].classList.add('active');
+    if (buttons[5]) buttons[5].classList.add('active');
     if (heading) heading.innerText = '⚙️ Sistem & Donanım Ayarları';
     if (subheading) subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
     loadSettings();
@@ -1132,15 +1143,26 @@ function renderBarcode() {
 }
 
 function updateLabel() {
-  document.getElementById('lbl-title-1').innerText = document.getElementById('inp-prod-title-1').value.toUpperCase();
-  document.getElementById('lbl-title-2').innerText = document.getElementById('inp-prod-title-2').value.toUpperCase();
-  document.getElementById('lbl-brand').innerText = document.getElementById('inp-brand').value.toUpperCase();
-  document.getElementById('lbl-origin').innerText = document.getElementById('inp-origin').value.toUpperCase();
-  document.getElementById('lbl-date').innerText = document.getElementById('inp-date').value;
-  document.getElementById('lbl-price').innerText = document.getElementById('inp-price').value;
+  const t1 = document.getElementById('inp-prod-title-1')?.value || '';
+  const t2 = document.getElementById('inp-prod-title-2')?.value || '';
+  const br = document.getElementById('inp-brand')?.value || '';
+  const org = document.getElementById('inp-origin')?.value || '';
+  const dt = document.getElementById('inp-date')?.value || '';
+  const pr = document.getElementById('inp-price')?.value || '';
+
+  if (document.getElementById('lbl-title-1')) document.getElementById('lbl-title-1').innerText = t1.toUpperCase();
+  if (document.getElementById('lbl-title-2')) document.getElementById('lbl-title-2').innerText = t2.toUpperCase();
+  if (document.getElementById('lbl-brand')) document.getElementById('lbl-brand').innerText = br.toUpperCase();
+  if (document.getElementById('lbl-origin')) document.getElementById('lbl-origin').innerText = org.toUpperCase();
+  if (document.getElementById('lbl-date')) document.getElementById('lbl-date').innerText = dt;
+  if (document.getElementById('lbl-price')) document.getElementById('lbl-price').innerText = pr;
 
   updateTopRightPreview();
   renderBarcode();
+
+  if (typeof scheduleDraftAutoSave === 'function') {
+    scheduleDraftAutoSave();
+  }
 }
 
 // 7. YAZDIRMA İŞLEMİ (MASAÜSTÜ)
@@ -1862,16 +1884,1661 @@ async function submitBatchPrint() {
 // Klavye Kısayolları (Ctrl+A ile tümünü seç, Esc ile seçimi kaldır)
 document.addEventListener('keydown', (e) => {
   const catalogTab = document.getElementById('tab-catalog');
+  const syncTab = document.getElementById('tab-sync');
+  
   if (catalogTab && catalogTab.classList.contains('active')) {
     if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
       const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-        return; // Arama kutusunda yazı seçiliyorsa engelleme
-      }
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
       e.preventDefault();
       toggleSelectAllCatalog(true);
     } else if (e.key === 'Escape') {
       clearCatalogSelection();
     }
+  } else if (syncTab && syncTab.classList.contains('active')) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
+      e.preventDefault();
+      toggleSelectAllSync(true);
+    } else if (e.key === 'Escape') {
+      clearSyncSelection();
+    }
   }
 });
+
+// =========================================================
+// SEKME: KATALOG SENKRONİZASYON & EXCEL DİFF YÖNETİMİ
+// =========================================================
+let currentSyncData = null;
+let activeSyncFilter = 'changed'; // 'changed', 'new', 'all', 'matched', 'blacklisted'
+let syncSearchQuery = '';
+let filteredSyncItems = [];
+let selectedSyncBarcodes = new Set();
+let syncAnchorIndex = -1;
+let syncBaseSelection = new Set();
+
+// Sürükle Bırak Olayları Kurulumu
+document.addEventListener('DOMContentLoaded', () => {
+  setupSyncDropzone();
+});
+
+function setupSyncDropzone() {
+  const dropzone = document.getElementById('sync-dropzone');
+  if (!dropzone) return;
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('drag-over');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('drag-over');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files && files.length > 0) {
+      handleExcelUploadFile(files[0]);
+    }
+  });
+}
+
+// 1. Durum ve Son Analizi Yükle
+async function loadSyncStatus(isManual = false) {
+  const tbody = document.getElementById('sync-tbody');
+  if (tbody && !currentSyncData) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">⏳ Sistem Excel dosyası analiz ediliyor...</td></tr>`;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/sync-status`);
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      currentSyncData = data;
+      updateSyncStatsBadges();
+      renderSyncTable();
+      if (isManual) showToast("✓ Sistem Excel analizi güncellendi.", "success");
+    } else {
+      if (tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              📂 Henüz yüklenmiş bir Excel dosyası yok. Yukarıdan bir <strong>.xlsx</strong> dosyası yükleyin.
+            </td>
+          </tr>
+        `;
+      }
+    }
+  } catch (err) {
+    console.error("Sync status error:", err);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">❌ Veri yükleme hatası: ${err.message}</td></tr>`;
+    }
+  }
+}
+
+// 2. Dosya Seçildiğinde Yükle
+function onExcelFileSelected(event) {
+  const file = event.target.files[0];
+  if (file) {
+    handleExcelUploadFile(file);
+  }
+}
+
+async function handleExcelUploadFile(file) {
+  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    showToast("⚠️ Lütfen sadece .xlsx veya .xls Excel dosyası yükleyin.", "warning");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const titleEl = document.getElementById('sync-upload-title');
+  const origTitle = titleEl ? titleEl.innerText : "";
+  if (titleEl) titleEl.innerText = "⏳ Dosya Yükleniyor & Taranıyor...";
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/upload-excel`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (data.status === 'success') {
+      currentSyncData = data;
+      updateSyncStatsBadges();
+      
+      // Varsayılan olarak 'Etiket Basılması Önerilenler' (suggested) sekmesini aç
+      if (data.stats && (data.stats.changed_count > 0 || data.stats.new_count > 0)) {
+        activeSyncFilter = 'suggested';
+      } else {
+        activeSyncFilter = 'all';
+      }
+      
+      renderSyncTable();
+      showToast(`✅ '${file.name}' başarıyla yüklendi ve analiz edildi!`, "success");
+    } else {
+      showToast(`❌ Yükleme hatası: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`❌ Bağlantı hatası: ${err.message}`, "error");
+  } finally {
+    if (titleEl) titleEl.innerText = origTitle;
+    const inp = document.getElementById('sync-file-input');
+    if (inp) inp.value = '';
+  }
+}
+
+// 3. İstatistik ve Dosya Rozetlerini Güncelle
+function updateSyncStatsBadges() {
+  if (!currentSyncData) return;
+
+  const stats = currentSyncData.stats || {};
+  const filename = currentSyncData.filename || "stok.xlsx";
+  const updatedTime = currentSyncData.updated_at || "";
+
+  const fnEl = document.getElementById('sync-current-filename');
+  const ftEl = document.getElementById('sync-current-filetime');
+  if (fnEl) fnEl.innerText = filename;
+  if (ftEl) ftEl.innerText = updatedTime ? `(${updatedTime})` : '';
+
+  const suggestedCount = (stats.changed_count || 0) + (stats.new_count || 0);
+  const statSug = document.getElementById('stat-suggested-total');
+  const pillSug = document.getElementById('pill-count-suggested');
+  if (statSug) statSug.innerText = suggestedCount.toLocaleString('tr-TR');
+  if (pillSug) pillSug.innerText = suggestedCount.toLocaleString('tr-TR');
+
+  const statTotal = document.getElementById('stat-total-excel');
+  const statMatched = document.getElementById('stat-matched-products');
+  const statBlack = document.getElementById('stat-blacklisted');
+
+  if (statTotal) statTotal.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
+  if (statMatched) statMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
+  if (statBlack) statBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
+
+  // Pill sayaçları
+  const pillAll = document.getElementById('pill-count-all');
+  const pillMatched = document.getElementById('pill-count-matched');
+  const pillBlack = document.getElementById('pill-count-blacklisted');
+
+  if (pillAll) pillAll.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
+  if (pillMatched) pillMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
+  if (pillBlack) pillBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
+}
+
+// 4. Filtreleme Sekmelerini Değiştir
+function filterSyncTab(filterName) {
+  activeSyncFilter = filterName;
+
+  // Stat kartları aktiflik durumu
+  const statCards = document.querySelectorAll('.sync-stat-card, .stat-chip');
+  statCards.forEach(c => c.classList.remove('active-filter'));
+
+  const cardMap = {
+    'suggested': '.chip-suggested',
+    'all': '.stat-total',
+    'matched': '.chip-matched',
+    'blacklisted': '.chip-black'
+  };
+  const activeCards = document.querySelectorAll(cardMap[filterName] || '.chip-suggested');
+  activeCards.forEach(c => c.classList.add('active-filter'));
+
+  // Pill butonları aktiflik durumu
+  const pillBtns = document.querySelectorAll('.sync-pill-btn');
+  pillBtns.forEach(b => b.classList.remove('active'));
+
+  const pillMap = {
+    'suggested': 'pill-suggested',
+    'all': 'pill-all',
+    'matched': 'pill-matched',
+    'blacklisted': 'pill-blacklisted'
+  };
+  const activePill = document.getElementById(pillMap[filterName] || 'pill-suggested');
+  if (activePill) activePill.classList.add('active');
+
+  clearSyncSelection();
+  renderSyncTable();
+}
+
+function onSyncSearchInput(val) {
+  syncSearchQuery = (val || '').trim();
+  renderSyncTable();
+}
+
+let syncRenderedCount = 100;
+
+function setupSyncScrollListener() {
+  const wrapper = document.querySelector('.sync-table-wrapper');
+  if (!wrapper || wrapper._hasScrollListener) return;
+  wrapper._hasScrollListener = true;
+  wrapper.addEventListener('scroll', () => {
+    if (wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 300) {
+      if (syncRenderedCount < filteredSyncItems.length) {
+        syncRenderedCount += 100;
+        renderSyncTable(false);
+      }
+    }
+  });
+}
+
+// 5. Senkronizasyon Tablosunu Çiz (Yüksek Performanslı Chunk Rendering)
+function renderSyncTable(reset = true) {
+  const tbody = document.getElementById('sync-tbody');
+  if (!tbody) return;
+
+  setupSyncScrollListener();
+
+  if (!currentSyncData) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">Sistem verisi bulunamadı.</td></tr>`;
+    return;
+  }
+
+  if (reset) {
+    syncRenderedCount = 100;
+    // 1. Aktif filtreye göre ürün havuzunu topla
+    let rawList = [];
+    if (activeSyncFilter === 'suggested') {
+      // Fiyatı Değişenler + Yeni Ürünler (Etiket Basılması Önerilenler!)
+      rawList = [
+        ...(currentSyncData.changed_prices || []),
+        ...(currentSyncData.new_products || [])
+      ];
+    } else if (activeSyncFilter === 'changed') {
+      rawList = currentSyncData.changed_prices || [];
+    } else if (activeSyncFilter === 'new') {
+      rawList = currentSyncData.new_products || [];
+    } else if (activeSyncFilter === 'matched') {
+      rawList = currentSyncData.matched_products || [];
+    } else if (activeSyncFilter === 'blacklisted') {
+      rawList = currentSyncData.blacklisted_items || [];
+    } else {
+      // 'all' -> Hepsini birleştir (Fiyatı değişenler en başta, sonra yeniler, sonra diğerleri)
+      rawList = [
+        ...(currentSyncData.changed_prices || []),
+        ...(currentSyncData.new_products || []),
+        ...(currentSyncData.matched_products || []),
+        ...(currentSyncData.blacklisted_items || [])
+      ];
+    }
+
+    // 2. Arama filtresi uygula
+    if (syncSearchQuery) {
+      const q = normalizeTurkish(syncSearchQuery);
+      const words = q.split(/\s+/).filter(Boolean);
+      filteredSyncItems = rawList.filter(item => {
+        const b = (item.barcode || '').toLowerCase();
+        const t1 = normalizeTurkish(item.excel_title || '');
+        const t2 = normalizeTurkish(item.current_title || '');
+        const combined = `${b} ${t1} ${t2}`;
+        return words.every(w => combined.includes(w));
+      });
+    } else {
+      filteredSyncItems = rawList;
+    }
+
+    tbody.innerHTML = '';
+  }
+
+  if (filteredSyncItems.length === 0) {
+    let emptyMsg = "Eşleşen kayıt bulunamadı.";
+    if (activeSyncFilter === 'changed') emptyMsg = "🎉 Harika! Fiyatı değişen ürün bulunmuyor, tüm raf etiketleri güncel.";
+    else if (activeSyncFilter === 'new') emptyMsg = "✨ Yeni eklenen ürün bulunmuyor.";
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px;">
+          ${emptyMsg}
+        </td>
+      </tr>
+    `;
+    updateSyncBatchActionBar();
+    return;
+  }
+
+  const startIdx = reset ? 0 : tbody.children.length;
+  const itemsToRender = filteredSyncItems.slice(startIdx, syncRenderedCount);
+  const fragment = document.createDocumentFragment();
+
+  itemsToRender.forEach((item) => {
+    const tr = document.createElement('tr');
+    const isSelected = selectedSyncBarcodes.has(item.barcode);
+    if (isSelected) tr.className = 'selected-row';
+    tr.setAttribute('data-barcode', item.barcode);
+    tr.onclick = (e) => handleSyncRowClick(item.barcode, e);
+
+    // Durum rozeti
+    let statusBadge = "";
+    let actionBtn = "";
+    const isBlack = activeSyncFilter === 'blacklisted' || item.status === 'blacklisted' || item.reason;
+
+    if (isBlack) {
+      statusBadge = `<span class="badge-sync-status blacklisted">🚫 Kara Liste</span>`;
+      actionBtn = `<button class="btn-sm btn-secondary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); printProductFromCatalog('${item.barcode}')">🏷️ Bas</button>`;
+    } else if (item.status === 'changed') {
+      const isUp = (item.diff_amount || 0) > 0;
+      const diffBadge = `<span class="price-diff-badge ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${item.diff_amount} TL (${item.diff_percent}%)</span>`;
+      statusBadge = `<span class="badge-sync-status changed">⚠️ Fiyat Değişti</span>${diffBadge}`;
+      actionBtn = `
+        <button class="btn-sm btn-primary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); syncSingleItemPrice('${item.barcode}', '${item.excel_price}')" title="Fiyatı güncelle ve etiket tasarımcısına al">
+          🏷️ Güncelle & Bas
+        </button>
+      `;
+    } else if (item.status === 'new') {
+      statusBadge = `<span class="badge-sync-status new">✨ Yeni Ürün</span>`;
+      actionBtn = `
+        <button class="btn-sm btn-primary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); syncSingleItemNew('${item.barcode}', '${item.excel_price}', '${(item.excel_title || '').replace(/'/g, "\\'")}')" title="Stoğa ekle ve etiket bas">
+          ➕ Stoğa Ekle & Bas
+        </button>
+      `;
+    } else {
+      statusBadge = `<span class="badge-sync-status matched">✅ Uyumlu</span>`;
+      actionBtn = `
+        <button class="btn-sm btn-secondary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); printProductFromCatalog('${item.barcode}')">
+          🏷️ Bas
+        </button>
+      `;
+    }
+
+    tr.innerHTML = `
+      <td style="text-align: center;">
+        <input type="checkbox" class="sync-row-chk" data-barcode="${item.barcode}" ${isSelected ? 'checked' : ''} onchange="onSyncCheckboxChange('${item.barcode}', this.checked, event)">
+      </td>
+      <td><span class="barcode-text">${item.barcode}</span></td>
+      <td style="color: var(--text-muted); font-size:11.5px;">${item.excel_title || item.current_title || '-'}</td>
+      <td style="font-weight: 700; color: var(--text-main);">${item.current_title || item.excel_title || '-'}</td>
+      <td style="text-align: right; color: var(--text-muted);">${item.current_price || '-'}</td>
+      <td style="text-align: right; font-weight: 800; color: #38bdf8;">${item.excel_price || '-'}</td>
+      <td style="text-align: center;">${statusBadge}</td>
+      <td style="text-align: center;">${actionBtn}</td>
+    `;
+
+    fragment.appendChild(tr);
+  });
+
+  tbody.appendChild(fragment);
+  updateSyncBatchActionBar();
+}
+
+// 6. Anchor-Based Çoklu Seçim & Akıllı Satır Tıklaması
+function handleSyncRowClick(barcode, event) {
+  if (event.target.closest('button') || event.target.tagName === 'BUTTON') return;
+  if (event.target.tagName === 'INPUT' && event.target.type === 'checkbox') return;
+
+  const isModifierPressed = (event.shiftKey || event.ctrlKey || event.metaKey);
+
+  // 1. Hiçbir seçim yokken ve Ctrl/Shift basılı DEĞİLSE -> Ürün Detayını Aç!
+  if (selectedSyncBarcodes.size === 0 && !isModifierPressed) {
+    openSyncProductDetailModal(barcode);
+    return;
+  }
+
+  // 2. Halihazırda seçim yapılmışsa veya Ctrl/Shift ile tıklanmışsa -> Seçim Sistemi Çalışsın!
+  const clickedIdx = filteredSyncItems.findIndex(p => p.barcode === barcode);
+  if (clickedIdx === -1) return;
+
+  if (event.shiftKey && syncAnchorIndex !== -1) {
+    if (event.ctrlKey || event.metaKey) {
+      selectedSyncBarcodes = new Set(syncBaseSelection);
+    } else {
+      selectedSyncBarcodes.clear();
+    }
+
+    const start = Math.min(syncAnchorIndex, clickedIdx);
+    const end = Math.max(syncAnchorIndex, clickedIdx);
+    for (let i = start; i <= end; i++) {
+      const item = filteredSyncItems[i];
+      if (item && item.barcode) {
+        selectedSyncBarcodes.add(item.barcode);
+      }
+    }
+  } else if (event.ctrlKey || event.metaKey) {
+    if (selectedSyncBarcodes.has(barcode)) {
+      selectedSyncBarcodes.delete(barcode);
+      if (selectedSyncBarcodes.size === 0) syncAnchorIndex = -1;
+    } else {
+      selectedSyncBarcodes.add(barcode);
+      syncAnchorIndex = clickedIdx;
+    }
+    syncBaseSelection = new Set(selectedSyncBarcodes);
+  } else {
+    // Halihazırda en az 1 seçim varken düz tıklandığında:
+    if (selectedSyncBarcodes.has(barcode)) {
+      selectedSyncBarcodes.delete(barcode);
+      if (selectedSyncBarcodes.size === 0) syncAnchorIndex = -1;
+    } else {
+      selectedSyncBarcodes.add(barcode);
+      syncAnchorIndex = clickedIdx;
+      syncBaseSelection = new Set(selectedSyncBarcodes);
+    }
+  }
+
+  updateSyncBatchActionBar();
+  updateSyncRowSelections();
+}
+
+function openSyncProductDetailModal(barcode) {
+  const item = filteredSyncItems.find(p => p.barcode === barcode) || allCatalogProducts.find(p => p.barcode === barcode);
+  if (!item) return;
+
+  const modal = document.getElementById('modal-sync-product-detail');
+  if (!modal) return;
+
+  modal.style.display = 'flex';
+  document.getElementById('sync-detail-title').innerText = item.current_title || item.title || item.excel_title || "Ürün Detayı";
+  document.getElementById('sync-detail-barcode').innerText = item.barcode;
+  document.getElementById('sync-detail-current-price').innerText = item.current_price || item.price || "-";
+  document.getElementById('sync-detail-excel-price').innerText = item.excel_price || item.price || "-";
+  document.getElementById('sync-detail-excel-title').innerText = item.excel_title || "-";
+  document.getElementById('sync-detail-current-title').innerText = item.current_title || item.title || item.title1 || "-";
+  document.getElementById('sync-detail-brand').innerText = item.brand || "DİĞER";
+
+  let statusText = "✅ Fiyat Uyumlu";
+  if (item.status === 'changed') {
+    statusText = `⚠️ Fiyat Farkı: ${item.excel_price} (Eski: ${item.current_price})`;
+  } else if (item.status === 'new') {
+    statusText = "✨ Yeni Ürün";
+  } else if (item.status === 'blacklisted') {
+    statusText = "🚫 Kara Liste";
+  }
+  document.getElementById('sync-detail-status').innerText = statusText;
+
+  // Buton Aksiyonları
+  document.getElementById('sync-detail-btn-blacklist').onclick = async () => {
+    await submitSingleBlacklist(item.barcode, item.excel_title || item.current_title);
+    closeSyncProductDetailModal();
+  };
+
+  document.getElementById('sync-detail-btn-design').onclick = () => {
+    closeSyncProductDetailModal();
+    loadProductToDesigner(item.barcode);
+  };
+
+  document.getElementById('sync-detail-btn-print').onclick = () => {
+    closeSyncProductDetailModal();
+    printProductFromCatalog(item.barcode);
+  };
+}
+
+function closeSyncProductDetailModal() {
+  const modal = document.getElementById('modal-sync-product-detail');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitSingleBlacklist(barcode, title) {
+  try {
+    const res = await fetch(`${API_BASE}/api/blacklist/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ barcode: barcode, title: title || "KARA LİSTE" })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast("🚫 Ürün kara listeye eklendi.", "success");
+      await loadSyncStatus();
+    } else {
+      showToast(`❌ ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+function onSyncCheckboxChange(barcode, checked, event) {
+  const clickedIdx = filteredSyncItems.findIndex(p => p.barcode === barcode);
+  if (clickedIdx === -1) return;
+
+  if (event && event.shiftKey && syncAnchorIndex !== -1) {
+    selectedSyncBarcodes.clear();
+    const start = Math.min(syncAnchorIndex, clickedIdx);
+    const end = Math.max(syncAnchorIndex, clickedIdx);
+    for (let i = start; i <= end; i++) {
+      const item = filteredSyncItems[i];
+      if (item && item.barcode) {
+        selectedSyncBarcodes.add(item.barcode);
+      }
+    }
+  } else {
+    if (checked) {
+      selectedSyncBarcodes.add(barcode);
+    } else {
+      selectedSyncBarcodes.delete(barcode);
+    }
+    syncAnchorIndex = clickedIdx;
+    syncBaseSelection = new Set(selectedSyncBarcodes);
+  }
+
+  updateSyncBatchActionBar();
+  updateSyncRowSelections();
+}
+
+function toggleSelectAllSync(checked) {
+  if (checked) {
+    filteredSyncItems.forEach(p => {
+      if (p.barcode) selectedSyncBarcodes.add(p.barcode);
+    });
+    syncBaseSelection = new Set(selectedSyncBarcodes);
+  } else {
+    selectedSyncBarcodes.clear();
+    syncBaseSelection.clear();
+  }
+  syncAnchorIndex = -1;
+  updateSyncBatchActionBar();
+  updateSyncRowSelections();
+}
+
+function clearSyncSelection() {
+  selectedSyncBarcodes.clear();
+  syncBaseSelection.clear();
+  syncAnchorIndex = -1;
+  const selectAllChk = document.getElementById('sync-select-all-chk');
+  if (selectAllChk) {
+    selectAllChk.checked = false;
+    selectAllChk.indeterminate = false;
+  }
+  updateSyncBatchActionBar();
+  updateSyncRowSelections();
+}
+
+function updateSyncBatchActionBar() {
+  const bar = document.getElementById('sync-batch-bar');
+  const countEl = document.getElementById('sync-batch-count');
+  const selectAllChk = document.getElementById('sync-select-all-chk');
+  if (!bar) return;
+
+  const count = selectedSyncBarcodes.size;
+  const total = filteredSyncItems.length;
+
+  if (count > 0) {
+    bar.style.display = 'flex';
+    if (countEl) countEl.innerText = `${count.toLocaleString('tr-TR')} ürün seçildi`;
+  } else {
+    bar.style.display = 'none';
+  }
+
+  if (selectAllChk) {
+    if (count > 0 && count === total) {
+      selectAllChk.checked = true;
+      selectAllChk.indeterminate = false;
+    } else if (count > 0) {
+      selectAllChk.checked = false;
+      selectAllChk.indeterminate = true;
+    } else {
+      selectAllChk.checked = false;
+      selectAllChk.indeterminate = false;
+    }
+  }
+}
+
+function updateSyncRowSelections() {
+  const tbody = document.getElementById('sync-tbody');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr[data-barcode]');
+  rows.forEach(tr => {
+    const barcode = tr.getAttribute('data-barcode');
+    const chk = tr.querySelector('.sync-row-chk');
+    const isSelected = selectedSyncBarcodes.has(barcode);
+
+    if (isSelected) {
+      tr.classList.add('selected-row');
+      if (chk) chk.checked = true;
+    } else {
+      tr.classList.remove('selected-row');
+      if (chk) chk.checked = false;
+    }
+  });
+}
+
+// 7. Tekli İşlemler
+async function syncSingleItemPrice(barcode, newPrice) {
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: "update_prices",
+        items: [{ barcode: barcode, new_price: newPrice }]
+      })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast("✓ Fiyat güncellendi. Tasarımcıya aktarılıyor...", "success");
+      await loadCatalog();
+      await loadSyncStatus();
+      printProductFromCatalog(barcode);
+    } else {
+      showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+async function syncSingleItemNew(barcode, newPrice, excelTitle) {
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: "add_new_products",
+        items: [{ barcode: barcode, new_price: newPrice, excel_title: excelTitle }]
+      })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast("✓ Yeni ürün stoğa eklendi. Tasarımcıya aktarılıyor...", "success");
+      await loadCatalog();
+      await loadSyncStatus();
+      printProductFromCatalog(barcode);
+    } else {
+      showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+// 8. Toplu İşlemler
+async function submitSyncBatchApply() {
+  if (selectedSyncBarcodes.size === 0) {
+    showToast("Lütfen güncellenecek ürünleri seçin.", "warning");
+    return;
+  }
+
+  const itemsToApply = [];
+  selectedSyncBarcodes.forEach(bc => {
+    const item = filteredSyncItems.find(p => p.barcode === bc);
+    if (item && item.excel_price) {
+      itemsToApply.push({
+        barcode: item.barcode,
+        new_price: item.excel_price,
+        excel_title: item.excel_title,
+        current_title: item.current_title
+      });
+    }
+  });
+
+  if (itemsToApply.length === 0) {
+    showToast("Seçili ürünlerin fiyat bilgisi bulunamadı.", "warning");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: "sync_all",
+        items: itemsToApply
+      })
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✅ ${result.message}`, "success");
+      clearSyncSelection();
+      await loadCatalog();
+      await loadSyncStatus();
+    } else {
+      showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+// --- YÖNETİLEN CANLI BASKI & DURDURMA / İPTAL SİSTEMİ (PC) ---
+let printControllerState = {
+  isActive: false,
+  isPaused: false,
+  items: [],
+  currentIndex: 0,
+  copiesPerItem: 1,
+  onComplete: null
+};
+
+async function startManagedBatchPrint(productsToPrint, copiesPerItem = 1, onComplete = null) {
+  if (!productsToPrint || productsToPrint.length === 0) return;
+
+  printControllerState = {
+    isActive: true,
+    isPaused: false,
+    items: productsToPrint,
+    currentIndex: 0,
+    copiesPerItem: copiesPerItem,
+    onComplete: onComplete
+  };
+
+  const modal = document.getElementById('modal-print-progress');
+  if (modal) modal.style.display = 'flex';
+
+  updatePrintProgressUI(printControllerState.items[0]);
+
+  for (let i = 0; i < printControllerState.items.length; i++) {
+    if (!printControllerState.isActive) break;
+
+    while (printControllerState.isPaused && printControllerState.isActive) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+
+    if (!printControllerState.isActive) break;
+
+    printControllerState.currentIndex = i;
+    const currentItem = printControllerState.items[i];
+    updatePrintProgressUI(currentItem);
+
+    try {
+      const payload = {
+        printer: selectedPrinter || "Termal Etiket Yazici",
+        products: [currentItem],
+        orientation: "POR",
+        width_mm: currentWidth,
+        height_mm: currentHeight,
+        x_offset: parseInt(document.getElementById('settings-x-offset')?.value || 0),
+        y_offset: parseInt(document.getElementById('settings-y-offset')?.value || 0),
+        dpi: 203,
+        copies_per_item: copiesPerItem,
+        template: activeTpl
+      };
+
+      await fetch(`${API_BASE}/api/print/batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch(e) {
+      console.warn("Baskı gönderim uyarısı:", e);
+    }
+
+    // Etiketler arası kısa bekleme (yazıcının mekanik sağlığı ve durdurma butonuna anında tepki için)
+    await new Promise(resolve => setTimeout(resolve, 350));
+  }
+
+  const wasActive = printControllerState.isActive;
+  const printedItems = [...printControllerState.items];
+
+  if (modal) modal.style.display = 'none';
+  printControllerState.isActive = false;
+  printControllerState.isPaused = false;
+
+  if (wasActive && printedItems.length > 0) {
+    // Yazdırma tamamlandı -> Doğrulama Onay Penceresini Aç!
+    openPrintCompletionVerificationModal(printedItems, onComplete);
+  }
+}
+
+// --- BASKI SONRASI DOĞRULAMA & FİYAT GÜNCELLEME SİSTEMİ (PC) ---
+let verifyBatchItems = [];
+let verifyMarkedErrorBarcodes = new Set();
+let verifyOnCompleteCallback = null;
+
+function openPrintCompletionVerificationModal(items, onComplete = null) {
+  verifyBatchItems = items || [];
+  verifyMarkedErrorBarcodes.clear();
+  verifyOnCompleteCallback = onComplete;
+
+  const modal = document.getElementById('modal-print-completion-verification');
+  if (!modal) return;
+
+  renderVerifyPrintRows();
+  updateVerifyActionButton();
+  modal.style.display = 'flex';
+}
+
+function renderVerifyPrintRows() {
+  const tbody = document.getElementById('verify-print-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  verifyBatchItems.forEach(item => {
+    const tr = document.createElement('tr');
+    const isError = verifyMarkedErrorBarcodes.has(item.barcode);
+    if (isError) tr.style.background = 'rgba(239, 68, 68, 0.12)';
+
+    tr.innerHTML = `
+      <td style="text-align: center;">
+        <input type="checkbox" ${isError ? 'checked' : ''} onchange="toggleVerifyItemError('${item.barcode}', this.checked)" style="transform: scale(1.15); cursor: pointer;">
+      </td>
+      <td style="font-family: monospace; color: #38bdf8;">${item.barcode}</td>
+      <td style="font-weight: 600; color: var(--text-main);">${item.title || item.title1 || item.excel_title || ''}</td>
+      <td style="text-align: right; font-weight: 800; color: #34d399; padding-right: 14px;">${item.price || item.excel_price || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleVerifyItemError(barcode, isChecked) {
+  if (isChecked) {
+    verifyMarkedErrorBarcodes.add(barcode);
+  } else {
+    verifyMarkedErrorBarcodes.delete(barcode);
+  }
+  renderVerifyPrintRows();
+  updateVerifyActionButton();
+}
+
+function toggleSelectAllVerifyItems() {
+  if (verifyMarkedErrorBarcodes.size === verifyBatchItems.length) {
+    verifyMarkedErrorBarcodes.clear();
+  } else {
+    verifyBatchItems.forEach(x => verifyMarkedErrorBarcodes.add(x.barcode));
+  }
+  renderVerifyPrintRows();
+  updateVerifyActionButton();
+}
+
+function updateVerifyActionButton() {
+  const btn = document.getElementById('btn-verify-action');
+  const summary = document.getElementById('verify-status-summary');
+  if (!btn) return;
+
+  const total = verifyBatchItems.length;
+  const errorCount = verifyMarkedErrorBarcodes.size;
+  const successCount = total - errorCount;
+
+  if (errorCount === 0) {
+    // Hiç hata yok -> Tümü Başarılı
+    btn.innerHTML = `✅ Evet, Tümü Başarıyla Basıldı (Verileri Güncelle)`;
+    btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+    btn.style.color = "#ffffff";
+    if (summary) summary.innerText = `Tüm ürünler (${total} adet) sistemde güncellenecektir.`;
+  } else if (errorCount === total) {
+    // Tümü Hatalı -> Hiçbiri güncellenmez
+    btn.innerHTML = `❌ Hiçbiri Tamamlanmadı (Fiyatları Güncelleme)`;
+    btn.style.background = "linear-gradient(135deg, #ef4444, #b91c1c)";
+    btn.style.color = "#ffffff";
+    if (summary) summary.innerText = `⚠️ Hiçbir ürün güncellenmeyecek, eski fiyatlar korunacaktır.`;
+  } else {
+    // Bazıları Hatalı -> Seçilenler Hariç Tamamlandı
+    btn.innerHTML = `⚠️ Seçilenler Hariç Tamamlandı (${successCount} Ürünü Güncelle)`;
+    btn.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+    btn.style.color = "#ffffff";
+    if (summary) summary.innerText = `${successCount} adet ürünün raf fiyatı güncellenecek, hatalı ${errorCount} ürünün eski fiyatı korunacaktır.`;
+  }
+}
+
+async function confirmPrintVerificationAction() {
+  const total = verifyBatchItems.length;
+  const errorCount = verifyMarkedErrorBarcodes.size;
+  const successItems = verifyBatchItems.filter(x => !verifyMarkedErrorBarcodes.has(x.barcode));
+
+  const modal = document.getElementById('modal-print-completion-verification');
+  if (modal) modal.style.display = 'none';
+
+  if (errorCount === total || successItems.length === 0) {
+    showToast("ℹ️ Hiçbir fiyat güncellenmedi, eski fiyatlar korundu.", "warning");
+    if (verifyOnCompleteCallback) verifyOnCompleteCallback();
+    return;
+  }
+
+  // Başarılı basılan ürünlerin raf fiyatlarını products.json'da güncelle
+  try {
+    const payload = {
+      items: successItems.map(x => ({
+        barcode: x.barcode,
+        title: x.title || x.title1 || x.excel_title,
+        price: x.price || x.excel_price
+      }))
+    };
+
+    const res = await fetch(`${API_BASE}/api/catalog/sync-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✅ ${successItems.length} ürünün raf fiyatı başarıyla güncellendi!`, "success");
+      await loadCatalog();
+      await loadSyncStatus();
+    } else {
+      showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch(e) {
+    showToast(`❌ Güncelleme hatası: ${e.message}`, "error");
+  }
+
+  if (verifyOnCompleteCallback) verifyOnCompleteCallback();
+}
+
+function updatePrintProgressUI(currentItem = null) {
+  const total = printControllerState.items.length;
+  const current = printControllerState.currentIndex + 1;
+  const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+
+  const bar = document.getElementById('print-ctrl-progress-bar');
+  const countTxt = document.getElementById('print-ctrl-count-text');
+  const pctTxt = document.getElementById('print-ctrl-percent-text');
+  const itemTxt = document.getElementById('print-ctrl-current-item');
+  const pauseAlert = document.getElementById('print-ctrl-pause-alert');
+  const btnPause = document.getElementById('btn-print-ctrl-pause');
+  const btnResume = document.getElementById('btn-print-ctrl-resume');
+  const btnCancel = document.getElementById('btn-print-ctrl-cancel');
+  const modalTitle = document.getElementById('print-ctrl-modal-title');
+
+  if (bar) bar.style.width = `${pct}%`;
+  if (countTxt) countTxt.innerText = `${current} / ${total} Etiket`;
+  if (pctTxt) pctTxt.innerText = `%${pct}`;
+  if (itemTxt && currentItem) {
+    itemTxt.innerText = `${currentItem.title || currentItem.title1 || currentItem.excel_title} (${currentItem.price || ''})`;
+  }
+
+  if (printControllerState.isPaused) {
+    if (modalTitle) modalTitle.innerText = "⏸️ Yazdırma Duraklatıldı";
+    if (pauseAlert) pauseAlert.style.display = "block";
+    if (btnPause) btnPause.style.display = "none";
+    if (btnResume) btnResume.style.display = "inline-block";
+    if (btnCancel) btnCancel.style.display = "inline-block";
+  } else {
+    if (modalTitle) modalTitle.innerText = "🖨️ Etiketler Yazdırılıyor...";
+    if (pauseAlert) pauseAlert.style.display = "none";
+    if (btnPause) btnPause.style.display = "inline-block";
+    if (btnResume) btnResume.style.display = "none";
+    if (btnCancel) btnCancel.style.display = "none";
+  }
+}
+
+function pausePrinting() {
+  printControllerState.isPaused = true;
+  updatePrintProgressUI(printControllerState.items[printControllerState.currentIndex]);
+  showToast("⏸️ Yazdırma duraklatıldı.", "warning");
+}
+
+function resumePrintingWithConfirm() {
+  const remaining = printControllerState.items.length - (printControllerState.currentIndex + 1);
+  const ok = confirm(`▶️ Kalan ${remaining} etiketin basımına devam etmek istediğinize emin misiniz?`);
+  if (!ok) return;
+
+  printControllerState.isPaused = false;
+  updatePrintProgressUI(printControllerState.items[printControllerState.currentIndex]);
+  showToast("▶️ Yazdırmaya devam ediliyor...", "success");
+}
+
+async function cancelPrintingWithConfirm() {
+  const remaining = printControllerState.items.length - (printControllerState.currentIndex + 1);
+  const ok = confirm(`⛔ Yazdırma işlemini tamamen iptal etmek istediğinize emin misiniz?\n(Kalan ${remaining} etiket basılmayacak)`);
+  if (!ok) return;
+
+  printControllerState.isActive = false;
+  printControllerState.isPaused = false;
+
+  try {
+    await fetch(`${API_BASE}/api/print/cancel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ printer: selectedPrinter || "Termal Etiket Yazici" })
+    });
+  } catch(e) {}
+
+  const modal = document.getElementById('modal-print-progress');
+  if (modal) modal.style.display = 'none';
+
+  showToast(`⛔ Yazdırma iptal edildi. (${printControllerState.currentIndex + 1} basıldı, ${remaining} iptal edildi)`, "warning");
+}
+
+async function submitSyncBatchPrint() {
+  if (selectedSyncBarcodes.size === 0) {
+    showToast("Lütfen yazdırılacak ürünleri seçin.", "warning");
+    return;
+  }
+
+  // Önce raf fiyatlarını güncelle, sonra kontrollü yazdır
+  await submitSyncBatchApply();
+
+  const copies = parseInt(document.getElementById('sync-batch-copies')?.value || 1);
+  const productsToPrint = [];
+
+  selectedSyncBarcodes.forEach(bc => {
+    const p = allCatalogProducts.find(x => x.barcode === bc);
+    if (p) {
+      productsToPrint.push(p);
+    } else {
+      const syncItem = filteredSyncItems.find(x => x.barcode === bc);
+      if (syncItem) {
+        productsToPrint.push({
+          barcode: syncItem.barcode,
+          title: syncItem.current_title || syncItem.excel_title,
+          brand: syncItem.brand || "DİĞER",
+          price: syncItem.excel_price || "0,00 TL",
+          date: document.getElementById('inp-date')?.value || "19 Ağu 2026"
+        });
+      }
+    }
+  });
+
+  if (productsToPrint.length === 0) {
+    showToast("Yazdırılacak ürün bulunamadı.", "warning");
+    return;
+  }
+
+  await startManagedBatchPrint(productsToPrint, copies, () => {
+    clearSyncSelection();
+  });
+}
+
+async function submitSyncBatchBlacklist() {
+  if (selectedSyncBarcodes.size === 0) {
+    showToast("Lütfen kara listeye eklenecek ürünleri seçin.", "warning");
+    return;
+  }
+
+  let count = 0;
+  for (const bc of selectedSyncBarcodes) {
+    const item = filteredSyncItems.find(x => x.barcode === bc);
+    const title = item ? (item.excel_title || item.current_title) : "KARA LİSTE";
+    try {
+      await fetch(`${API_BASE}/api/blacklist/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ barcode: bc, title: title })
+      });
+      count++;
+    } catch (e) {
+      console.error("Blacklist add error:", e);
+    }
+  }
+
+  showToast(`🚫 ${count} ürün kara listeye eklendi.`, "success");
+  clearSyncSelection();
+  await loadSyncStatus();
+}
+
+// 12. SÜTUN SIRALAMA (A-Z, Z-A & FİYAT SIRALAMASI)
+let syncSortColumn = null;
+let syncSortDirection = 'asc';
+
+function sortSyncColumn(colKey) {
+  if (syncSortColumn === colKey) {
+    syncSortDirection = (syncSortDirection === 'asc') ? 'desc' : 'asc';
+  } else {
+    syncSortColumn = colKey;
+    syncSortDirection = 'asc';
+  }
+
+  const iconMap = {
+    'barcode': 'sync-sort-ico-barcode',
+    'excel_title': 'sync-sort-ico-excel_title',
+    'current_title': 'sync-sort-ico-current_title',
+    'current_price': 'sync-sort-ico-current_price',
+    'excel_price': 'sync-sort-ico-excel_price',
+    'status': 'sync-sort-ico-status'
+  };
+
+  Object.entries(iconMap).forEach(([k, icoId]) => {
+    const el = document.getElementById(icoId);
+    if (!el) return;
+    if (k === syncSortColumn) {
+      el.innerText = (syncSortDirection === 'asc') ? '▲' : '▼';
+      el.style.color = '#38bdf8';
+    } else {
+      el.innerText = '↕';
+      el.style.color = 'inherit';
+    }
+  });
+
+  if (!filteredSyncItems || filteredSyncItems.length === 0) return;
+
+  filteredSyncItems.sort((a, b) => {
+    let valA = a[colKey] || '';
+    let valB = b[colKey] || '';
+
+    if (colKey === 'current_price' || colKey === 'excel_price') {
+      const numA = parsePriceNumber(valA);
+      const numB = parsePriceNumber(valB);
+      return (syncSortDirection === 'asc') ? (numA - numB) : (numB - numA);
+    }
+
+    valA = String(valA).trim();
+    valB = String(valB).trim();
+    const cmp = valA.localeCompare(valB, 'tr', { numeric: true, sensitivity: 'base' });
+    return (syncSortDirection === 'asc') ? cmp : -cmp;
+  });
+
+  renderSyncTable(true);
+}
+
+let catalogSortColumn = null;
+let catalogSortDirection = 'asc';
+
+function sortCatalogColumn(colKey) {
+  if (catalogSortColumn === colKey) {
+    catalogSortDirection = (catalogSortDirection === 'asc') ? 'desc' : 'asc';
+  } else {
+    catalogSortColumn = colKey;
+    catalogSortDirection = 'asc';
+  }
+
+  const iconMap = {
+    'brand': 'sort-ico-brand',
+    'barcode': 'sort-ico-barcode',
+    'title': 'sort-ico-title',
+    'price': 'sort-ico-price',
+    'date': 'sort-ico-date'
+  };
+
+  Object.entries(iconMap).forEach(([k, icoId]) => {
+    const el = document.getElementById(icoId);
+    if (!el) return;
+    if (k === catalogSortColumn) {
+      el.innerText = (catalogSortDirection === 'asc') ? '▲' : '▼';
+      el.style.color = '#38bdf8';
+    } else {
+      el.innerText = '↕';
+      el.style.color = 'inherit';
+    }
+  });
+
+  if (!filteredCatalogProducts || filteredCatalogProducts.length === 0) return;
+
+  filteredCatalogProducts.sort((a, b) => {
+    let valA = a[colKey] || a.title1 || '';
+    let valB = b[colKey] || b.title1 || '';
+
+    if (colKey === 'price') {
+      const numA = parsePriceNumber(valA);
+      const numB = parsePriceNumber(valB);
+      return (catalogSortDirection === 'asc') ? (numA - numB) : (numB - numA);
+    }
+
+    valA = String(valA).trim();
+    valB = String(valB).trim();
+    const cmp = valA.localeCompare(valB, 'tr', { numeric: true, sensitivity: 'base' });
+    return (catalogSortDirection === 'asc') ? cmp : -cmp;
+  });
+
+  renderCatalogTable(true);
+}
+
+function parsePriceNumber(priceStr) {
+  if (!priceStr || priceStr === '-') return -1;
+  let s = String(priceStr).replace(/[^\d.,]/g, '').trim();
+  if (s.includes('.') && s.includes(',')) {
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  } else if (s.includes(',')) {
+    s = s.replace(',', '.');
+  }
+  const num = parseFloat(s);
+  return isNaN(num) ? -1 : num;
+}
+
+// 13. GEÇMİŞ EXCEL DOSYALARI ARŞİV YÖNETİMİ
+async function openExcelHistoryModal() {
+  const modal = document.getElementById('modal-excel-history');
+  const listEl = document.getElementById('excel-history-list');
+  if (!modal || !listEl) return;
+
+  modal.style.display = 'flex';
+  listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">⏳ Yükleniyor...</div>';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/excel-history`);
+    const data = await res.json();
+    if (data.status === 'success' && data.history && data.history.length > 0) {
+      listEl.innerHTML = '';
+      data.history.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#090d16; border:1px solid var(--border-color); border-radius:8px;';
+        
+        const isLatest = item.is_latest;
+        const statusBadge = isLatest 
+          ? '<span style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4); padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">🟢 Aktif (En Güncel)</span>'
+          : '<span style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3); padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700;">🔒 Arşiv (Salt Okunur)</span>';
+
+        row.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="color:var(--text-main); font-size:13px;">📄 ${item.filename}</strong>
+              ${statusBadge}
+            </div>
+            <div style="font-size:11.5px; color:var(--text-muted);">
+              📅 Yükleme: <strong>${item.date}</strong> &bull; Boyut: ${item.size}
+            </div>
+          </div>
+          <div>
+            <button class="btn-sm btn-secondary" onclick="openExcelDetailModal('${item.filename}')" style="font-size:11.5px; padding:4px 10px;">
+              🔍 İncele
+            </button>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    } else {
+      listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Arşivde kayıtlı dosya bulunamadı.</div>';
+    }
+  } catch(e) {
+    listEl.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444;">Hata: ${e.message}</div>`;
+  }
+}
+
+function closeExcelHistoryModal() {
+  const modal = document.getElementById('modal-excel-history');
+  if (modal) modal.style.display = 'none';
+}
+
+async function openExcelDetailModal(filename) {
+  const modal = document.getElementById('modal-excel-detail');
+  if (!modal) return;
+
+  modal.style.display = 'flex';
+  document.getElementById('excel-detail-title').innerText = `🔍 Arşiv: ${filename}`;
+  document.getElementById('excel-detail-subtitle').innerText = 'Yükleniyor...';
+  const tbody = document.getElementById('detail-tbody');
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">⏳ Veriler okunuyor...</td></tr>';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/excel-detail/${encodeURIComponent(filename)}`);
+    const data = await res.json();
+    if (data.status === 'success') {
+      document.getElementById('excel-detail-subtitle').innerText = `Yükleme Tarihi: ${data.updated_at}`;
+      document.getElementById('detail-stat-total').innerText = data.stats.total_excel_rows || 0;
+      document.getElementById('detail-stat-changed').innerText = data.stats.changed_count || 0;
+      document.getElementById('detail-stat-new').innerText = data.stats.new_count || 0;
+      document.getElementById('detail-stat-matched').innerText = data.stats.matched_count || 0;
+      document.getElementById('detail-stat-black').innerText = data.stats.blacklisted_count || 0;
+
+      const allItems = [
+        ...(data.changed_prices || []),
+        ...(data.new_products || []),
+        ...(data.matched_products || []),
+        ...(data.blacklisted_items || [])
+      ];
+
+      tbody.innerHTML = '';
+      allItems.slice(0, 100).forEach(it => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="barcode-text">${it.barcode}</span></td>
+          <td style="color:var(--text-main); font-weight:600;">${it.excel_title || it.current_title || '-'}</td>
+          <td style="text-align:right; font-weight:800; color:#38bdf8;">${it.excel_price || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      if (allItems.length > 100) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="3" style="text-align:center; color:var(--text-muted); font-size:11.5px; padding:8px;">... ve diğer ${allItems.length - 100} kayıt</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#ef4444;">Hata: ${e.message}</td></tr>`;
+  }
+}
+
+function closeExcelDetailModal() {
+  const modal = document.getElementById('modal-excel-detail');
+  if (modal) modal.style.display = 'none';
+}
+
+// 14. GERİ ALMA & YEDEKLEME YÖNETİMİ (ROLLBACK SYSTEM)
+async function rollbackLatestBackup() {
+  const ok = confirm("⚠️ En son yapılan fiyat değişikliğini/toplu baskıyı geri almak istediğinize emin misiniz?\n\nBu işlem, fiyatları bir önceki güvenli yedekteki haline döndürür.");
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/rollback-latest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`↺ ${result.message}`, "success");
+      await loadCatalog();
+      await loadSyncStatus(true);
+    } else {
+      showToast(`❌ ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+async function openBackupListModal() {
+  const modal = document.getElementById('modal-backups');
+  const listEl = document.getElementById('backup-list-container');
+  if (!modal || !listEl) return;
+
+  modal.style.display = 'flex';
+  listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">⏳ Yedekler listeleniyor...</div>';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/list`);
+    const data = await res.json();
+    if (data.status === 'success' && data.backups && data.backups.length > 0) {
+      listEl.innerHTML = '';
+      data.backups.forEach((b, idx) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#090d16; border:1px solid var(--border-color); border-radius:8px;';
+        
+        const isFirst = (idx === 0);
+        const tagBadge = isFirst 
+          ? '<span style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); padding:2px 7px; border-radius:5px; font-size:10.5px; font-weight:800;">EN SON YEDEK</span>'
+          : '';
+
+        row.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:3px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="color:var(--text-main); font-size:12.5px;">💾 ${b.filename}</strong>
+              ${tagBadge}
+            </div>
+            <div style="font-size:11px; color:var(--text-muted);">
+              📅 ${b.date} &bull; Sebep: <span style="color:#e2e8f0;">${b.reason}</span> (${b.size})
+            </div>
+          </div>
+          <div>
+            <button class="btn-sm btn-primary" onclick="restoreBackupFile('${b.filename}')" style="font-size:11.5px; padding:4px 10px; background:linear-gradient(135deg, #f59e0b, #d97706); border:none;" title="Fiyatları bu yedeğe geri yükle">
+              ↺ Bu Yedeğe Dön
+            </button>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    } else {
+      listEl.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">Henüz alınmış bir yedek bulunmuyor.</div>';
+    }
+  } catch (e) {
+    listEl.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444;">Hata: ${e.message}</div>`;
+  }
+}
+
+function closeBackupListModal() {
+  const modal = document.getElementById('modal-backups');
+  if (modal) modal.style.display = 'none';
+}
+
+async function restoreBackupFile(filename) {
+  const ok = confirm(`⚠️ '${filename}' yedeğindeki fiyatları geri yüklemek istediğinize emin misiniz?\n\nMevcut veritabanı bu yedeğe döndürülecektir.`);
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/restore`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: filename })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✓ ${result.message}`, "success");
+      closeBackupListModal();
+      await loadCatalog();
+      await loadSyncStatus(true);
+    } else {
+      showToast(`❌ ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+// --- PC TAŞINABİLİR EŞ ZAMANLI CANLI YAZDIRMA PENCERESİ SENKRONİZASYONU ---
+let lastFloatPrintStateActive = false;
+
+async function checkFloatingLivePrintStatus() {
+  const monitor = document.getElementById('floating-live-print-monitor');
+  if (!monitor) return;
+
+  // Eğer masaüstünün kendi modalı açıksa bu mini paneli göstermeye gerek yok
+  const mainModal = document.getElementById('modal-print-progress');
+  if (mainModal && mainModal.style.display === 'flex') {
+    monitor.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/print/live-status`);
+    const data = await res.json();
+    if (data.status === 'success' && data.live_status) {
+      const s = data.live_status;
+      if (s.is_active) {
+        monitor.style.display = 'flex';
+        const total = s.total || 1;
+        const current = s.current || 0;
+        const pct = Math.round((current / total) * 100);
+
+        document.getElementById('float-print-bar').style.width = `${pct}%`;
+        document.getElementById('float-print-count').innerText = `${current} / ${total} Etiket (%${pct})`;
+        document.getElementById('float-print-source').innerText = s.source === 'mobile' ? '📱 Mobil Terminal' : '💻 Masaüstü';
+        document.getElementById('float-print-status-text').innerText = s.status_text || 'Yazdırılıyor...';
+        document.getElementById('float-print-item-name').innerText = s.current_item ? `${s.current_item} (${s.current_price})` : '-';
+        lastFloatPrintStateActive = true;
+      } else {
+        if (lastFloatPrintStateActive) {
+          lastFloatPrintStateActive = false;
+          // İşlem yeni bittiğinde listeyi yenile
+          setTimeout(() => {
+            loadCatalog();
+            loadSyncStatus(true);
+          }, 800);
+        }
+        monitor.style.display = 'none';
+      }
+    }
+  } catch(e) {}
+}
+
+// 500ms aralıklarla canlı yazdırma durumunu kontrol et
+setInterval(checkFloatingLivePrintStatus, 500);
+
+// =========================================================
+// KAYDEDİLMEMİŞ DEĞİŞİKLİKLER / DRAFT ÖNBELLEK YÖNETİMİ
+// =========================================================
+const DEFAULT_FACTORY_LABEL = {
+  title1: "ULK 398-6 PİKO PORTAKAL",
+  title2: "PİR PAT KAP",
+  brand: "YARENLER",
+  origin: "TÜRKİYE",
+  unit_price: "250,00 ₺/Kg",
+  barcode: "8690504114925",
+  price: "10,00 ₺"
+};
+
+let draftAutoSaveTimer = null;
+window.pendingDraftToRestore = null;
+
+function initDraftTracking() {
+  const inputIds = [
+    'inp-prod-title-1', 'inp-prod-title-2', 'inp-brand', 'inp-origin',
+    'inp-date', 'inp-unit-price', 'inp-barcode', 'inp-price', 'inp-copies'
+  ];
+
+  inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        scheduleDraftAutoSave();
+      });
+      el.addEventListener('change', () => {
+        scheduleDraftAutoSave();
+      });
+    }
+  });
+}
+
+function scheduleDraftAutoSave() {
+  clearTimeout(draftAutoSaveTimer);
+  draftAutoSaveTimer = setTimeout(() => {
+    saveDraftSnapshot();
+  }, 400);
+}
+
+function getActiveDraftSnapshot() {
+  const t1 = document.getElementById('inp-prod-title-1')?.value || '';
+  const t2 = document.getElementById('inp-prod-title-2')?.value || '';
+  const br = document.getElementById('inp-brand')?.value || '';
+  const org = document.getElementById('inp-origin')?.value || '';
+  const dt = document.getElementById('inp-date')?.value || '';
+  const up = document.getElementById('inp-unit-price')?.value || '';
+  const bc = document.getElementById('inp-barcode')?.value || '';
+  const pr = document.getElementById('inp-price')?.value || '';
+  const cp = document.getElementById('inp-copies')?.value || '1';
+
+  // Varsayılan fabrika başlangıç değerlerinden farklı mı kontrol et
+  const isDifferentFromDefault = (
+    (bc && bc.trim() !== DEFAULT_FACTORY_LABEL.barcode) ||
+    (t1 && t1.trim() !== DEFAULT_FACTORY_LABEL.title1) ||
+    (pr && pr.trim() !== DEFAULT_FACTORY_LABEL.price) ||
+    (t2 && t2.trim() !== DEFAULT_FACTORY_LABEL.title2) ||
+    (br && br.trim() !== DEFAULT_FACTORY_LABEL.brand)
+  );
+
+  const now = new Date();
+  const timeFormatted = now.toLocaleString('tr-TR', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+
+  return {
+    timestamp: now.getTime(),
+    saved_at: timeFormatted,
+    active_tab: localStorage.getItem('active_tab') || 'tab-print',
+    is_dirty: isDifferentFromDefault,
+    label_form: {
+      title1: t1,
+      title2: t2,
+      brand: br,
+      origin: org,
+      date: dt,
+      unit_price: up,
+      barcode: bc,
+      price: pr,
+      copies: cp
+    }
+  };
+}
+
+async function saveDraftSnapshot() {
+  const snapshot = getActiveDraftSnapshot();
+  if (!snapshot.is_dirty) {
+    return;
+  }
+
+  // 1. Tarayıcı Yerel Hafızasına Kaydet
+  try {
+    localStorage.setItem('market_label_draft_cache', JSON.stringify(snapshot));
+  } catch(e) {}
+
+  // 2. Sunucu Disk Hafızasına (draft_cache.json) Kaydet
+  try {
+    await fetch(`${API_BASE}/api/cache/draft`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(snapshot)
+    });
+  } catch(e) {}
+}
+
+async function checkUnsavedDraftOnStartup() {
+  let draft = null;
+
+  // 1. Önce localStorage kontrolü
+  try {
+    const local = localStorage.getItem('market_label_draft_cache');
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (parsed && parsed.is_dirty && parsed.label_form) {
+        draft = parsed;
+      }
+    }
+  } catch(e) {}
+
+  // 2. Eğer localStorage boşsa sunucudaki draft dosyasını sor (Farklı cihaz veya önbellek silinmesi durumu)
+  if (!draft) {
+    try {
+      const res = await fetch(`${API_BASE}/api/cache/draft`);
+      const data = await res.json();
+      if (data.status === 'success' && data.has_draft && data.draft && data.draft.is_dirty) {
+        draft = data.draft;
+      }
+    } catch(e) {}
+  }
+
+  // Eğer geçerli bir kaydedilmemiş taslak bulunduysa kullanıcıya bildir
+  if (draft && draft.is_dirty && draft.label_form) {
+    const lf = draft.label_form;
+    const isMeaningful = (lf.barcode && lf.barcode.trim() !== DEFAULT_FACTORY_LABEL.barcode) ||
+                         (lf.title1 && lf.title1.trim() !== DEFAULT_FACTORY_LABEL.title1) ||
+                         (lf.price && lf.price.trim() !== DEFAULT_FACTORY_LABEL.price);
+
+    if (isMeaningful) {
+      window.pendingDraftToRestore = draft;
+      const timeEl = document.getElementById('draft-time');
+      const titleEl = document.getElementById('draft-product-title');
+      const bcEl = document.getElementById('draft-barcode');
+      const priceEl = document.getElementById('draft-price');
+
+      if (timeEl) timeEl.innerText = draft.saved_at || 'Bilinmiyor';
+      if (titleEl) titleEl.innerText = (lf.title1 + (lf.title2 ? ' ' + lf.title2 : '')).trim() || 'İsimsiz Ürün';
+      if (bcEl) bcEl.innerText = lf.barcode || '-';
+      if (priceEl) priceEl.innerText = lf.price || '-';
+
+      const modal = document.getElementById('modal-restore-draft');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+    }
+  }
+}
+
+function restoreDraftCache() {
+  const draft = window.pendingDraftToRestore || (() => {
+    try {
+      return JSON.parse(localStorage.getItem('market_label_draft_cache') || 'null');
+    } catch(e) { return null; }
+  })();
+
+  if (draft && draft.label_form) {
+    const lf = draft.label_form;
+    if (document.getElementById('inp-prod-title-1') && lf.title1 !== undefined) document.getElementById('inp-prod-title-1').value = lf.title1;
+    if (document.getElementById('inp-prod-title-2') && lf.title2 !== undefined) document.getElementById('inp-prod-title-2').value = lf.title2;
+    if (document.getElementById('inp-brand') && lf.brand !== undefined) document.getElementById('inp-brand').value = lf.brand;
+    if (document.getElementById('inp-origin') && lf.origin !== undefined) document.getElementById('inp-origin').value = lf.origin;
+    if (document.getElementById('inp-date') && lf.date) document.getElementById('inp-date').value = lf.date;
+    if (document.getElementById('inp-unit-price') && lf.unit_price !== undefined) document.getElementById('inp-unit-price').value = lf.unit_price;
+    if (document.getElementById('inp-barcode') && lf.barcode !== undefined) document.getElementById('inp-barcode').value = lf.barcode;
+    if (document.getElementById('inp-price') && lf.price !== undefined) document.getElementById('inp-price').value = lf.price;
+    if (document.getElementById('inp-copies') && lf.copies !== undefined) document.getElementById('inp-copies').value = lf.copies;
+
+    updateLabel();
+
+    if (draft.active_tab) {
+      switchTab(draft.active_tab);
+    }
+
+    showToast("✓ Kaydedilmemiş değişiklikleriniz başarıyla geri yüklendi.", "success");
+  }
+
+  closeRestoreDraftModal(false);
+}
+
+function discardDraftCache() {
+  window.pendingDraftToRestore = null;
+  try {
+    localStorage.removeItem('market_label_draft_cache');
+    fetch(`${API_BASE}/api/cache/draft`, { method: 'DELETE' });
+  } catch(e) {}
+
+  closeRestoreDraftModal(false);
+  showToast("Önbellek temizlendi, yeni temiz oturum açıldı.", "info");
+}
+
+function closeRestoreDraftModal(keepDraft = false) {
+  const modal = document.getElementById('modal-restore-draft');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+

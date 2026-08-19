@@ -64,3 +64,17 @@ def print_raw_zpl(printer_name, zpl_code, doc_name="Market Raf Etiketi"):
             win32print.EndDocPrinter(hPrinter)
     finally:
         win32print.ClosePrinter(hPrinter)
+
+def purge_printer_queue(printer_name):
+    """Yazıcı kuyruğundaki bekleyen tüm yazdırma işlerini iptal eder ve temizler."""
+    try:
+        hPrinter = win32print.OpenPrinter(printer_name, {"DesiredAccess": win32print.PRINTER_ALL_ACCESS})
+        try:
+            win32print.SetPrinter(hPrinter, 0, None, win32print.PRINTER_CONTROL_PURGE)
+            return True
+        finally:
+            win32print.ClosePrinter(hPrinter)
+    except Exception as e:
+        print(f"Kuyruk temizleme hatası: {e}")
+        return False
+
