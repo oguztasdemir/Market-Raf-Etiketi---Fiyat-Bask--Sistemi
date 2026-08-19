@@ -37,6 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = hashTab || localStorage.getItem('active_tab') || 'tab-print';
   switchTab(savedTab);
+
+  // Enter ile Onayla / Shift+Enter ile Alt Satıra Geç
+  document.addEventListener('keydown', (e) => {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.classList.contains('editable-text') || activeEl.classList.contains('custom-text-node') || activeEl.getAttribute('contenteditable') === 'true')) {
+      if (e.key === 'Enter') {
+        if (e.shiftKey) {
+          // Shift+Enter: Alt satıra geçmesine izin ver
+          return;
+        } else {
+          // Tek Enter: Onayla, yeni satır açma ve odağı bırak
+          e.preventDefault();
+          activeEl.blur();
+        }
+      }
+    }
+  });
 });
 
 // Güncel Tarihi İnternetten Al ve Doldur
