@@ -328,9 +328,6 @@ def get_latest_excel_path() -> str:
         if f.endswith('.xlsx') and not f.startswith('~$')
     ]
     if not files:
-        root_excel = os.path.join(BASE_DIR, "Başlıksız e-tablo (1).xlsx")
-        if os.path.exists(root_excel):
-            return root_excel
         return ""
     files.sort(key=os.path.getmtime, reverse=True)
     return files[0]
