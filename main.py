@@ -142,6 +142,12 @@ def api_devices():
     })
 
 # --- Ürün & Stok API (Sade: Barkod, Ürün Adı, Fiyat) ---
+@app.route("/api/products", methods=["GET"])
+def api_products_get_all():
+    """Tüm kayıtlı ürünleri listeler."""
+    products = load_json(PRODUCTS_FILE, [])
+    return jsonify({"status": "success", "products": products})
+
 @app.route("/api/products/search", methods=["GET"])
 def api_products_search():
     """Barkod veya ürün adına göre stok araması yapar."""
@@ -154,7 +160,8 @@ def api_products_search():
         p for p in products 
         if q in str(p.get("barcode", "")).lower() or 
            q in str(p.get("title", "")).lower() or
-           q in str(p.get("title1", "")).lower()
+           q in str(p.get("title1", "")).lower() or
+           q in str(p.get("brand", "")).lower()
     ]
     return jsonify({"status": "success", "products": matches})
 
