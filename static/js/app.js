@@ -1095,8 +1095,9 @@ function applyScale() {
 
 let allCatalogProducts = [];
 let filteredCatalogProducts = [];
-let catalogCurrentPage = 1;
-const CATALOG_PAGE_SIZE = 50;
+let catalogRenderedCount = 100;
+let currentSortColumn = null;
+let currentSortDirection = 'asc'; // 'asc' veya 'desc'
 
 async function loadCatalog() {
   try {
@@ -1105,6 +1106,7 @@ async function loadCatalog() {
     if (data.status === 'success' && data.products) {
       allCatalogProducts = data.products;
       populateBrandFilterOptions();
+      setupCatalogScrollListener();
       onCatalogFilterChange();
     }
   } catch(e) {
@@ -1124,12 +1126,11 @@ function populateBrandFilterOptions() {
   });
 
   const sortedBrands = Object.keys(brandCounts).sort((a, b) => {
-    // Özel marka önceliklerini öne alabiliriz
     return brandCounts[b] - brandCounts[a];
   });
 
   const currentVal = brandSelect.value;
-  brandSelect.innerHTML = `<option value="ALL">🏢 Tüm Markalar / Firmalar (${allCatalogProducts.length})</option>`;
+  brandSelect.innerHTML = `<option value="ALL">🏢 Tüm Firmalar (${allCatalogProducts.length.toLocaleString('tr-TR')})</option>`;
 
   sortedBrands.forEach(brand => {
     const opt = document.createElement('option');
@@ -1144,7 +1145,6 @@ function populateBrandFilterOptions() {
 function onCatalogFilterChange() {
   const searchTxt = (document.getElementById('catalog-search-inp')?.value || '').toLowerCase().trim();
   const selectedBrand = document.getElementById('catalog-brand-select')?.value || 'ALL';
-  const sortMode = document.getElementById('catalog-sort-select')?.value || 'default';
 
   // 1. Filtrele
   filteredCatalogProducts = allCatalogProducts.filter(p => {
@@ -1158,20 +1158,65 @@ function onCatalogFilterChange() {
     return barcodeMatch || titleMatch || brandMatch;
   });
 
-  // 2. Sırala
-  if (sortMode === 'name_asc') {
-    filteredCatalogProducts.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'tr'));
-  } else if (sortMode === 'name_desc') {
-    filteredCatalogProducts.sort((a, b) => (b.title || '').localeCompare(a.title || '', 'tr'));
-  } else if (sortMode === 'price_asc') {
-    filteredCatalogProducts.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-  } else if (sortMode === 'price_desc') {
-    filteredCatalogProducts.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+  // 2. Eğer sütun sıralaması aktifse sırala
+  if (currentSortColumn) {
+    applyColumnSorting();
   }
 
-  // 3. Sayfayı başa al ve çiz
-  catalogCurrentPage = 1;
-  renderCatalogTable();
+  // 3. Render sayacını sıfırla ve çiz
+  catalogRenderedCount = 100;
+  renderCatalogTable(true);
+}
+
+// Sütun Başlığına Tıklayarak Sıralama (A-Z ve Z-A)
+function sortCatalogColumn(columnKey) {
+  if (currentSortColumn === columnKey) {
+    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSortColumn = columnKey;
+    currentSortDirection = 'asc';
+  }
+
+  updateSortIcons();
+  applyColumnSorting();
+  catalogRenderedCount = 100;
+  renderCatalogTable(true);
+}
+
+function applyColumnSorting() {
+  const dir = currentSortDirection === 'asc' ? 1 : -1;
+
+  filteredCatalogProducts.sort((a, b) => {
+    if (currentSortColumn === 'price') {
+      return (parsePrice(a.price) - parsePrice(b.price)) * dir;
+    } else if (currentSortColumn === 'barcode') {
+      return (a.barcode || '').localeCompare(b.barcode || '') * dir;
+    } else if (currentSortColumn === 'brand') {
+      return (a.brand || '').localeCompare(b.brand || '', 'tr') * dir;
+    } else if (currentSortColumn === 'title') {
+      return (a.title || '').localeCompare(b.title || '', 'tr') * dir;
+    } else if (currentSortColumn === 'date') {
+      return ((a.date || '19 Ağu 2026').localeCompare(b.date || '19 Ağu 2026', 'tr')) * dir;
+    }
+    return 0;
+  });
+}
+
+function updateSortIcons() {
+  ['brand', 'barcode', 'title', 'price', 'date'].forEach(col => {
+    const iconEl = document.getElementById(`sort-ico-${col}`);
+    if (iconEl) {
+      if (currentSortColumn === col) {
+        iconEl.innerText = currentSortDirection === 'asc' ? '▲' : '▼';
+        iconEl.style.color = '#38bdf8';
+        iconEl.style.opacity = '1';
+      } else {
+        iconEl.innerText = '↕';
+        iconEl.style.color = '';
+        iconEl.style.opacity = '0.5';
+      }
+    }
+  });
 }
 
 function parsePrice(pStr) {
@@ -1180,43 +1225,47 @@ function parsePrice(pStr) {
   return parseFloat(clean) || 0;
 }
 
-function renderCatalogTable() {
+// Akıcı Sonsuz Kaydırma (Infinite Scroll)
+function setupCatalogScrollListener() {
+  const container = document.getElementById('catalog-scroll-container');
+  if (!container) return;
+
+  container.addEventListener('scroll', () => {
+    if (container.scrollTop + container.clientHeight >= container.scrollHeight - 150) {
+      if (catalogRenderedCount < filteredCatalogProducts.length) {
+        catalogRenderedCount += 100;
+        renderCatalogTable(false);
+      }
+    }
+  });
+}
+
+function renderCatalogTable(reset = true) {
   const tbody = document.getElementById('catalog-tbody');
   const statsBadge = document.getElementById('catalog-stats-badge');
   const pageInfo = document.getElementById('catalog-page-info');
-  const currPageSpan = document.getElementById('catalog-current-page');
-  const prevBtn = document.getElementById('btn-catalog-prev');
-  const nextBtn = document.getElementById('btn-catalog-next');
 
   if (!tbody) return;
 
   const total = filteredCatalogProducts.length;
-  if (statsBadge) statsBadge.innerText = `${total.toLocaleString('tr-TR')} Ürün Listeleniyor`;
+  if (statsBadge) statsBadge.innerText = `${total.toLocaleString('tr-TR')} Ürün`;
 
-  const totalPages = Math.ceil(total / CATALOG_PAGE_SIZE) || 1;
-  if (catalogCurrentPage > totalPages) catalogCurrentPage = totalPages;
-  if (catalogCurrentPage < 1) catalogCurrentPage = 1;
-
-  const startIdx = (catalogCurrentPage - 1) * CATALOG_PAGE_SIZE;
-  const endIdx = Math.min(startIdx + CATALOG_PAGE_SIZE, total);
-  const pageItems = filteredCatalogProducts.slice(startIdx, endIdx);
+  const itemsToRender = filteredCatalogProducts.slice(0, catalogRenderedCount);
 
   if (pageInfo) {
     pageInfo.innerText = total > 0 
-      ? `Gösterilen: ${startIdx + 1} - ${endIdx} / Toplam ${total.toLocaleString('tr-TR')} ürün`
+      ? `Toplam ${total.toLocaleString('tr-TR')} ürün listeleniyor (İlk ${itemsToRender.length.toLocaleString('tr-TR')} gösteriliyor - kaydırarak devam edin)`
       : `Eşleşen ürün bulunamadı.`;
   }
 
-  if (currPageSpan) currPageSpan.innerText = `Sayfa ${catalogCurrentPage} / ${totalPages}`;
-  if (prevBtn) prevBtn.disabled = (catalogCurrentPage <= 1);
-  if (nextBtn) nextBtn.disabled = (catalogCurrentPage >= totalPages);
+  if (reset) {
+    tbody.innerHTML = '';
+  }
 
-  tbody.innerHTML = '';
-
-  if (pageItems.length === 0) {
+  if (itemsToRender.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
           🔍 Aradığınız kriterlere uygun ürün bulunamadı.
         </td>
       </tr>
@@ -1224,28 +1273,30 @@ function renderCatalogTable() {
     return;
   }
 
-  pageItems.forEach(p => {
+  const startIdx = reset ? 0 : tbody.children.length;
+  const newChunk = itemsToRender.slice(startIdx);
+
+  const currentDateText = document.getElementById('inp-date')?.value || '19 Ağu 2026';
+
+  const fragment = document.createDocumentFragment();
+  newChunk.forEach(p => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><span class="barcode-text">${p.barcode}</span></td>
       <td><span class="badge-brand">${p.brand || 'DİĞER'}</span></td>
+      <td><span class="barcode-text">${p.barcode}</span></td>
       <td style="font-weight: 600; color: #f8fafc;">${p.title}</td>
       <td style="text-align: right;"><span class="price-text">${p.price}</span></td>
+      <td style="text-align: center;"><span class="date-text">${p.date || currentDateText}</span></td>
       <td style="text-align: center;">
-        <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11.5px;" onclick="printProductFromCatalog('${p.barcode}')" title="Bu ürün için etiket hazırla ve bas">
-          🏷️ Etiketi Bas
+        <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="printProductFromCatalog('${p.barcode}')" title="Bu ürünün etiketini yazdır">
+          🏷️ Bas
         </button>
       </td>
     `;
-    tbody.appendChild(tr);
+    fragment.appendChild(tr);
   });
-}
 
-function changeCatalogPage(delta) {
-  catalogCurrentPage += delta;
-  renderCatalogTable();
-  const wrapper = document.querySelector('.catalog-table-wrapper');
-  if (wrapper) wrapper.scrollTop = 0;
+  tbody.appendChild(fragment);
 }
 
 function printProductFromCatalog(barcode) {
