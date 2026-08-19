@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTemplates();
   loadSettings();
   loadMobileQrCode();
+
+  // F5 Yenilemelerinde Son Aktif Sekmeyi Aç
+  const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
+  const savedTab = hashTab || localStorage.getItem('active_tab') || 'tab-print';
+  switchTab(savedTab);
 });
 
 // Güncel Tarihi İnternetten Al ve Doldur
@@ -50,8 +55,18 @@ async function loadCurrentDate() {
   } catch(e) {}
 }
 
-// 1. SOL SIDEBAR SEKME GEÇİŞLERİ
+// 1. SOL SIDEBAR SEKME GEÇİŞLERİ (F5 KALICILIĞI İLE)
 function switchTab(tabId) {
+  if (!tabId || !document.getElementById(tabId)) {
+    tabId = 'tab-print';
+  }
+
+  // Kalıcılık kaydı
+  localStorage.setItem('active_tab', tabId);
+  try {
+    history.replaceState(null, null, '#' + tabId);
+  } catch (e) {}
+
   document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
@@ -66,22 +81,22 @@ function switchTab(tabId) {
 
   if (tabId === 'tab-print') {
     if (buttons[0]) buttons[0].classList.add('active');
-    heading.innerText = '🏷️ Etiket Çıkart';
-    subheading.innerText = 'Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı';
+    if (heading) heading.innerText = '🏷️ Etiket Çıkart';
+    if (subheading) subheading.innerText = 'Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı';
   } else if (tabId === 'tab-design') {
     if (buttons[1]) buttons[1].classList.add('active');
-    heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
-    subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
+    if (heading) heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
+    if (subheading) subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
     loadTemplates();
   } else if (tabId === 'tab-qr') {
     if (buttons[2]) buttons[2].classList.add('active');
-    heading.innerText = '📱 Mobil QR Bağlantısı';
-    subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
+    if (heading) heading.innerText = '📱 Mobil QR Bağlantısı';
+    if (subheading) subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
   } else if (tabId === 'tab-settings') {
     if (buttons[3]) buttons[3].classList.add('active');
-    heading.innerText = '⚙️ Sistem & Donanım Ayarları';
-    subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
+    if (heading) heading.innerText = '⚙️ Sistem & Donanım Ayarları';
+    if (subheading) subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
     loadSettings();
   }
 }
