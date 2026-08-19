@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTemplates();
   loadSettings();
   loadMobileQrCode();
+  loadCatalog();
 
   // F5 Yenilemelerinde Son Aktif Sekmeyi Aç
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;

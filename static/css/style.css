@@ -1129,11 +1129,15 @@ input:focus, select:focus {
 /* =========================================
    SEKME 3: ÜRÜN KATALOĞU STİLLERİ
    ========================================= */
-.catalog-container {
+.catalog-container.modern-catalog {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
+  flex: 1;
+  min-height: calc(100vh - 140px);
   padding: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -1141,23 +1145,34 @@ input:focus, select:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 14px 18px;
-  background: var(--bg-card);
+  gap: 16px;
+  padding: 14px 20px;
+  background: #090d16;
   border-bottom: 1px solid var(--border-color);
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .catalog-search-box {
   position: relative;
   flex: 1;
-  min-width: 250px;
+  max-width: 450px;
 }
 
 .catalog-search-box input {
-  padding-left: 36px;
+  width: 100%;
+  padding: 9px 12px 9px 38px;
   font-size: 13px;
-  background: #090d16;
+  background: #131b2e;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.catalog-search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .catalog-search-box .search-icon {
@@ -1167,40 +1182,31 @@ input:focus, select:focus {
   transform: translateY(-50%);
   font-size: 14px;
   opacity: 0.6;
+  pointer-events: none;
 }
 
 .catalog-filters {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.filter-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-item label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  white-space: nowrap;
+  gap: 10px;
 }
 
 .filter-item select {
-  padding: 8px 12px;
-  font-size: 12px;
-  background: #090d16;
-  min-width: 170px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  background: #131b2e;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  min-width: 220px;
+  cursor: pointer;
 }
 
 .badge-catalog-stats {
   background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
   border: 1px solid rgba(59, 130, 246, 0.3);
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 800;
@@ -1209,8 +1215,10 @@ input:focus, select:focus {
 
 .catalog-table-wrapper {
   flex: 1;
+  min-height: 480px;
+  max-height: calc(100vh - 240px);
   overflow-y: auto;
-  background: #060913;
+  background: #040711;
   position: relative;
 }
 
@@ -1223,13 +1231,13 @@ input:focus, select:focus {
 .catalog-table th {
   position: sticky;
   top: 0;
-  background: #0f172a;
+  background: #0d1424;
   color: #94a3b8;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 12px 16px;
+  padding: 13px 18px;
   border-bottom: 1px solid var(--border-color);
   z-index: 10;
   user-select: none;
@@ -1242,25 +1250,25 @@ input:focus, select:focus {
 
 .sortable-th:hover {
   background: #1e293b;
-  color: var(--primary);
+  color: #60a5fa;
 }
 
 .sort-icon {
   display: inline-block;
-  margin-left: 4px;
+  margin-left: 5px;
   font-size: 11px;
   opacity: 0.5;
-  transition: transform 0.15s;
+  transition: all 0.15s;
 }
 
 .sortable-th:hover .sort-icon {
   opacity: 1;
-  color: var(--primary);
+  color: #60a5fa;
 }
 
 .catalog-table td {
-  padding: 10px 16px;
-  font-size: 12.5px;
+  padding: 11px 18px;
+  font-size: 13px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   vertical-align: middle;
@@ -1277,26 +1285,26 @@ input:focus, select:focus {
   border: 1px solid rgba(59, 130, 246, 0.3);
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .barcode-text {
   font-family: monospace;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #38bdf8;
 }
 
 .price-text {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   color: #34d399;
 }
 
 .date-text {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -1305,9 +1313,10 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 18px;
-  background: var(--bg-card);
+  padding: 11px 20px;
+  background: #090d16;
   border-top: 1px solid var(--border-color);
   font-size: 12px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
