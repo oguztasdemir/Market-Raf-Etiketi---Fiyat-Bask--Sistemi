@@ -1,8 +1,28 @@
-"""
-Termal Etiket Kod ve Grafik Üretim Motoru (ZPL II)
-Çoklu şablon ve sağ üst köşe özelleştirme desteği ile kalibrasyonlu ZPL motoru.
-"""
+import json
 import textwrap
+import datetime
+import urllib.request
+
+MONTHS_TR = {
+    1: 'Oca', 2: 'Sub', 3: 'Mar', 4: 'Nis', 5: 'May', 6: 'Haz',
+    7: 'Tem', 8: 'Agu', 9: 'Eyl', 10: 'Eki', 11: 'Kas', 12: 'Ara'
+}
+
+def get_online_or_system_date():
+    """İnternetten Türkiye saati ile (veya sistemden) günün güncel tarihini çeker."""
+    try:
+        req = urllib.request.Request("http://worldtimeapi.org/api/timezone/Europe/Istanbul", headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=1.2) as resp:
+            data = json.loads(resp.read().decode())
+            dt_str = data.get('datetime', '')
+            dt = datetime.datetime.fromisoformat(dt_str)
+            return f"{dt.day} {MONTHS_TR.get(dt.month, '')} {dt.year}"
+    except Exception:
+        pass
+    
+    # Sistem Saati Fallback
+    now = datetime.datetime.now()
+    return f"{now.day} {MONTHS_TR.get(now.month, '')} {now.year}"
 
 def clean_tr(text):
     """Termal yazıcı fontları için Türkçe karakter uyumluluğu ve temizleme."""
@@ -76,7 +96,14 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
 
     brand = clean_tr(data.get('brand', 'YARENLER')).strip().upper()
     origin = clean_tr(data.get('origin', 'TURKIYE')).strip().upper()
-    date = clean_tr(data.get('date', '14 May 2025')).strip()
+    
+    # Her zaman internetten / sistemden güncel tarih
+    custom_date = data.get('date')
+    if not custom_date or custom_date in ['14 May 2025', '19 Agu 2026', '']:
+        date = get_online_or_system_date()
+    else:
+        date = clean_tr(custom_date).strip()
+        
     unit_price = clean_tr(data.get('unit_price', '250.00 TL/Kg')).strip()
     barcode = str(data.get('barcode', '8690504114925')).strip()
     price = str(data.get('price', '10,00 TL')).replace('₺', 'TL').strip()

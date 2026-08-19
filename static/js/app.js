@@ -17,10 +17,25 @@ const API_BASE = (window.location.protocol === 'file:' || !window.location.port 
 document.addEventListener('DOMContentLoaded', () => {
   renderBarcode();
   checkBackendAndDevices();
+  loadCurrentDate();
   loadTemplates();
   loadSettings();
   loadMobileQrCode();
 });
+
+// Güncel Tarihi İnternetten Al ve Doldur
+async function loadCurrentDate() {
+  try {
+    const res = await fetch(`${API_BASE}/api/current-date`);
+    const data = await res.json();
+    if (data.status === 'success' && data.date) {
+      const dateInp = document.getElementById('inp-date');
+      const dateLbl = document.getElementById('lbl-date');
+      if (dateInp) dateInp.value = data.date;
+      if (dateLbl) dateLbl.innerText = data.date;
+    }
+  } catch(e) {}
+}
 
 // 1. SOL SIDEBAR SEKME GEÇİŞLERİ
 function switchTab(tabId) {

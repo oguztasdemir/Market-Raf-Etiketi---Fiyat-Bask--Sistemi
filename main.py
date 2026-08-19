@@ -120,6 +120,13 @@ def api_network_ip():
         "mobile_url": mobile_url
     })
 
+@app.route("/api/current-date", methods=["GET"])
+def api_current_date():
+    """İnternetten güncel tarihi döner."""
+    from src.zpl_generator import get_online_or_system_date
+    current_d = get_online_or_system_date()
+    return jsonify({"status": "success", "date": current_d})
+
 @app.route("/api/devices", methods=["GET"])
 def api_devices():
     """Bağlı USB donanımını ve yazıcı kuyruklarını listeler."""
