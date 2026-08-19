@@ -415,6 +415,14 @@ async function submitNewModelModal() {
     is_locked: false
   };
 
+  // 1. Önce yerel listeye ekle ve hemen göster (hızlı UI)
+  templatesList.push(newTpl);
+  editingTemplateId = newId;
+  closeNewModelModal();
+  renderTemplateList();
+  openTemplateInEditor(newTpl);
+
+  // 2. Arka planda sunucuya kaydet
   try {
     const res = await fetch(`${API_BASE}/api/templates`, {
       method: 'POST',
@@ -422,14 +430,13 @@ async function submitNewModelModal() {
       body: JSON.stringify(newTpl)
     });
     const data = await res.json();
-    if (data.status === 'success') {
-      closeNewModelModal();
-      editingTemplateId = newId;
-      await loadTemplates();
-      openTemplateInEditor(data.template || newTpl);
+    if (data.status === 'success' && data.template) {
+      // Sunucudan gelen güncel objeyi güncelle
+      const idx = templatesList.findIndex(t => t.id === newId);
+      if (idx !== -1) templatesList[idx] = data.template;
     }
   } catch(e) {
-    alert("Model oluşturulurken hata oluştu!");
+    console.warn("Model sunucuya kaydedilirken ağ uyarısı:", e);
   }
 }
 
