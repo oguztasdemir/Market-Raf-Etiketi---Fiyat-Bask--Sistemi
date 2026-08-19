@@ -907,22 +907,6 @@ input:focus, select:focus {
 }
 
 .tpl-item-card.active {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: var(--primary);
-}
-
-.tpl-info h4 {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.tpl-info p {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-  background: #1e293b;
-}
-
 .tpl-item-card.active {
   background: rgba(59, 130, 246, 0.15);
   border-color: var(--primary);
@@ -1140,4 +1124,162 @@ input:focus, select:focus {
   border-radius: 4px;
   font-size: 10px;
   font-weight: 800;
+}
+
+/* =========================================
+   SEKME 3: ÜRÜN KATALOĞU STİLLERİ
+   ========================================= */
+.catalog-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.catalog-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+}
+
+.catalog-search-box input {
+  padding-left: 36px;
+  font-size: 13px;
+  background: #090d16;
+}
+
+.catalog-search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.catalog-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-item label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.filter-item select {
+  padding: 8px 12px;
+  font-size: 12px;
+  background: #090d16;
+  min-width: 170px;
+}
+
+.badge-catalog-stats {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.catalog-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  background: #060913;
+}
+
+.catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.catalog-table th {
+  position: sticky;
+  top: 0;
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 10;
+}
+
+.catalog-table td {
+  padding: 10px 16px;
+  font-size: 12.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.catalog-table tr:hover td {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.badge-brand {
+  display: inline-block;
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.barcode-text {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.price-text {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.catalog-pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }

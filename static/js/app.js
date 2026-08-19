@@ -105,13 +105,18 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
     if (subheading) subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
     loadTemplates();
-  } else if (tabId === 'tab-qr') {
+  } else if (tabId === 'tab-catalog') {
     if (buttons[2]) buttons[2].classList.add('active');
+    if (heading) heading.innerText = '📦 Ürün Kataloğu & Firma Listesi';
+    if (subheading) subheading.innerText = 'Kayıtlı tüm market ürünlerini inceleyin, firmalara göre filtreleyin ve anında etiket basın';
+    loadCatalog();
+  } else if (tabId === 'tab-qr') {
+    if (buttons[3]) buttons[3].classList.add('active');
     if (heading) heading.innerText = '📱 Mobil QR Bağlantısı';
     if (subheading) subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
   } else if (tabId === 'tab-settings') {
-    if (buttons[3]) buttons[3].classList.add('active');
+    if (buttons[4]) buttons[4].classList.add('active');
     if (heading) heading.innerText = '⚙️ Sistem & Donanım Ayarları';
     if (subheading) subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
     loadSettings();
@@ -1082,4 +1087,174 @@ function applyScale() {
     label.style.transform = `scale(${currentScale})`;
   }
   document.getElementById('zoom-text').innerText = `${Math.round(currentScale * 100)}%`;
+}
+
+// =============================================================
+// 10. ÜRÜN KATALOĞU (FİRMA / MARKA FİLTRELERİ & HIZLI BASKI)
+// =============================================================
+
+let allCatalogProducts = [];
+let filteredCatalogProducts = [];
+let catalogCurrentPage = 1;
+const CATALOG_PAGE_SIZE = 50;
+
+async function loadCatalog() {
+  try {
+    const res = await fetch(`${API_BASE}/api/products`);
+    const data = await res.json();
+    if (data.status === 'success' && data.products) {
+      allCatalogProducts = data.products;
+      populateBrandFilterOptions();
+      onCatalogFilterChange();
+    }
+  } catch(e) {
+    console.warn("Katalog ürünleri yüklenirken hata:", e);
+  }
+}
+
+function populateBrandFilterOptions() {
+  const brandSelect = document.getElementById('catalog-brand-select');
+  if (!brandSelect) return;
+
+  // Marka frekanslarını topla
+  const brandCounts = {};
+  allCatalogProducts.forEach(p => {
+    const b = p.brand || 'DİĞER';
+    brandCounts[b] = (brandCounts[b] || 0) + 1;
+  });
+
+  const sortedBrands = Object.keys(brandCounts).sort((a, b) => {
+    // Özel marka önceliklerini öne alabiliriz
+    return brandCounts[b] - brandCounts[a];
+  });
+
+  const currentVal = brandSelect.value;
+  brandSelect.innerHTML = `<option value="ALL">🏢 Tüm Markalar / Firmalar (${allCatalogProducts.length})</option>`;
+
+  sortedBrands.forEach(brand => {
+    const opt = document.createElement('option');
+    opt.value = brand;
+    opt.innerText = `${brand} (${brandCounts[brand]} Ürün)`;
+    brandSelect.appendChild(opt);
+  });
+
+  if (currentVal) brandSelect.value = currentVal;
+}
+
+function onCatalogFilterChange() {
+  const searchTxt = (document.getElementById('catalog-search-inp')?.value || '').toLowerCase().trim();
+  const selectedBrand = document.getElementById('catalog-brand-select')?.value || 'ALL';
+  const sortMode = document.getElementById('catalog-sort-select')?.value || 'default';
+
+  // 1. Filtrele
+  filteredCatalogProducts = allCatalogProducts.filter(p => {
+    const matchesBrand = (selectedBrand === 'ALL') || (p.brand === selectedBrand);
+    if (!matchesBrand) return false;
+
+    if (!searchTxt) return true;
+    const barcodeMatch = (p.barcode || '').includes(searchTxt);
+    const titleMatch = (p.title || '').toLowerCase().includes(searchTxt);
+    const brandMatch = (p.brand || '').toLowerCase().includes(searchTxt);
+    return barcodeMatch || titleMatch || brandMatch;
+  });
+
+  // 2. Sırala
+  if (sortMode === 'name_asc') {
+    filteredCatalogProducts.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'tr'));
+  } else if (sortMode === 'name_desc') {
+    filteredCatalogProducts.sort((a, b) => (b.title || '').localeCompare(a.title || '', 'tr'));
+  } else if (sortMode === 'price_asc') {
+    filteredCatalogProducts.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+  } else if (sortMode === 'price_desc') {
+    filteredCatalogProducts.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+  }
+
+  // 3. Sayfayı başa al ve çiz
+  catalogCurrentPage = 1;
+  renderCatalogTable();
+}
+
+function parsePrice(pStr) {
+  if (!pStr) return 0;
+  const clean = String(pStr).replace('TL', '').replace('tl', '').replace('₺', '').replace(',', '.').trim();
+  return parseFloat(clean) || 0;
+}
+
+function renderCatalogTable() {
+  const tbody = document.getElementById('catalog-tbody');
+  const statsBadge = document.getElementById('catalog-stats-badge');
+  const pageInfo = document.getElementById('catalog-page-info');
+  const currPageSpan = document.getElementById('catalog-current-page');
+  const prevBtn = document.getElementById('btn-catalog-prev');
+  const nextBtn = document.getElementById('btn-catalog-next');
+
+  if (!tbody) return;
+
+  const total = filteredCatalogProducts.length;
+  if (statsBadge) statsBadge.innerText = `${total.toLocaleString('tr-TR')} Ürün Listeleniyor`;
+
+  const totalPages = Math.ceil(total / CATALOG_PAGE_SIZE) || 1;
+  if (catalogCurrentPage > totalPages) catalogCurrentPage = totalPages;
+  if (catalogCurrentPage < 1) catalogCurrentPage = 1;
+
+  const startIdx = (catalogCurrentPage - 1) * CATALOG_PAGE_SIZE;
+  const endIdx = Math.min(startIdx + CATALOG_PAGE_SIZE, total);
+  const pageItems = filteredCatalogProducts.slice(startIdx, endIdx);
+
+  if (pageInfo) {
+    pageInfo.innerText = total > 0 
+      ? `Gösterilen: ${startIdx + 1} - ${endIdx} / Toplam ${total.toLocaleString('tr-TR')} ürün`
+      : `Eşleşen ürün bulunamadı.`;
+  }
+
+  if (currPageSpan) currPageSpan.innerText = `Sayfa ${catalogCurrentPage} / ${totalPages}`;
+  if (prevBtn) prevBtn.disabled = (catalogCurrentPage <= 1);
+  if (nextBtn) nextBtn.disabled = (catalogCurrentPage >= totalPages);
+
+  tbody.innerHTML = '';
+
+  if (pageItems.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          🔍 Aradığınız kriterlere uygun ürün bulunamadı.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  pageItems.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="barcode-text">${p.barcode}</span></td>
+      <td><span class="badge-brand">${p.brand || 'DİĞER'}</span></td>
+      <td style="font-weight: 600; color: #f8fafc;">${p.title}</td>
+      <td style="text-align: right;"><span class="price-text">${p.price}</span></td>
+      <td style="text-align: center;">
+        <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11.5px;" onclick="printProductFromCatalog('${p.barcode}')" title="Bu ürün için etiket hazırla ve bas">
+          🏷️ Etiketi Bas
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function changeCatalogPage(delta) {
+  catalogCurrentPage += delta;
+  renderCatalogTable();
+  const wrapper = document.querySelector('.catalog-table-wrapper');
+  if (wrapper) wrapper.scrollTop = 0;
+}
+
+function printProductFromCatalog(barcode) {
+  const product = allCatalogProducts.find(p => p.barcode === barcode);
+  if (!product) return;
+
+  // 1. Ana Etiket Çıkart sekmesine aktar
+  selectProduct(product);
+  
+  // 2. Etiket Çıkart sekmesini aç
+  switchTab('tab-print');
 }

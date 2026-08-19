@@ -38,6 +38,11 @@
         <span class="nav-label">Etiket Düzenle</span>
       </button>
 
+      <button class="nav-item" onclick="switchTab('tab-catalog')">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Ürün Kataloğu</span>
+      </button>
+
       <button class="nav-item" onclick="switchTab('tab-qr')">
         <span class="nav-icon">📱</span>
         <span class="nav-label">QR Bağlantısı</span>
@@ -338,7 +343,79 @@
 
 
       <!-- =========================================================
-           SEKME 3: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ)
+           SEKME 3: ÜRÜN KATALOĞU (STOK & FİRMA LİSTESİ)
+           ========================================================= -->
+      <div id="tab-catalog" class="tab-content">
+        <div class="card catalog-container">
+          
+          <!-- Üst Filtreleme & Arama Araç Çubuğu -->
+          <div class="catalog-toolbar">
+            <div class="catalog-search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="catalog-search-inp" placeholder="Barkod, ürün adı veya marka ile filtrele..." oninput="onCatalogFilterChange()">
+            </div>
+
+            <div class="catalog-filters">
+              <div class="filter-item">
+                <label>Firma / Marka:</label>
+                <select id="catalog-brand-select" class="custom-select" onchange="onCatalogFilterChange()">
+                  <option value="ALL">Tüm Markalar (Tümü)</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <label>Sıralama:</label>
+                <select id="catalog-sort-select" class="custom-select" onchange="onCatalogFilterChange()">
+                  <option value="default">Sistematik Kategori Sırası</option>
+                  <option value="name_asc">Ürün Adı (A-Z)</option>
+                  <option value="name_desc">Ürün Adı (Z-A)</option>
+                  <option value="price_asc">Fiyat (En Düşük)</option>
+                  <option value="price_desc">Fiyat (En Yüksek)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="catalog-actions-box">
+              <span id="catalog-stats-badge" class="badge-catalog-stats">4.783 Ürün</span>
+            </div>
+          </div>
+
+          <!-- Ürün Listesi Tablosu -->
+          <div class="catalog-table-wrapper">
+            <table class="catalog-table">
+              <thead>
+                <tr>
+                  <th style="width: 140px;">Barkod</th>
+                  <th style="width: 140px;">Marka / Firma</th>
+                  <th>Ürün Adı & Tanımı</th>
+                  <th style="width: 110px; text-align: right;">Fiyat</th>
+                  <th style="width: 150px; text-align: center;">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="catalog-tbody">
+                <!-- Dinamik olarak app.js tarafından doldurulacak -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Alt Sayfalama & Bilgi Barı -->
+          <div class="catalog-pagination-bar">
+            <div id="catalog-page-info" style="font-size: 12px; color: var(--text-muted);">
+              Gösterilen: 1 - 50 / Toplam 4.783 ürün
+            </div>
+            <div class="pagination-controls">
+              <button class="btn-sm btn-secondary" id="btn-catalog-prev" onclick="changeCatalogPage(-1)">◀ Önceki</button>
+              <span id="catalog-current-page" style="font-weight: 700; font-size: 13px; color: white; padding: 0 8px;">Sayfa 1</span>
+              <button class="btn-sm btn-secondary" id="btn-catalog-next" onclick="changeCatalogPage(1)">Sonraki ▶</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- =========================================================
+           SEKME 4: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ)
            ========================================================= -->
       <div id="tab-qr" class="tab-content">
         <div class="qr-panel-container">
