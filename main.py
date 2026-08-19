@@ -416,7 +416,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
                     "excel_price": price_str,
                     "diff_amount": round(diff, 2),
                     "diff_percent": round((diff / cur_price_val * 100), 1) if cur_price_val > 0 else 0,
-                    "brand": p.get('brand', 'DİĞER'),
+                    "brand": p.get('brand') if (p.get('brand') and p.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
                     "status": "changed"
                 })
             else:
@@ -426,7 +426,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
                     "current_title": p.get('title') or p.get('title1') or title,
                     "current_price": p.get('price') or "-",
                     "excel_price": price_str,
-                    "brand": p.get('brand', 'DİĞER'),
+                    "brand": p.get('brand') if (p.get('brand') and p.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
                     "status": "matched"
                 })
         else:
@@ -439,7 +439,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
                     "current_title": cleaned_title,
                     "current_price": "-",
                     "excel_price": price_str,
-                    "brand": "DİĞER",
+                    "brand": "YARENLER",
                     "status": "new"
                 })
 
@@ -591,7 +591,7 @@ def api_catalog_apply_sync():
                 "title": clean_title,
                 "title1": clean_title,
                 "title2": "",
-                "brand": item.get('brand') or "DİĞER",
+                "brand": item.get('brand') if (item.get('brand') and item.get('brand') not in ['DİĞER', 'DIGER']) else "YARENLER",
                 "origin": "TÜRKİYE",
                 "price": formatted_price,
                 "date": now_date,
@@ -1188,10 +1188,14 @@ def api_print_batch():
         else:
             label_date = raw_date
 
+        p_brand = str(p.get("brand") or "").strip()
+        if not p_brand or p_brand.upper() in ["DİĞER", "DIGER", "DİGER"]:
+            p_brand = "YARENLER"
+
         data = {
             "title1": t1,
             "title2": t2,
-            "brand": str(p.get("brand") or "YARENLER"),
+            "brand": p_brand,
             "origin": str(p.get("origin") or "TÜRKİYE"),
             "date": label_date,
             "unit_price": str(p.get("unit_price") or ""),

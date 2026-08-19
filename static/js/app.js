@@ -2909,9 +2909,9 @@ async function submitSyncBatchPrint() {
         productsToPrint.push({
           barcode: syncItem.barcode,
           title: syncItem.current_title || syncItem.excel_title,
-          brand: syncItem.brand || "DİĞER",
+          brand: (syncItem.brand && syncItem.brand !== 'DİĞER' && syncItem.brand !== 'DIGER') ? syncItem.brand : "YARENLER",
           price: syncItem.excel_price || "0,00 TL",
-          date: document.getElementById('inp-date')?.value || "19 Ağu 2026"
+          date: document.getElementById('inp-date')?.value || ""
         });
       }
     }

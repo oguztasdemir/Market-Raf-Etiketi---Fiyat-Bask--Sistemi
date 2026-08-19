@@ -95,6 +95,8 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
     t1, t2 = split_title_lines(raw_t1, raw_t2, max_chars_per_line=max_title_chars)
 
     brand = clean_tr(data.get('brand', 'YARENLER')).strip().upper()
+    if not brand or brand in ['DIGER', 'DİĞER', 'DİGER']:
+        brand = 'YARENLER'
     origin = clean_tr(data.get('origin', 'TURKIYE')).strip().upper()
     
     # Her zaman internetten / sistemden güncel tarih

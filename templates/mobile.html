@@ -1754,9 +1754,9 @@
           products: [{
             barcode: currentItem.barcode,
             title: currentItem.title,
-            brand: "DİĞER",
+            brand: (currentItem.brand && currentItem.brand !== 'DİĞER' && currentItem.brand !== 'DIGER') ? currentItem.brand : "YARENLER",
             price: currentItem.price,
-            date: "19 Ağu 2026"
+            date: currentItem.date || ""
           }],
           orientation: "POR",
           width_mm: 76,
