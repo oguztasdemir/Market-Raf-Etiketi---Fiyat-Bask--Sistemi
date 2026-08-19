@@ -4,10 +4,17 @@ Termal Market Raf Etiketi Yazıcı Sunucusu (Ana Başlatıcı)
 import os
 import sys
 import time
+import signal
 import socket
+import logging
 import webbrowser
 import subprocess
 from flask import Flask, jsonify, request, send_from_directory
+
+# Gereksiz GET/POST 200 HTTP loglarını sustur (Sadece Hatalar ve Özel Mesajlar)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 # Modüler kaynakları içeri aktar
 from src.zpl_generator import generate_market_shelf_zpl, clean_tr
@@ -103,9 +110,9 @@ def api_print_send():
     u_title = clean_tr(data.get('title1', ''))
     u_price = clean_tr(data.get('price', ''))
     print(f"\n[BASKI TALEBİ] Yazıcı: {selected_printer} | Yön: {orientation} | Boyut: {width_mm}x{height_mm}mm | Adet: {copies}")
-    print(f"-> Ürün: {u_title} - Fiyat: {u_price}")
+    print(f"-> Ürün: {u_title} | Fiyat: {u_price}")
 
-    # ZPL kodunu üret (Görsel 2 Kalibrasyonu)
+    # ZPL kodunu üret
     zpl_command = generate_market_shelf_zpl(
         data,
         orientation=orientation,
@@ -120,10 +127,10 @@ def api_print_send():
     # Yazıcıya gönder
     try:
         print_raw_zpl(selected_printer, zpl_command, doc_name="Market Raf Etiketi")
-        print(f"[BAŞARILI] {len(zpl_command)} bayt iletildi. Etiket basıldı!")
+        print(f"[BAŞARILI] {len(zpl_command)} bayt yazıcıya iletildi. {copies} adet etiket basıldı!")
         return jsonify({
             "status": "success",
-            "message": f"'{selected_printer}' yazıcısına iletildi! Etiket basıldı.",
+            "message": f"'{selected_printer}' yazıcısına iletildi! {copies} adet etiket basıldı.",
             "zpl": zpl_command
         })
     except Exception as e:
@@ -146,10 +153,16 @@ def run_server(host="127.0.0.1", port=5000):
     free_port(port)
     time.sleep(0.5)
 
+    # Ctrl+C ile kazara kapanmayı engelle (Sadece pencere manuel kapatılınca kapansın)
+    def ignore_sigint(sig, frame):
+        pass
+    signal.signal(signal.SIGINT, ignore_sigint)
+
     url = f"http://{host}:{port}"
     print("=" * 60)
-    print("Market Raf Etiketi Yazıcı Sunucusu Başlatıldı!")
+    print("🏷️  Market Raf Etiketi Yazıcı Sunucusu Aktif!")
     print(f"Panel Adresi : {url}")
+    print("Log Modu     : Sade (Sadece Baskılar, Güncellemeler ve Hatalar)")
     print("=" * 60)
 
     try:
