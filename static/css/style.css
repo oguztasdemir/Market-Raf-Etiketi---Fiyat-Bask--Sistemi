@@ -515,9 +515,6 @@ input:focus {
   width: 32px !important;
   height: 32px !important;
 }
-  gap: 3px;
-  align-items: center;
-}
 
 .unit-label {
   font-size: 6.8px;
