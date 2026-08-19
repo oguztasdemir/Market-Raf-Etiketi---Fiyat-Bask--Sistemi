@@ -356,11 +356,11 @@
       <div id="tab-catalog" class="tab-content">
         <div class="card catalog-container modern-catalog">
           
-          <!-- Üst Modern Minimal Arama ve Filtre Çubuğu -->
+          <!-- Üst Bütünleşik Excel Araç Çubuğu -->
           <div class="catalog-toolbar">
             <div class="catalog-title-inline">
-              <span style="font-size: 18px;">📦</span>
-              <strong>Ürün Kataloğu</strong>
+              <span style="font-size: 20px;">📦</span>
+              <span style="font-size: 15px; font-weight: 800; color: var(--text-main);">Ürün Kataloğu</span>
             </div>
 
             <div class="catalog-search-box">
@@ -376,8 +376,11 @@
               </div>
             </div>
 
-            <div class="catalog-actions-box">
+            <div class="catalog-actions-box" style="display: flex; align-items: center; gap: 10px;">
               <span id="catalog-stats-badge" class="badge-catalog-stats">4.783 Ürün</span>
+              <button id="btn-catalog-theme" class="btn-theme-pill" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir">
+                <span id="theme-icon">🌙</span> <span id="theme-text">Koyu Mod</span>
+              </button>
             </div>
           </div>
 

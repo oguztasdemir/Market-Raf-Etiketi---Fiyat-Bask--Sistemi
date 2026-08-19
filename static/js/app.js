@@ -71,18 +71,19 @@ function toggleAppTheme() {
 }
 
 function applyAppTheme(theme) {
-  const themeIcon = document.getElementById('theme-icon');
-  const themeText = document.getElementById('theme-text');
+  const isLight = (theme === 'light');
   
-  if (theme === 'light') {
+  if (isLight) {
     document.body.classList.add('light-theme');
-    if (themeIcon) themeIcon.innerText = '☀️';
-    if (themeText) themeText.innerText = 'Açık Mod';
   } else {
     document.body.classList.remove('light-theme');
-    if (themeIcon) themeIcon.innerText = '🌙';
-    if (themeText) themeText.innerText = 'Koyu Mod';
   }
+
+  // Tüm tema butonlarını güncelle
+  document.querySelectorAll('.btn-theme-pill').forEach(btn => {
+    btn.innerHTML = isLight ? `<span>☀️</span> <span>Açık Mod</span>` : `<span>🌙</span> <span>Koyu Mod</span>`;
+  });
+
   localStorage.setItem('app_theme', theme);
 }
 
@@ -122,6 +123,13 @@ function switchTab(tabId) {
     activeTabEl.classList.add('active');
   }
 
+  // Katalog sekmesi için tam ekran kiti
+  if (tabId === 'tab-catalog') {
+    document.body.classList.add('on-catalog');
+  } else {
+    document.body.classList.remove('on-catalog');
+  }
+
   const buttons = document.querySelectorAll('.nav-item');
   const heading = document.getElementById('page-heading');
   const subheading = document.getElementById('page-subheading');
@@ -142,8 +150,6 @@ function switchTab(tabId) {
     loadTemplates();
   } else if (tabId === 'tab-catalog') {
     if (buttons[2]) buttons[2].classList.add('active');
-    if (heading) heading.innerText = '📦 Ürün Kataloğu & Firma Listesi';
-    if (subheading) subheading.innerText = 'Kayıtlı tüm market ürünlerini inceleyin, firmalara göre filtreleyin ve anında etiket basın';
     loadCatalog();
   } else if (tabId === 'tab-qr') {
     if (buttons[3]) buttons[3].classList.add('active');
