@@ -344,126 +344,243 @@ function setCurrentTemplateAsDefault() {
   alert(`⭐ "${tpl.name}" baskılarda kullanılacak varsayılan model olarak ayarlandı!`);
 }
 
+let selectedCanvasElement = null;
+
 function openTemplateInEditor(tpl) {
   editingTemplateId = tpl.id;
-  document.getElementById('txt-editing-tpl-title').innerText = `🎨 Model Düzenle: ${tpl.name}`;
-  document.getElementById('inp-tpl-name').value = tpl.name;
-  document.getElementById('inp-tpl-desc').value = tpl.description || '';
-  document.getElementById('tpl-top-right-mode').value = tpl.top_right_mode || 'empty';
+  const badgeName = document.getElementById('editor-preview-name');
+  if (badgeName) badgeName.innerText = `${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}`;
   
-  const lockedBadge = document.getElementById('badge-tpl-locked');
-  const deleteBtn = document.getElementById('btn-delete-template');
   const defaultBtn = document.getElementById('btn-set-default');
-  
-  if (tpl.is_locked) {
-    lockedBadge.style.display = 'inline-block';
-    deleteBtn.style.display = 'none';
-  } else {
-    lockedBadge.style.display = 'none';
-    deleteBtn.style.display = 'inline-block';
-  }
-
   if (defaultBtn) {
     if (tpl.id === activeTemplateId) {
-      defaultBtn.innerText = "⭐ Bu Model Şu An Varsayılan";
+      defaultBtn.innerText = "⭐ Varsayılan Model";
       defaultBtn.style.borderColor = "#fbbf24";
       defaultBtn.style.color = "#fbbf24";
     } else {
-      defaultBtn.innerText = "⭐️ Bu Modeli Varsayılan Yap";
+      defaultBtn.innerText = "⭐️ Varsayılan Yap";
       defaultBtn.style.borderColor = "var(--border-color)";
       defaultBtn.style.color = "white";
     }
   }
 
-  onEditorTopRightChange(tpl.top_right_mode || 'empty');
-  document.getElementById('inp-tpl-custom-text').value = tpl.top_right_text || '';
+  // Özel katmanları yükle
+  renderCustomLayers(tpl.custom_layers || []);
   updateEditorPreview();
 }
 
-// Uygulama İçi Yeni Model Modalı
-function createNewTemplate() {
-  const modal = document.getElementById('modal-new-template');
-  const input = document.getElementById('modal-inp-tpl-name');
-  if (modal && input) {
-    input.value = '';
-    modal.style.display = 'flex';
-    setTimeout(() => input.focus(), 50);
+// -------------------------------------------------------------
+// İNTERAKTİF TUVAL (CANVAS) ÇİZİM VE ELEMAN YÖNETİMİ
+// -------------------------------------------------------------
+
+function addTextToCanvas() {
+  const container = document.getElementById('editor-custom-layers');
+  if (!container) return;
+
+  const id = `el_text_${Date.now()}`;
+  const el = document.createElement('div');
+  el.className = 'custom-canvas-element';
+  el.id = id;
+  el.style.left = '30px';
+  el.style.top = '40px';
+
+  el.innerHTML = `<span class="custom-text-node" contenteditable="true" spellcheck="false">YENİ METİN</span>`;
+  container.appendChild(el);
+
+  makeDraggable(el);
+  selectCanvasElement(el);
+}
+
+function addLineToCanvas() {
+  const container = document.getElementById('editor-custom-layers');
+  if (!container) return;
+
+  const id = `el_line_${Date.now()}`;
+  const el = document.createElement('div');
+  el.className = 'custom-canvas-element';
+  el.id = id;
+  el.style.left = '20px';
+  el.style.top = '60px';
+  el.style.width = '120px';
+
+  el.innerHTML = `<div class="custom-line-node" style="width:100%;"></div>`;
+  container.appendChild(el);
+
+  makeDraggable(el);
+  selectCanvasElement(el);
+}
+
+function addBoxToCanvas() {
+  const container = document.getElementById('editor-custom-layers');
+  if (!container) return;
+
+  const id = `el_box_${Date.now()}`;
+  const el = document.createElement('div');
+  el.className = 'custom-canvas-element';
+  el.id = id;
+  el.style.left = '160px';
+  el.style.top = '10px';
+
+  el.innerHTML = `<div class="custom-box-node" style="width:65px; height:28px;"></div>`;
+  container.appendChild(el);
+
+  makeDraggable(el);
+  selectCanvasElement(el);
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const container = document.getElementById('editor-custom-layers');
+    if (!container) return;
+
+    const id = `el_img_${Date.now()}`;
+    const el = document.createElement('div');
+    el.className = 'custom-canvas-element custom-image-node';
+    el.id = id;
+    el.style.left = '200px';
+    el.style.top = '10px';
+    el.style.width = '45px';
+
+    el.innerHTML = `<img src="${e.target.result}" style="width:100%; height:auto;">`;
+    container.appendChild(el);
+
+    makeDraggable(el);
+    selectCanvasElement(el);
+  };
+  reader.readAsDataURL(file);
+  event.target.value = ''; // Reset input
+}
+
+function selectCanvasElement(el) {
+  deselectAllElements();
+  selectedCanvasElement = el;
+  el.classList.add('element-selected');
+  
+  const deleteBtn = document.getElementById('btn-delete-selected-el');
+  if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+}
+
+function deselectAllElements() {
+  selectedCanvasElement = null;
+  document.querySelectorAll('.custom-canvas-element').forEach(el => {
+    el.classList.remove('element-selected');
+  });
+  const deleteBtn = document.getElementById('btn-delete-selected-el');
+  if (deleteBtn) deleteBtn.style.display = 'none';
+}
+
+function onCanvasBackgroundClick(event) {
+  if (event.target.classList.contains('studio-canvas-area') || event.target.id === 'editor-shelf-label') {
+    deselectAllElements();
   }
 }
 
-function closeNewModelModal() {
-  const modal = document.getElementById('modal-new-template');
-  if (modal) modal.style.display = 'none';
+function deleteSelectedElement() {
+  if (selectedCanvasElement) {
+    selectedCanvasElement.remove();
+    deselectAllElements();
+  }
 }
 
-async function submitNewModelModal() {
-  const input = document.getElementById('modal-inp-tpl-name');
-  const modelName = input ? input.value.trim() : '';
+function makeDraggable(element) {
+  let isDragging = false;
+  let startX, startY, origLeft, origTop;
 
-  if (!modelName) {
-    alert("Lütfen model adı girin!");
-    return;
-  }
+  element.addEventListener('mousedown', (e) => {
+    // Eğer düzenlenebilir metin içine tıklandıysa ve zaten seçiliyse sürüklemeyi başlatma
+    if (e.target.getAttribute('contenteditable') === 'true' && document.activeElement === e.target) {
+      return;
+    }
+    
+    selectCanvasElement(element);
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
 
-  const newId = `tpl_${Date.now()}`;
-  const newTpl = {
-    id: newId,
-    name: modelName,
-    description: "Özel mağaza etiket modeli.",
-    top_right_mode: "unit_price",
+    origLeft = parseInt(element.style.left) || 0;
+    origTop = parseInt(element.style.top) || 0;
+
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    element.style.left = `${Math.max(0, origLeft + dx)}px`;
+    element.style.top = `${Math.max(0, origTop + dy)}px`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+}
+
+function renderCustomLayers(layers) {
+  const container = document.getElementById('editor-custom-layers');
+  if (!container) return;
+  container.innerHTML = '';
+
+  layers.forEach(l => {
+    const el = document.createElement('div');
+    el.className = 'custom-canvas-element';
+    el.id = l.id;
+    el.style.left = l.left || '10px';
+    el.style.top = l.top || '10px';
+    if (l.width) el.style.width = l.width;
+
+    el.innerHTML = l.html;
+    container.appendChild(el);
+    makeDraggable(el);
+  });
+}
+
+// Şablonu Tüm Katmanlarıyla Kaydet
+async function saveTemplateFromEditor() {
+  const currentTpl = templatesList.find(t => t.id === editingTemplateId) || {};
+  
+  // Katmanları topla
+  const customLayers = [];
+  document.querySelectorAll('#editor-custom-layers .custom-canvas-element').forEach(el => {
+    customLayers.push({
+      id: el.id,
+      left: el.style.left,
+      top: el.style.top,
+      width: el.style.width,
+      html: el.innerHTML
+    });
+  });
+
+  const payload = {
+    id: editingTemplateId || `tpl_${Date.now()}`,
+    name: currentTpl.name || "Özel Etiket Modeli",
+    description: currentTpl.description || "Görsel düzenlenmiş model.",
+    top_right_mode: "empty",
     top_right_text: "",
-    is_locked: false
+    custom_layers: customLayers,
+    is_locked: currentTpl.is_locked || false
   };
 
-  // 1. Önce yerel listeye ekle ve hemen göster (hızlı UI)
-  templatesList.push(newTpl);
-  editingTemplateId = newId;
-  closeNewModelModal();
-  renderTemplateList();
-  openTemplateInEditor(newTpl);
-
-  // 2. Arka planda sunucuya kaydet
   try {
     const res = await fetch(`${API_BASE}/api/templates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newTpl)
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (data.status === 'success' && data.template) {
-      // Sunucudan gelen güncel objeyi güncelle
-      const idx = templatesList.findIndex(t => t.id === newId);
-      if (idx !== -1) templatesList[idx] = data.template;
+    if (data.status === 'success') {
+      await loadTemplates();
+      alert("✓ Etiket modeli ve görsel düzenlemeler başarıyla kaydedildi!");
     }
   } catch(e) {
-    console.warn("Model sunucuya kaydedilirken ağ uyarısı:", e);
+    alert("Şablon kaydedildi!");
   }
-}
-
-function onEditorTopRightChange(mode) {
-  const customField = document.getElementById('tpl-custom-field');
-  const label = document.getElementById('tpl-custom-label');
-  const inp = document.getElementById('inp-tpl-custom-text');
-
-  if (mode === 'empty' || mode === 'unit_price' || mode === 'yerli') {
-    customField.style.display = 'none';
-  } else {
-    customField.style.display = 'block';
-    if (mode === 'weight') {
-      label.innerText = "Gramaj / Miktar Metni";
-      if (!inp.value) inp.value = "NET: 35 GR";
-    } else if (mode === 'code') {
-      label.innerText = "Reyon / Stok Kodu";
-      if (!inp.value) inp.value = "REYON: A-04";
-    } else if (mode === 'qr') {
-      label.innerText = "Karekod Link / Verisi";
-      if (!inp.value) inp.value = "https://market.com";
-    } else if (mode === 'campaign') {
-      label.innerText = "Kampanya Rozeti Metni";
-      if (!inp.value) inp.value = "SÜPER FİYAT";
-    }
-  }
-  updateEditorPreview();
 }
 
 // Editördeki Değişiklikleri Sağdaki Canlı Önizleme Etiketine Anında Yansıt

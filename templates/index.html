@@ -228,13 +228,13 @@
 
 
       <!-- =========================================================
-           SEKME 2: ETİKET DÜZENLE (ŞABLON & MODEL TASARIMCISI)
+           SEKME 2: ETİKET DÜZENLE (GÖRSEL TASARIM STÜDYOSU)
            ========================================================= -->
       <div id="tab-design" class="tab-content">
-        <div class="design-layout-3col">
+        <div class="design-studio-layout">
           
-          <!-- SÜTUN 1 (SOL): Kayıtlı Şablonlar Listesi -->
-          <div class="card design-col-left">
+          <!-- SOL SÜTUN: Kayıtlı Şablonlar Listesi -->
+          <div class="card studio-sidebar">
             <div class="card-header-flex">
               <h2 class="card-title">📋 Etiket Modelleri</h2>
               <button class="btn-sm btn-primary" onclick="createNewTemplate()">+ Yeni Model</button>
@@ -242,83 +242,68 @@
             <div id="template-list" class="template-card-list"></div>
           </div>
 
-          <!-- SÜTUN 2 (ORTA): Model Ayar & Özelleştirme Formu -->
-          <div class="card design-col-mid">
-            <div class="card-header-flex">
-              <h2 class="card-title" id="txt-editing-tpl-title">🎨 Model Özelleştir</h2>
-              <span id="badge-tpl-locked" class="badge-locked">🔒 Fabrika Ayarı (Korumalı)</span>
-            </div>
-
-            <div class="form-group">
-              <label>Model Adı</label>
-              <input type="text" id="inp-tpl-name" value="Standart Market Rafı (Fabrika Ayarı)" oninput="updateEditorPreview()">
-            </div>
-
-            <div class="form-group">
-              <label>Açıklama</label>
-              <input type="text" id="inp-tpl-desc" value="Görsel 2 standart raf etiketi.">
-            </div>
-
-            <div class="design-subbox">
-              <label style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:8px; display:block;">Sağ Üst Köşe Tasarım Öğesi</label>
-              <select id="tpl-top-right-mode" class="custom-select" onchange="onEditorTopRightChange(this.value)">
-                <option value="empty">Boş (Tam Genişlik Ürün İsmi - Varsayılan)</option>
-                <option value="unit_price">Sade Birim Fiyat Kutusu</option>
-                <option value="weight">Gramaj / Net Miktar Rozeti</option>
-                <option value="code">Reyon / Ürün Stok Kodu</option>
-                <option value="qr">Karekod (QR Kod)</option>
-                <option value="campaign">Süper Fırsat / Kampanya Rozeti</option>
-                <option value="yerli">Resmi Yerli Üretim Logosu</option>
-              </select>
-
-              <div id="tpl-custom-field" class="form-group" style="margin-top: 10px; display: none;">
-                <label id="tpl-custom-label">Özel Rozet Metni / Verisi</label>
-                <input type="text" id="inp-tpl-custom-text" placeholder="Örn: NET: 35 GR veya REYON: A-04" oninput="updateEditorPreview()">
+          <!-- SAĞ SÜTUN: BİRLEŞİK İNTERAKTİF TASARIM SAHNESİ -->
+          <div class="panel-right studio-main">
+            
+            <!-- ÜST TASARIM ARAÇ ÇUBUĞU (TOOLBAR) -->
+            <div class="studio-toolbar">
+              <!-- Sol Araçlar -->
+              <div class="tool-group">
+                <button class="tool-btn" onclick="addTextToCanvas()" title="Yeni Metin Ekle">
+                  <span>📝</span> Metin
+                </button>
+                <button class="tool-btn" onclick="addLineToCanvas()" title="Çizgi Ekle">
+                  <span>➖</span> Çizgi
+                </button>
+                <button class="tool-btn" onclick="addBoxToCanvas()" title="Kare / Kutu Ekle">
+                  <span>⬜</span> Kare
+                </button>
+                <label class="tool-btn" title="Görsel / Logo Yükle">
+                  <span>🖼️</span> Görsel
+                  <input type="file" id="inp-image-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                </label>
+                <button class="tool-btn tool-btn-danger" id="btn-delete-selected-el" onclick="deleteSelectedElement()" title="Seçili Öğeyi Sil" style="display: none;">
+                  <span>🗑️</span> Sil
+                </button>
               </div>
-            </div>
 
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 12px;">
-              <button id="btn-set-default" class="btn-secondary" style="width: 100%; font-weight:700;" onclick="setCurrentTemplateAsDefault()">⭐️ Bu Modeli Varsayılan Yap</button>
-              <div style="display: flex; gap: 8px;">
-                <button id="btn-save-template" class="btn-primary" style="flex:1;" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
-                <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Sil</button>
+              <!-- Orta Model Bilgisi -->
+              <div class="tool-group-mid">
+                <span id="editor-preview-name" class="badge-design" style="font-size:12px;">🔒 Standart Model</span>
               </div>
-            </div>
-          </div>
 
-          <!-- SÜTUN 3 (SAĞ): CANLI MODEL ÖNİZLEME SAHNESİ -->
-          <div class="panel-right design-col-right">
-            <div class="stage-toolbar">
-              <div class="stage-info">
-                <span class="badge">Tasarım Önizlemesi</span>
-                <span id="editor-preview-name" class="badge-design">🔒 Standart Model</span>
-              </div>
-              <div class="zoom-actions">
-                <button onclick="adjustEditorScale(0.9)">-</button>
-                <span id="zoom-text-editor">100%</span>
-                <button onclick="adjustEditorScale(1.1)">+</button>
-                <button onclick="resetEditorScale()">Sıfırla</button>
-              </div>
-            </div>
-
-            <div class="printable-wrapper">
-              <!-- CANLI TASARIM ÖNİZLEME ETİKETİ -->
-              <div id="editor-shelf-label" class="market-label size-76x40">
+              <!-- Sağ Aksiyonlar -->
+              <div class="tool-group-actions">
+                <button class="btn-sm btn-secondary" id="btn-set-default" onclick="setCurrentTemplateAsDefault()">⭐️ Varsayılan Yap</button>
+                <button class="btn-sm btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
                 
-                <!-- 1. Üst Bölüm -->
+                <div class="zoom-actions" style="margin-left: 6px;">
+                  <button onclick="adjustEditorScale(0.9)">-</button>
+                  <span id="zoom-text-editor">100%</span>
+                  <button onclick="adjustEditorScale(1.1)">+</button>
+                  <button onclick="resetEditorScale()">Sıfırla</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CANLI ETKİLEŞİMLİ TUVAL (CANVAS) -->
+            <div class="printable-wrapper studio-canvas-area" onclick="onCanvasBackgroundClick(event)">
+              <div id="editor-shelf-label" class="market-label size-76x40 studio-canvas" onclick="event.stopPropagation()">
+                
+                <!-- 1. Üst Bölüm (Doğrudan Çift Tıklanıp Düzenlenebilir) -->
                 <div class="ml-top-row">
                   <div class="ml-title-area full-width" id="editor-title-area">
-                    <div class="ml-title-line1" id="editor-lbl-title-1">ULK 398-6 PİKO PORTAKAL</div>
-                    <div class="ml-title-line2" id="editor-lbl-title-2">PİR PAT KAP</div>
+                    <div class="ml-title-line1 editable-text" id="editor-lbl-title-1" contenteditable="true" spellcheck="false">ULK 398-6 PİKO PORTAKAL</div>
+                    <div class="ml-title-line2 editable-text" id="editor-lbl-title-2" contenteditable="true" spellcheck="false">PİR PAT KAP</div>
                   </div>
                   <div class="ml-top-right-box" id="editor-lbl-top-right-box" style="display: none;"></div>
                 </div>
 
                 <!-- 2. Orta Bölüm -->
                 <div class="ml-mid-row">
-                  <div class="ml-brand-col">YARENLER</div>
+                  <div class="ml-brand-col editable-text" id="editor-lbl-brand" contenteditable="true" spellcheck="false">YARENLER</div>
                   <div class="ml-legal-col">
-                    <div>Üretim Yeri: <strong>TÜRKİYE</strong></div>
+                    <div>Üretim Yeri: <strong class="editable-text" id="editor-lbl-origin" contenteditable="true" spellcheck="false">TÜRKİYE</strong></div>
                     <div>Fiyatlarımıza Kdv Dahildir.</div>
                     <div>Fiyat Değiştirme Tarihi: <span id="editor-lbl-date">19 Ağu 2026</span></div>
                   </div>
@@ -334,12 +319,16 @@
                     <span>Fiyatı</span>
                   </div>
                   <div class="ml-price-col">
-                    <span class="price-val">10,00 ₺</span>
+                    <span class="price-val editable-text" id="editor-lbl-price" contenteditable="true" spellcheck="false">10,00 ₺</span>
                   </div>
                 </div>
 
+                <!-- Kullanıcının Eklediği Dinamik Katmanlar (Text, Çizgi, Kutu, Logo) -->
+                <div id="editor-custom-layers"></div>
+
               </div>
             </div>
+
           </div>
 
         </div>

@@ -6,5 +6,13 @@
     "top_right_mode": "empty",
     "top_right_text": "",
     "description": "Görsel 2 standart raf etiketi. Kilitli fabrika başlangıç tasarımıdır."
+  },
+  {
+    "id": "tpl_1787137325131",
+    "name": "deneme",
+    "description": "Özel mağaza etiket modeli.",
+    "top_right_mode": "unit_price",
+    "top_right_text": "",
+    "is_locked": false
   }
 ]
