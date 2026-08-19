@@ -4,6 +4,7 @@ let currentSize = '76x40';
 let currentWidth = 76;
 let currentHeight = 40;
 let selectedPrinter = "Termal Etiket Yazici";
+let currentTopRightMode = 'empty';
 
 // Backend API URL
 const API_BASE = (window.location.protocol === 'file:' || !window.location.port || window.location.port === '5500') 
@@ -13,6 +14,7 @@ const API_BASE = (window.location.protocol === 'file:' || !window.location.port 
 document.addEventListener('DOMContentLoaded', () => {
   renderBarcode();
   checkBackendAndDevices();
+  updateTopRightPreview();
 });
 
 // Backend Durumunu ve Yazıcıları Sorgula
@@ -57,7 +59,133 @@ async function checkBackendAndDevices() {
   }
 }
 
-// Barkod Çizimi (EAN-13 / CODE128)
+// Şablon Preset Değişimi
+function onPresetChange(presetKey) {
+  const modeSelect = document.getElementById('top-right-mode-select');
+  const badge = document.getElementById('current-design-badge');
+  const customField = document.getElementById('top-right-custom-field');
+  const customInput = document.getElementById('inp-top-right-text');
+
+  if (presetKey === 'default') {
+    modeSelect.value = 'empty';
+    badge.innerText = '🔒 Standart Raf (Başlangıç)';
+    customField.style.display = 'none';
+  } else if (presetKey === 'unit_price') {
+    modeSelect.value = 'unit_price';
+    badge.innerText = '🏷️ Sade Birim Fiyatlı';
+    customField.style.display = 'none';
+  } else if (presetKey === 'weight') {
+    modeSelect.value = 'weight';
+    badge.innerText = '⚖️ Gramaj / Miktar Rozetli';
+    customField.style.display = 'block';
+    document.getElementById('top-right-custom-label').innerText = 'Gramaj / Miktar Metni';
+    customInput.value = 'NET: 35 GR';
+  } else if (presetKey === 'code') {
+    modeSelect.value = 'code';
+    badge.innerText = '🔖 Reyon / Kodlu';
+    customField.style.display = 'block';
+    document.getElementById('top-right-custom-label').innerText = 'Reyon / Stok Kodu';
+    customInput.value = 'REYON: A-04';
+  } else if (presetKey === 'qr') {
+    modeSelect.value = 'qr';
+    badge.innerText = '📱 Karekodlu (QR)';
+    customField.style.display = 'block';
+    document.getElementById('top-right-custom-label').innerText = 'QR Link / Veri';
+    customInput.value = 'https://market.com';
+  } else if (presetKey === 'campaign') {
+    modeSelect.value = 'campaign';
+    badge.innerText = '⭐ Süper Fırsat';
+    customField.style.display = 'block';
+    document.getElementById('top-right-custom-label').innerText = 'Fırsat Rozeti Metni';
+    customInput.value = 'SÜPER FİYAT';
+  } else if (presetKey === 'yerli') {
+    modeSelect.value = 'yerli';
+    badge.innerText = '🇹🇷 Yerli Üretimli';
+    customField.style.display = 'none';
+  }
+
+  currentTopRightMode = modeSelect.value;
+  updateTopRightPreview();
+}
+
+// Sağ Üst Köşe Modu Değişimi
+function onTopRightModeChange(mode) {
+  currentTopRightMode = mode;
+  const customField = document.getElementById('top-right-custom-field');
+  const customInput = document.getElementById('inp-top-right-text');
+
+  if (mode === 'empty' || mode === 'unit_price' || mode === 'yerli') {
+    customField.style.display = 'none';
+  } else {
+    customField.style.display = 'block';
+    if (mode === 'weight') {
+      document.getElementById('top-right-custom-label').innerText = 'Gramaj / Miktar Metni';
+      if (!customInput.value) customInput.value = 'NET: 35 GR';
+    } else if (mode === 'code') {
+      document.getElementById('top-right-custom-label').innerText = 'Reyon / Stok Kodu';
+      if (!customInput.value) customInput.value = 'REYON: A-04';
+    } else if (mode === 'qr') {
+      document.getElementById('top-right-custom-label').innerText = 'QR Link / Veri';
+      if (!customInput.value) customInput.value = 'https://market.com';
+    } else if (mode === 'campaign') {
+      document.getElementById('top-right-custom-label').innerText = 'Fırsat Rozeti Metni';
+      if (!customInput.value) customInput.value = 'SÜPER FİYAT';
+    }
+  }
+
+  updateTopRightPreview();
+}
+
+// Canlı Önizlemede Sağ Üst Köşeyi Güncelle
+function updateTopRightPreview() {
+  const box = document.getElementById('lbl-top-right-box');
+  const titleArea = document.getElementById('lbl-title-area');
+  const customText = document.getElementById('inp-top-right-text').value;
+  const unitPrice = document.getElementById('inp-unit-price').value;
+
+  if (currentTopRightMode === 'empty') {
+    box.style.display = 'none';
+    titleArea.className = 'ml-title-area full-width';
+  } else {
+    box.style.display = 'flex';
+    titleArea.className = 'ml-title-area';
+
+    if (currentTopRightMode === 'unit_price') {
+      box.innerHTML = `
+        <div class="tr-unit-box">
+          <span class="u-label">Birim Fiyat:</span>
+          <span class="u-val">${unitPrice}</span>
+        </div>
+      `;
+    } else if (currentTopRightMode === 'weight') {
+      box.innerHTML = `<div class="tr-badge">${customText || 'NET: 35 GR'}</div>`;
+    } else if (currentTopRightMode === 'code') {
+      box.innerHTML = `<div class="tr-badge">${customText || 'REYON: A-04'}</div>`;
+    } else if (currentTopRightMode === 'campaign') {
+      box.innerHTML = `<div class="tr-badge-dark">${customText || 'SÜPER FİYAT'}</div>`;
+    } else if (currentTopRightMode === 'qr') {
+      box.innerHTML = `<div class="tr-qr-box" id="qr-preview-container"></div>`;
+      try {
+        QRCode.toCanvas(document.getElementById('qr-preview-container'), customText || 'https://market.com', { width: 32, margin: 0 });
+      } catch (e) {}
+    } else if (currentTopRightMode === 'yerli') {
+      box.innerHTML = `
+        <svg viewBox="0 0 160 65" width="75" height="30">
+          <rect x="1" y="1" width="158" height="63" rx="3" fill="none" stroke="#000" stroke-width="2.2" />
+          <path d="M10 18 L22 30 L34 18 L30 14 L22 22 L14 14 Z" fill="#000" />
+          <rect x="6" y="34" width="3" height="20" fill="#000" />
+          <rect x="12" y="34" width="5" height="20" fill="#000" />
+          <rect x="20" y="34" width="2" height="20" fill="#000" />
+          <rect x="25" y="34" width="6" height="20" fill="#000" />
+          <text x="42" y="28" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">YERLİ</text>
+          <text x="42" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">ÜRETİM</text>
+        </svg>
+      `;
+    }
+  }
+}
+
+// Barkod Çizimi
 function renderBarcode() {
   const val = document.getElementById('inp-barcode').value.trim() || "8690504114925";
   try {
@@ -85,9 +213,7 @@ function renderBarcode() {
         textMargin: 1,
         margin: 0
       });
-    } catch (err) {
-      console.error("Barkod çizim hatası:", err);
-    }
+    } catch (err) {}
   }
 }
 
@@ -98,12 +224,9 @@ function updateLabel() {
   document.getElementById('lbl-brand').innerText = document.getElementById('inp-brand').value.toUpperCase();
   document.getElementById('lbl-origin').innerText = document.getElementById('inp-origin').value.toUpperCase();
   document.getElementById('lbl-date').innerText = document.getElementById('inp-date').value;
-  document.getElementById('lbl-unit-price').innerText = document.getElementById('inp-unit-price').value;
   document.getElementById('lbl-price').innerText = document.getElementById('inp-price').value;
 
-  const showYerli = document.getElementById('inp-show-yerli').checked;
-  document.getElementById('lbl-yerli-box').style.visibility = showYerli ? 'visible' : 'hidden';
-
+  updateTopRightPreview();
   renderBarcode();
 }
 
@@ -154,7 +277,8 @@ async function handlePrint() {
     unit_price: document.getElementById('inp-unit-price').value,
     barcode: document.getElementById('inp-barcode').value,
     price: document.getElementById('inp-price').value,
-    show_yerli: document.getElementById('inp-show-yerli').checked
+    top_right_mode: currentTopRightMode,
+    top_right_text: document.getElementById('inp-top-right-text').value
   };
 
   const x_offset = parseInt(document.getElementById('inp-x-offset').value || 0);
@@ -199,7 +323,7 @@ async function handlePrint() {
   }
 }
 
-// Zoom / Ölçeklendirme
+// Zoom
 function adjustScale(factor) {
   currentScale = Math.min(Math.max(currentScale * factor, 0.5), 3.0);
   applyScale();

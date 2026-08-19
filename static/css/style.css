@@ -83,12 +83,59 @@ body {
   font-size: 12px;
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #22c55e;
-  border-radius: 50%;
-  box-shadow: 0 0 8px #22c55e;
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.badge-locked {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.badge-design {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.design-panel-card {
+  border-left: 3px solid var(--primary);
+}
+
+.design-subbox {
+  margin-top: 10px;
+  padding: 10px;
+  background: #090d16;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.qty-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.qty-container input {
+  width: 48px;
+  padding: 4px;
+  text-align: center;
+  font-weight: 700;
 }
 
 .printer-dropdown {
@@ -414,23 +461,60 @@ input:focus {
   text-transform: uppercase;
 }
 
-.ml-yerli-box {
+.ml-top-right-box {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  text-align: right;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.yerli-logo-svg svg {
-  display: block;
+.tr-badge {
+  border: 1.5px solid #000;
+  padding: 2px 6px;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+  background: #fff;
+  line-height: 1.2;
 }
 
-.ml-unit-price-text {
-  font-size: 7px;
+.tr-badge-dark {
+  background: #000;
+  color: #fff;
+  border: 1.5px solid #000;
+  padding: 2px 6px;
+  font-size: 8.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.tr-unit-box {
+  border: 1.5px solid #000;
+  padding: 2px 6px;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.tr-unit-box .u-label {
+  display: block;
+  font-size: 6.5px;
   font-weight: 700;
-  margin-top: 1px;
-  display: flex;
+}
+
+.tr-unit-box .u-val {
+  display: block;
+  font-size: 8.5px;
+  font-weight: 900;
+}
+
+.tr-qr-box canvas, .tr-qr-box img {
+  width: 32px !important;
+  height: 32px !important;
+}
   gap: 3px;
   align-items: center;
 }
