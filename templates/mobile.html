@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mobil Raf Etiketi Terminali</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- HTML5 QR Code Scanner CDN -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #23304d;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 25px;
+    }
+
+    /* Header */
+    .mobile-header {
+      background: rgba(19, 27, 46, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-flex {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      font-size: 22px;
+      background: #1e293b;
+      padding: 5px 8px;
+      border-radius: 8px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 10.5px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .printer-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    /* Container */
+    .container {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    /* Kamera Kartı */
+    .scanner-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scanner-header {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0d1424;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .scanner-header h2 {
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .btn-toggle-cam {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #reader {
+      width: 100%;
+      min-height: 200px;
+      background: #000;
+    }
+
+    /* Form Kartı */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input {
+      background: #090d16;
+      border: 1.5px solid var(--border);
+      color: white;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    .price-input {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      color: #38bdf8 !important;
+      letter-spacing: -0.5px;
+      text-align: right;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+    }
+
+    /* DEV BUTON */
+    .btn-print-huge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 15.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+      transition: all 0.15s ease;
+      margin-top: 4px;
+    }
+
+    .btn-print-huge:active {
+      transform: scale(0.98);
+    }
+
+    .btn-print-huge:disabled {
+      opacity: 0.6;
+      background: #334155;
+      box-shadow: none;
+    }
+
+    /* Rozetler */
+    .stock-badge-found {
+      padding: 3px 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .stock-badge-new {
+      padding: 3px 8px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    /* Toast */
+    .toast-box {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .toast-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--accent);
+      color: #34d399;
+    }
+
+    .toast-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #f87171;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobil Header -->
+  <header class="mobile-header">
+    <div class="brand-flex">
+      <div class="brand-icon">📱</div>
+      <div>
+        <div class="brand-title">Mobil Raf Terminali</div>
+        <div class="brand-subtitle">Reyon Barkod & Canlı Baskı</div>
+      </div>
+    </div>
+    <div class="printer-status-pill">
+      <span class="status-dot"></span>
+      <span id="txt-printer-name">Termal Yazıcı</span>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 1. KAMERA İLE BARKOD OKUYUCU -->
+    <div class="scanner-card">
+      <div class="scanner-header">
+        <h2>📷 Kamera ile Barkod Okut</h2>
+        <button id="btn-toggle-cam" class="btn-toggle-cam" onclick="toggleCamera()">Kamerayı Aç</button>
+      </div>
+      <div id="reader"></div>
+    </div>
+
+    <!-- Bildirim Kutusu -->
+    <div id="toast" class="toast-box"></div>
+
+    <!-- 2. SADE ÜRÜN FORMU (Barkod - Ürün Adı - Fiyat) -->
+    <div class="form-card">
+      <div class="section-title">
+        <span>🏷️ Ürün Bilgisi</span>
+        <span id="stock-badge" style="display: none;"></span>
+      </div>
+
+      <!-- Barkod -->
+      <div class="form-group">
+        <label>Barkod (EAN-13)</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="inp-barcode" placeholder="Barkodu okutun veya yazın..." oninput="onBarcodeManualChange(this.value)">
+          <button style="padding: 0 14px; background:#1e293b; color:white; border:1px solid var(--border); border-radius:8px; font-weight:700;" onclick="lookupBarcode(document.getElementById('inp-barcode').value)">Bul</button>
+        </div>
+      </div>
+
+      <!-- Ürün Adı (Sade ve Geniş) -->
+      <div class="form-group">
+        <label>Ürün Adı</label>
+        <input type="text" id="inp-title" placeholder="Örn: ULK 398-6 PIKO PORTAKAL PIR PAT KAP">
+      </div>
+
+      <!-- Fiyat & Adet -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>SATIŞ FİYATI (₺)</label>
+          <input type="text" id="inp-price" class="price-input" placeholder="10,00 ₺">
+        </div>
+        <div class="form-group">
+          <label>Adet</label>
+          <input type="number" id="inp-copies" value="1" min="1" max="50" style="font-size:18px; font-weight:800; text-align:center;">
+        </div>
+      </div>
+
+      <!-- DEV YAZDIR BUTONU -->
+      <button id="btn-mobile-print" class="btn-print-huge" onclick="submitMobilePrint()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span id="btn-print-text">🖨️ ETİKETİ YAZDIR</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    let html5QrCode = null;
+    let isScanning = false;
+    let isNewProduct = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+    });
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.status === 'success' && data.settings && data.settings.printer) {
+          document.getElementById('txt-printer-name').innerText = data.settings.printer;
+        }
+      } catch(e) {}
+    }
+
+    // Kamera Aç / Kapat
+    async function toggleCamera() {
+      if (isScanning) {
+        stopCamera();
+      } else {
+        startCamera();
+      }
+    }
+
+    async function startCamera() {
+      const btn = document.getElementById('btn-toggle-cam');
+      html5QrCode = new Html5Qrcode("reader");
+      
+      const config = {
+        fps: 15,
+        qrbox: { width: 250, height: 140 },
+        aspectRatio: 1.5
+      };
+
+      try {
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          onScanSuccess,
+          onScanFailure
+        );
+        isScanning = true;
+        btn.innerText = "Kamerayı Durdur";
+        btn.style.background = "#ef4444";
+      } catch (err) {
+        showToast("Kamera açılamadı: " + err, "error");
+      }
+    }
+
+    async function stopCamera() {
+      const btn = document.getElementById('btn-toggle-cam');
+      if (html5QrCode) {
+        try {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        } catch (e) {}
+      }
+      isScanning = false;
+      btn.innerText = "Kamerayı Aç";
+      btn.style.background = "#3b82f6";
+    }
+
+    // Barkod Okunduğunda
+    function onScanSuccess(decodedText) {
+      if (navigator.vibrate) navigator.vibrate(100);
+      document.getElementById('inp-barcode').value = decodedText;
+      lookupBarcode(decodedText);
+    }
+
+    function onScanFailure(error) {}
+
+    // Barkod ile Stok Sorgulama
+    async function lookupBarcode(barcode) {
+      barcode = barcode.trim();
+      if (!barcode) return;
+
+      const badge = document.getElementById('stock-badge');
+      const btnText = document.getElementById('btn-print-text');
+
+      try {
+        const res = await fetch(`/api/products/${barcode}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.product) {
+          const p = data.product;
+          document.getElementById('inp-title').value = p.title || p.title1 || "";
+          document.getElementById('inp-price').value = p.price || "";
+          
+          isNewProduct = false;
+          badge.className = "stock-badge-found";
+          badge.innerText = "✓ Kayıtlı Ürün";
+          badge.style.display = "inline-block";
+          btnText.innerText = "🖨️ ETİKETİ YAZDIR";
+          showToast(`✓ "${p.title || p.title1}" bilgileri getirildi.`, "success");
+        } else {
+          // Ürün stokta yok! Kullanıcı adını girsin
+          isNewProduct = true;
+          badge.className = "stock-badge-new";
+          badge.innerText = "➕ Yeni Ürün (Stoğa Eklenecek)";
+          badge.style.display = "inline-block";
+          btnText.innerText = "💾 YAZDIR VE STOĞA KAYDET";
+          showToast("Kayıtlarda bulunamadı. Lütfen ürün adını ve fiyatını girin.", "success");
+          document.getElementById('inp-title').focus();
+        }
+      } catch (err) {
+        isNewProduct = true;
+        badge.className = "stock-badge-new";
+        badge.innerText = "➕ Yeni Ürün";
+        badge.style.display = "inline-block";
+      }
+    }
+
+    function onBarcodeManualChange(val) {
+      if (val.length >= 8) {
+        lookupBarcode(val);
+      }
+    }
+
+    // Mobilden Yazdır (Gerekirse Stoğa da Kaydet)
+    async function submitMobilePrint() {
+      const btn = document.getElementById('btn-mobile-print');
+      const barcode = document.getElementById('inp-barcode').value.trim();
+      const title = document.getElementById('inp-title').value.trim();
+      const price = document.getElementById('inp-price').value.trim();
+      const copies = parseInt(document.getElementById('inp-copies').value || 1);
+
+      if (!title || !price) {
+        showToast("Lütfen Ürün Adı ve Satış Fiyatı girin!", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ İletiliyor...</span>`;
+
+      // 1. Yeni ürünse veya fiyat güncellendiyse önce products.json'a kaydet
+      try {
+        await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            barcode: barcode || "8690504114925",
+            title: title,
+            price: price
+          })
+        });
+      } catch(e) {}
+
+      // 2. Yazıcıya gönder
+      const payload = {
+        data: {
+          title1: title,
+          title2: "",
+          barcode: barcode || "8690504114925",
+          price: price,
+          date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
+        },
+        copies: copies
+      };
+
+      try {
+        const res = await fetch('/api/print/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          showToast(`✅ ${copies} adet etiket yazıcıdan basıldı ve kaydedildi!`, "success");
+          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        } else {
+          showToast(`⚠️ Yazdırma hatası: ${result.message}`, "error");
+        }
+      } catch (err) {
+        showToast("Sunucuya bağlanılamadı. Wi-Fi bağlantınızı kontrol edin.", "error");
+      } finally {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = `<span id="btn-print-text">🖨️ ETİKETİ YAZDIR</span>`;
+        }, 1500);
+      }
+    }
+
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.className = `toast-box toast-${type}`;
+      toast.innerText = msg;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

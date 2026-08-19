@@ -1,15 +1,17 @@
 """
 Termal Market Raf Etiketi Yazıcı Sunucusu (Ana Başlatıcı)
+Masaüstü Panel + Mobil Barkod Terminali + Şablon Tasarımcısı
 """
 import os
 import sys
+import json
 import time
 import signal
 import socket
 import logging
 import webbrowser
 import subprocess
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, render_template
 
 # Gereksiz GET/POST 200 HTTP loglarını sustur (Sadece Hatalar ve Özel Mesajlar)
 log = logging.getLogger('werkzeug')
@@ -28,6 +30,12 @@ from src.printer_service import (
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+
+PRODUCTS_FILE = os.path.join(DATA_DIR, "products.json")
+TEMPLATES_FILE = os.path.join(DATA_DIR, "templates.json")
+SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
 
 # Flask uygulaması
 app = Flask(
@@ -37,39 +45,217 @@ app = Flask(
     static_url_path="/static"
 )
 
+def get_local_ip():
+    """Bilgisayarın yerel ağ IP adresini (192.168.x.x vb.) tespit eder."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+# --- JSON Yardımcıları ---
+def load_json(filepath, default_data):
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return default_data
+    return default_data
+
+def save_json(filepath, data):
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"[HATA] JSON kaydetme başarısız: {e}")
+        return False
+
 @app.after_request
 def add_cors_headers(response):
-    """CORS desteği: Herhangi bir tarayıcı kaynağından erişime izin verir."""
+    """CORS desteği: Mobil ve tarayıcı kaynaklarına tam izin verir."""
     response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, DELETE"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
 @app.route("/api/print/send", methods=["OPTIONS"])
 @app.route("/api/devices", methods=["OPTIONS"])
 @app.route("/api/preview/zpl", methods=["OPTIONS"])
+@app.route("/api/products", methods=["OPTIONS"])
+@app.route("/api/templates", methods=["OPTIONS"])
+@app.route("/api/settings", methods=["OPTIONS"])
 def handle_options():
     return "", 200
 
+# --- Web Sayfaları ---
 @app.route("/")
 @app.route("/index.html")
 def index():
-    """Ana tasarım ve önizleme paneli."""
+    """Ana Masaüstü Yönetim ve Tasarım Paneli."""
     return send_from_directory(TEMPLATES_DIR, "index.html")
+
+@app.route("/mobile")
+@app.route("/mobile.html")
+def mobile():
+    """Mobil Kamera Barkod Okuma ve Hızlı Yazdırma Terminali."""
+    return send_from_directory(TEMPLATES_DIR, "mobile.html")
+
+# --- API Endpointleri ---
+
+@app.route("/api/network/ip", methods=["GET"])
+def api_network_ip():
+    """Mobil cihazların bağlanabilmesi için yerel ağ adresini döner."""
+    ip = get_local_ip()
+    port = 5000
+    mobile_url = f"http://{ip}:{port}/mobile"
+    return jsonify({
+        "status": "success",
+        "ip": ip,
+        "port": port,
+        "mobile_url": mobile_url
+    })
 
 @app.route("/api/devices", methods=["GET"])
 def api_devices():
     """Bağlı USB donanımını ve yazıcı kuyruklarını listeler."""
     usb_devices = get_connected_usb_devices()
     printers = get_windows_printers()
+    settings = load_json(SETTINGS_FILE, {})
+    default_p = settings.get("printer") or (printers[0] if printers else "Termal Etiket Yazici")
     return jsonify({
         "status": "success",
         "usb_connected": len(usb_devices) > 0,
         "usb_devices": usb_devices,
         "printers": printers,
-        "default_printer": printers[0] if printers else "Termal Etiket Yazici"
+        "default_printer": default_p
     })
 
+# --- Ürün & Stok API (Sade: Barkod, Ürün Adı, Fiyat) ---
+@app.route("/api/products/search", methods=["GET"])
+def api_products_search():
+    """Barkod veya ürün adına göre stok araması yapar."""
+    q = request.args.get("q", "").strip().lower()
+    products = load_json(PRODUCTS_FILE, [])
+    if not q:
+        return jsonify({"status": "success", "products": products})
+    
+    matches = [
+        p for p in products 
+        if q in str(p.get("barcode", "")).lower() or 
+           q in str(p.get("title", "")).lower() or
+           q in str(p.get("title1", "")).lower()
+    ]
+    return jsonify({"status": "success", "products": matches})
+
+@app.route("/api/products/<barcode>", methods=["GET"])
+def api_product_get(barcode):
+    """Barkod ile tek bir ürünün stok bilgisini getirir."""
+    products = load_json(PRODUCTS_FILE, [])
+    barcode = barcode.strip()
+    for p in products:
+        if str(p.get("barcode")) == barcode:
+            return jsonify({"status": "success", "product": p})
+    return jsonify({"status": "error", "message": "Ürün stokta bulunamadı."}), 404
+
+@app.route("/api/products", methods=["POST"])
+def api_product_save():
+    """Yeni ürün ekler veya mevcut ürünü günceller (Barkod - Ürün Adı - Fiyat)."""
+    data = request.json or {}
+    barcode = str(data.get("barcode", "")).strip()
+    title = str(data.get("title") or data.get("title1", "")).strip()
+    price = str(data.get("price", "")).strip()
+
+    if not barcode or not title:
+        return jsonify({"status": "error", "message": "Barkod ve Ürün Adı zorunludur."}), 400
+    
+    new_item = {
+        "barcode": barcode,
+        "title": title,
+        "price": price
+    }
+
+    products = load_json(PRODUCTS_FILE, [])
+    found = False
+    for i, p in enumerate(products):
+        if str(p.get("barcode")) == barcode:
+            products[i] = new_item
+            found = True
+            break
+    if not found:
+        products.append(new_item)
+    
+    save_json(PRODUCTS_FILE, products)
+    print(f"[STOK GÜNCELLENDİ] Barkod: {barcode} | Ürün: {title} | Fiyat: {price}")
+    return jsonify({"status": "success", "product": new_item, "message": "Ürün stoğa kaydedildi."})
+
+# --- Şablon (Template) API ---
+@app.route("/api/templates", methods=["GET"])
+def api_templates_get():
+    """Tüm etiket şablonlarını listeler."""
+    templates = load_json(TEMPLATES_FILE, [])
+    return jsonify({"status": "success", "templates": templates})
+
+@app.route("/api/templates", methods=["POST"])
+def api_template_save():
+    """Yeni etiket modeli kaydeder veya günceller."""
+    tpl = request.json or {}
+    tpl_id = tpl.get("id") or f"tpl_{int(time.time())}"
+    tpl["id"] = tpl_id
+    
+    templates = load_json(TEMPLATES_FILE, [])
+    
+    # Kilitli fabrika şablonunu koru
+    if tpl_id == "default":
+        tpl["is_locked"] = True
+    else:
+        tpl["is_locked"] = False
+        
+    found = False
+    for i, t in enumerate(templates):
+        if t.get("id") == tpl_id:
+            templates[i] = tpl
+            found = True
+            break
+    if not found:
+        templates.append(tpl)
+        
+    save_json(TEMPLATES_FILE, templates)
+    print(f"[ŞABLON KAYDEDİLDİ] Model Adı: {tpl.get('name')}")
+    return jsonify({"status": "success", "template": tpl, "message": "Şablon kaydedildi."})
+
+@app.route("/api/templates/<template_id>", methods=["DELETE"])
+def api_template_delete(template_id):
+    """Şablon siler (Fabrika başlangıç şablonu silinemez)."""
+    if template_id == "default":
+        return jsonify({"status": "error", "message": "Başlangıç fabrika şablonu silinemez!"}), 403
+    
+    templates = load_json(TEMPLATES_FILE, [])
+    new_list = [t for t in templates if t.get("id") != template_id]
+    save_json(TEMPLATES_FILE, new_list)
+    print(f"[ŞABLON SİLİNDİ] ID: {template_id}")
+    return jsonify({"status": "success", "message": "Şablon silindi."})
+
+# --- Ayarlar API ---
+@app.route("/api/settings", methods=["GET"])
+def api_settings_get():
+    """Sistem ayarlarını döner."""
+    settings = load_json(SETTINGS_FILE, {})
+    return jsonify({"status": "success", "settings": settings})
+
+@app.route("/api/settings", methods=["POST"])
+def api_settings_save():
+    """Sistem ayarlarını günceller."""
+    settings = request.json or {}
+    save_json(SETTINGS_FILE, settings)
+    print("[AYARLAR] Sistem ayarları başarıyla güncellendi.")
+    return jsonify({"status": "success", "message": "Ayarlar kaydedildi."})
+
+# --- Yazdırma & Önizleme API ---
 @app.route("/api/preview/zpl", methods=["POST"])
 def api_preview_zpl():
     """Önizleme ve hata ayıklama için ZPL kodunu döndürür."""
@@ -109,7 +295,8 @@ def api_print_send():
 
     u_title = clean_tr(data.get('title1', ''))
     u_price = clean_tr(data.get('price', ''))
-    print(f"\n[BASKI TALEBİ] Yazıcı: {selected_printer} | Yön: {orientation} | Boyut: {width_mm}x{height_mm}mm | Adet: {copies}")
+    client_ip = request.remote_addr
+    print(f"\n[BASKI TALEBİ] Yazıcı: {selected_printer} | Yön: {orientation} | Boyut: {width_mm}x{height_mm}mm | Adet: {copies} | Kaynak: {client_ip}")
     print(f"-> Ürün: {u_title} | Fiyat: {u_price}")
 
     # ZPL kodunu üret
@@ -149,21 +336,24 @@ def free_port(port=5000):
     except Exception:
         pass
 
-def run_server(host="127.0.0.1", port=5000):
+def run_server(host="0.0.0.0", port=5000):
     free_port(port)
     time.sleep(0.5)
 
-    # Ctrl+C ile kazara kapanmayı engelle (Sadece pencere manuel kapatılınca kapansın)
+    # Ctrl+C ile kapanmayı engelle
     def ignore_sigint(sig, frame):
         pass
     signal.signal(signal.SIGINT, ignore_sigint)
 
-    url = f"http://{host}:{port}"
-    print("=" * 60)
-    print("🏷️  Market Raf Etiketi Yazıcı Sunucusu Aktif!")
-    print(f"Panel Adresi : {url}")
-    print("Log Modu     : Sade (Sadece Baskılar, Güncellemeler ve Hatalar)")
-    print("=" * 60)
+    local_ip = get_local_ip()
+    url = f"http://127.0.0.1:{port}"
+    mobile_url = f"http://{local_ip}:{port}/mobile"
+
+    print("=" * 65)
+    print("🏷️   Market Raf Etiketi Paneli & Mobil Terminal Başlatıldı!")
+    print(f"💻  Masaüstü Panel : {url}")
+    print(f"📱  Mobil Terminal  : {mobile_url}")
+    print("=" * 65)
 
     try:
         webbrowser.open(url)
@@ -173,4 +363,4 @@ def run_server(host="127.0.0.1", port=5000):
     app.run(host=host, port=port, debug=False, use_reloader=False)
 
 if __name__ == "__main__":
-    run_server("127.0.0.1", 5000)
+    run_server("0.0.0.0", 5000)

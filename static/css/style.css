@@ -1,15 +1,17 @@
 /* =========================================
-   GENEL TEMA & PANEL STILLERI (EKRAN GÖRÜNÜMÜ)
+   GENEL TEMA & MODERN PANEL STILLERI
    ========================================= */
 :root {
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
-  --border-color: #334155;
+  --bg-dark: #090d16;
+  --bg-card: #131b2e;
+  --bg-input: #090d16;
+  --border-color: #23304d;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --accent: #10b981;
+  --danger: #ef4444;
   --radius: 12px;
 }
 
@@ -17,10 +19,10 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-main);
   min-height: 100vh;
@@ -33,8 +35,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  background-color: rgba(30, 41, 59, 0.95);
+  padding: 10px 24px;
+  background-color: rgba(19, 27, 46, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
@@ -45,27 +47,69 @@ body {
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logo-icon {
-  font-size: 24px;
-  background: #334155;
-  padding: 6px 10px;
+  font-size: 22px;
+  background: #1e293b;
+  padding: 6px 9px;
   border-radius: 8px;
 }
 
 .logo-text h1 {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   letter-spacing: -0.3px;
 }
 
 .logo-text p {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-muted);
 }
 
+/* 4 Ana Sekme Navigasyonu */
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #090d16;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.tab-icon {
+  font-size: 14px;
+}
+
+/* Header Sağ Taraf */
 .header-actions {
   display: flex;
   align-items: center;
@@ -76,78 +120,39 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 12px;
-  background: #0f172a;
+  padding: 6px 12px;
+  background: #090d16;
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
-.card-header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.badge-locked {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 10.5px;
-  font-weight: 700;
-}
-
-.badge-design {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: 700;
-  font-size: 11px;
-}
-
-.design-panel-card {
-  border-left: 3px solid var(--primary);
-}
-
-.design-subbox {
-  margin-top: 10px;
-  padding: 10px;
-  background: #090d16;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
 }
 
 .qty-container {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #0f172a;
+  background: #090d16;
   border: 1px solid var(--border-color);
   padding: 4px 8px;
   border-radius: 8px;
 }
 
 .qty-container input {
-  width: 48px;
-  padding: 4px;
+  width: 44px;
+  padding: 3px;
   text-align: center;
-  font-weight: 700;
-}
-
-.printer-dropdown {
-  background: #0f172a;
+  font-weight: 800;
+  border: none;
+  background: transparent;
   color: white;
-  border: 1px solid var(--border-color);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
 }
 
 .btn-primary {
@@ -157,13 +162,13 @@ body {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
-  padding: 9px 18px;
+  padding: 9px 16px;
   font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-primary:hover {
@@ -171,44 +176,85 @@ body {
   transform: translateY(-1px);
 }
 
-.spin {
-  animation: spin 1s linear infinite;
+.btn-secondary {
+  background: #1e293b;
+  color: white;
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.btn-secondary:hover {
+  background: #334155;
 }
 
-.success-print {
-  background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid var(--danger);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
 }
 
-.success-print h3 {
-  color: #34d399 !important;
-  font-weight: 800;
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 11px;
 }
 
-.active-printing {
-  background: rgba(59, 130, 246, 0.15) !important;
-  border-color: #3b82f6 !important;
-}
-
-/* Layout */
+/* Ana İçerik ve Sekme Konteyneri */
 .app-main {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 20px;
-  padding: 20px;
+  flex: 1;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content {
+  display: none;
   flex: 1;
 }
 
-/* Sidebar */
-.editor-sidebar {
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   SEKME 1: ETİKET ÇIKART (SPLIT VIEW)
+   ========================================= */
+.split-view {
+  display: grid;
+  grid-template-columns: 390px 1fr;
+  gap: 18px;
+  flex: 1;
+}
+
+.panel-left {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.panel-right {
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .card {
@@ -225,42 +271,14 @@ body {
   color: #e2e8f0;
 }
 
-.template-selector {
+.card-header-flex {
   display: flex;
-  gap: 6px;
-}
-
-.template-btn {
-  flex: 1;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  background: #0f172a;
-  border: 1px solid var(--border-color);
-  padding: 8px 6px;
-  border-radius: 8px;
-  color: var(--text-main);
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
+  margin-bottom: 10px;
 }
 
-.template-btn.active {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: var(--primary);
-}
-
-.template-btn .t-info strong {
-  display: block;
-  font-size: 11.5px;
-}
-
-.template-btn .t-info small {
-  color: var(--text-muted);
-  font-size: 9.5px;
-}
-
-/* Form Styles */
+/* Form Elemanları */
 .form-group {
   margin-bottom: 10px;
 }
@@ -279,40 +297,78 @@ label {
   margin-bottom: 4px;
 }
 
-.checkbox-group {
-  margin-top: 8px;
-}
-
-.check-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: var(--text-main);
-  font-size: 12px;
-}
-
-.check-label input {
-  width: 16px;
-  height: 16px;
-}
-
-input, textarea, select {
+input, select, textarea {
   width: 100%;
-  padding: 7px 10px;
-  background: #0f172a;
+  padding: 7.5px 10px;
+  background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   color: white;
-  font-family: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
+  outline: none;
 }
 
-input:focus {
-  outline: none;
+input:focus, select:focus {
   border-color: var(--primary);
 }
 
+.price-highlight {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #38bdf8 !important;
+}
+
+/* Stok Arama Kutusu */
+.search-box {
+  position: relative;
+}
+
+.stock-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #0d1424;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none;
+  margin-top: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.stock-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stock-item:hover {
+  background: #1e293b;
+}
+
+.stock-item-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-item-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.stock-item-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+/* Bilgi Kartı */
 .tip-card {
   background: rgba(16, 185, 129, 0.05);
   border-color: rgba(16, 185, 129, 0.2);
@@ -331,15 +387,6 @@ input:focus {
 }
 
 /* Stage Preview */
-.preview-stage {
-  display: flex;
-  flex-direction: column;
-  background: #020617;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
 .stage-toolbar {
   display: flex;
   justify-content: space-between;
@@ -357,6 +404,15 @@ input:focus {
   border-radius: 4px;
   font-weight: 700;
   margin-right: 8px;
+}
+
+.badge-design {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
 }
 
 .zoom-actions {
@@ -389,7 +445,7 @@ input:focus {
    GÖRSEL 2 İLE BİREBİR MARKET RAF ETİKETİ (CSS)
    =================================================== */
 .market-label {
-  background: #fffef0; /* Doğal raf etiketi rengi */
+  background: #fffef0;
   color: #000000;
   border: 1.5px solid #000;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
@@ -421,7 +477,7 @@ input:focus {
   padding: 2.8mm 3.2mm 2.8mm 3.2mm;
 }
 
-/* 1. ÜST BÖLÜM: Başlık ve Yerli Üretim */
+/* 1. ÜST BÖLÜM */
 .ml-top-row {
   display: flex;
   justify-content: space-between;
@@ -433,8 +489,11 @@ input:focus {
 
 .ml-title-area {
   flex: 1;
-  width: 100%;
   overflow: hidden;
+}
+
+.ml-title-area.full-width {
+  width: 100%;
 }
 
 .ml-title-area.full-width .ml-title-line1,
@@ -516,16 +575,7 @@ input:focus {
   height: 32px !important;
 }
 
-.unit-label {
-  font-size: 6.8px;
-  font-weight: 600;
-}
-
-.unit-val {
-  font-weight: 800;
-}
-
-/* 2. ORTA BÖLÜM: Marka & Yasal Bilgiler */
+/* 2. ORTA BÖLÜM */
 .ml-mid-row {
   display: flex;
   justify-content: space-between;
@@ -553,7 +603,7 @@ input:focus {
   font-weight: 800;
 }
 
-/* 3. ALT BÖLÜM: Barkod | Satış Fiyatı | BÜYÜK FİYAT */
+/* 3. ALT BÖLÜM */
 .ml-bottom-row {
   display: flex;
   align-items: center;
@@ -598,4 +648,175 @@ input:focus {
   font-weight: 900;
   letter-spacing: -1px;
   font-family: 'Inter', 'Oswald', sans-serif;
+}
+
+/* =========================================
+   SEKME 2: ETİKET DÜZENLE (DESIGN LAYOUT)
+   ========================================= */
+.design-layout {
+  display: flex;
+  gap: 18px;
+  flex: 1;
+}
+
+.template-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 520px;
+}
+
+.tpl-item-card {
+  padding: 10px 12px;
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.15s;
+}
+
+.tpl-item-card:hover {
+  background: #1e293b;
+}
+
+.tpl-item-card.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+}
+
+.tpl-info h4 {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.tpl-info p {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.badge-locked {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.design-subbox {
+  padding: 12px;
+  background: #090d16;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* =========================================
+   SEKME 3: QR BAĞLANTISI (MOBİL TERMİNAL)
+   ========================================= */
+.qr-panel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 20px;
+}
+
+.qr-box-card {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px;
+}
+
+.qr-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 6px;
+}
+
+.qr-header p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.qr-code-wrapper {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  display: inline-flex;
+}
+
+.qr-link-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.link-copy-row {
+  display: flex;
+  gap: 8px;
+}
+
+.qr-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #090d16;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   SEKME 4: AYARLAR
+   ========================================= */
+.settings-container {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.settings-card {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

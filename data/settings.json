@@ -1,0 +1,11 @@
+{
+  "printer": "Termal Etiket Yazici",
+  "orientation": "POR",
+  "width_mm": 76,
+  "height_mm": 40,
+  "x_offset": 0,
+  "y_offset": 0,
+  "dpi": 203,
+  "darkness": 22,
+  "market_name": "YARENLER MARKET"
+}
