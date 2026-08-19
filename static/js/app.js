@@ -79,7 +79,12 @@ function applyAppTheme(theme) {
     document.body.classList.remove('light-theme');
   }
 
-  // Tüm tema butonlarını güncelle
+  // Yuvarlak ve hap tema butonlarını güncelle
+  document.querySelectorAll('.btn-theme-circle').forEach(btn => {
+    btn.innerHTML = isLight ? `<span>☀️</span>` : `<span>🌙</span>`;
+    btn.title = isLight ? "Koyu Moda Geç" : "Açık Moda Geç";
+  });
+
   document.querySelectorAll('.btn-theme-pill').forEach(btn => {
     btn.innerHTML = isLight ? `<span>☀️</span> <span>Açık Mod</span>` : `<span>🌙</span> <span>Koyu Mod</span>`;
   });

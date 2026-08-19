@@ -359,8 +359,8 @@
           <!-- Üst Bütünleşik Excel Araç Çubuğu -->
           <div class="catalog-toolbar">
             <div class="catalog-title-inline">
-              <span style="font-size: 20px;">📦</span>
-              <span style="font-size: 15px; font-weight: 800; color: var(--text-main);">Ürün Kataloğu</span>
+              <span style="font-size: 18px;">📦</span>
+              <strong>Ürün Kataloğu</strong>
             </div>
 
             <div class="catalog-search-box">
@@ -376,10 +376,10 @@
               </div>
             </div>
 
-            <div class="catalog-actions-box" style="display: flex; align-items: center; gap: 10px;">
+            <div class="catalog-actions-box">
               <span id="catalog-stats-badge" class="badge-catalog-stats">4.783 Ürün</span>
-              <button id="btn-catalog-theme" class="btn-theme-pill" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir">
-                <span id="theme-icon">🌙</span> <span id="theme-text">Koyu Mod</span>
+              <button id="btn-catalog-theme" class="btn-theme-circle" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir">
+                <span id="theme-icon">🌙</span>
               </button>
             </div>
           </div>
@@ -389,22 +389,22 @@
             <table class="catalog-table">
               <thead>
                 <tr>
-                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 140px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 14%; min-width: 130px;">
                     Firma <span class="sort-icon" id="sort-ico-brand">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 140px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 13%; min-width: 120px;">
                     Barkod <span class="sort-icon" id="sort-ico-barcode">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('title')">
+                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 45%; min-width: 250px;">
                     Ürün Adı <span class="sort-icon" id="sort-ico-title">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 120px; text-align: right;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 11%; min-width: 90px; text-align: right;">
                     Fiyat <span class="sort-icon" id="sort-ico-price">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 140px; text-align: center;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 11%; min-width: 110px; text-align: center;">
                     Değişme Tarihi <span class="sort-icon" id="sort-ico-date">↕</span>
                   </th>
-                  <th style="width: 110px; text-align: center;">İşlem</th>
+                  <th style="width: 6%; min-width: 70px; text-align: center;">İşlem</th>
                 </tr>
               </thead>
               <tbody id="catalog-tbody">
