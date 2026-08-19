@@ -277,9 +277,12 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 12px;">
-              <button id="btn-save-template" class="btn-primary" style="flex:1;" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
-              <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Sil</button>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 12px;">
+              <button id="btn-set-default" class="btn-secondary" style="width: 100%; font-weight:700;" onclick="setCurrentTemplateAsDefault()">⭐️ Bu Modeli Varsayılan Yap</button>
+              <div style="display: flex; gap: 8px;">
+                <button id="btn-save-template" class="btn-primary" style="flex:1;" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
+                <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Sil</button>
+              </div>
             </div>
           </div>
 
@@ -456,6 +459,29 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- UYGULAMA İÇİ YENİ MODEL OLUŞTURMA MODALI -->
+  <div id="modal-new-template" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✨ Yeni Etiket Modeli Oluştur</h3>
+        <button class="modal-close-btn" onclick="closeNewModelModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Oluşturmak istediğiniz etiket modeli için bir isim belirleyin.
+        </p>
+        <div class="form-group">
+          <label>Model Adı</label>
+          <input type="text" id="modal-inp-tpl-name" placeholder="Örn: Kampanyalı Model, Şarküteri Rafı, QR Etiketi..." onkeydown="if(event.key==='Enter') submitNewModelModal()">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeNewModelModal()">İptal</button>
+        <button class="btn-primary" onclick="submitNewModelModal()">✓ Modeli Oluştur</button>
+      </div>
+    </div>
   </div>
 
   <script src="/static/js/app.js"></script>

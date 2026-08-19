@@ -240,17 +240,22 @@ function renderTemplateList() {
 
   templatesList.forEach(tpl => {
     const card = document.createElement('div');
-    card.className = `tpl-item-card ${tpl.id === (editingTemplateId || activeTemplateId) ? 'active' : ''}`;
+    const isSelected = tpl.id === (editingTemplateId || activeTemplateId);
+    const isDefault = tpl.id === activeTemplateId;
+    
+    card.className = `tpl-item-card ${isSelected ? 'active' : ''}`;
     card.innerHTML = `
       <div class="tpl-info">
-        <h4>${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}</h4>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <h4>${tpl.is_locked ? '🔒 ' : '🎨 '}${tpl.name}</h4>
+          ${isDefault ? '<span class="badge-default-active">⭐ Varsayılan</span>' : ''}
+        </div>
         <p>${tpl.description || ''}</p>
       </div>
     `;
     card.onclick = () => {
-      activeTemplateId = tpl.id;
+      editingTemplateId = tpl.id;
       renderTemplateList();
-      applyTemplate(tpl.id);
       openTemplateInEditor(tpl);
     };
     listEl.appendChild(card);
@@ -275,6 +280,17 @@ function applyTemplate(tplId) {
   updateTopRightPreview(tpl.top_right_mode, tpl.top_right_text);
 }
 
+function setCurrentTemplateAsDefault() {
+  const tplId = editingTemplateId || activeTemplateId || 'default';
+  const tpl = templatesList.find(t => t.id === tplId);
+  if (!tpl) return;
+
+  activeTemplateId = tpl.id;
+  applyTemplate(activeTemplateId);
+  renderTemplateList();
+  alert(`⭐ "${tpl.name}" artık baskılarda kullanılacak varsayılan model olarak ayarlandı!`);
+}
+
 function openTemplateInEditor(tpl) {
   editingTemplateId = tpl.id;
   document.getElementById('txt-editing-tpl-title').innerText = `🎨 Model Düzenle: ${tpl.name}`;
@@ -284,6 +300,7 @@ function openTemplateInEditor(tpl) {
   
   const lockedBadge = document.getElementById('badge-tpl-locked');
   const deleteBtn = document.getElementById('btn-delete-template');
+  const defaultBtn = document.getElementById('btn-set-default');
   
   if (tpl.is_locked) {
     lockedBadge.style.display = 'inline-block';
@@ -293,22 +310,52 @@ function openTemplateInEditor(tpl) {
     deleteBtn.style.display = 'inline-block';
   }
 
+  if (defaultBtn) {
+    if (tpl.id === activeTemplateId) {
+      defaultBtn.innerText = "⭐ Bu Model Şu An Varsayılan";
+      defaultBtn.style.borderColor = "#fbbf24";
+      defaultBtn.style.color = "#fbbf24";
+    } else {
+      defaultBtn.innerText = "⭐️ Bu Modeli Varsayılan Yap";
+      defaultBtn.style.borderColor = "var(--border-color)";
+      defaultBtn.style.color = "white";
+    }
+  }
+
   onEditorTopRightChange(tpl.top_right_mode || 'empty');
   document.getElementById('inp-tpl-custom-text').value = tpl.top_right_text || '';
   updateEditorPreview();
 }
 
-async function createNewTemplate() {
-  const modelName = prompt("Lütfen yeni etiket modeli için bir isim girin:\n(Örn: Kampanyalı Model, Şarküteri Rafı, QR Kodlu Etiket)");
-  
-  if (!modelName || !modelName.trim()) {
-    return; // Kullanıcı iptal etti veya boş bıraktı
+// Uygulama İçi Yeni Model Modalı
+function createNewTemplate() {
+  const modal = document.getElementById('modal-new-template');
+  const input = document.getElementById('modal-inp-tpl-name');
+  if (modal && input) {
+    input.value = '';
+    modal.style.display = 'flex';
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function closeNewModelModal() {
+  const modal = document.getElementById('modal-new-template');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitNewModelModal() {
+  const input = document.getElementById('modal-inp-tpl-name');
+  const modelName = input ? input.value.trim() : '';
+
+  if (!modelName) {
+    alert("Lütfen model adı girin!");
+    return;
   }
 
   const newId = `tpl_${Date.now()}`;
   const newTpl = {
     id: newId,
-    name: modelName.trim(),
+    name: modelName,
     description: "Özel mağaza etiket modeli.",
     top_right_mode: "unit_price",
     top_right_text: "",
@@ -323,7 +370,7 @@ async function createNewTemplate() {
     });
     const data = await res.json();
     if (data.status === 'success') {
-      activeTemplateId = newId;
+      closeNewModelModal();
       editingTemplateId = newId;
       await loadTemplates();
       openTemplateInEditor(data.template || newTpl);
