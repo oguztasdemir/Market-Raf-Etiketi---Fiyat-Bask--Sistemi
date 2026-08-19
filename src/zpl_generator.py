@@ -2,6 +2,7 @@
 Termal Etiket Kod ve Grafik Üretim Motoru (ZPL II)
 Görsel 2'deki orijinal market raf etiketi ile %100 birebir kalibrasyonlu ZPL motoru.
 """
+import textwrap
 
 def clean_tr(text):
     """Termal yazıcı fontları için Türkçe karakter uyumluluğu ve temizleme."""
@@ -20,42 +21,68 @@ def clean_tr(text):
         res = res.replace(k, v)
     return res
 
+def split_title_lines(title1, title2="", max_chars_per_line=30):
+    """
+    Ürün başlığını güvenli karakter sınırına göre 1 veya 2 satıra böler.
+    Taşmaları önler.
+    """
+    t1 = clean_tr(title1).strip().upper()
+    t2 = clean_tr(title2).strip().upper()
+    
+    if t2:
+        full_text = f"{t1} {t2}".strip()
+    else:
+        full_text = t1
+
+    lines = textwrap.wrap(full_text, width=max_chars_per_line)
+    
+    line1 = lines[0] if len(lines) > 0 else ""
+    line2 = lines[1] if len(lines) > 1 else ""
+    
+    # 2 satırdan fazlaysa 2. satıra ekle ve max 32 karaktere kırp
+    if len(lines) > 2:
+        line2 = (line2 + " " + " ".join(lines[2:])).strip()
+    
+    if len(line1) > 34:
+        line1 = line1[:34]
+    if len(line2) > 34:
+        line2 = line2[:34]
+        
+    return line1, line2
+
 def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, width_mm=76, height_mm=40, dpi=203, copies=1):
     """
-    Görsel 2'deki market raf etiketine %100 uyan ZPL kodunu üretir.
-    
-    Yönlendirme (Orientation):
-    - 'POR' (Varsayılan): 90 Derece Yatay Baskı. Dar rulo şeridinden çıkarken etiket yatay ve boydan boya okunur.
-    - 'PON': 0 Derece Düz Baskı. Geniş rulo için.
+    Görsel 2 raf etiketi ZPL motoru.
+    - Sağ üstteki Yerli Üretim kaldırıldı.
+    - Ürün adı tüm üst genişliği kullanır (otomatik 2. satıra sarma).
+    - 0.2mm yukarı kalibrasyon uygulandı.
     """
     dpmm = 8 if dpi == 203 else 12
     qty = max(1, int(copies))
     
-    # width_mm = 76mm (Yatay boy), height_mm = 40mm (Dikey en)
     w_dots = int(width_mm * dpmm) # ~608 dot
     h_dots = int(height_mm * dpmm) # ~320 dot
 
-    t1 = clean_tr(data.get('title1', 'ULK 398-6 PIKO PORTAKAL')).strip().upper()
-    t2 = clean_tr(data.get('title2', 'PIR PAT KAP')).strip().upper()
+    # Başlıkları akıllı satır kaydırma ile hazırla
+    raw_t1 = data.get('title1', 'ULK 398-6 PIKO PORTAKAL')
+    raw_t2 = data.get('title2', 'PIR PAT KAP')
+    t1, t2 = split_title_lines(raw_t1, raw_t2, max_chars_per_line=30)
+
     brand = clean_tr(data.get('brand', 'YARENLER')).strip().upper()
     origin = clean_tr(data.get('origin', 'TURKIYE')).strip().upper()
     date = clean_tr(data.get('date', '14 May 2025')).strip()
-    unit_price = clean_tr(data.get('unit_price', '250.00 TL/Kg')).strip()
     barcode = str(data.get('barcode', '8690504114925')).strip()
     price = str(data.get('price', '10,00 TL')).replace('₺', 'TL').strip()
-    show_yerli = data.get('show_yerli', True)
 
-    # Hassas Kalibrasyon Ofsetleri:
-    # Y ekseni (Sol-Sağ): +100 dot (~1.25 cm)
-    # X ekseni (Aşağı-Yukarı): +25 dot (~3 mm yukarı)
+    # Kalibrasyon Ofsetleri:
+    # Sol-Sağ: +100 dot
+    # Yukarı: +28 dot (önceki +25 + 0.2mm ekstra)
     oy = int(y_offset) + 100
-    ox = int(x_offset) + 25
+    ox = int(x_offset) + 28
 
     if orientation in ["POR", "90", "YATAY", "horizontal"]:
         # =========================================================================
-        # 90 DERECE YATAY BASKI MODU (Görsel 2 Raf Etiketi - Termal Rulo Uyumlu)
-        # Kafa Genişliği (X Ekseni): h_dots (~320 dots)
-        # Kağıt Akış Boyu (Y Ekseni): w_dots + oy (~768 dots)
+        # 90 DERECE YATAY BASKI MODU (Tam Genişlik Başlık)
         # =========================================================================
         pw = h_dots + ox + 30
         ll = w_dots + oy + 40
@@ -71,28 +98,21 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
             "^LH0,0",
             
             # -------------------------------------------------------------
-            # 1. BÖLÜM (ÜST KATMAN): Ürün Başlıkları (Sol) & Yerli Üretim (Sağ)
+            # 1. BÖLÜM (ÜST KATMAN): Tam Genişlik Ürün Başlıkları
             # -------------------------------------------------------------
-            f"^FO{ox + 270},{oy + 20}^A0R,28,24^FD{t1}^FS",
-            f"^FO{ox + 238},{oy + 20}^A0R,24,20^FD{t2}^FS",
         ]
 
-        if show_yerli:
-            # Sağ Üst: Çift Çerçeveli Yerli Üretim Kutusu
-            box_x = ox + 225
-            box_y = oy + w_dots - 185
+        if t2:
+            # 2 Satırlı Başlık Düzeni
             zpl.extend([
-                f"^FO{box_x},{box_y}^GB85,175,2^FS",
-                # Piktogram Çizgileri
-                f"^FO{box_x + 50},{box_y + 8}^GB26,26,2^FS",
-                f"^FO{box_x + 53},{box_y + 11}^A0R,14,12^FD[YERLI]^FS",
-                f"^FO{box_x + 25},{box_y + 11}^A0R,14,12^FD[URETIM]^FS",
-                # Birim Fiyat
-                f"^FO{box_x + 55},{box_y + 70}^A0R,14,12^FDBirim Fiyat - Kg/Lt/Ad^FS",
-                f"^FO{box_x + 25},{box_y + 80}^A0R,18,16^FD{unit_price}^FS",
+                f"^FO{ox + 272},{oy + 20}^A0R,28,24^FD{t1}^FS",
+                f"^FO{ox + 240},{oy + 20}^A0R,25,21^FD{t2}^FS",
             ])
+        else:
+            # Tek Satırlı Başlık Düzeni (Daha Büyük ve Ortalı)
+            zpl.append(f"^FO{ox + 255},{oy + 20}^A0R,32,28^FD{t1}^FS")
 
-        # 1. AYRAÇ ÇİZGİSİ (Yatay Boydan Boya)
+        # 1. AYRAÇ ÇİZGİSİ (Tüm Etiket Boyunca)
         zpl.append(f"^FO{ox + 215},{oy + 10}^GB2,{w_dots - 20},2^FS")
 
         # -------------------------------------------------------------
@@ -107,19 +127,17 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
             f"^FO{ox + 122},{mid_y}^A0R,15,13^FDFiyat Degistirme Tarihi: {date}^FS",
         ])
 
-        # 2. AYRAÇ ÇİZGİSİ (Yatay Boydan Boya)
+        # 2. AYRAÇ ÇİZGİSİ (Tüm Etiket Boyunca)
         zpl.append(f"^FO{ox + 110},{oy + 10}^GB2,{w_dots - 20},2^FS")
 
         # -------------------------------------------------------------
         # 3. BÖLÜM (ALT KATMAN): EAN-13 Barkod | Satış Fiyatı | BÜYÜK FİYAT
         # -------------------------------------------------------------
-        # EAN-13 Barkod (Sol Alt)
         if len(barcode) == 13 and barcode.isdigit():
             zpl.append(f"^FO{ox + 25},{oy + 20}^BER,60,Y,N^FD{barcode}^FS")
         else:
             zpl.append(f"^FO{ox + 25},{oy + 20}^BY2^BCR,60,Y,N,N^FD{barcode}^FS")
 
-        # Satış Fiyatı Dikey Ayracı (Orta Alt)
         div_y = oy + int(w_dots * 0.39)
         zpl.extend([
             f"^FO{ox + 15},{div_y}^GB85,60,2^FS",
@@ -127,11 +145,9 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
             f"^FO{ox + 20},{div_y + 10}^A0R,17,15^FDFiyati^FS",
         ])
 
-        # DEV SATIŞ FİYATI (Sağ Alt - 10,00 TL)
         price_y = oy + int(w_dots * 0.50)
         zpl.append(f"^FO{ox + 8},{price_y}^A0R,94,76^FD{price}^FS")
 
-        # Baskı Adedi
         if qty > 1:
             zpl.append(f"^PQ{qty},0,1,Y")
 
@@ -139,9 +155,7 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
         return "\r\n".join(zpl)
 
     else:
-        # =========================================================================
-        # 0 DERECE DÜZ BASKI MODU (Geniş Ağızlı Besleme)
-        # =========================================================================
+        # 0 DERECE DÜZ MOD
         zpl = [
             "^XA",
             "^CI28",
@@ -151,19 +165,15 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
             f"^PW{w_dots}",
             f"^LL{h_dots}",
             "^LH0,0",
-            
-            f"^FO{ox + 20},{oy + 15}^A0N,28,24^FD{t1}^FS",
-            f"^FO{ox + 20},{oy + 48}^A0N,24,20^FD{t2}^FS",
         ]
 
-        if show_yerli:
-            box_x = ox + w_dots - 215
+        if t2:
             zpl.extend([
-                f"^FO{box_x},{oy + 8}^GB200,{int(h_dots * 0.29)},2^FS",
-                f"^FO{box_x + 8},{oy + 15}^GB24,24,2^FS",
-                f"^FO{box_x + 36},{oy + 14}^A0N,15,13^FD[YERLI URETIM]^FS",
-                f"^FO{box_x + 10},{oy + 44}^A0N,13,11^FDBirim: {unit_price}^FS",
+                f"^FO{ox + 20},{oy + 15}^A0N,28,24^FD{t1}^FS",
+                f"^FO{ox + 20},{oy + 48}^A0N,24,20^FD{t2}^FS",
             ])
+        else:
+            zpl.append(f"^FO{ox + 20},{oy + 25}^A0N,32,28^FD{t1}^FS")
 
         line1_y = oy + int(h_dots * 0.32)
         zpl.append(f"^FO{ox + 10},{line1_y}^GB{w_dots - 20},2,2^FS")
