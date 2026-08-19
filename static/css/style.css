@@ -920,7 +920,6 @@ input:focus, select:focus {
 }
 
 .tpl-item-card.active {
-.tpl-item-card.active {
   background: rgba(59, 130, 246, 0.15);
   border-color: var(--primary);
 }
