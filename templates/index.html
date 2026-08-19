@@ -13,370 +13,394 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
-  <!-- Üst Bar / Navigation -->
-  <header class="app-header no-print">
-    <div class="logo-container">
+<body class="app-layout">
+
+  <!-- SOL KENAR ÇUBUĞU / SIDEBAR MENÜSÜ -->
+  <aside class="app-sidebar no-print">
+    <!-- Logo & Başlık -->
+    <div class="sidebar-logo">
       <div class="logo-icon">🏷️</div>
       <div class="logo-text">
-        <h1>Market Raf Fiyat Etiketi Paneli</h1>
-        <p>Termal Baskı & Mobil Terminal Yönetim Sistemi</p>
+        <h2>Raf Etiketi</h2>
+        <span>Yönetim Paneli</span>
       </div>
     </div>
 
-    <!-- 4 Ana Sekme Navigasyonu -->
-    <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-print')">
-        <span class="tab-icon">🏷️</span>
-        <span>Etiket Çıkart</span>
+    <!-- Sol Menü Panelleri / Sekmeleri -->
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="switchTab('tab-print')">
+        <span class="nav-icon">🏷️</span>
+        <span class="nav-label">Etiket Çıkart</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-design')">
-        <span class="tab-icon">🎨</span>
-        <span>Etiket Düzenle</span>
+
+      <button class="nav-item" onclick="switchTab('tab-design')">
+        <span class="nav-icon">🎨</span>
+        <span class="nav-label">Etiket Düzenle</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-qr')">
-        <span class="tab-icon">📱</span>
-        <span>QR Bağlantısı</span>
+
+      <button class="nav-item" onclick="switchTab('tab-qr')">
+        <span class="nav-icon">📱</span>
+        <span class="nav-label">QR Bağlantısı</span>
       </button>
-      <button class="tab-btn" onclick="switchTab('tab-settings')">
-        <span class="tab-icon">⚙️</span>
-        <span>Ayarlar</span>
+
+      <button class="nav-item" onclick="switchTab('tab-settings')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Ayarlar</span>
       </button>
     </nav>
 
-    <!-- Header Hızlı Eylemler -->
-    <div class="header-actions">
-      <div class="device-badge" id="backend-status-badge">
+    <!-- Sidebar Alt Kısım (Yazıcı Durumu) -->
+    <div class="sidebar-footer">
+      <div class="device-status-card">
         <span class="status-dot"></span>
-        <span id="backend-status-text">Bağlanıyor...</span>
+        <div class="status-info">
+          <strong id="backend-status-text">Bağlanıyor...</strong>
+          <small id="sidebar-printer-name">Termal Yazıcı</small>
+        </div>
       </div>
-      <div class="qty-container" title="Baskı Kopya Sayısı">
-        <span style="font-size:11.5px; color:var(--text-muted);">Adet:</span>
-        <input type="number" id="inp-copies" value="1" min="1" max="100">
-      </div>
-      <button id="btn-print" class="btn-primary" onclick="handlePrint()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="6 9 6 2 18 2 18 9"></polyline>
-          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-          <rect x="6" y="14" width="12" height="8"></rect>
-        </svg>
-        <span>ETİKETİ YAZDIR</span>
-      </button>
     </div>
-  </header>
+  </aside>
 
-  <main class="app-main">
 
-    <!-- =========================================================
-         SEKME 1: ETİKET ÇIKART (ANA BASKI EKRANI)
-         ========================================================= -->
-    <div id="tab-print" class="tab-content active">
-      <div class="split-view">
-        <!-- Sol Panel: Veri Girişi & Stok -->
-        <div class="panel-left">
+  <!-- SAĞ ANA İÇERİK ALANI -->
+  <div class="app-content-wrapper">
+    
+    <!-- Üst Eylem Çubuğu -->
+    <header class="app-topbar no-print">
+      <div class="topbar-title">
+        <h1 id="page-heading">🏷️ Etiket Çıkart</h1>
+        <p id="page-subheading">Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı</p>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="qty-container" title="Baskı Kopya Sayısı">
+          <span style="font-size:11.5px; color:var(--text-muted);">Adet:</span>
+          <input type="number" id="inp-copies" value="1" min="1" max="100">
+        </div>
+        <button id="btn-print" class="btn-primary" onclick="handlePrint()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span>ETİKETİ YAZDIR</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sayfa İçerikleri (Sekmeler) -->
+    <main class="app-main-body">
+
+      <!-- =========================================================
+           SEKME 1: ETİKET ÇIKART (ANA BASKI EKRANI)
+           ========================================================= -->
+      <div id="tab-print" class="tab-content active">
+        <div class="split-view">
           
-          <!-- Hızlı Stok Arama -->
-          <div class="card">
-            <h2 class="card-title">🔍 Hızlı Stoktan Ürün Seç</h2>
-            <div class="search-box">
-              <input type="text" id="inp-stock-search" placeholder="Barkod veya ürün adı yazın..." oninput="searchProducts(this.value)">
-              <div id="stock-dropdown" class="stock-dropdown"></div>
-            </div>
-          </div>
-
-          <!-- Etiket İçerik Formu -->
-          <div class="card">
-            <h2 class="card-title">📝 Etiket Bilgileri</h2>
+          <!-- Sol Form Paneli: Veri Girişi & Stok -->
+          <div class="panel-left">
             
-            <div class="form-group">
-              <label>Ürün Adı 1. Satır (Büyük & Kalın)</label>
-              <input type="text" id="inp-prod-title-1" value="ULK 398-6 PİKO PORTAKAL" oninput="updateLabel()">
-            </div>
-
-            <div class="form-group">
-              <label>Ürün Adı 2. Satır</label>
-              <input type="text" id="inp-prod-title-2" value="PİR PAT KAP" oninput="updateLabel()">
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Marka / Mağaza</label>
-                <input type="text" id="inp-brand" value="YARENLER" oninput="updateLabel()">
-              </div>
-              <div class="form-group">
-                <label>Üretim Yeri</label>
-                <input type="text" id="inp-origin" value="TÜRKİYE" oninput="updateLabel()">
+            <!-- Hızlı Stok Arama -->
+            <div class="card">
+              <h2 class="card-title">🔍 Hızlı Stoktan Ürün Seç</h2>
+              <div class="search-box">
+                <input type="text" id="inp-stock-search" placeholder="Barkod veya ürün adı yazın..." oninput="searchProducts(this.value)">
+                <div id="stock-dropdown" class="stock-dropdown"></div>
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Değiştirme Tarihi</label>
-                <input type="text" id="inp-date" value="14 May 2025" oninput="updateLabel()">
-              </div>
-              <div class="form-group">
-                <label>Birim Fiyat (Kg/Lt/Ad)</label>
-                <input type="text" id="inp-unit-price" value="250,00 ₺/Kg" oninput="updateLabel()">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Barkod (EAN-13)</label>
-                <input type="text" id="inp-barcode" value="8690504114925" oninput="updateLabel()">
-              </div>
-              <div class="form-group">
-                <label>SATIŞ FİYATI (₺)</label>
-                <input type="text" id="inp-price" class="price-highlight" value="10,00 ₺" oninput="updateLabel()">
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-top: 10px;">
-              <button class="btn-secondary" onclick="saveCurrentToStock()">💾 Bu Ürünü Stoğa Kaydet</button>
-            </div>
-          </div>
-
-          <!-- Bilgi & Durum Kartı -->
-          <div id="status-alert" class="card tip-card">
-            <h3>💡 Bilgi</h3>
-            <p>Etiketiniz Görsel 2 standartlarına göre kalibre edilmiştir. Tek tıkla çıktı alabilirsiniz.</p>
-          </div>
-        </div>
-
-        <!-- Sağ Panel: Canlı Önizleme Sahnesi -->
-        <div class="panel-right">
-          <div class="stage-toolbar">
-            <div class="stage-info">
-              <span class="badge" id="current-size-badge">76 x 40 mm</span>
-              <span id="current-design-badge" class="badge-design">🔒 Standart Fabrika Rafı</span>
-            </div>
-            <div class="zoom-actions">
-              <button onclick="adjustScale(0.9)">-</button>
-              <span id="zoom-text">100%</span>
-              <button onclick="adjustScale(1.1)">+</button>
-              <button onclick="resetScale()">Sıfırla</button>
-            </div>
-          </div>
-
-          <div class="printable-wrapper">
-            <!-- CANLI GÖRSEL 2 RAF ETİKETİ -->
-            <div id="market-shelf-label" class="market-label size-76x40">
+            <!-- Etiket İçerik Formu -->
+            <div class="card">
+              <h2 class="card-title">📝 Etiket Bilgileri</h2>
               
-              <!-- 1. Üst Bölüm: Başlık & Dinamik Sağ Üst -->
-              <div class="ml-top-row">
-                <div class="ml-title-area full-width" id="lbl-title-area">
-                  <div class="ml-title-line1" id="lbl-title-1">ULK 398-6 PİKO PORTAKAL</div>
-                  <div class="ml-title-line2" id="lbl-title-2">PİR PAT KAP</div>
-                </div>
-                <div class="ml-top-right-box" id="lbl-top-right-box" style="display: none;"></div>
+              <div class="form-group">
+                <label>Ürün Adı 1. Satır (Büyük & Kalın)</label>
+                <input type="text" id="inp-prod-title-1" value="ULK 398-6 PİKO PORTAKAL" oninput="updateLabel()">
               </div>
 
-              <!-- 2. Orta Bölüm: Marka & Yasal Bilgiler -->
-              <div class="ml-mid-row">
-                <div class="ml-brand-col" id="lbl-brand">YARENLER</div>
-                <div class="ml-legal-col">
-                  <div>Üretim Yeri: <strong id="lbl-origin">TÜRKİYE</strong></div>
-                  <div>Fiyatlarımıza Kdv Dahildir.</div>
-                  <div>Fiyat Değiştirme Tarihi: <span id="lbl-date">14 May 2025</span></div>
-                </div>
+              <div class="form-group">
+                <label>Ürün Adı 2. Satır</label>
+                <input type="text" id="inp-prod-title-2" value="PİR PAT KAP" oninput="updateLabel()">
               </div>
 
-              <!-- 3. Alt Bölüm: Barkod | Satış Fiyatı | DEV FİYAT -->
-              <div class="ml-bottom-row">
-                <div class="ml-barcode-col">
-                  <svg id="market-barcode-svg"></svg>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Marka / Mağaza</label>
+                  <input type="text" id="inp-brand" value="YARENLER" oninput="updateLabel()">
                 </div>
-                <div class="ml-divider-col">
-                  <span>Satış</span>
-                  <span>Fiyatı</span>
-                </div>
-                <div class="ml-price-col">
-                  <span class="price-val" id="lbl-price">10,00 ₺</span>
+                <div class="form-group">
+                  <label>Üretim Yeri</label>
+                  <input type="text" id="inp-origin" value="TÜRKİYE" oninput="updateLabel()">
                 </div>
               </div>
 
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Değiştirme Tarihi</label>
+                  <input type="text" id="inp-date" value="14 May 2025" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                  <label>Birim Fiyat (Kg/Lt/Ad)</label>
+                  <input type="text" id="inp-unit-price" value="250,00 ₺/Kg" oninput="updateLabel()">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Barkod (EAN-13)</label>
+                  <input type="text" id="inp-barcode" value="8690504114925" oninput="updateLabel()">
+                </div>
+                <div class="form-group">
+                  <label>SATIŞ FİYATI (₺)</label>
+                  <input type="text" id="inp-price" class="price-highlight" value="10,00 ₺" oninput="updateLabel()">
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="btn-secondary" onclick="saveCurrentToStock()">💾 Bu Ürünü Stoğa Kaydet</button>
+              </div>
+            </div>
+
+            <!-- Bilgi & Durum Kartı -->
+            <div id="status-alert" class="card tip-card">
+              <h3>💡 Bilgi</h3>
+              <p>Etiketiniz Görsel 2 standartlarına göre kalibre edilmiştir. <strong>ETİKETİ YAZDIR</strong> butonuna basarak doğrudan çıktı alabilirsiniz.</p>
+            </div>
+          </div>
+
+          <!-- Sağ Panel: Canlı Önizleme Sahnesi -->
+          <div class="panel-right">
+            <div class="stage-toolbar">
+              <div class="stage-info">
+                <span class="badge" id="current-size-badge">76 x 40 mm</span>
+                <span id="current-design-badge" class="badge-design">🔒 Standart Fabrika Rafı</span>
+              </div>
+              <div class="zoom-actions">
+                <button onclick="adjustScale(0.9)">-</button>
+                <span id="zoom-text">100%</span>
+                <button onclick="adjustScale(1.1)">+</button>
+                <button onclick="resetScale()">Sıfırla</button>
+              </div>
+            </div>
+
+            <div class="printable-wrapper">
+              <!-- CANLI GÖRSEL 2 RAF ETİKETİ -->
+              <div id="market-shelf-label" class="market-label size-76x40">
+                
+                <!-- 1. Üst Bölüm: Başlık & Dinamik Sağ Üst -->
+                <div class="ml-top-row">
+                  <div class="ml-title-area full-width" id="lbl-title-area">
+                    <div class="ml-title-line1" id="lbl-title-1">ULK 398-6 PİKO PORTAKAL</div>
+                    <div class="ml-title-line2" id="lbl-title-2">PİR PAT KAP</div>
+                  </div>
+                  <div class="ml-top-right-box" id="lbl-top-right-box" style="display: none;"></div>
+                </div>
+
+                <!-- 2. Orta Bölüm: Marka & Yasal Bilgiler -->
+                <div class="ml-mid-row">
+                  <div class="ml-brand-col" id="lbl-brand">YARENLER</div>
+                  <div class="ml-legal-col">
+                    <div>Üretim Yeri: <strong id="lbl-origin">TÜRKİYE</strong></div>
+                    <div>Fiyatlarımıza Kdv Dahildir.</div>
+                    <div>Fiyat Değiştirme Tarihi: <span id="lbl-date">14 May 2025</span></div>
+                  </div>
+                </div>
+
+                <!-- 3. Alt Bölüm: Barkod | Satış Fiyatı | DEV FİYAT -->
+                <div class="ml-bottom-row">
+                  <div class="ml-barcode-col">
+                    <svg id="market-barcode-svg"></svg>
+                  </div>
+                  <div class="ml-divider-col">
+                    <span>Satış</span>
+                    <span>Fiyatı</span>
+                  </div>
+                  <div class="ml-price-col">
+                    <span class="price-val" id="lbl-price">10,00 ₺</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
 
-    <!-- =========================================================
-         SEKME 2: ETİKET DÜZENLE (ŞABLON & MODEL TASARIMCISI)
-         ========================================================= -->
-    <div id="tab-design" class="tab-content">
-      <div class="design-layout">
-        
-        <!-- Sol: Kayıtlı Şablonlar Listesi -->
-        <div class="card" style="width: 340px; display: flex; flex-direction: column; gap: 12px;">
-          <div class="card-header-flex">
-            <h2 class="card-title">📋 Etiket Modelleri</h2>
-            <button class="btn-sm btn-primary" onclick="createNewTemplate()">+ Yeni Model</button>
-          </div>
-          <div id="template-list" class="template-card-list">
-            <!-- JS Tarafından Doldurulur -->
-          </div>
-        </div>
-
-        <!-- Orta / Sağ: Model Düzenleyici Formu -->
-        <div class="card" style="flex: 1; display: flex; flex-direction: column; gap: 14px;">
-          <div class="card-header-flex">
-            <h2 class="card-title" id="txt-editing-tpl-title">🎨 Şablon Düzenle: Standart Raf</h2>
-            <span id="badge-tpl-locked" class="badge-locked">🔒 Fabrika Başlangıç Şablonu (Korumalı)</span>
-          </div>
-
-          <div class="form-group">
-            <label>Etiket Model Adı</label>
-            <input type="text" id="inp-tpl-name" value="Standart Market Rafı (Fabrika Ayarı)">
-          </div>
-
-          <div class="form-group">
-            <label>Model Açıklaması</label>
-            <input type="text" id="inp-tpl-desc" value="Görsel 2'ye tam uyumlu, tam genişlik başlık ve kalibre edilmiş başlangıç tasarımı.">
-          </div>
-
-          <div class="design-subbox">
-            <label style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:8px; display:block;">Sağ Üst Köşe Tasarım Öğesi</label>
-            <select id="tpl-top-right-mode" class="custom-select" onchange="onEditorTopRightChange(this.value)">
-              <option value="empty">Boş (Tam Genişlik Ürün İsmi - Varsayılan)</option>
-              <option value="unit_price">Sade Birim Fiyat Kutusu</option>
-              <option value="weight">Gramaj / Net Miktar Rozeti</option>
-              <option value="code">Reyon / Ürün Stok Kodu</option>
-              <option value="qr">Karekod (QR Kod)</option>
-              <option value="campaign">Süper Fırsat / Kampanya Rozeti</option>
-              <option value="yerli">Resmi Yerli Üretim Logosu</option>
-            </select>
-
-            <div id="tpl-custom-field" class="form-group" style="margin-top: 10px; display: none;">
-              <label id="tpl-custom-label">Özel Rozet Metni / Verisi</label>
-              <input type="text" id="inp-tpl-custom-text" placeholder="Örn: NET: 35 GR veya REYON: A-04" oninput="updateEditorPreview()">
+      <!-- =========================================================
+           SEKME 2: ETİKET DÜZENLE (ŞABLON & MODEL TASARIMCISI)
+           ========================================================= -->
+      <div id="tab-design" class="tab-content">
+        <div class="design-layout">
+          
+          <!-- Sol: Kayıtlı Şablonlar Listesi -->
+          <div class="card" style="width: 320px; display: flex; flex-direction: column; gap: 12px;">
+            <div class="card-header-flex">
+              <h2 class="card-title">📋 Etiket Modelleri</h2>
+              <button class="btn-sm btn-primary" onclick="createNewTemplate()">+ Yeni Model</button>
             </div>
+            <div id="template-list" class="template-card-list"></div>
           </div>
 
-          <div style="display: flex; gap: 10px; margin-top: auto;">
-            <button id="btn-save-template" class="btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
-            <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Bu Modeli Sil</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-
-    <!-- =========================================================
-         SEKME 3: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ)
-         ========================================================= -->
-    <div id="tab-qr" class="tab-content">
-      <div class="qr-panel-container">
-        
-        <div class="card qr-box-card">
-          <div class="qr-header">
-            <span style="font-size: 36px;">📱</span>
-            <h2>Mobil Reyon Barkod Terminali</h2>
-            <p>Telefonunuzun kamerasıyla bu QR kodu okutarak reyonlarda gezerek ürün okutup doğrudan termal yazıcıya etiket basabilirsiniz.</p>
-          </div>
-
-          <div class="qr-code-wrapper">
-            <div id="mobile-qr-canvas"></div>
-          </div>
-
-          <div class="qr-link-box">
-            <span style="font-size:12px; color:var(--text-muted);">Mobil Bağlantı Adresi:</span>
-            <div class="link-copy-row">
-              <input type="text" id="inp-mobile-url" readonly value="http://192.168.1.XX:5000/mobile">
-              <button class="btn-secondary" onclick="copyMobileUrl()">📋 Kopyala</button>
+          <!-- Sağ: Model Düzenleyici Formu -->
+          <div class="card" style="flex: 1; display: flex; flex-direction: column; gap: 14px;">
+            <div class="card-header-flex">
+              <h2 class="card-title" id="txt-editing-tpl-title">🎨 Şablon Düzenle: Standart Raf</h2>
+              <span id="badge-tpl-locked" class="badge-locked">🔒 Fabrika Başlangıç Şablonu (Korumalı)</span>
             </div>
-          </div>
 
-          <div class="qr-steps">
-            <div class="step-item">
-              <span class="step-num">1</span>
-              <span>Telefonunuzun bilgisayarla <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</span>
-            </div>
-            <div class="step-item">
-              <span class="step-num">2</span>
-              <span>Kamera ile yukarıdaki QR kodu okutun veya tarayıcınızdan linki açın.</span>
-            </div>
-            <div class="step-item">
-              <span class="step-num">3</span>
-              <span>Reyonlarda gezerken ürün barkodunu kameraya gösterin, fiyatı onaylayıp <strong>"🖨️ YAZDIR"</strong> butonuna basın!</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-
-    <!-- =========================================================
-         SEKME 4: AYARLAR
-         ========================================================= -->
-    <div id="tab-settings" class="tab-content">
-      <div class="settings-container">
-        <div class="card settings-card">
-          <h2 class="card-title">⚙️ Sistem & Donanım Ayarları</h2>
-
-          <div class="form-group">
-            <label>Varsayılan Termal Yazıcı</label>
-            <select id="settings-printer-select" class="custom-select">
-              <option value="Termal Etiket Yazici">Termal Etiket Yazici</option>
-            </select>
-          </div>
-
-          <div class="form-row">
             <div class="form-group">
-              <label>Varsayılan Etiket Boyutu</label>
-              <select id="settings-size-select" class="custom-select">
-                <option value="76x40" selected>76 x 40 mm (Standart Market Rafı)</option>
-                <option value="60x40">60 x 40 mm (Kompakt Raf)</option>
-                <option value="85x45">85 x 45 mm (Büyük Boy)</option>
+              <label>Etiket Model Adı</label>
+              <input type="text" id="inp-tpl-name" value="Standart Market Rafı (Fabrika Ayarı)">
+            </div>
+
+            <div class="form-group">
+              <label>Model Açıklaması</label>
+              <input type="text" id="inp-tpl-desc" value="Görsel 2'ye tam uyumlu, tam genişlik başlık ve kalibre edilmiş başlangıç tasarımı.">
+            </div>
+
+            <div class="design-subbox">
+              <label style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:8px; display:block;">Sağ Üst Köşe Tasarım Öğesi</label>
+              <select id="tpl-top-right-mode" class="custom-select" onchange="onEditorTopRightChange(this.value)">
+                <option value="empty">Boş (Tam Genişlik Ürün İsmi - Varsayılan)</option>
+                <option value="unit_price">Sade Birim Fiyat Kutusu</option>
+                <option value="weight">Gramaj / Net Miktar Rozeti</option>
+                <option value="code">Reyon / Ürün Stok Kodu</option>
+                <option value="qr">Karekod (QR Kod)</option>
+                <option value="campaign">Süper Fırsat / Kampanya Rozeti</option>
+                <option value="yerli">Resmi Yerli Üretim Logosu</option>
+              </select>
+
+              <div id="tpl-custom-field" class="form-group" style="margin-top: 10px; display: none;">
+                <label id="tpl-custom-label">Özel Rozet Metni / Verisi</label>
+                <input type="text" id="inp-tpl-custom-text" placeholder="Örn: NET: 35 GR veya REYON: A-04" oninput="updateEditorPreview()">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+              <button id="btn-save-template" class="btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
+              <button id="btn-delete-template" class="btn-danger" style="display: none;" onclick="deleteCurrentTemplate()">🗑️ Bu Modeli Sil</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- =========================================================
+           SEKME 3: QR BAĞLANTISI (MOBİL MARKET TERMİNALİ)
+           ========================================================= -->
+      <div id="tab-qr" class="tab-content">
+        <div class="qr-panel-container">
+          
+          <div class="card qr-box-card">
+            <div class="qr-header">
+              <span style="font-size: 38px;">📱</span>
+              <h2>Mobil Reyon Barkod Terminali</h2>
+              <p>Telefonunuzun kamerasıyla bu QR kodu okutarak reyonlarda gezerek ürün okutup doğrudan termal yazıcıya etiket basabilirsiniz.</p>
+            </div>
+
+            <div class="qr-code-wrapper">
+              <div id="mobile-qr-canvas"></div>
+            </div>
+
+            <div class="qr-link-box">
+              <span style="font-size:12px; color:var(--text-muted);">Mobil Bağlantı Adresi:</span>
+              <div class="link-copy-row">
+                <input type="text" id="inp-mobile-url" readonly value="http://192.168.1.XX:5000/mobile">
+                <button class="btn-secondary" onclick="copyMobileUrl()">📋 Kopyala</button>
+              </div>
+            </div>
+
+            <div class="qr-steps">
+              <div class="step-item">
+                <span class="step-num">1</span>
+                <span>Telefonunuzun bilgisayarla <strong>aynı Wi-Fi ağına</strong> bağlı olduğundan emin olun.</span>
+              </div>
+              <div class="step-item">
+                <span class="step-num">2</span>
+                <span>Kamera ile yukarıdaki QR kodu okutun veya tarayıcınızdan linki açın.</span>
+              </div>
+              <div class="step-item">
+                <span class="step-num">3</span>
+                <span>Reyonlarda gezerken ürün barkodunu kameraya gösterin, fiyatı onaylayıp <strong>"🖨️ YAZDIR"</strong> butonuna basın!</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- =========================================================
+           SEKME 4: AYARLAR
+           ========================================================= -->
+      <div id="tab-settings" class="tab-content">
+        <div class="settings-container">
+          <div class="card settings-card">
+            <h2 class="card-title">⚙️ Sistem & Donanım Ayarları</h2>
+
+            <div class="form-group">
+              <label>Varsayılan Termal Yazıcı</label>
+              <select id="settings-printer-select" class="custom-select">
+                <option value="Termal Etiket Yazici">Termal Etiket Yazici</option>
               </select>
             </div>
-            <div class="form-group">
-              <label>Kağıt Besleme Yönü</label>
-              <select id="settings-orient-select" class="custom-select">
-                <option value="POR" selected>🔄 90° Yatay (Termal Rulo - Önerilen)</option>
-                <option value="PON">↕️ 0° Düz</option>
-              </select>
-            </div>
-          </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>Varsayılan Mağaza / Firma Adı</label>
-              <input type="text" id="settings-market-name" value="YARENLER">
-            </div>
-            <div class="form-group">
-              <label>Termal Koyu Yazım Kontrastı (~SD)</label>
-              <input type="number" id="settings-darkness" value="22" min="10" max="30">
-            </div>
-          </div>
-
-          <div class="design-subbox" style="margin-top: 10px;">
-            <h3 style="font-size:12.5px; font-weight:700; color:#e2e8f0; margin-bottom:8px;">Hassas Ofset Kalibrasyonu (Dot)</h3>
             <div class="form-row">
               <div class="form-group">
-                <label>X Ofset (Piksel / Dot)</label>
-                <input type="number" id="settings-x-offset" value="0" step="5">
+                <label>Varsayılan Etiket Boyutu</label>
+                <select id="settings-size-select" class="custom-select">
+                  <option value="76x40" selected>76 x 40 mm (Standart Market Rafı)</option>
+                  <option value="60x40">60 x 40 mm (Kompakt Raf)</option>
+                  <option value="85x45">85 x 45 mm (Büyük Boy)</option>
+                </select>
               </div>
               <div class="form-group">
-                <label>Y Ofset (Piksel / Dot)</label>
-                <input type="number" id="settings-y-offset" value="0" step="5">
+                <label>Kağıt Besleme Yönü</label>
+                <select id="settings-orient-select" class="custom-select">
+                  <option value="POR" selected>🔄 90° Yatay (Termal Rulo - Önerilen)</option>
+                  <option value="PON">↕️ 0° Düz</option>
+                </select>
               </div>
             </div>
-            <p style="font-size:10.5px; color:#94a3b8; margin-top:4px;">* Fabrika başlangıç kalibrasyonu sistemde kilitlidir. Yazıcınız sağa/sola kayıyorsa ek ofset belirleyebilirsiniz.</p>
-          </div>
 
-          <div style="margin-top: 16px; display: flex; gap: 10px;">
-            <button class="btn-primary" onclick="saveSettings()">💾 Ayarları Kaydet</button>
-            <button class="btn-secondary" onclick="loadSettings()">↺ Yenile</button>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Varsayılan Mağaza / Firma Adı</label>
+                <input type="text" id="settings-market-name" value="YARENLER">
+              </div>
+              <div class="form-group">
+                <label>Termal Koyu Yazım Kontrastı (~SD)</label>
+                <input type="number" id="settings-darkness" value="22" min="10" max="30">
+              </div>
+            </div>
+
+            <div class="design-subbox" style="margin-top: 10px;">
+              <h3 style="font-size:12.5px; font-weight:700; color:#e2e8f0; margin-bottom:8px;">Hassas Ofset Kalibrasyonu (Dot)</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>X Ofset (Piksel / Dot)</label>
+                  <input type="number" id="settings-x-offset" value="0" step="5">
+                </div>
+                <div class="form-group">
+                  <label>Y Ofset (Piksel / Dot)</label>
+                  <input type="number" id="settings-y-offset" value="0" step="5">
+                </div>
+              </div>
+              <p style="font-size:10.5px; color:#94a3b8; margin-top:4px;">* Fabrika başlangıç kalibrasyonu sistemde kilitlidir. Yazıcınız sağa/sola kayıyorsa ek ofset belirleyebilirsiniz.</p>
+            </div>
+
+            <div style="margin-top: 16px; display: flex; gap: 10px;">
+              <button class="btn-primary" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+              <button class="btn-secondary" onclick="loadSettings()">↺ Yenile</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </main>
+    </main>
+  </div>
 
   <script src="/static/js/app.js"></script>
 </body>

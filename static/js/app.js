@@ -22,9 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMobileQrCode();
 });
 
-// 1. SEKME GEÇİŞLERİ
+// 1. SOL SIDEBAR SEKME GEÇİŞLERİ
 function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
   const activeTabEl = document.getElementById(tabId);
@@ -32,15 +32,27 @@ function switchTab(tabId) {
     activeTabEl.classList.add('active');
   }
 
-  // Aktif butonu seç
-  const buttons = document.querySelectorAll('.tab-btn');
-  if (tabId === 'tab-print') buttons[0].classList.add('active');
-  else if (tabId === 'tab-design') buttons[1].classList.add('active');
-  else if (tabId === 'tab-qr') {
-    buttons[2].classList.add('active');
+  const buttons = document.querySelectorAll('.nav-item');
+  const heading = document.getElementById('page-heading');
+  const subheading = document.getElementById('page-subheading');
+
+  if (tabId === 'tab-print') {
+    if (buttons[0]) buttons[0].classList.add('active');
+    heading.innerText = '🏷️ Etiket Çıkart';
+    subheading.innerText = 'Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı';
+  } else if (tabId === 'tab-design') {
+    if (buttons[1]) buttons[1].classList.add('active');
+    heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
+    subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
+  } else if (tabId === 'tab-qr') {
+    if (buttons[2]) buttons[2].classList.add('active');
+    heading.innerText = '📱 Mobil QR Bağlantısı';
+    subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
   } else if (tabId === 'tab-settings') {
-    buttons[3].classList.add('active');
+    if (buttons[3]) buttons[3].classList.add('active');
+    heading.innerText = '⚙️ Sistem & Donanım Ayarları';
+    subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
     loadSettings();
   }
 }

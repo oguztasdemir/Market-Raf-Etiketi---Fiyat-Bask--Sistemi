@@ -1,8 +1,9 @@
 /* =========================================
-   GENEL TEMA & MODERN PANEL STILLERI
+   GENEL TEMA & SOL SIDEBAR PANEL DÜZENİ
    ========================================= */
 :root {
   --bg-dark: #090d16;
+  --bg-sidebar: #0e1424;
   --bg-card: #131b2e;
   --bg-input: #090d16;
   --border-color: #23304d;
@@ -22,109 +23,111 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-body {
+body.app-layout {
   background-color: var(--bg-dark);
   color: var(--text-main);
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
-  flex-direction: column;
+  overflow: hidden;
 }
 
-/* Header */
-.app-header {
+/* =========================================
+   SOL KENAR ÇUBUĞU (SIDEBAR MENÜ)
+   ========================================= */
+.app-sidebar {
+  width: 240px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 24px;
-  background-color: rgba(19, 27, 46, 0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
+  flex-direction: column;
+  flex-shrink: 0;
   z-index: 100;
 }
 
-.logo-container {
+.sidebar-logo {
+  padding: 20px 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logo-icon {
-  font-size: 22px;
+  font-size: 26px;
   background: #1e293b;
-  padding: 6px 9px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
 }
 
-.logo-text h1 {
+.logo-text h2 {
   font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.3px;
+  color: var(--text-main);
 }
 
-.logo-text p {
-  font-size: 10.5px;
-  color: var(--text-muted);
+.logo-text span {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
 }
 
-/* 4 Ana Sekme Navigasyonu */
-.nav-tabs {
+/* Sol Navigasyon Menü Butonları */
+.sidebar-nav {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #090d16;
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
-
-.tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
   background: transparent;
   color: var(--text-muted);
-  border: none;
-  padding: 8px 14px;
-  font-size: 12.5px;
-  font-weight: 600;
-  border-radius: 7px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
+  text-align: left;
   transition: all 0.15s ease;
 }
 
-.tab-btn:hover {
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.05);
 }
 
-.tab-btn.active {
+.nav-item.active {
   background: var(--primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
 }
 
-.tab-icon {
-  font-size: 14px;
+.nav-icon {
+  font-size: 16px;
 }
 
-/* Header Sağ Taraf */
-.header-actions {
+.sidebar-footer {
+  padding: 14px;
+  border-top: 1px solid var(--border-color);
+  background: #0a0f1c;
+}
+
+.device-status-card {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.device-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: #090d16;
+  background: #131b2e;
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  font-size: 11.5px;
+  padding: 10px 12px;
+  border-radius: 8px;
 }
 
 .status-dot {
@@ -133,6 +136,59 @@ body {
   background-color: #10b981;
   border-radius: 50%;
   box-shadow: 0 0 8px #10b981;
+  flex-shrink: 0;
+}
+
+.status-info strong {
+  display: block;
+  font-size: 11.5px;
+  color: #e2e8f0;
+}
+
+.status-info small {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* =========================================
+   SAĞ ANA İÇERİK ALANI
+   ========================================= */
+.app-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background-color: rgba(19, 27, 46, 0.6);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.topbar-title h1 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.topbar-title p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .qty-container {
@@ -141,15 +197,16 @@ body {
   gap: 6px;
   background: #090d16;
   border: 1px solid var(--border-color);
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 8px;
 }
 
 .qty-container input {
   width: 44px;
-  padding: 3px;
+  padding: 2px;
   text-align: center;
   font-weight: 800;
+  font-size: 14px;
   border: none;
   background: transparent;
   color: white;
@@ -162,7 +219,7 @@ body {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
-  padding: 9px 16px;
+  padding: 9px 18px;
   font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
@@ -204,14 +261,15 @@ body {
 }
 
 .btn-sm {
-  padding: 4px 8px;
-  font-size: 11px;
+  padding: 5px 10px;
+  font-size: 11.5px;
 }
 
-/* Ana İçerik ve Sekme Konteyneri */
-.app-main {
+/* Sayfa İçerik Alanı */
+.app-main-body {
   flex: 1;
-  padding: 18px;
+  padding: 20px 24px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -237,8 +295,8 @@ body {
    ========================================= */
 .split-view {
   display: grid;
-  grid-template-columns: 390px 1fr;
-  gap: 18px;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
   flex: 1;
 }
 
@@ -261,7 +319,7 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 16px;
 }
 
 .card-title {
@@ -299,7 +357,7 @@ label {
 
 input, select, textarea {
   width: 100%;
-  padding: 7.5px 10px;
+  padding: 8px 10px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -313,7 +371,7 @@ input:focus, select:focus {
 }
 
 .price-highlight {
-  font-size: 16px !important;
+  font-size: 17px !important;
   font-weight: 800 !important;
   color: #38bdf8 !important;
 }
@@ -331,16 +389,16 @@ input:focus, select:focus {
   background: #0d1424;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  max-height: 180px;
+  max-height: 200px;
   overflow-y: auto;
   z-index: 50;
   display: none;
   margin-top: 4px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.6);
 }
 
 .stock-item {
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
   display: flex;
@@ -391,7 +449,7 @@ input:focus, select:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 18px;
+  padding: 12px 20px;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
   font-size: 12px;
