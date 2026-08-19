@@ -16,7 +16,6 @@ from flask import Flask, jsonify, request, send_from_directory, render_template
 # Gereksiz GET/POST 200 HTTP loglarını sustur (Sadece Hatalar ve Özel Mesajlar)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-os.environ['WERKZEUG_RUN_MAIN'] = 'true'
 
 # Modüler kaynakları içeri aktar
 from src.zpl_generator import generate_market_shelf_zpl, clean_tr
@@ -357,9 +356,9 @@ def run_server(host="0.0.0.0", port=5000):
     mobile_url = f"http://{local_ip}:{port}/mobile"
 
     print("=" * 65)
-    print("🏷️   Market Raf Etiketi Paneli & Mobil Terminal Başlatıldı!")
-    print(f"💻  Masaüstü Panel : {url}")
-    print(f"📱  Mobil Terminal  : {mobile_url}")
+    print("[BASLATILDI] Market Raf Etiketi Paneli & Mobil Terminal")
+    print(f"[*] Masaustu Panel : {url}")
+    print(f"[*] Mobil Terminal  : {mobile_url}")
     print("=" * 65)
 
     try:
