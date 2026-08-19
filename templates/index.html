@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Raf Fiyat Etiketi Paneli</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
+  <!-- JsBarcode CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header no-print">
+    <div class="logo-container">
+      <div class="logo-icon">🏷️</div>
+      <div class="logo-text">
+        <h1>Market Raf Fiyat Etiketi Paneli</h1>
+        <p>Görsel 2 Uyumlu Termal Baskı & Kalibrasyon Sistemi</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="device-badge" id="backend-status-badge">
+        <span class="status-dot"></span>
+        <span id="backend-status-text">Bağlanıyor...</span>
+      </div>
+      <select id="orient-select" class="printer-dropdown" onchange="updateZplPreview()">
+        <option value="POR" selected>🔄 90° Yatay Besleme (Standart Termal)</option>
+        <option value="PON">↕️ 0° Düz Besleme</option>
+      </select>
+      <select id="printer-select" class="printer-dropdown">
+        <option value="">-- Yazıcı Aranıyor --</option>
+      </select>
+      <div style="display:flex; align-items:center; gap:6px; background:#0f172a; border:1px solid var(--border-color); padding:4px 8px; border-radius:8px;">
+        <span style="font-size:12px; color:var(--text-muted);">Adet:</span>
+        <input type="number" id="inp-copies" value="1" min="1" max="100" style="width:50px; padding:4px 6px; text-align:center;">
+      </div>
+      <button id="btn-print" class="btn-primary" onclick="handlePrint()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span>ETİKETİ YAZDIR</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Sol Panel: Düzenleme Formu -->
+    <aside class="editor-sidebar no-print">
+      
+      <!-- 1. Etiket Ölçüsü -->
+      <div class="card">
+        <h2 class="card-title">1. Etiket Ölçüsü (Rulo)</h2>
+        <div class="template-selector">
+          <button class="template-btn active" data-size="76x40" onclick="switchSize('76x40', 76, 40)">
+            <span class="t-icon">🏷️</span>
+            <div class="t-info">
+              <strong>Standart Raf</strong>
+              <small>76 x 40 mm</small>
+            </div>
+          </button>
+          <button class="template-btn" data-size="60x40" onclick="switchSize('60x40', 60, 40)">
+            <span class="t-icon">🏷️</span>
+            <div class="t-info">
+              <strong>Kompakt Raf</strong>
+              <small>60 x 40 mm</small>
+            </div>
+          </button>
+          <button class="template-btn" data-size="85x45" onclick="switchSize('85x45', 85, 45)">
+            <span class="t-icon">🏬</span>
+            <div class="t-info">
+              <strong>Büyük Boy</strong>
+              <small>85 x 45 mm</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Raf Etiket Bilgileri Formu -->
+      <div class="card" id="form-container">
+        <h2 class="card-title">2. Etiket İçeriği (Görsel 2)</h2>
+        
+        <div class="form-group">
+          <label>Ürün Adı 1. Satır (Büyük & Kalın)</label>
+          <input type="text" id="inp-prod-title-1" value="ULK 398-6 PİKO PORTAKAL" oninput="updateLabel()">
+        </div>
+
+        <div class="form-group">
+          <label>Ürün Adı 2. Satır</label>
+          <input type="text" id="inp-prod-title-2" value="PİR PAT KAP" oninput="updateLabel()">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Marka / Mağaza</label>
+            <input type="text" id="inp-brand" value="YARENLER" oninput="updateLabel()">
+          </div>
+          <div class="form-group">
+            <label>Üretim Yeri</label>
+            <input type="text" id="inp-origin" value="TÜRKİYE" oninput="updateLabel()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fiyat Değiştirme Tarihi</label>
+            <input type="text" id="inp-date" value="14 May 2025" oninput="updateLabel()">
+          </div>
+          <div class="form-group">
+            <label>Birim Fiyat (Kg/Lt/Ad)</label>
+            <input type="text" id="inp-unit-price" value="250,00 ₺/Kg" oninput="updateLabel()">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Barkod (EAN-13)</label>
+            <input type="text" id="inp-barcode" value="8690504114925" oninput="updateLabel()">
+          </div>
+          <div class="form-group">
+            <label>SATIŞ FİYATI (Büyük)</label>
+            <input type="text" id="inp-price" value="10,00 ₺" oninput="updateLabel()">
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="check-label">
+            <input type="checkbox" id="inp-show-yerli" checked onchange="updateLabel()">
+            <span>"Yerli Üretim" Logosunu Göster</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Hassas Kalibrasyon Ofsetleri (Açılır Kapanır) -->
+      <div class="card">
+        <details>
+          <summary class="card-title" style="cursor:pointer; margin-bottom:0;">⚙️ Hassas Yazıcı Ofset Ayarları</summary>
+          <div style="margin-top: 12px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>X Ofset (Piksel / Dot)</label>
+                <input type="number" id="inp-x-offset" value="0" step="5" oninput="updateLabel()">
+              </div>
+              <div class="form-group">
+                <label>Y Ofset (Piksel / Dot)</label>
+                <input type="number" id="inp-y-offset" value="0" step="5" oninput="updateLabel()">
+              </div>
+            </div>
+            <p style="font-size:10.5px; color:#94a3b8;">* Kağıdınız sağa/sola veya yukarı/aşağı kayıyorsa buradan milimetrik ince ayar yapabilirsiniz.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Bilgi & Durum Kartı -->
+      <div id="status-alert" class="card tip-card">
+        <h3>💡 Bilgi</h3>
+        <p>Etiketiniz Görsel 2 standartlarına göre ayarlandı. <strong>ETİKETİ YAZDIR</strong> butonuna basarak doğrudan çıktı alabilirsiniz.</p>
+      </div>
+    </aside>
+
+    <!-- Sağ Panel: Canlı Termal Etiket Önizleme Alanı -->
+    <section class="preview-stage">
+      <div class="stage-toolbar no-print">
+        <div class="stage-info">
+          <span class="badge" id="current-size-badge">76 x 40 mm</span>
+          <span>Birebir Market Raf Etiketi Önizlemesi</span>
+        </div>
+        <div class="zoom-actions">
+          <button onclick="adjustScale(0.9)">-</button>
+          <span id="zoom-text">100%</span>
+          <button onclick="adjustScale(1.1)">+</button>
+          <button onclick="resetScale()">Sıfırla</button>
+        </div>
+      </div>
+
+      <!-- GERÇEK YAZDIRILACAK ALAN (PRINT AREA) -->
+      <div class="printable-wrapper" id="printable-wrapper">
+        
+        <!-- BİREBİR GÖRSEL 2 MARKET RAF ETİKETİ TASARIMI -->
+        <div id="market-shelf-label" class="market-label size-76x40">
+          
+          <!-- 1. ÜST BÖLÜM: Ürün Adı & Yerli Üretim Logosu -->
+          <div class="ml-top-row">
+            <div class="ml-title-area">
+              <div class="ml-title-line1" id="lbl-title-1">ULK 398-6 PİKO PORTAKAL</div>
+              <div class="ml-title-line2" id="lbl-title-2">PİR PAT KAP</div>
+            </div>
+
+            <div class="ml-yerli-box" id="lbl-yerli-box">
+              <div class="yerli-logo-svg">
+                <!-- Gerçek Yerli Üretim Logosu SVG -->
+                <svg viewBox="0 0 170 65" width="92" height="35">
+                  <rect x="1" y="1" width="168" height="63" rx="3" fill="none" stroke="#000" stroke-width="2.2" />
+                  <!-- Handshake / Barkod Çizgileri -->
+                  <path d="M12 18 L24 30 L36 18 L32 14 L24 22 L16 14 Z" fill="#000" />
+                  <rect x="8" y="34" width="3" height="20" fill="#000" />
+                  <rect x="14" y="34" width="5" height="20" fill="#000" />
+                  <rect x="22" y="34" width="2" height="20" fill="#000" />
+                  <rect x="27" y="34" width="6" height="20" fill="#000" />
+                  <rect x="36" y="34" width="4" height="20" fill="#000" />
+                  <text x="48" y="28" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">YERLİ</text>
+                  <text x="48" y="52" font-family="'Inter', sans-serif" font-weight="900" font-size="18" fill="#000">ÜRETİM</text>
+                </svg>
+              </div>
+              <div class="ml-unit-price-text">
+                <span class="unit-label">Birim Fiyat - Kg/Lt/Ad</span>
+                <span class="unit-val" id="lbl-unit-price">250,00 ₺/Kg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. ORTA BÖLÜM: Marka & Yasal Bilgiler -->
+          <div class="ml-mid-row">
+            <div class="ml-brand-col" id="lbl-brand">YARENLER</div>
+            <div class="ml-legal-col">
+              <div>Üretim Yeri: <strong id="lbl-origin">TÜRKİYE</strong></div>
+              <div>Fiyatlarımıza Kdv Dahildir.</div>
+              <div>Fiyat Değiştirme Tarihi: <span id="lbl-date">14 May 2025</span></div>
+            </div>
+          </div>
+
+          <!-- 3. ALT BÖLÜM: Barkod | Satış Fiyatı Ayracı | DEV FİYAT -->
+          <div class="ml-bottom-row">
+            <!-- Barkod -->
+            <div class="ml-barcode-col">
+              <svg id="market-barcode-svg"></svg>
+            </div>
+
+            <!-- Satış Fiyatı Dikey Metni -->
+            <div class="ml-divider-col">
+              <span>Satış</span>
+              <span>Fiyatı</span>
+            </div>
+
+            <!-- Büyük Satış Fiyatı -->
+            <div class="ml-price-col">
+              <span class="price-val" id="lbl-price">10,00 ₺</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

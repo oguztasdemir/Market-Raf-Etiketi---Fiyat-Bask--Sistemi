@@ -1,0 +1,511 @@
+/* =========================================
+   GENEL TEMA & PANEL STILLERI (EKRAN GÖRÜNÜMÜ)
+   ========================================= */
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --border-color: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --accent: #10b981;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background-color: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  background: #334155;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.logo-text h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.logo-text p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.device-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.printer-dropdown {
+  background: #0f172a;
+  color: white;
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.success-print {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+}
+
+.success-print h3 {
+  color: #34d399 !important;
+  font-weight: 800;
+}
+
+.active-printing {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: #3b82f6 !important;
+}
+
+/* Layout */
+.app-main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  padding: 20px;
+  flex: 1;
+}
+
+/* Sidebar */
+.editor-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e2e8f0;
+}
+
+.template-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.template-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  padding: 8px 6px;
+  border-radius: 8px;
+  color: var(--text-main);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.template-btn.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+}
+
+.template-btn .t-info strong {
+  display: block;
+  font-size: 11.5px;
+}
+
+.template-btn .t-info small {
+  color: var(--text-muted);
+  font-size: 9.5px;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.checkbox-group {
+  margin-top: 8px;
+}
+
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-size: 12px;
+}
+
+.check-label input {
+  width: 16px;
+  height: 16px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 7px 10px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: white;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.tip-card {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.tip-card h3 {
+  font-size: 12px;
+  color: #34d399;
+  margin-bottom: 4px;
+}
+
+.tip-card p {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Stage Preview */
+.preview-stage {
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stage-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.stage-info .badge {
+  background: #3b82f620;
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.zoom-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zoom-actions button {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.printable-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  background: radial-gradient(circle, #1e293b 10%, #020617 90%);
+  overflow: auto;
+}
+
+/* ===================================================
+   GÖRSEL 2 İLE BİREBİR MARKET RAF ETİKETİ (CSS)
+   =================================================== */
+.market-label {
+  background: #fffef0; /* Doğal raf etiketi rengi */
+  color: #000000;
+  border: 1.5px solid #000;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+  font-family: 'Inter', -apple-system, sans-serif;
+  user-select: none;
+  transform-origin: center center;
+  transition: transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.size-76x40 {
+  width: 76mm;
+  height: 40mm;
+  padding: 2.2mm 2.8mm 2.2mm 2.8mm;
+}
+
+.size-60x40 {
+  width: 60mm;
+  height: 40mm;
+  padding: 2mm 2.2mm 2mm 2.2mm;
+}
+
+.size-85x45 {
+  width: 85mm;
+  height: 45mm;
+  padding: 2.8mm 3.2mm 2.8mm 3.2mm;
+}
+
+/* 1. ÜST BÖLÜM: Başlık ve Yerli Üretim */
+.ml-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2mm;
+  border-bottom: 1.4px solid #000;
+  padding-bottom: 1.5mm;
+}
+
+.ml-title-area {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ml-title-line1 {
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+}
+
+.ml-title-line2 {
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+}
+
+.ml-yerli-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.yerli-logo-svg svg {
+  display: block;
+}
+
+.ml-unit-price-text {
+  font-size: 7px;
+  font-weight: 700;
+  margin-top: 1px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.unit-label {
+  font-size: 6.8px;
+  font-weight: 600;
+}
+
+.unit-val {
+  font-weight: 800;
+}
+
+/* 2. ORTA BÖLÜM: Marka & Yasal Bilgiler */
+.ml-mid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.4px solid #000;
+  padding: 1.2mm 0;
+}
+
+.ml-brand-col {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+  width: 32%;
+}
+
+.ml-legal-col {
+  width: 68%;
+  font-size: 7.2px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.ml-legal-col strong {
+  font-weight: 800;
+}
+
+/* 3. ALT BÖLÜM: Barkod | Satış Fiyatı | BÜYÜK FİYAT */
+.ml-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.2mm;
+}
+
+.ml-barcode-col {
+  width: 36%;
+  display: flex;
+  align-items: center;
+}
+
+.ml-barcode-col svg {
+  width: 100%;
+  height: 25px;
+}
+
+.ml-divider-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: 1.4px solid #000;
+  border-right: 1.4px solid #000;
+  padding: 0 4px;
+  font-size: 7.2px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  height: 28px;
+}
+
+.ml-price-col {
+  flex: 1;
+  text-align: right;
+  padding-right: 2px;
+}
+
+.price-val {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  font-family: 'Inter', 'Oswald', sans-serif;
+}
