@@ -6,7 +6,7 @@
   },
   {
     "barcode": "1002",
-    "title": "MNV SALKIM  DOMATES",
+    "title": "MNV SALKIM DOMATES",
     "price": "85,00 TL"
   },
   {
@@ -281,12 +281,12 @@
   },
   {
     "barcode": "1066",
-    "title": "ÖĞÜT  GÖNEN BALDO PİRİNÇ",
+    "title": "ÖĞÜT GÖNEN BALDO PİRİNÇ",
     "price": "125,00 TL"
   },
   {
     "barcode": "1067",
-    "title": "BAŞHAN  BULGUR KG",
+    "title": "BAŞHAN BULGUR KG",
     "price": "50,00 TL"
   },
   {
@@ -296,7 +296,7 @@
   },
   {
     "barcode": "1069",
-    "title": "ÖĞÜT NİĞDE KURU  FASULYE",
+    "title": "ÖĞÜT NİĞDE KURU FASULYE",
     "price": "125,00 TL"
   },
   {
@@ -826,7 +826,7 @@
   },
   {
     "barcode": "8690504142973",
-    "title": "ÜLKER KARE %60  BİTTER ÇİKOLATA 60G",
+    "title": "ÜLKER KARE %60 BİTTER ÇİKOLATA 60G",
     "price": "70,00 TL"
   },
   {
@@ -851,7 +851,7 @@
   },
   {
     "barcode": "8683508142322",
-    "title": "ÜLKER KARE ÇİKOLATA  ŞÖBİYET 60GR",
+    "title": "ÜLKER KARE ÇİKOLATA ŞÖBİYET 60GR",
     "price": "105,00 TL"
   },
   {
@@ -1086,7 +1086,7 @@
   },
   {
     "barcode": "8690526076416",
-    "title": "ETİ SOSBOM ÇİKOLATALI  KEK 50GR",
+    "title": "ETİ SOSBOM ÇİKOLATALI KEK 50GR",
     "price": "25,00 TL"
   },
   {
@@ -1511,7 +1511,7 @@
   },
   {
     "barcode": "40822938",
-    "title": "FANTA 500ML PET  PORTAKAL",
+    "title": "FANTA 500ML PET PORTAKAL",
     "price": "50,00 TL"
   },
   {
@@ -2261,7 +2261,7 @@
   },
   {
     "barcode": "8690504082590",
-    "title": "ÜLKER 8 KEK MİNİ  162 GR",
+    "title": "ÜLKER 8 KEK MİNİ 162 GR",
     "price": "60,00 TL"
   },
   {
@@ -2846,7 +2846,7 @@
   },
   {
     "barcode": "8691865111424",
-    "title": "İNCİ  MISIR UNU 200GR",
+    "title": "İNCİ MISIR UNU 200GR",
     "price": "50,00 TL"
   },
   {
@@ -3086,7 +3086,7 @@
   },
   {
     "barcode": "8690624103533",
-    "title": "CİPS SÜPER BOY  LAYS KLASIK 107 GR",
+    "title": "CİPS SÜPER BOY LAYS KLASIK 107 GR",
     "price": "60,00 TL"
   },
   {
@@ -3111,7 +3111,7 @@
   },
   {
     "barcode": "8690624103564",
-    "title": "CİPS SÜPER BOY  RUFFLES ORİGİNALS SADE PATATES CİPSİ 104 GR",
+    "title": "CİPS SÜPER BOY RUFFLES ORİGİNALS SADE PATATES CİPSİ 104 GR",
     "price": "60,00 TL"
   },
   {
@@ -4246,7 +4246,7 @@
   },
   {
     "barcode": "8690504082392",
-    "title": "ÜLKER DANKEK TART  KEK ÇİLEKLİ MİNİ 150 GR",
+    "title": "ÜLKER DANKEK TART KEK ÇİLEKLİ MİNİ 150 GR",
     "price": "60,00 TL"
   },
   {
@@ -4461,7 +4461,7 @@
   },
   {
     "barcode": "8693354006686",
-    "title": "DOĞANAY  NARE BEYAZ SİRKE 1L",
+    "title": "DOĞANAY NARE BEYAZ SİRKE 1L",
     "price": "35,00 TL"
   },
   {
@@ -4626,7 +4626,7 @@
   },
   {
     "barcode": "8690515124272",
-    "title": "KENT 12429 OLİPS MENTOL",
+    "title": "KENT OLİPS MENTOL",
     "price": "30,00 TL"
   },
   {
@@ -4636,7 +4636,7 @@
   },
   {
     "barcode": "1500144801840",
-    "title": "ULUDAĞ FRUTTİ EKSTRA ORMAN MEYVELİ  250 ML",
+    "title": "ULUDAĞ FRUTTİ EKSTRA ORMAN MEYVELİ 250 ML",
     "price": "50,00 TL"
   },
   {
@@ -4846,6 +4846,11 @@
   },
   {
     "barcode": "11143",
+    "title": "OZMO HOPPO CIKOLATALI KREMA DOLGULU BISKUVI 40 GR",
+    "price": "20,00 TL"
+  },
+  {
+    "barcode": "1113",
     "title": "OZMO HOPPO CIKOLATALI KREMA DOLGULU BISKUVI 40 GR",
     "price": "20,00 TL"
   },
@@ -5456,7 +5461,7 @@
   },
   {
     "barcode": "8690637939891",
-    "title": "ALGİDA KEYİF 1400 ML ÇİLEK KAKAO VANİLYA",
+    "title": "ALGİDA KEYİF ML ÇİLEK KAKAO VANİLYA",
     "price": "140,00 TL"
   },
   {
@@ -5491,12 +5496,12 @@
   },
   {
     "barcode": "8683130057810",
-    "title": "ALGİDA CARTE DOR SELECTİON  BİTTER VANİLYA",
+    "title": "ALGİDA CARTE DOR SELECTİON BİTTER VANİLYA",
     "price": "295,00 TL"
   },
   {
     "barcode": "8683130057803",
-    "title": "ALGİDA CARTE DOR  KAKAO PARÇA ÇİKO VANİLYA",
+    "title": "ALGİDA CARTE DOR KAKAO PARÇA ÇİKO VANİLYA",
     "price": "275,00 TL"
   },
   {
@@ -5596,7 +5601,7 @@
   },
   {
     "barcode": "8690742165567",
-    "title": "CAN BEBE JUMBO 6  NUMARA 17 Lİ",
+    "title": "CAN BEBE JUMBO 6 NUMARA 17 Lİ",
     "price": "130,00 TL"
   },
   {
@@ -6096,7 +6101,7 @@
   },
   {
     "barcode": "2.5 TL",
-    "title": "2.5  TL",
+    "title": "2.5 TL",
     "price": "2,50 TL"
   },
   {
@@ -6396,7 +6401,7 @@
   },
   {
     "barcode": "8683508121945",
-    "title": "ÜLKER ÇOKOKREM  350 GR CAM",
+    "title": "ÜLKER ÇOKOKREM 350 GR CAM",
     "price": "115,00 TL"
   },
   {
@@ -6531,17 +6536,17 @@
   },
   {
     "barcode": "8692900833011",
-    "title": "VİKİNG YUMUŞATICI 1440 ML BEAUTY AROMA",
+    "title": "VİKİNG YUMUŞATICI ML BEAUTY AROMA",
     "price": "99,00 TL"
   },
   {
     "barcode": "8692900834018",
-    "title": "VİKİNG YUMUŞATICI 1440 ML SENSITIVE",
+    "title": "VİKİNG YUMUŞATICI ML SENSITIVE",
     "price": "99,00 TL"
   },
   {
     "barcode": "8692900837019",
-    "title": "VİKİNG YUMUİATICI 1440 ML DUET",
+    "title": "VİKİNG YUMUİATICI ML DUET",
     "price": "99,00 TL"
   },
   {
@@ -6666,7 +6671,7 @@
   },
   {
     "barcode": "8697461280359",
-    "title": "GUNAYDIN 1500 GR IRI TUZ 10LU",
+    "title": "GUNAYDIN GR IRI TUZ 10LU",
     "price": "30,00 TL"
   },
   {
@@ -6756,7 +6761,7 @@
   },
   {
     "barcode": "8690526740744",
-    "title": "ETİ PETİTBUERRE KREMALI 270  GR",
+    "title": "ETİ PETİTBUERRE KREMALI 270 GR",
     "price": "75,00 TL"
   },
   {
@@ -6766,7 +6771,7 @@
   },
   {
     "barcode": "8690526004891",
-    "title": "ETİ  MISIRLI BALIK KRAKER 70 GR",
+    "title": "ETİ MISIRLI BALIK KRAKER 70 GR",
     "price": "25,00 TL"
   },
   {
@@ -7721,7 +7726,7 @@
   },
   {
     "barcode": "8699982370441",
-    "title": "MİSS LADY  PLASTİK TABAK BÜYÜK BOY",
+    "title": "MİSS LADY PLASTİK TABAK BÜYÜK BOY",
     "price": "50,00 TL"
   },
   {
@@ -7841,7 +7846,7 @@
   },
   {
     "barcode": "8690106012049",
-    "title": "BİRYAĞ AYÇİÇEK  YAĞI 4LT PET",
+    "title": "BİRYAĞ AYÇİÇEK YAĞI 4LT PET",
     "price": "490,00 TL"
   },
   {
@@ -8226,7 +8231,7 @@
   },
   {
     "barcode": "8692971430898",
-    "title": "İÇİM  LABNE 180 GR",
+    "title": "İÇİM LABNE 180 GR",
     "price": "75,00 TL"
   },
   {
@@ -9101,7 +9106,7 @@
   },
   {
     "barcode": "8695876200221",
-    "title": "PEYMAN  BAHÇEDEN 90GR LEBLEBI TUZLU",
+    "title": "PEYMAN BAHÇEDEN 90GR LEBLEBI TUZLU",
     "price": "40,00 TL"
   },
   {
@@ -9531,7 +9536,7 @@
   },
   {
     "barcode": "8600258089974",
-    "title": "MISIRLI  ERKEK ÇORABI DİKİŞSİZ",
+    "title": "MISIRLI ERKEK ÇORABI DİKİŞSİZ",
     "price": "60,00 TL"
   },
   {
@@ -9636,7 +9641,7 @@
   },
   {
     "barcode": "8683508026288",
-    "title": "ÜLKER BE HAPPY  ÇİLEK",
+    "title": "ÜLKER BE HAPPY ÇİLEK",
     "price": "85,00 TL"
   },
   {
@@ -9826,7 +9831,7 @@
   },
   {
     "barcode": "8682091108913",
-    "title": "BOMBEO  ÇİLEK",
+    "title": "BOMBEO ÇİLEK",
     "price": "7,50 TL"
   },
   {
@@ -9986,7 +9991,7 @@
   },
   {
     "barcode": "8690637926938",
-    "title": "DOMESTOS 3240 ML CAM FERAHLIGI",
+    "title": "DOMESTOS ML CAM FERAHLIGI",
     "price": "225,00 TL"
   },
   {
@@ -10146,7 +10151,7 @@
   },
   {
     "barcode": "8690504441502",
-    "title": "İÇİM  KREMA 200GR",
+    "title": "İÇİM KREMA 200GR",
     "price": "65,00 TL"
   },
   {
@@ -10276,12 +10281,12 @@
   },
   {
     "barcode": "8690536905539",
-    "title": "BINGO SOFT TUTKUYLA GUL 1440 ML",
+    "title": "BINGO SOFT TUTKUYLA GUL ML",
     "price": "220,00 TL"
   },
   {
     "barcode": "8690536903115",
-    "title": "BINGO SOFT KONSANTRE YUMUSATICI MUTLU YUVAM 1440 M",
+    "title": "BINGO SOFT KONSANTRE YUMUSATICI MUTLU YUVAM M",
     "price": "220,00 TL"
   },
   {
@@ -10401,12 +10406,12 @@
   },
   {
     "barcode": "8690527020845",
-    "title": "PINAR 1724 SUCUK AC BITIR 90GR",
+    "title": "PINAR SUCUK AC BITIR 90GR",
     "price": "65,00 TL"
   },
   {
     "barcode": "8690559026471",
-    "title": "DARDANEL EKONOMİK  TON 140*3",
+    "title": "DARDANEL EKONOMİK TON 140*3",
     "price": "175,00 TL"
   },
   {
@@ -10451,7 +10456,7 @@
   },
   {
     "barcode": "8690504009603",
-    "title": "ULK 1905 TAC KRAKER 76GR",
+    "title": "ULK TAC KRAKER 76GR",
     "price": "20,00 TL"
   },
   {
@@ -10461,7 +10466,7 @@
   },
   {
     "barcode": "8690504110231",
-    "title": "ULK 1077-1 IKRAM KRE BISKUVI CIKOLATA 3X84GR",
+    "title": "ULK -1 IKRAM KRE BISKUVI CIKOLATA 3X84GR",
     "price": "57,50 TL"
   },
   {
@@ -10576,7 +10581,7 @@
   },
   {
     "barcode": "5000112664799",
-    "title": "FANTA  PORTAKAL 200 ML",
+    "title": "FANTA PORTAKAL 200 ML",
     "price": "35,00 TL"
   },
   {
@@ -10766,7 +10771,7 @@
   },
   {
     "barcode": "8690526064598",
-    "title": "ETI 16459 LIFALIF MUSLI BAR BITTER 35GR",
+    "title": "ETI LIFALIF MUSLI BAR BITTER 35GR",
     "price": "32,50 TL"
   },
   {
@@ -10811,7 +10816,7 @@
   },
   {
     "barcode": "5740700995774",
-    "title": "COCA COLA VİŞNELİ  330ML",
+    "title": "COCA COLA VİŞNELİ 330ML",
     "price": "225,00 TL"
   },
   {
@@ -10861,7 +10866,7 @@
   },
   {
     "barcode": "8698623371359",
-    "title": "VATAN  KOMŞU ÇATLATAN",
+    "title": "VATAN KOMŞU ÇATLATAN",
     "price": "95,00 TL"
   },
   {
@@ -10891,7 +10896,7 @@
   },
   {
     "barcode": "8690723693201",
-    "title": "ULUDAĞ FURUTTİ  ORMAN MEYVELİ PET 300",
+    "title": "ULUDAĞ FURUTTİ ORMAN MEYVELİ PET 300",
     "price": "40,00 TL"
   },
   {
@@ -11031,7 +11036,7 @@
   },
   {
     "barcode": "8690504011927",
-    "title": "ULKER 1190-2 HANIMELLER TUZLU KURABIYE 150GR",
+    "title": "ULKER -2 HANIMELLER TUZLU KURABIYE 150GR",
     "price": "50,00 TL"
   },
   {
@@ -11046,7 +11051,7 @@
   },
   {
     "barcode": "8690574114887",
-    "title": "LİPTON ICETEA  MANGO 1 LT",
+    "title": "LİPTON ICETEA MANGO 1 LT",
     "price": "65,00 TL"
   },
   {
@@ -11111,7 +11116,7 @@
   },
   {
     "barcode": "8690612426491",
-    "title": "SÜPER FRESH İNCE ÇITIR PATATES 1200 GR",
+    "title": "SÜPER FRESH İNCE ÇITIR PATATES GR",
     "price": "159,00 TL"
   },
   {
@@ -11541,7 +11546,7 @@
   },
   {
     "barcode": "8718951433946",
-    "title": "COLGATE  GELİŞMİŞ BEYEZLIK 50 ML",
+    "title": "COLGATE GELİŞMİŞ BEYEZLIK 50 ML",
     "price": "40,00 TL"
   },
   {
@@ -11626,7 +11631,7 @@
   },
   {
     "barcode": "8700216084314",
-    "title": "PANTENNE PRO V NEM  TERAPİSİ 350 ML",
+    "title": "PANTENNE PRO V NEM TERAPİSİ 350 ML",
     "price": "135,00 TL"
   },
   {
@@ -11636,7 +11641,7 @@
   },
   {
     "barcode": "8006540935033",
-    "title": "HEAD  .SHOULDERS 2 Sİ 1 ARADA KLASİK BAKIM",
+    "title": "HEAD .SHOULDERS 2 Sİ 1 ARADA KLASİK BAKIM",
     "price": "185,00 TL"
   },
   {
@@ -11671,7 +11676,7 @@
   },
   {
     "barcode": "8006540935231",
-    "title": "HEAD.SHOULDERS İPEKSİ YUMUŞAKLIK  350 ML",
+    "title": "HEAD.SHOULDERS İPEKSİ YUMUŞAKLIK 350 ML",
     "price": "185,00 TL"
   },
   {
@@ -11751,7 +11756,7 @@
   },
   {
     "barcode": "8680624660426",
-    "title": "MEXMİX  TAHILLI BAR  HİNDİSTAN CEVİZLİ",
+    "title": "MEXMİX TAHILLI BAR HİNDİSTAN CEVİZLİ",
     "price": "7,50 TL"
   },
   {
@@ -11871,7 +11876,7 @@
   },
   {
     "barcode": "8683130040812",
-    "title": "CLEAR  WOMEN YUMUŞAK PARLAK 350 ML",
+    "title": "CLEAR WOMEN YUMUŞAK PARLAK 350 ML",
     "price": "159,00 TL"
   },
   {
@@ -12361,12 +12366,12 @@
   },
   {
     "barcode": "8690527030578",
-    "title": "PINAR 1974 SOSIS AC BITIR KOK.170GR",
+    "title": "PINAR SOSIS AC BITIR KOK.170GR",
     "price": "75,00 TL"
   },
   {
     "barcode": "8690527020890",
-    "title": "PINAR 1741 SUCUK AC BITIR 75GR",
+    "title": "PINAR SUCUK AC BITIR 75GR",
     "price": "120,00 TL"
   },
   {
@@ -12376,7 +12381,7 @@
   },
   {
     "barcode": "8690526078403",
-    "title": "ETI 17840 CANGA BITTER 45GR",
+    "title": "ETI CANGA BITTER 45GR",
     "price": "30,00 TL"
   },
   {
@@ -12396,12 +12401,12 @@
   },
   {
     "barcode": "8690526088266",
-    "title": "ETI 18826 KARAM A.FISTIKLI 28GR",
+    "title": "ETI KARAM A.FISTIKLI 28GR",
     "price": "40,00 TL"
   },
   {
     "barcode": "8690526018065",
-    "title": "ETI 16806 KARAMELA 30GR",
+    "title": "ETI KARAMELA 30GR",
     "price": "17,50 TL"
   },
   {
@@ -12431,7 +12436,7 @@
   },
   {
     "barcode": "8690526073941",
-    "title": "ETI 17394 BURCAK KAK.YULAF 82GR",
+    "title": "ETI BURCAK KAK.YULAF 82GR",
     "price": "22,50 TL"
   },
   {
@@ -12456,7 +12461,7 @@
   },
   {
     "barcode": "8690526069494",
-    "title": "ETI 16468 LIFALIF YULAF EZ.KURU YEMIS 35GR",
+    "title": "ETI LIFALIF YULAF EZ.KURU YEMIS 35GR",
     "price": "32,50 TL"
   },
   {
@@ -12466,17 +12471,17 @@
   },
   {
     "barcode": "8690526064741",
-    "title": "ETI 17954 FORM TAHILLI BUGDAY PATLAGI 41GR",
+    "title": "ETI FORM TAHILLI BUGDAY PATLAGI 41GR",
     "price": "22,50 TL"
   },
   {
     "barcode": "8690526075228",
-    "title": "ETI 17522 HOSBES FINDIKLI 40GR",
+    "title": "ETI HOSBES FINDIKLI 40GR",
     "price": "17,50 TL"
   },
   {
     "barcode": "8690526086835",
-    "title": "ETI 18683 B.INTENS KARAMELLI 160GR",
+    "title": "ETI B.INTENS KARAMELLI 160GR",
     "price": "90,00 TL"
   },
   {
@@ -12606,7 +12611,7 @@
   },
   {
     "barcode": "6001067001485",
-    "title": "COLGATE D.FIRCA 360  WHITE",
+    "title": "COLGATE D.FIRCA 360 WHITE",
     "price": "100,00 TL"
   },
   {
@@ -13001,7 +13006,7 @@
   },
   {
     "barcode": "8690504115014",
-    "title": "ULK 1151-4 BISKREM KAKAOLU BUYUK BOY",
+    "title": "ULK -4 BISKREM KAKAOLU BUYUK BOY",
     "price": "40,00 TL"
   },
   {
@@ -13016,7 +13021,7 @@
   },
   {
     "barcode": "8690504110224",
-    "title": "ULK 1077-2 IKRAM KRE BISKUVI 84GRX3",
+    "title": "ULK -2 IKRAM KRE BISKUVI 84GRX3",
     "price": "40,00 TL"
   },
   {
@@ -13031,12 +13036,12 @@
   },
   {
     "barcode": "8690504108771",
-    "title": "ULKER 1087-07 KRISPI TIR. KRAKER BAHARAT 48GR",
+    "title": "ULKER -07 KRISPI TIR. KRAKER BAHARAT 48GR",
     "price": "15,00 TL"
   },
   {
     "barcode": "8690504108429",
-    "title": "ULKER 1084-02 KRISPI TIR. KRAKER ACILI 48GR",
+    "title": "ULKER -02 KRISPI TIR. KRAKER ACILI 48GR",
     "price": "15,00 TL"
   },
   {
@@ -13066,7 +13071,7 @@
   },
   {
     "barcode": "8690504127208",
-    "title": "ULK 1272-0 HOBBY 600GR",
+    "title": "ULK -0 HOBBY 600GR",
     "price": "150,00 TL"
   },
   {
@@ -13246,7 +13251,7 @@
   },
   {
     "barcode": "8690559019824",
-    "title": "DARDANEL  TON 75*4",
+    "title": "DARDANEL TON 75*4",
     "price": "175,00 TL"
   },
   {
@@ -13756,7 +13761,7 @@
   },
   {
     "barcode": "8690526073460",
-    "title": "ETI 17346 BURCAK KURABI KAKAO 198GR",
+    "title": "ETI BURCAK KURABI KAKAO 198GR",
     "price": "75,00 TL"
   },
   {
@@ -13831,7 +13836,7 @@
   },
   {
     "barcode": "8690504084020",
-    "title": "ÜLKER  RODEO 45 GR",
+    "title": "ÜLKER RODEO 45 GR",
     "price": "25,00 TL"
   },
   {
@@ -13856,7 +13861,7 @@
   },
   {
     "barcode": "8682998726074",
-    "title": "EWA BABY  CAM BİBERON",
+    "title": "EWA BABY CAM BİBERON",
     "price": "100,00 TL"
   },
   {
@@ -13881,7 +13886,7 @@
   },
   {
     "barcode": "8684128000955",
-    "title": "HAVA SPREYİ  LİLAC",
+    "title": "HAVA SPREYİ LİLAC",
     "price": "100,00 TL"
   },
   {
@@ -14056,7 +14061,7 @@
   },
   {
     "barcode": "8690612518929",
-    "title": "SÜPER FRESH  DÜRÜM TOST",
+    "title": "SÜPER FRESH DÜRÜM TOST",
     "price": "99,00 TL"
   },
   {
@@ -14206,7 +14211,7 @@
   },
   {
     "barcode": "8695876203741",
-    "title": "PEYMAN NUTZZ POPCORN ACIBIBER&DOM.90 GR (7067)",
+    "title": "PEYMAN NUTZZ POPCORN ACIBIBER&DOM.90 GR ()",
     "price": "45,00 TL"
   },
   {
@@ -14676,7 +14681,7 @@
   },
   {
     "barcode": "8690565020074",
-    "title": "PINAR 6944 SUZME PEYNIR YARIM YAGLI 250GR",
+    "title": "PINAR SUZME PEYNIR YARIM YAGLI 250GR",
     "price": "65,00 TL"
   },
   {
@@ -14916,7 +14921,7 @@
   },
   {
     "barcode": "8690526094045",
-    "title": "ETI 13404 PIZZA KRAKER 76GR",
+    "title": "ETI PIZZA KRAKER 76GR",
     "price": "15,00 TL"
   },
   {
@@ -14936,7 +14941,7 @@
   },
   {
     "barcode": "8697461280274",
-    "title": "GUNAYDIN 1500 GR INCE TUZ 10LU",
+    "title": "GUNAYDIN GR INCE TUZ 10LU",
     "price": "30,00 TL"
   },
   {
@@ -15336,7 +15341,7 @@
   },
   {
     "barcode": "8690526073446",
-    "title": "ETI 17344 PUF MEYVE DOLGULU 20GR",
+    "title": "ETI PUF MEYVE DOLGULU 20GR",
     "price": "7,50 TL"
   },
   {
@@ -15356,12 +15361,12 @@
   },
   {
     "barcode": "7622210838735",
-    "title": "KENT 12429 OLİPS ORMAN MEYVELI",
+    "title": "KENT OLİPS ORMAN MEYVELI",
     "price": "30,00 TL"
   },
   {
     "barcode": "8690515599704",
-    "title": "KENT 12674 OLİPS NANE",
+    "title": "KENT OLİPS NANE",
     "price": "30,00 TL"
   },
   {
@@ -15371,7 +15376,7 @@
   },
   {
     "barcode": "8690515124401",
-    "title": "KENT 12442 OLİPS LIMON & PORTAKAL",
+    "title": "KENT OLİPS LIMON & PORTAKAL",
     "price": "30,00 TL"
   },
   {
@@ -15386,7 +15391,7 @@
   },
   {
     "barcode": "8692971762241",
-    "title": "KOMİLİ PECETE 100LU 7632-0",
+    "title": "KOMİLİ PECETE 100LU -0",
     "price": "50,00 TL"
   },
   {
@@ -15511,7 +15516,7 @@
   },
   {
     "barcode": "8690504013570",
-    "title": "ULK 1132-8 HANIMELLER FIN.3LU",
+    "title": "ULK -8 HANIMELLER FIN.3LU",
     "price": "50,00 TL"
   },
   {
@@ -15636,7 +15641,7 @@
   },
   {
     "barcode": "8697419775845",
-    "title": "KOMİLİ 7758-4 SIVI SAB.ZEYT.BADEM SUTU",
+    "title": "KOMİLİ -4 SIVI SAB.ZEYT.BADEM SUTU",
     "price": "35,00 TL"
   },
   {
@@ -15691,7 +15696,7 @@
   },
   {
     "barcode": "8698701040849",
-    "title": "ELİT DUBAİ  90 GR",
+    "title": "ELİT DUBAİ 90 GR",
     "price": "200,00 TL"
   },
   {
@@ -15706,7 +15711,7 @@
   },
   {
     "barcode": "8690504130697",
-    "title": "ULK 1306-5 DIDO SUTLU FRAM",
+    "title": "ULK -5 DIDO SUTLU FRAM",
     "price": "25,00 TL"
   },
   {
@@ -15796,7 +15801,7 @@
   },
   {
     "barcode": "8681324003186",
-    "title": "SÜTAŞ SALEP  1LT",
+    "title": "SÜTAŞ SALEP 1LT",
     "price": "100,00 TL"
   },
   {
@@ -15841,7 +15846,7 @@
   },
   {
     "barcode": "8684207680375",
-    "title": "LUCATECH  HIZLI DUVAR ŞARJI",
+    "title": "LUCATECH HIZLI DUVAR ŞARJI",
     "price": "175,00 TL"
   },
   {
@@ -16171,7 +16176,7 @@
   },
   {
     "barcode": "8690526051314",
-    "title": "ETI 3100 BUMBO 42GR",
+    "title": "ETI BUMBO 42GR",
     "price": "15,00 TL"
   },
   {
@@ -16401,7 +16406,7 @@
   },
   {
     "barcode": "8700216260176",
-    "title": "HEAD SHOULDERS  MENTOL FERAHLIĞI 330 ML",
+    "title": "HEAD SHOULDERS MENTOL FERAHLIĞI 330 ML",
     "price": "185,00 TL"
   },
   {
@@ -16466,7 +16471,7 @@
   },
   {
     "barcode": "2023120100014",
-    "title": "LİBERTA LİFE  TWİST",
+    "title": "LİBERTA LİFE TWİST",
     "price": "350,00 TL"
   },
   {
@@ -16501,7 +16506,7 @@
   },
   {
     "barcode": "8693354001162",
-    "title": "DOĞANAY ŞALGAM  ACISIZ 1 LT",
+    "title": "DOĞANAY ŞALGAM ACISIZ 1 LT",
     "price": "75,00 TL"
   },
   {
@@ -16521,7 +16526,7 @@
   },
   {
     "barcode": "8690565005538",
-    "title": "PINAR 3445 DENGE LOKTOZSUZ SUT",
+    "title": "PINAR DENGE LOKTOZSUZ SUT",
     "price": "50,00 TL"
   },
   {
@@ -16701,7 +16706,7 @@
   },
   {
     "barcode": "8690105007367",
-    "title": "ALTINBAŞ TOMURCUKLU BARDAK  100 LU",
+    "title": "ALTINBAŞ TOMURCUKLU BARDAK 100 LU",
     "price": "225,00 TL"
   },
   {
@@ -16836,7 +16841,7 @@
   },
   {
     "barcode": "8693354001094",
-    "title": "DOĞANAY ŞALGAM  ACILI  1 LT",
+    "title": "DOĞANAY ŞALGAM ACILI 1 LT",
     "price": "75,00 TL"
   },
   {
@@ -17026,7 +17031,7 @@
   },
   {
     "barcode": "8690526338927",
-    "title": "REMİXX  BİSKUVİLİ 20 GR",
+    "title": "REMİXX BİSKUVİLİ 20 GR",
     "price": "7,50 TL"
   },
   {
@@ -17151,7 +17156,7 @@
   },
   {
     "barcode": "7622210808639",
-    "title": "KENT 4097 SIPSEVDI STICK MUZ CILEK",
+    "title": "KENT SIPSEVDI STICK MUZ CILEK",
     "price": "15,00 TL"
   },
   {
@@ -17206,7 +17211,7 @@
   },
   {
     "barcode": "8683130098714",
-    "title": "ALGİDA MİNİ UTPİA AHU3 BADEM 3265,5GR",
+    "title": "ALGİDA MİNİ UTPİA AHU3 BADEM ,5GR",
     "price": "325,00 TL"
   },
   {
@@ -17331,7 +17336,7 @@
   },
   {
     "barcode": "8699578090425",
-    "title": "BAM YUMURTA  6 LI",
+    "title": "BAM YUMURTA 6 LI",
     "price": "50,00 TL"
   },
   {
@@ -17401,7 +17406,7 @@
   },
   {
     "barcode": "1500144801987",
-    "title": "ULUDAĞ  RAMAZAN ŞERBETİ 1 LT",
+    "title": "ULUDAĞ RAMAZAN ŞERBETİ 1 LT",
     "price": "70,00 TL"
   },
   {
@@ -17521,7 +17526,7 @@
   },
   {
     "barcode": "8693357033726",
-    "title": "P.BAHCE 42021 CAY BAR.12 LI OPTIKLI",
+    "title": "P.BAHCE CAY BAR.12 LI OPTIKLI",
     "price": "150,00 TL"
   },
   {
@@ -17766,7 +17771,7 @@
   },
   {
     "barcode": "8690565010822",
-    "title": "PINAR 5036 UCGEN PEYNIR KAHVALTI 12.5GR",
+    "title": "PINAR UCGEN PEYNIR KAHVALTI 12.5GR",
     "price": "35,00 TL"
   },
   {
@@ -17826,7 +17831,7 @@
   },
   {
     "barcode": "8690146182870",
-    "title": "BEBETO  FREEZE WATERMELON 35*GR",
+    "title": "BEBETO FREEZE WATERMELON 35*GR",
     "price": "50,00 TL"
   },
   {
@@ -18446,7 +18451,7 @@
   },
   {
     "barcode": "6260111361085",
-    "title": "KAKOL YEŞİL NANELİ  250GR",
+    "title": "KAKOL YEŞİL NANELİ 250GR",
     "price": "70,00 TL"
   },
   {
@@ -18661,27 +18666,27 @@
   },
   {
     "barcode": "8690515118301",
-    "title": "KENT 22136 TOFITA CILEK 47GR",
+    "title": "KENT TOFITA CILEK 47GR",
     "price": "20,00 TL"
   },
   {
     "barcode": "8690515118257",
-    "title": "KENT 22146 TOFITA PORTAKAL 47GR",
+    "title": "KENT TOFITA PORTAKAL 47GR",
     "price": "20,00 TL"
   },
   {
     "barcode": "8690515118202",
-    "title": "KENT 22156 TOFITA VISNE 47GR",
+    "title": "KENT TOFITA VISNE 47GR",
     "price": "20,00 TL"
   },
   {
     "barcode": "8690515221117",
-    "title": "KENT 22116 TOFITA BOGURTLEN 47GR",
+    "title": "KENT TOFITA BOGURTLEN 47GR",
     "price": "20,00 TL"
   },
   {
     "barcode": "8691900171673",
-    "title": "KOTEX ULTRA DOUBLE UZUN 14LU 8135",
+    "title": "KOTEX ULTRA DOUBLE UZUN 14LU",
     "price": "175,00 TL"
   },
   {
@@ -18781,12 +18786,12 @@
   },
   {
     "barcode": "8697448280020",
-    "title": "TOFITA 1802 BUZD.POSETI KUCUK",
+    "title": "TOFITA BUZD.POSETI KUCUK",
     "price": "50,00 TL"
   },
   {
     "barcode": "8697448280013",
-    "title": "TOFITA 1801 BUZ.POSET ORTA 30LU",
+    "title": "TOFITA BUZ.POSET ORTA 30LU",
     "price": "50,00 TL"
   },
   {
@@ -19181,7 +19186,7 @@
   },
   {
     "barcode": "8690504096009",
-    "title": "ICIM 4101-8 SUT 1/5 UHT",
+    "title": "ICIM -8 SUT 1/5 UHT",
     "price": "15,00 TL"
   },
   {
@@ -19226,7 +19231,7 @@
   },
   {
     "barcode": "5413149647800",
-    "title": "ALO KAR CICEGI 1500 GR",
+    "title": "ALO KAR CICEGI GR",
     "price": "140,00 TL"
   },
   {
@@ -19296,7 +19301,7 @@
   },
   {
     "barcode": "8690536908042",
-    "title": "BİNGO  4LT",
+    "title": "BİNGO 4LT",
     "price": "195,00 TL"
   },
   {
@@ -19971,7 +19976,7 @@
   },
   {
     "barcode": "8684000202675",
-    "title": "COSBY  İŞ MAKİNALARI",
+    "title": "COSBY İŞ MAKİNALARI",
     "price": "100,00 TL"
   },
   {
@@ -20026,7 +20031,7 @@
   },
   {
     "barcode": "8693357033757",
-    "title": "P.BAHCE 42011 CAY BARD.12 LI",
+    "title": "P.BAHCE CAY BARD.12 LI",
     "price": "210,00 TL"
   },
   {
@@ -20046,7 +20051,7 @@
   },
   {
     "barcode": "90456114",
-    "title": "REDBULL YABAN MERSİNİ  250 ML",
+    "title": "REDBULL YABAN MERSİNİ 250 ML",
     "price": "85,00 TL"
   },
   {
@@ -20441,7 +20446,7 @@
   },
   {
     "barcode": "8681475010170",
-    "title": "BCAA  YEŞİL ELMA",
+    "title": "BCAA YEŞİL ELMA",
     "price": "195,00 TL"
   },
   {
@@ -20651,7 +20656,7 @@
   },
   {
     "barcode": "8682241211982",
-    "title": "SLEEPY BEYAZ   SABUNLU ISLAK MENDİL",
+    "title": "SLEEPY BEYAZ SABUNLU ISLAK MENDİL",
     "price": "45,00 TL"
   },
   {
@@ -20661,7 +20666,7 @@
   },
   {
     "barcode": "8699982375576",
-    "title": "MİSS LADY  TEMİZLİK BEZİ",
+    "title": "MİSS LADY TEMİZLİK BEZİ",
     "price": "45,00 TL"
   },
   {
@@ -20856,7 +20861,7 @@
   },
   {
     "barcode": "8690526459400",
-    "title": "ETİ SÜTLÜ  KARE 60 GR BOL SÜTLÜ",
+    "title": "ETİ SÜTLÜ KARE 60 GR BOL SÜTLÜ",
     "price": "70,00 TL"
   },
   {
@@ -20976,7 +20981,7 @@
   },
   {
     "barcode": "8682631200848",
-    "title": "SMİLE  CAT SOMONLU",
+    "title": "SMİLE CAT SOMONLU",
     "price": "35,00 TL"
   },
   {
@@ -21046,7 +21051,7 @@
   },
   {
     "barcode": "8682960462672",
-    "title": "KANZUK TÜTÜN  KOLANYASI",
+    "title": "KANZUK TÜTÜN KOLANYASI",
     "price": "60,00 TL"
   },
   {
@@ -21481,7 +21486,7 @@
   },
   {
     "barcode": "8683130115947",
-    "title": "YUMOŞ AÇIK HAVA MAVİ GELİNCİK 1440 ML",
+    "title": "YUMOŞ AÇIK HAVA MAVİ GELİNCİK ML",
     "price": "220,00 TL"
   },
   {
@@ -21531,7 +21536,7 @@
   },
   {
     "barcode": "8690536907908",
-    "title": "BİNGO BEGONVİL 1440 ML",
+    "title": "BİNGO BEGONVİL ML",
     "price": "220,00 TL"
   },
   {
@@ -21896,7 +21901,7 @@
   },
   {
     "barcode": "8680152541587",
-    "title": "EGE ÇİFTLİK  MİSKET 500 GR",
+    "title": "EGE ÇİFTLİK MİSKET 500 GR",
     "price": "175,00 TL"
   },
   {
@@ -22091,7 +22096,7 @@
   },
   {
     "barcode": "8683923629019",
-    "title": "ELLO  RABBİT",
+    "title": "ELLO RABBİT",
     "price": "40,00 TL"
   },
   {
@@ -22341,7 +22346,7 @@
   },
   {
     "barcode": "8692544001289",
-    "title": "SHOOGY BOOM  KOLALI",
+    "title": "SHOOGY BOOM KOLALI",
     "price": "15,00 TL"
   },
   {
@@ -22681,7 +22686,7 @@
   },
   {
     "barcode": "8682241217700",
-    "title": "SLEEPY  ORKİDE BAHÇESİ YÜZEY TEMİZLİK 100 LÜ",
+    "title": "SLEEPY ORKİDE BAHÇESİ YÜZEY TEMİZLİK 100 LÜ",
     "price": "125,00 TL"
   },
   {
@@ -22896,7 +22901,7 @@
   },
   {
     "barcode": "8683923629200",
-    "title": "ELLO CANDY BİSİKLET  40 GR",
+    "title": "ELLO CANDY BİSİKLET 40 GR",
     "price": "60,00 TL"
   },
   {
@@ -22956,7 +22961,7 @@
   },
   {
     "barcode": "8682125461380",
-    "title": "WASPCO PRETEİN BAR  40 GR",
+    "title": "WASPCO PRETEİN BAR 40 GR",
     "price": "80,00 TL"
   },
   {
@@ -22971,12 +22976,12 @@
   },
   {
     "barcode": "8690504038726",
-    "title": "ÜLKER HALLEY 88  GR",
+    "title": "ÜLKER HALLEY 88 GR",
     "price": "35,00 TL"
   },
   {
     "barcode": "8690526748344",
-    "title": "ETİ LİFALİF  BİTTER 35 GR",
+    "title": "ETİ LİFALİF BİTTER 35 GR",
     "price": "40,00 TL"
   },
   {
@@ -23201,7 +23206,7 @@
   },
   {
     "barcode": "8690504009498",
-    "title": "ÇİZİ  BİGBANG 50 GR",
+    "title": "ÇİZİ BİGBANG 50 GR",
     "price": "25,00 TL"
   },
   {
@@ -23351,7 +23356,7 @@
   },
   {
     "barcode": "8690766155407",
-    "title": "ULKER 1554-00 ECE IKR.CIK.FINDK.215G",
+    "title": "ULKER -00 ECE IKR.CIK.FINDK.215G",
     "price": "350,00 TL"
   },
   {
@@ -23371,7 +23376,7 @@
   },
   {
     "barcode": "8683672039763",
-    "title": "ŞARJ ALETİ LIGHTNING  LUCATECH",
+    "title": "ŞARJ ALETİ LIGHTNING LUCATECH",
     "price": "125,00 TL"
   },
   {
@@ -23461,7 +23466,7 @@
   },
   {
     "barcode": "8690526066004",
-    "title": "ETI 16600 B.INTENS KAHVELI MINI 160GR",
+    "title": "ETI B.INTENS KAHVELI MINI 160GR",
     "price": "90,00 TL"
   },
   {
@@ -23596,7 +23601,7 @@
   },
   {
     "barcode": "8683717472722",
-    "title": "MASTER POTATO  ORJİNAL 110GR",
+    "title": "MASTER POTATO ORJİNAL 110GR",
     "price": "115,00 TL"
   },
   {
@@ -23636,7 +23641,7 @@
   },
   {
     "barcode": "8690146194118",
-    "title": "BEBETO BAKLAVA  MARSHMELOW",
+    "title": "BEBETO BAKLAVA MARSHMELOW",
     "price": "50,00 TL"
   },
   {
@@ -23751,7 +23756,7 @@
   },
   {
     "barcode": "8697520103032",
-    "title": "ÜLKER ÇAMLICA SADE  2,5 LT",
+    "title": "ÜLKER ÇAMLICA SADE 2,5 LT",
     "price": "90,00 TL"
   },
   {
@@ -23891,7 +23896,7 @@
   },
   {
     "barcode": "8699141013363",
-    "title": "ŞÖLEN LUPPO MİNİ BROWNI  9 LU",
+    "title": "ŞÖLEN LUPPO MİNİ BROWNI 9 LU",
     "price": "65,00 TL"
   },
   {
@@ -23921,7 +23926,7 @@
   },
   {
     "barcode": "54026506",
-    "title": "CAPPY LİMONATA  330 ML",
+    "title": "CAPPY LİMONATA 330 ML",
     "price": "50,00 TL"
   },
   {
@@ -23951,7 +23956,7 @@
   },
   {
     "barcode": "8690575871413",
-    "title": "P.TAMEK M.SUYU 1 LT KARISIK (87536)",
+    "title": "P.TAMEK M.SUYU 1 LT KARISIK ()",
     "price": "60,00 TL"
   },
   {
@@ -24021,7 +24026,7 @@
   },
   {
     "barcode": "8684641550128",
-    "title": "FUNZİ  ÇİFT GÖZ ŞEKERLEME",
+    "title": "FUNZİ ÇİFT GÖZ ŞEKERLEME",
     "price": "20,00 TL"
   },
   {
@@ -24121,7 +24126,7 @@
   },
   {
     "barcode": "4004966264588",
-    "title": "VARTA  ENERJİ",
+    "title": "VARTA ENERJİ",
     "price": "200,00 TL"
   },
   {
@@ -24141,7 +24146,7 @@
   },
   {
     "barcode": "8694052102335",
-    "title": "KUROOTS  LEBLEBİ KURABİYESİ",
+    "title": "KUROOTS LEBLEBİ KURABİYESİ",
     "price": "140,00 TL"
   },
   {
@@ -24171,7 +24176,7 @@
   },
   {
     "barcode": "8697448282055",
-    "title": "TOFITA 1813 BUZD.POSETI BUYUK 20LI",
+    "title": "TOFITA BUZD.POSETI BUYUK 20LI",
     "price": "50,00 TL"
   },
   {
@@ -24326,7 +24331,7 @@
   },
   {
     "barcode": "8690526346069",
-    "title": "ETİ LİFALİFKIRMIZI MEYVE  35 GR",
+    "title": "ETİ LİFALİFKIRMIZI MEYVE 35 GR",
     "price": "60,00 TL"
   },
   {
@@ -24341,12 +24346,12 @@
   },
   {
     "barcode": "8690536907892",
-    "title": "BİNGO SOFT LAVANTA 1440",
+    "title": "BİNGO SOFT LAVANTA",
     "price": "220,00 TL"
   },
   {
     "barcode": "8690536907915",
-    "title": "BİNGO SOFT NERGİS 1440 ML",
+    "title": "BİNGO SOFT NERGİS ML",
     "price": "220,00 TL"
   },
   {
