@@ -77,19 +77,27 @@
         <p id="page-subheading">Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı</p>
       </div>
 
-      <div class="topbar-actions" id="topbar-actions-box">
-        <div class="qty-container" title="Baskı Kopya Sayısı">
-          <span style="font-size:11.5px; color:var(--text-muted);">Adet:</span>
-          <input type="number" id="inp-copies" value="1" min="1" max="100">
-        </div>
-        <button id="btn-print" class="btn-primary" onclick="handlePrint()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
-          <span>ETİKETİ YAZDIR</span>
+      <div class="topbar-actions">
+        <!-- Tema Değiştirme Butonu (Koyu / Açık Mod) -->
+        <button id="btn-theme-toggle" class="btn-theme-pill" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Koyu Mod</span>
         </button>
+
+        <!-- Sadece Etiket Çıkart Sekmesinde Görünen Baskı Aksiyonları -->
+        <div id="topbar-actions-box" style="display: flex; align-items: center; gap: 10px;">
+          <div class="qty-container" title="Baskı Kopya Sayısı">
+            <span style="font-size:11.5px; color:var(--text-muted);">Adet:</span>
+            <input type="number" id="inp-copies" value="1" min="1" max="100">
+          </div>
+          <button id="btn-print" class="btn-primary" onclick="handlePrint()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>ETİKETİ YAZDIR</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -350,6 +358,11 @@
           
           <!-- Üst Modern Minimal Arama ve Filtre Çubuğu -->
           <div class="catalog-toolbar">
+            <div class="catalog-title-inline">
+              <span style="font-size: 18px;">📦</span>
+              <strong>Ürün Kataloğu</strong>
+            </div>
+
             <div class="catalog-search-box">
               <span class="search-icon">🔍</span>
               <input type="text" id="catalog-search-inp" placeholder="Ürün adı, barkod veya firma ara..." oninput="onCatalogFilterChange()">

@@ -25,6 +25,7 @@ const API_BASE = (window.location.protocol === 'file:' || !window.location.port 
   : '';
 
 document.addEventListener('DOMContentLoaded', () => {
+  initAppTheme();
   renderTemplateList();
   renderBarcode();
   checkBackendAndDevices();
@@ -56,6 +57,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// TEMA YÖNETİMİ (Koyu / Açık Mod)
+function initAppTheme() {
+  const savedTheme = localStorage.getItem('app_theme') || 'dark';
+  applyAppTheme(savedTheme);
+}
+
+function toggleAppTheme() {
+  const isLight = document.body.classList.contains('light-theme');
+  const newTheme = isLight ? 'dark' : 'light';
+  applyAppTheme(newTheme);
+}
+
+function applyAppTheme(theme) {
+  const themeIcon = document.getElementById('theme-icon');
+  const themeText = document.getElementById('theme-text');
+  
+  if (theme === 'light') {
+    document.body.classList.add('light-theme');
+    if (themeIcon) themeIcon.innerText = '☀️';
+    if (themeText) themeText.innerText = 'Açık Mod';
+  } else {
+    document.body.classList.remove('light-theme');
+    if (themeIcon) themeIcon.innerText = '🌙';
+    if (themeText) themeText.innerText = 'Koyu Mod';
+  }
+  localStorage.setItem('app_theme', theme);
+}
 
 // Güncel Tarihi İnternetten Al ve Doldur
 async function loadCurrentDate() {
@@ -1290,7 +1319,7 @@ function renderCatalogTable(reset = true) {
     tr.innerHTML = `
       <td><span class="badge-brand">${p.brand || 'DİĞER'}</span></td>
       <td><span class="barcode-text">${p.barcode}</span></td>
-      <td style="font-weight: 600; color: #f8fafc;">${p.title}</td>
+      <td style="font-weight: 700; color: var(--text-main);">${p.title}</td>
       <td style="text-align: right;"><span class="price-text">${p.price}</span></td>
       <td style="text-align: center;"><span class="date-text">${p.date || currentDateText}</span></td>
       <td style="text-align: center;">

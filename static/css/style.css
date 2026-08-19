@@ -1200,10 +1200,121 @@ input:focus, select:focus {
   cursor: pointer;
 }
 
+/* Tema Değiştirme Hap Butonu */
+.btn-theme-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #131b2e;
+  border: 1px solid var(--border-color);
+  color: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-theme-pill:hover {
+  background: #1e293b;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   SEKME 3: ÜRÜN KATALOĞU (EXCEL BEYAZ TABLO DÜZENİ)
+   ========================================= */
+.catalog-container.modern-catalog {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100vh - 120px);
+  min-height: 500px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.catalog-title-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.catalog-search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.catalog-search-box input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  font-size: 12.5px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  color: #0f172a;
+  outline: none;
+}
+
+.catalog-search-box input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.catalog-search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  opacity: 0.5;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.catalog-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-item select {
+  padding: 7px 12px;
+  font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  color: #0f172a;
+  min-width: 200px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .badge-catalog-stats {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.25);
   padding: 5px 12px;
   border-radius: 16px;
   font-size: 11.5px;
@@ -1211,13 +1322,12 @@ input:focus, select:focus {
   white-space: nowrap;
 }
 
-/* EXCEL TARZI TABLO VE HÜCRE GRİDİ */
+/* EXCEL BEYAZ HÜCRE VE KILAVUZ ÇİZGİLERİ */
 .catalog-table-wrapper {
   flex: 1;
-  min-height: 480px;
-  max-height: calc(100vh - 220px);
   overflow-y: auto;
-  background: #040711;
+  overflow-x: hidden;
+  background: #ffffff;
   position: relative;
 }
 
@@ -1225,20 +1335,21 @@ input:focus, select:focus {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  border: 1px solid #1e293b;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
 }
 
 .catalog-table th {
   position: sticky;
   top: 0;
-  background: #0f172a;
-  color: #cbd5e1;
+  background: #f1f5f9;
+  color: #334155;
   font-size: 11.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 10px 14px;
-  border: 1px solid #334155;
+  border: 1px solid #cbd5e1;
   border-top: none;
   z-index: 10;
   user-select: none;
@@ -1250,8 +1361,8 @@ input:focus, select:focus {
 }
 
 .sortable-th:hover {
-  background: #1e293b;
-  color: #38bdf8;
+  background: #e2e8f0;
+  color: #1d4ed8;
 }
 
 .sort-icon {
@@ -1259,39 +1370,40 @@ input:focus, select:focus {
   margin-left: 4px;
   font-size: 11px;
   opacity: 0.6;
+  color: #64748b;
 }
 
 .sortable-th:hover .sort-icon {
   opacity: 1;
-  color: #38bdf8;
+  color: #1d4ed8;
 }
 
 .catalog-table td {
-  padding: 8px 14px;
+  padding: 7px 14px;
   font-size: 12.5px;
-  border: 1px solid #1e293b;
-  color: var(--text-main);
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
   vertical-align: middle;
 }
 
-/* Excel Zebra Satırları */
+/* Excel Alternatif Satırları (Zebra) */
 .catalog-table tr:nth-child(even) td {
-  background: #080d18;
+  background: #f8fafc;
 }
 
 .catalog-table tr:nth-child(odd) td {
-  background: #040711;
+  background: #ffffff;
 }
 
 .catalog-table tr:hover td {
-  background: rgba(59, 130, 246, 0.12) !important;
+  background: #eff6ff !important;
 }
 
 .badge-brand {
   display: inline-block;
-  background: rgba(59, 130, 246, 0.12);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: #f1f5f9;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
   padding: 2px 7px;
   border-radius: 4px;
   font-size: 11px;
@@ -1303,18 +1415,18 @@ input:focus, select:focus {
   font-family: monospace;
   font-size: 12px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 .price-text {
   font-size: 13px;
   font-weight: 800;
-  color: #34d399;
+  color: #059669;
 }
 
 .date-text {
   font-size: 11.5px;
-  color: var(--text-muted);
+  color: #64748b;
   font-weight: 600;
 }
 
@@ -1323,9 +1435,51 @@ input:focus, select:focus {
   justify-content: space-between;
   align-items: center;
   padding: 9px 18px;
-  background: #090d16;
-  border-top: 1px solid var(--border-color);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
   font-size: 11.5px;
-  color: var(--text-muted);
+  color: #64748b;
   flex-shrink: 0;
+}
+
+/* =========================================
+   GENEL AÇIK MOD (LIGHT THEME) DESTEĞİ
+   ========================================= */
+body.light-theme {
+  --bg-dark: #f1f5f9;
+  --bg-card: #ffffff;
+  --border-color: #cbd5e1;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+}
+
+body.light-theme .app-sidebar {
+  background: #ffffff;
+  border-right-color: #e2e8f0;
+}
+
+body.light-theme .nav-item {
+  color: #475569;
+}
+
+body.light-theme .nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+body.light-theme .card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .app-topbar {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom-color: #e2e8f0;
+}
+
+body.light-theme .btn-theme-pill {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
 }
