@@ -96,6 +96,11 @@ function switchTab(tabId) {
   const buttons = document.querySelectorAll('.nav-item');
   const heading = document.getElementById('page-heading');
   const subheading = document.getElementById('page-subheading');
+  const topbarActions = document.getElementById('topbar-actions-box');
+
+  if (topbarActions) {
+    topbarActions.style.display = (tabId === 'tab-print') ? 'flex' : 'none';
+  }
 
   if (tabId === 'tab-print') {
     if (buttons[0]) buttons[0].classList.add('active');
