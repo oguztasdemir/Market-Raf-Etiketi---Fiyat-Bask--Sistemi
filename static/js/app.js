@@ -2268,7 +2268,29 @@ function updateSyncStatsBadges() {
   if (pillMatched) pillMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
   if (pillBlack) pillBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
   if (pillAll) pillAll.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
-  if (topBtnCount) topBtnCount.innerText = (stats.changed_count || 0).toLocaleString('tr-TR');
+  
+  updateSyncApplyButtonLabel();
+}
+
+function updateSyncApplyButtonLabel() {
+  const btn = document.getElementById('btn-sync-apply-all-top');
+  if (!btn || !currentSyncData) return;
+
+  const stats = currentSyncData.stats || {};
+  const changed = stats.changed_count || 0;
+  const newCount = stats.new_count || 0;
+  const total = changed + newCount;
+
+  if (activeSyncFilter === 'new') {
+    btn.innerHTML = `➕ Yeni Ürünleri Stoğa Ekle (<span id="top-btn-changed-count">${newCount.toLocaleString('tr-TR')}</span>)`;
+    btn.title = "Stok dosyasındaki tüm yeni ürünleri kataloğa ekler";
+  } else if (activeSyncFilter === 'changed') {
+    btn.innerHTML = `⚡ Fiyatları Kataloğa Güncelle (<span id="top-btn-changed-count">${changed.toLocaleString('tr-TR')}</span>)`;
+    btn.title = "Stok dosyasındaki tüm fiyat değişikliklerini kataloğa uygular";
+  } else {
+    btn.innerHTML = `⚡ Tüm Değişiklikleri Kataloğa Aktar (<span id="top-btn-changed-count">${total.toLocaleString('tr-TR')}</span>) <small style="font-size:10px; font-weight:normal; opacity:0.9;">(${changed} Fiyat + ${newCount} Yeni)</small>`;
+    btn.title = "Hem 595 adet fiyat değişikliğini uygular hem de 102 yeni ürünü kataloğa ekler";
+  }
 }
 
 // 4. Filtreleme Sekmelerini Değiştir
@@ -2293,6 +2315,7 @@ function filterSyncTab(filterName) {
   const activePill = document.getElementById(pillMap[filterName] || 'pill-changed');
   if (activePill) activePill.classList.add('active');
 
+  updateSyncApplyButtonLabel();
   clearSyncSelection();
   renderSyncTable();
 }
@@ -2840,35 +2863,106 @@ async function syncSingleItemNewOnly(barcode, newPrice, excelTitle, brand) {
 }
 
 async function applyAllChangedPricesFromSync() {
-  if (!currentSyncData || !currentSyncData.changed_prices || currentSyncData.changed_prices.length === 0) {
-    showToast("Uygulanacak fiyat değişikliği bulunamadı.", "info");
+  if (!currentSyncData) {
+    showToast("Sistem verisi bulunamadı.", "warning");
     return;
   }
 
-  const count = currentSyncData.changed_prices.length;
-  const ok = await showCustomConfirm(
-    `Stok dosyasındaki toplam ${count} adet fiyat değişikliği ürün kataloğuna uygulanacaktır.\n\nHenüz baskı alınmayan bu ürünler katalogda '⚠️ Güncel Değil' olarak işaretlenecektir. Onaylıyor musunuz?`,
-    "Tüm Fiyatları Güncelle",
-    "Fiyatları Güncelle",
-    "Vazgeç",
-    "⚡"
-  );
-  if (!ok) return;
+  const changedList = currentSyncData.changed_prices || [];
+  const newList = currentSyncData.new_products || [];
 
-  const itemsToApply = currentSyncData.changed_prices.map(item => ({
-    barcode: item.barcode,
-    new_price: item.excel_price,
-    excel_title: item.excel_title,
-    current_title: item.current_title
-  }));
+  if (activeSyncFilter === 'new') {
+    // Sadece Yeni Ürünleri Ekle
+    if (newList.length === 0) {
+      showToast("Eklenecek yeni ürün bulunamadı.", "info");
+      return;
+    }
+    const ok = await showCustomConfirm(
+      `Stok dosyasındaki toplam ${newList.length} adet yeni ürün ürün kataloğuna eklenecektir.\n\nOnaylıyor musunuz?`,
+      "Yeni Ürünleri Stoğa Ekle",
+      "Ürünleri Ekle",
+      "Vazgeç",
+      "➕"
+    );
+    if (!ok) return;
 
+    const itemsToAdd = newList.map(item => ({
+      barcode: item.barcode,
+      new_price: item.excel_price,
+      excel_title: item.excel_title,
+      brand: item.brand || 'DİĞER'
+    }));
+
+    await executeSyncApply("add_new_products", itemsToAdd);
+
+  } else if (activeSyncFilter === 'changed') {
+    // Sadece Fiyat Değişikliklerini Uygula
+    if (changedList.length === 0) {
+      showToast("Uygulanacak fiyat değişikliği bulunamadı.", "info");
+      return;
+    }
+    const ok = await showCustomConfirm(
+      `Stok dosyasındaki toplam ${changedList.length} adet fiyat değişikliği ürün kataloğuna uygulanacaktır.\n\nHenüz baskı alınmayan bu ürünler katalogda '⚠️ Güncel Değil' olarak işaretlenecektir. Onaylıyor musunuz?`,
+      "Fiyat Değişikliklerini Güncelle",
+      "Fiyatları Güncelle",
+      "Vazgeç",
+      "⚡"
+    );
+    if (!ok) return;
+
+    const itemsToApply = changedList.map(item => ({
+      barcode: item.barcode,
+      new_price: item.excel_price,
+      excel_title: item.excel_title,
+      current_title: item.current_title
+    }));
+
+    await executeSyncApply("update_prices", itemsToApply);
+
+  } else {
+    // Tüm Değişiklikler: Hem Fiyatları Güncelle Hem Yeni Ürünleri Ekle
+    const totalCount = changedList.length + newList.length;
+    if (totalCount === 0) {
+      showToast("Uygulanacak fiyat değişikliği veya yeni ürün bulunamadı.", "info");
+      return;
+    }
+
+    const ok = await showCustomConfirm(
+      `Stok dosyasındaki toplam:\n• ⚠️ ${changedList.length} adet Fiyat Değişikliği\n• ✨ ${newList.length} adet Yeni Ürün\n\nToplam ${totalCount} işlem ürün kataloğuna uygulanacaktır. Onaylıyor musunuz?`,
+      "Tüm Değişiklikleri Kataloğa Aktar",
+      "Tümünü Güncelle & Ekle",
+      "Vazgeç",
+      "⚡"
+    );
+    if (!ok) return;
+
+    const allItems = [
+      ...changedList.map(item => ({
+        barcode: item.barcode,
+        new_price: item.excel_price,
+        excel_title: item.excel_title,
+        current_title: item.current_title
+      })),
+      ...newList.map(item => ({
+        barcode: item.barcode,
+        new_price: item.excel_price,
+        excel_title: item.excel_title,
+        brand: item.brand || 'DİĞER'
+      }))
+    ];
+
+    await executeSyncApply("sync_all", allItems);
+  }
+}
+
+async function executeSyncApply(action, items) {
   try {
     const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: "sync_all",
-        items: itemsToApply
+        action: action,
+        items: items
       })
     });
 
@@ -2876,7 +2970,7 @@ async function applyAllChangedPricesFromSync() {
     if (result.status === 'success') {
       showToast(`✅ ${result.message}`, "success");
       await loadCatalog();
-      await loadSyncStatus();
+      await loadSyncStatus(true);
     } else {
       showToast(`❌ Hata: ${result.message}`, "error");
     }
