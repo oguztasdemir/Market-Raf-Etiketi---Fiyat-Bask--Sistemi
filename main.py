@@ -12,7 +12,7 @@ import logging
 import webbrowser
 import subprocess
 import shutil
-from flask import Flask, jsonify, request, send_from_directory, render_template
+from flask import Flask, jsonify, request, send_from_directory, render_template, send_file
 
 # Gereksiz GET/POST 200 HTTP loglarını sustur (Sadece Hatalar ve Özel Mesajlar)
 log = logging.getLogger('werkzeug')
@@ -21,6 +21,7 @@ log.setLevel(logging.ERROR)
 import math
 import datetime
 import re
+import csv
 import openpyxl
 
 # Modüler kaynakları içeri aktar
@@ -244,13 +245,97 @@ EXCEPTIONS = {
     'CCM', 'CCC'
 }
 
+TURKISH_WORD_DICTIONARY = {
+    'BO?AZ??': 'BOĞAZİÇİ', 'BO?AZ?Ç?': 'BOĞAZİÇİ', 'BOAZ': 'BOĞAZİÇİ', 'BOĞAZİÇİ': 'BOĞAZİÇİ',
+    '?ER?': 'ÇERİ', 'ER?': 'ÇERİ', 'ENGELK?Y': 'ÇENGELKÖY', 'ENGELKY': 'ÇENGELKÖY',
+    '?ENGELK?Y': 'ÇENGELKÖY', 'SO?AN': 'SOĞAN', '?Z?M': 'ÜZÜM', 'ZM': 'ÜZÜM',
+    'L?MON': 'LİMON', 'S?VR?': 'SİVRİ', '?EFTAL?': 'ŞEFTALİ', 'EFTAL': 'ŞEFTALİ',
+    'MEKS?KA': 'MEKSİKA', 'KIRKA?A?': 'KIRKAĞAÇ', 'KIRKA?A': 'KIRKAĞAÇ',
+    'L?X': 'LÜKS', '?NC?R': 'İNCİR', 'SALATAL?K': 'SALATALIK',
+    'YE??L': 'YEŞİL', 'EK??': 'EKŞİ', '?EK?RDEKS?Z': 'ÇEKİRDEKSİZ',
+    'DOLMA': 'DOLMA', 'G?BEK': 'GÖBEK', 'GBEK': 'GÖBEK',
+    '?EKER': 'ŞEKER', 'EKER': 'ŞEKER', '?AH?N': 'ŞAHİN', '?AH?NO?LU': 'ŞAHİNOĞLU',
+    '?AHBAZ': 'ŞAHBAZ', 'ERZ?NCAN': 'ERZİNCAN', 'N??ASTA': 'NİŞASTA',
+    'N??ASTASI': 'NİŞASTASI', 'D?KME': 'DÖKME', '?ORBA': 'ÇORBA', 'ORBA': 'ÇORBA',
+    'BROKOL?': 'BROKOLİ', 'KEREV?Z': 'KEREVİZ', 'K?RAZ': 'KİRAZ', 'B?GA': 'BİGA',
+    '?AY': 'ÇAY', 'AY': 'ÇAY', 'AYKUR': 'ÇAYKUR', '?AYKUR': 'ÇAYKUR',
+    '?LEN': 'ŞÖLEN', 'LEN': 'ŞÖLEN', '?KOLATA': 'ÇİKOLATA', 'IKOLATA': 'ÇİKOLATA',
+    '?KOLATALI': 'ÇİKOLATALI', 'IKOLATALI': 'ÇİKOLATALI',
+    '?OKONAT': 'ÇOKONAT', 'OKONAT': 'ÇOKONAT', '?OKOKREM': 'ÇOKOKREM',
+    '?OKOPRENS': 'ÇOKOPRENS', '?OKOSANDV?': 'ÇOKOSANDVİÇ', '?OKOTURTA': 'ÇOKOTURTA',
+    '?OKOMEL': 'ÇOKOMEL', '?ITIR': 'ÇITIR', 'ITIR': 'ÇITIR', '?LEK': 'ÇİLEK',
+    'LEK': 'ÇİLEK', '?LEKL?': 'ÇİLEKLİ', 'LEKL': 'ÇİLEKLİ', '?Z?': 'ÇİZİ',
+    '?Z?V??': 'ÇİZİVİÇ', '?Z?K': 'ÇİZİK', '?FTL???': 'ÇİFTLİĞİ',
+    'C?FTL?K': 'ÇİFTLİK', 'S?TA?': 'SÜTAŞ', 'STA?': 'SÜTAŞ', 'SUTA?': 'SÜTAŞ',
+    '??M': 'İÇİM', 'IC?M': 'İÇİM',
+    'S?PERFRESH': 'SÜPERFRESH', 'SPERFRESH': 'SÜPERFRESH',
+    'G?NAYDIN': 'GÜNAYDIN', 'GNAYDIN': 'GÜNAYDIN', 'B?LLUR': 'BİLLUR',
+    'B?Z?M': 'BİZİM', 'PEYN?R': 'PEYNİR', 'KA?AR': 'KAŞAR', 'YO?URT': 'YOĞURT',
+    'S?ZME': 'SÜZME', 'SZME': 'SÜZME', 'S?T': 'SÜT', 'ST': 'SÜT',
+    'L?PTON': 'LİPTON', 'B?SCOLATA': 'BİSCOLATA', 'DOR?TOS': 'DORİTOS',
+    'C?PS': 'CİPS', 'C?PSO': 'CİPSO', 'L?FAL?F': 'LİFALİF', 'NESF?T': 'NESFİT',
+    'ALG?DA': 'ALGİDA', 'M?N?': 'MİNİ', 'FRUTT?': 'FRUTTİ', 'MEYVEL?M': 'MEYVELİM',
+    'MEYVEL?': 'MEYVELİ', 'TR?O': 'TRİO', 'TR?OMOVE': 'TRİOMOVE', 'H?B?SKUS': 'HİBİSKUS',
+    'B?RTLEN': 'BÖĞÜRTLEN', 'BOGURTLEN': 'BÖĞÜRTLEN', 'B?SK?V?': 'BİSKÜVİ',
+    'B?SKUV?': 'BİSKÜVİ', 'FISTI?I': 'FISTIĞI', 'FISTII': 'FISTIĞI',
+    'YA?I': 'YAĞI', 'YAI': 'YAĞI', 'TEREMYA?': 'TEREMYAĞ', 'BUZDA?I': 'BUZDAĞI',
+    'ULUDA?': 'ULUDAĞ', 'PO?ET?': 'POŞETİ', 'D?D?': 'DİDİ', 'KARI?IK': 'KARIŞIK',
+    'A?DA': 'AĞDA', 'P?L??': 'PİLİÇ', 'P?L?C': 'PİLİÇ', 'P?L?': 'PİLİÇ',
+    'K?FTE': 'KÖFTE', 'KFTE': 'KÖFTE', 'D?NER': 'DÖNER', 'DNER': 'DÖNER',
+    'B?Y?K': 'BÜYÜK', 'BYK': 'BÜYÜK', 'K???K': 'KÜÇÜK', 'KK': 'KÜÇÜK',
+    'HAVU?': 'HAVUÇ', 'HAVU': 'HAVUÇ', 'ER?K': 'ERİK', 'KAPYA': 'KAPYA',
+    'CEZERYE': 'CEZERYE', 'SARMA': 'SARMA', 'PATLAYAN': 'PATLAYAN',
+    'MARSHMALLOW': 'MARSHMALLOW', 'MARSHMELLOW': 'MARSHMALLOW',
+    'T?RK?YE': 'TÜRKİYE', 'TRK?YE': 'TÜRKİYE', 'TRKYE': 'TÜRKİYE',
+    '?APANO?LU': 'ÇAPANOĞLU', 'APANO?LU': 'ÇAPANOĞLU', 'APANO': 'ÇAPANOĞLU',
+    '?AHBAZ': 'ŞAHBAZ', 'S?GARA': 'SİGARA', 'SGARA': 'SİGARA',
+    'MARLBORO': 'MARLBORO', 'PARLIAMENT': 'PARLIAMENT', 'PARLA?MENT': 'PARLIAMENT',
+    'WINSTON': 'WINSTON', 'CAMEL': 'CAMEL', 'ROTHMANS': 'ROTHMANS',
+    'CHESTERFIELD': 'CHESTERFIELD', 'MONTE': 'MONTE', 'CARLO': 'CARLO',
+    'KENT': 'KENT', 'MURATTI': 'MURATTI', 'LARK': 'LARK', 'PRES?DENT': 'PRESIDENT',
+    'W?NNER': 'WINNER', 'HD': 'HD', 'SL?MS': 'SLIMS', 'SL?M': 'SLIM',
+    'SLENDER': 'SLENDER', 'SELENDER': 'SLENDER', 'DRANGE': 'D-RANGE',
+    'D?L?M': 'DİLİM', 'D?L?ML?': 'DİLİMLİ', 'DILIM': 'DİLİM', 'DILIMLI': 'DİLİMLİ'
+}
+
+def fix_corrupted_turkish_text(text: str) -> str:
+    """Excel / CSV kaynaklı bozuk Türkçe karakterleri (? ve OEM artıkları) onarır."""
+    if not text or not isinstance(text, str):
+        return ""
+    s = str(text).strip()
+    s = s.replace('\ufffd', '?')
+
+    tokens = s.split(' ')
+    cleaned_tokens = []
+    for t in tokens:
+        clean_t = t.strip(';:,.-_')
+        lead = t[:len(t)-len(t.lstrip(';:,.-_'))]
+        trail = t[len(t.rstrip(';:,.-_')):]
+        upper_t = clean_t.upper()
+        
+        if upper_t in TURKISH_WORD_DICTIONARY:
+            cleaned_tokens.append(lead + TURKISH_WORD_DICTIONARY[upper_t] + trail)
+        else:
+            temp = clean_t
+            if temp.startswith('?'):
+                temp = 'Ş' + temp[1:]
+            temp = re.sub(r'([A-ZĞÜŞİÖÇa-zğüşıöç])\?([A-ZĞÜŞİÖÇa-zğüşıöç])', r'\1İ\2', temp)
+            temp = re.sub(r'([A-ZĞÜŞİÖÇa-zğüşıöç])\?$', r'\1İ', temp)
+            temp = temp.replace('?', '').replace('', '')
+            cleaned_tokens.append(lead + temp + trail)
+
+    res = ' '.join(cleaned_tokens)
+    return re.sub(r'\s+', ' ', res).strip()
+
 def clean_product_title(s: str) -> str:
-    """Yeni eklenen ürünlerin başlıklarını otomatik normalize eder."""
+    """Yeni eklenen ürünlerin başlıklarını otomatik normalize eder ve bozuk karakterleri düzeltir."""
     if not s or not isinstance(s, str):
         return str(s or '').strip()
     
+    s = fix_corrupted_turkish_text(s)
     s = s.replace('\xa0', ' ').replace('\t', ' ').replace('\r', ' ').replace('\n', ' ')
     for k, v in WORD_REPLACEMENTS.items():
+        s = s.replace(k, v)
         s = s.replace(k, v)
         
     def split_unit_word(m):
@@ -318,14 +403,223 @@ def format_price_display(val) -> str:
         s += " TL"
     return s
 
+def normalize_header_name(s) -> str:
+    if s is None:
+        return ""
+    s = str(s).strip().lower()
+    tr_map = str.maketrans("çğıöşüiı", "cgiosuii")
+    s = s.translate(tr_map)
+    s = re.sub(r'[^a-z0-9]', '', s)
+    return s
+
+def detect_stock_column_indices(headers: list) -> tuple:
+    stok_idx, barkod_idx, title_idx, price_idx = None, None, None, None
+    for i, h in enumerate(headers):
+        nh = normalize_header_name(h)
+        if not nh:
+            continue
+        if barkod_idx is None and nh in ['barkod', 'barcode', 'barkodu', 'ean', 'gtin']:
+            barkod_idx = i
+        elif stok_idx is None and (nh in ['stokkodu', 'stokkod', 'urunkodu', 'itemcode', 'stockcode'] or nh == 'kod'):
+            stok_idx = i
+        elif title_idx is None and any(nh.startswith(k) or nh == k for k in ['malincinsi', 'urunadi', 'stokadi', 'aciklama', 'tanim', 'title', 'productname', 'urun']):
+            title_idx = i
+        elif price_idx is None and any(k in nh for k in ['satisfiyat', 'fiyat', 'price', 'tutar']):
+            price_idx = i
+
+    if stok_idx is None:
+        stok_idx = 0
+    if barkod_idx is None:
+        barkod_idx = 1 if len(headers) > 1 else 0
+    if title_idx is None:
+        title_idx = 5 if len(headers) > 5 else (2 if len(headers) > 2 else 0)
+    if price_idx is None:
+        price_idx = 6 if len(headers) > 6 else (3 if len(headers) > 3 else 0)
+
+    return stok_idx, barkod_idx, title_idx, price_idx
+
+def clean_barcode(val) -> str:
+    """Barkodları daima temiz, sayısal ve standart formata dönüştürür (8690556205015,00 -> 8690556205015)."""
+    if not val:
+        return ""
+    s = str(val).strip()
+    
+    # Sondaki ,00 veya .00 veya ,0 veya .0 temizle
+    if s.endswith(',00') or s.endswith('.00'):
+        s = s[:-3]
+    elif s.endswith(',0') or s.endswith('.0'):
+        s = s[:-2]
+    elif ',' in s:
+        parts = s.split(',')
+        if len(parts) == 2 and parts[1].isdigit() and int(parts[1]) == 0:
+            s = parts[0]
+    elif '.' in s:
+        parts = s.split('.')
+        if len(parts) == 2 and parts[1].isdigit() and int(parts[1]) == 0:
+            s = parts[0]
+
+    # Üstel / Bilimsel gösterim kontrolü (örn. 8,69056E+12 veya 8.69056E+12)
+    if 'E+' in s.upper() or 'E-' in s.upper() or ('E' in s.upper() and any(c.isdigit() for c in s)):
+        try:
+            f_val = float(s.replace(',', '.'))
+            s = f"{int(round(f_val))}"
+        except Exception:
+            pass
+    return s.strip()
+
+KNOWN_BRANDS_LIST = [
+    'ÜLKER', 'ETİ', 'SÜTAŞ', 'PINAR', 'TORKU', 'DOĞUŞ', 'ÇAYKUR', 'LİPTON', 'COCA COLA', 'PEPSI',
+    'DİDİ', 'FRUKO', 'YEDİGÜN', 'NESTLE', 'DANONE', 'EKER', 'İÇİM', 'SEK', 'TAT', 'TAMEK', 'CALVE',
+    'KNORR', 'BİZİM', 'YUDUM', 'KOMİLİ', 'KRİSTAL', 'ÖNCÜ', 'BURCU', 'DARDANEL', 'ŞAHİN', 'NAMET',
+    'BAŞYAZICI', 'ÇAPANOĞLU', 'POLONEZ', 'CUMHURİYET', 'TADIM', 'PEYMAN', 'LAYS', 'DORITOS', 'RUFFLES',
+    'ÇEREZZA', 'CİPSO', 'PATOS', 'HARIBO', 'BEBETO', 'JELİBON', 'FALIM', 'VİVİDENT', 'FIRST', 'MENTOS',
+    'OLIPS', 'KENT', 'ŞÖLEN', 'BİSCOLATA', 'ELİDOR', 'PANTENE', 'HEAD&SHOULDERS', 'CLEAR', 'BLENDAX',
+    'İPEK', 'HACISAKİR', 'DALİN', 'DOVE', 'PALMOLIVE', 'DURU', 'NIVEA', 'ARKO', 'COLGATE', 'SIGNAL',
+    'IPANA', 'SENSODYNE', 'ORAL-B', 'FAIRY', 'PRIL', 'DOMESTOS', 'CIF', 'ACE', 'BREF', 'MR.MUSCLE',
+    'PERSIL', 'ARIEL', 'OMO', 'ALO', 'TURSIL', 'BİNGO', 'YUMOŞ', 'VERNEL', 'PERWOLL', 'SLEEPY',
+    'PRIMA', 'CANBEBE', 'MOLFİX', 'ORKİD', 'KOTEX', 'MOLPED', 'SELPAK', 'SOLO', 'FAMILIA', 'PAPIA',
+    'MAYLO', 'TENO', 'BEYPAZARI', 'KINIK', 'KIZILAY', 'SARIKIZ', 'SIRMA', 'FREŞA', 'ULUDAĞ', 'DAMLA',
+    'HAYAT', 'ERİKLİ', 'BOĞAZİÇİ', 'EYÜP SABRİ TUNCER', 'PEREJA', 'SELİN', 'MARLBORO', 'PARLIAMENT',
+    'WINSTON', 'CAMEL', 'ROTHMANS', 'CHESTERFIELD', 'MONTE CARLO', 'MURATTI', 'LARK', 'PRESIDENT',
+    'WINNER', 'HD', 'SUPERFRESH', 'SÜPERFRESH', 'GÜNAYDIN', 'BİLLUR', 'DR.OETKER', 'PAŞABAHÇE',
+    'LAV', 'PAREX', 'VILEDA', 'KOROPLAST', 'DURACELL', 'PANASONIC', 'PHILIPS', 'BIC', 'TOBLERONE',
+    'MILKA', 'NUTELLA', 'FERRERO', 'KINDER', 'RAFFAELLO', 'SNICKERS', 'TWIX', 'BOUNTY', 'MARS',
+    'M&M', 'SKITTLES', 'PRINGLES', 'MAGNUM', 'CORNETTO', 'CORNY', 'NESCAFE', 'JACOBS',
+    'MEHMET EFENDİ', 'KAHVEDÜNYASI', 'OFÇAY', 'DOĞADAN', 'BALPARMAK', 'ANAVARZA', 'KOSKA',
+    'SEYİDOĞLU', 'SEYYİDOĞLU', 'HAZAR', 'ŞAHBAZ', 'ALBİ', 'ALBENİ', 'ÇOKONAT', 'HALLEY', 'HANIMELLER',
+    'RONDO', 'BİSKREM', 'CANPASTA', 'BURÇAK', 'TUTKU', 'BENİMO', 'CRAX', 'POPCORN', 'GONG', 'FORM',
+    'LİFALİF', 'KOMBO', 'CİCİBEBE', 'CİCİ BEBE', 'PETİBÖR', 'FİTPO', 'KROKAN', 'LUPPO', 'OZMO', 'BOOMBASTIC'
+]
+
+def detect_brand_from_title(title: str, existing_products: list = None) -> str:
+    """Ürün başlığından markayı otomatik olarak tespit eder."""
+    if not title or not isinstance(title, str):
+        return None
+    
+    clean_t = clean_product_title(title).upper()
+
+    # Manav veya tartılı ürün kontrolü
+    if clean_t.startswith('MNV ') or clean_t.startswith('MANAV '):
+        return 'MANAV'
+    
+    # Tütün / Sigara grubu
+    if clean_t.startswith('SİGARA ') or clean_t.startswith('SGARA '):
+        for tb in ['MARLBORO', 'PARLIAMENT', 'WINSTON', 'CAMEL', 'ROTHMANS', 'CHESTERFIELD', 'MONTE CARLO', 'MURATTI', 'LARK', 'PRESIDENT', 'WINNER', 'HD', 'KENT']:
+            if tb in clean_t:
+                return tb
+        return 'TÜTÜN'
+
+    # Veritabanındaki bilinen tüm markaları dinamik topla
+    all_brands = set(KNOWN_BRANDS_LIST)
+    if existing_products:
+        for p in existing_products:
+            b = (p.get('brand') or '').strip().upper()
+            if b and b not in ['DİĞER', 'DIGER', '-', 'YARENLER', 'TURKİYE', 'TÜRKİYE']:
+                all_brands.add(b)
+
+    # Uzunluklarına göre sırala (Örn. 'EYÜP SABRİ TUNCER' önce, 'EYÜP' sonra eşleşsin)
+    sorted_brands = sorted(list(all_brands), key=lambda x: len(x), reverse=True)
+
+    for b in sorted_brands:
+        if len(b) <= 3:
+            pattern = r'\b' + re.escape(b) + r'\b'
+            if re.search(pattern, clean_t):
+                return b
+        else:
+            if b in clean_t:
+                return b
+
+    return None
+
+def read_stock_rows_from_file(file_path: str) -> list:
+    ext = os.path.splitext(file_path)[1].lower()
+    raw_rows = []
+
+    if ext in ['.xlsx', '.xls']:
+        wb = openpyxl.load_workbook(file_path, data_only=True)
+        sheet = wb.active
+        for row in sheet.iter_rows(values_only=True):
+            if any(cell is not None and str(cell).strip() != '' for cell in row):
+                raw_rows.append(list(row))
+    elif ext == '.csv':
+        encodings = ['utf-8-sig', 'utf-8', 'cp1254', 'windows-1254', 'iso-8859-9', 'latin-1']
+        content = None
+        for enc in encodings:
+            try:
+                with open(file_path, 'r', encoding=enc) as f:
+                    content = f.read()
+                    break
+            except (UnicodeDecodeError, LookupError):
+                continue
+        if content is None:
+            raise ValueError("CSV dosyası okunamadı (karakter kodlaması desteklenmiyor).")
+
+        sample_lines = [line for line in content.splitlines() if line.strip()][:10]
+        if not sample_lines:
+            return []
+
+        semicolons = sum(line.count(';') for line in sample_lines)
+        commas = sum(line.count(',') for line in sample_lines)
+        tabs = sum(line.count('\t') for line in sample_lines)
+        pipes = sum(line.count('|') for line in sample_lines)
+
+        counts = [(';', semicolons), (',', commas), ('\t', tabs), ('|', pipes)]
+        counts.sort(key=lambda x: x[1], reverse=True)
+        delimiter = counts[0][0] if counts[0][1] > 0 else ';'
+
+        reader = csv.reader(content.splitlines(), delimiter=delimiter)
+        for row in reader:
+            if any(cell and str(cell).strip() != '' for cell in row):
+                raw_rows.append(row)
+    else:
+        raise ValueError(f"Desteklenmeyen dosya türü: {ext}")
+
+    if not raw_rows:
+        return []
+
+    header_row = raw_rows[0]
+    stok_idx, barkod_idx, title_idx, price_idx = detect_stock_column_indices(header_row)
+
+    first_nh = [normalize_header_name(c) for c in header_row if c]
+    has_header = any(
+        any(k in nh for k in ['stok', 'barkod', 'cins', 'fiyat', 'urun', 'price', 'code'])
+        for nh in first_nh
+    )
+
+    data_rows = raw_rows[1:] if has_header else raw_rows
+
+    parsed = []
+    for r in data_rows:
+        raw_stok = str(r[stok_idx] if stok_idx < len(r) and r[stok_idx] is not None else '').strip()
+        raw_barkod = str(r[barkod_idx] if barkod_idx < len(r) and r[barkod_idx] is not None else '').strip()
+        title = str(r[title_idx] if title_idx < len(r) and r[title_idx] is not None else '').strip()
+        price_raw = r[price_idx] if price_idx < len(r) else None
+
+        stok_kodu = clean_barcode(raw_stok)
+        barkod = clean_barcode(raw_barkod)
+
+        is_sci = ('E+' in raw_barkod.upper() or 'E-' in raw_barkod.upper() or 'E+' in raw_stok.upper())
+
+        parsed.append({
+            'stok_kodu': stok_kodu,
+            'barkod': barkod,
+            'raw_code': raw_barkod or raw_stok,
+            'is_scientific': is_sci,
+            'title': title,
+            'price_raw': price_raw
+        })
+
+    return parsed
+
 def get_latest_excel_path() -> str:
-    """data/sistem_exceli klasöründeki en güncel excel dosyasını bulur."""
+    """data/sistem_exceli klasöründeki en güncel excel/csv dosyasını bulur."""
     if not os.path.exists(SISTEM_EXCELI_DIR):
         return ""
+    valid_exts = ('.xlsx', '.xls', '.csv')
     files = [
         os.path.join(SISTEM_EXCELI_DIR, f)
         for f in os.listdir(SISTEM_EXCELI_DIR)
-        if f.endswith('.xlsx') and not f.startswith('~$')
+        if f.lower().endswith(valid_exts) and not f.startswith('~$')
     ]
     if not files:
         return ""
@@ -335,9 +629,9 @@ def get_latest_excel_path() -> str:
 _DIFF_CACHE = {}
 
 def analyze_excel_diff(excel_path: str) -> dict:
-    """Excel tablosunu products.json ve black_list.json ile karşılaştırır (Önbellekli ve Yüksek Hızlı)."""
+    """Excel veya CSV tablosunu products.json ve black_list.json ile karşılaştırır."""
     if not excel_path or not os.path.exists(excel_path):
-        return {"status": "error", "message": "Excel dosyası bulunamadı."}
+        return {"status": "error", "message": "Excel/CSV dosyası bulunamadı."}
 
     mtime = os.path.getmtime(excel_path)
     prod_mtime = os.path.getmtime(PRODUCTS_FILE) if os.path.exists(PRODUCTS_FILE) else 0
@@ -353,92 +647,133 @@ def analyze_excel_diff(excel_path: str) -> dict:
     prod_map = {str(p.get('barcode', '')).strip(): p for p in products if p.get('barcode')}
     black_map = {str(b.get('barcode', '')).strip(): b for b in blacklist if b.get('barcode')}
 
+    # Başlık üzerinden akıllı eşleme haritaları (Barkod bozulmuş veya bilimsel gösterim ise)
+    def normalize_for_title_matching(s):
+        if not s: return ''
+        s = clean_product_title(s).upper()
+        tr_map = str.maketrans('ÇĞİÖŞÜI', 'CGIOSUI')
+        s = s.translate(tr_map)
+        return re.sub(r'[^A-Z0-9]', '', s)
+
+    prod_title_map = {}
+    for p in products:
+        t = p.get('title') or p.get('title1') or ''
+        nt = normalize_for_title_matching(t)
+        if nt and nt not in prod_title_map:
+            prod_title_map[nt] = p
+
+    black_title_map = {}
+    for b in blacklist:
+        t = b.get('title') or ''
+        nt = normalize_for_title_matching(t)
+        if nt and nt not in black_title_map:
+            black_title_map[nt] = b
+
     try:
-        wb = openpyxl.load_workbook(excel_path, data_only=True)
-        sheet = wb.active
+        raw_items = read_stock_rows_from_file(excel_path)
     except Exception as e:
-        return {"status": "error", "message": f"Excel açılamadı: {str(e)}"}
+        return {"status": "error", "message": f"Dosya açılamadı: {str(e)}"}
 
     changed_prices = []
     new_products = []
     matched_products = []
     blacklisted_items = []
-    seen_barcodes = set()
+    seen_keys = set()
 
-    for r in range(2, sheet.max_row + 1):
-        stok_kodu = str(sheet.cell(row=r, column=1).value or '').strip()
-        barkod = str(sheet.cell(row=r, column=2).value or '').strip()
-        if barkod.endswith('.0'):
-            barkod = barkod[:-2]
-        if stok_kodu.endswith('.0'):
-            stok_kodu = stok_kodu[:-2]
-
-        title = str(sheet.cell(row=r, column=6).value or '').strip()
-        price_raw = sheet.cell(row=r, column=7).value
+    for item in raw_items:
+        stok_kodu = item['stok_kodu']
+        barkod = item['barkod']
+        title = item['title']
+        price_raw = item['price_raw']
         price_str = format_price_display(price_raw)
         
         lookup_code = barkod or stok_kodu
-        if lookup_code.endswith('.0'):
-            lookup_code = lookup_code[:-2]
+        clean_title = clean_product_title(title)
+        excel_title_val = clean_title or title
+        norm_title = normalize_for_title_matching(title)
 
-        if not lookup_code or lookup_code in seen_barcodes:
+        is_scientific = item.get('is_scientific') or ('E+' in str(item.get('raw_code', '')).upper())
+        item_key = (lookup_code, norm_title) if (is_scientific and not barkod) else (lookup_code or norm_title)
+
+        if not item_key or item_key in seen_keys:
             continue
-        seen_barcodes.add(lookup_code)
+        seen_keys.add(item_key)
 
-        # 1. Kara Liste Kontrolü (Manav / Dummy vs.)
-        if lookup_code in black_map:
+        # 1. Kara Liste Kontrolü (Barkod -> Stok Kodu -> Başlık)
+        matched_black = None
+        if barkod and barkod in black_map:
+            matched_black = black_map[barkod]
+        elif stok_kodu and stok_kodu in black_map:
+            matched_black = black_map[stok_kodu]
+        elif norm_title and norm_title in black_title_map:
+            matched_black = black_title_map[norm_title]
+
+        if matched_black:
+            resolved_code = clean_barcode(matched_black.get('barcode')) or lookup_code
             blacklisted_items.append({
-                "barcode": lookup_code,
-                "excel_title": title,
-                "current_title": black_map[lookup_code].get("title", title),
+                "barcode": resolved_code,
+                "excel_title": excel_title_val,
+                "current_title": matched_black.get("title", title),
                 "current_price": "-",
                 "excel_price": price_str,
-                "reason": black_map[lookup_code].get("reason", "Kara Liste")
+                "reason": matched_black.get("reason", "Kara Liste")
             })
             continue
 
-        # 2. Mevcut Ürün Kontrolü & Fiyat Farkı
-        if lookup_code in prod_map:
-            p = prod_map[lookup_code]
-            cur_price_val = parse_price_val(p.get('price'))
+        # 2. Mevcut Ürün Kontrolü & Fiyat Farkı (Barkod -> Stok Kodu -> Başlık)
+        matched_prod = None
+        if barkod and barkod in prod_map:
+            matched_prod = prod_map[barkod]
+        elif stok_kodu and stok_kodu in prod_map:
+            matched_prod = prod_map[stok_kodu]
+        elif norm_title and norm_title in prod_title_map:
+            matched_prod = prod_title_map[norm_title]
+
+        if matched_prod:
+            resolved_code = clean_barcode(matched_prod.get('barcode')) or lookup_code
+            cur_price_val = parse_price_val(matched_prod.get('price'))
             excel_price_val = parse_price_val(price_str)
 
             if abs(cur_price_val - excel_price_val) > 0.01 and excel_price_val > 0:
                 diff = excel_price_val - cur_price_val
                 changed_prices.append({
-                    "barcode": lookup_code,
-                    "excel_title": title,
-                    "current_title": p.get('title') or p.get('title1') or title,
-                    "current_price": p.get('price') or "-",
+                    "barcode": resolved_code,
+                    "excel_title": excel_title_val,
+                    "current_title": matched_prod.get('title') or matched_prod.get('title1') or title,
+                    "current_price": matched_prod.get('price') or "-",
                     "excel_price": price_str,
                     "diff_amount": round(diff, 2),
                     "diff_percent": round((diff / cur_price_val * 100), 1) if cur_price_val > 0 else 0,
-                    "brand": p.get('brand') if (p.get('brand') and p.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
+                    "brand": matched_prod.get('brand') if (matched_prod.get('brand') and matched_prod.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
                     "status": "changed"
                 })
             else:
                 matched_products.append({
-                    "barcode": lookup_code,
-                    "excel_title": title,
-                    "current_title": p.get('title') or p.get('title1') or title,
-                    "current_price": p.get('price') or "-",
+                    "barcode": resolved_code,
+                    "excel_title": excel_title_val,
+                    "current_title": matched_prod.get('title') or matched_prod.get('title1') or title,
+                    "current_price": matched_prod.get('price') or "-",
                     "excel_price": price_str,
-                    "brand": p.get('brand') if (p.get('brand') and p.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
+                    "brand": matched_prod.get('brand') if (matched_prod.get('brand') and matched_prod.get('brand') not in ['DİĞER', 'DIGER']) else 'YARENLER',
                     "status": "matched"
                 })
         else:
-            # 3. Yeni Ürün
+            # 3. Yeni Ürün (Bizim sistemimizde henüz mevcut değil)
             if price_str and price_str != "0,00 TL":
-                cleaned_title = clean_product_title(title)
+                det_brand = detect_brand_from_title(excel_title_val, products)
                 new_products.append({
-                    "barcode": lookup_code,
-                    "excel_title": title,
-                    "current_title": cleaned_title,
+                    "barcode": clean_barcode(lookup_code),
+                    "excel_title": excel_title_val,
+                    "current_title": "-",
                     "current_price": "-",
                     "excel_price": price_str,
-                    "brand": "YARENLER",
+                    "brand": det_brand or "",
+                    "brand_detected": bool(det_brand),
                     "status": "new"
                 })
+
+    # Markası tespit edilemeyen yeni ürünler en üstte listelenir (kullanıcıya sormak için)
+    new_products.sort(key=lambda x: (1 if x.get('brand_detected') else 0, x.get('excel_title', '')))
 
     filename = os.path.basename(excel_path)
     file_mtime = datetime.datetime.fromtimestamp(os.path.getmtime(excel_path)).strftime("%d %b %Y %H:%M")
@@ -448,7 +783,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
         "filename": filename,
         "updated_at": file_mtime,
         "stats": {
-            "total_excel_rows": len(seen_barcodes),
+            "total_excel_rows": len(seen_keys),
             "changed_count": len(changed_prices),
             "new_count": len(new_products),
             "matched_count": len(matched_products),
@@ -465,23 +800,27 @@ def analyze_excel_diff(excel_path: str) -> dict:
 
 @app.route("/api/catalog/sync-status", methods=["GET"])
 def api_catalog_sync_status():
-    """En güncel sistem excel dosyasının analiz durumunu döner."""
+    """En güncel sistem excel/csv dosyasının analiz durumunu döner."""
+    force = request.args.get("force")
+    if force:
+        _DIFF_CACHE.clear()
     latest_excel = get_latest_excel_path()
     if not latest_excel:
         return jsonify({
             "status": "empty",
-            "message": "Henüz yüklenmiş bir sistem excel dosyası bulunamadı."
+            "message": "Henüz yüklenmiş bir sistem dosyası bulunamadı."
         })
     res = analyze_excel_diff(latest_excel)
     return jsonify(res)
 
 @app.route("/api/catalog/excel-history", methods=["GET"])
 def api_catalog_excel_history():
-    """data/sistem_exceli/ içindeki tüm geçmiş Excel dosyalarının listesini döner."""
+    """data/sistem_exceli/ içindeki tüm geçmiş Excel ve CSV dosyalarının listesini ve özet istatistiklerini döner."""
     if not os.path.exists(SISTEM_EXCELI_DIR):
         return jsonify({"status": "success", "history": []})
 
-    files = [os.path.join(SISTEM_EXCELI_DIR, f) for f in os.listdir(SISTEM_EXCELI_DIR) if f.endswith('.xlsx') or f.endswith('.xls')]
+    valid_exts = ('.xlsx', '.xls', '.csv')
+    files = [os.path.join(SISTEM_EXCELI_DIR, f) for f in os.listdir(SISTEM_EXCELI_DIR) if f.lower().endswith(valid_exts)]
     files.sort(key=os.path.getmtime, reverse=True)
 
     history = []
@@ -493,18 +832,28 @@ def api_catalog_excel_history():
         fsize = os.path.getsize(fpath)
         size_str = f"{round(fsize / 1024, 1)} KB" if fsize < 1024*1024 else f"{round(fsize / (1024*1024), 2)} MB"
 
+        diff_res = analyze_excel_diff(fpath)
+        stats = diff_res.get("stats", {}) if isinstance(diff_res, dict) else {}
+
         history.append({
             "filename": fname,
             "date": mtime_dt.strftime("%d %b %Y %H:%M"),
             "size": size_str,
-            "is_latest": (idx == 0)
+            "is_latest": (idx == 0),
+            "stats": {
+                "total_excel_rows": stats.get("total_excel_rows", 0),
+                "changed_count": stats.get("changed_count", 0),
+                "new_count": stats.get("new_count", 0),
+                "matched_count": stats.get("matched_count", 0),
+                "blacklisted_count": stats.get("blacklisted_count", 0)
+            }
         })
 
     return jsonify({"status": "success", "history": history})
 
 @app.route("/api/catalog/excel-detail/<filename>", methods=["GET"])
 def api_catalog_excel_detail(filename):
-    """Geçmişe ait belirli bir Excel dosyasının salt okunur (readonly) detay analizini döner."""
+    """Geçmişe ait belirli bir Excel/CSV dosyasının salt okunur (readonly) detay analizini döner."""
     safe_filename = os.path.basename(filename)
     target_path = os.path.join(SISTEM_EXCELI_DIR, safe_filename)
 
@@ -520,9 +869,39 @@ def api_catalog_excel_detail(filename):
 
     return jsonify(diff_result)
 
+@app.route("/api/catalog/excel-delete", methods=["POST"])
+def api_catalog_excel_delete():
+    """Geçmiş sistem excel/csv dosyasını siler."""
+    data = request.get_json() or {}
+    filename = os.path.basename(data.get("filename", ""))
+    if not filename:
+        return jsonify({"status": "error", "message": "Dosya adı belirtilmedi."}), 400
+
+    target_path = os.path.join(SISTEM_EXCELI_DIR, filename)
+    if not os.path.exists(target_path):
+        return jsonify({"status": "error", "message": "Silinecek dosya bulunamadı."}), 404
+
+    try:
+        os.remove(target_path)
+        _DIFF_CACHE.clear()
+        return jsonify({"status": "success", "message": f"'{filename}' başarıyla silindi."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Dosya silinirken hata: {str(e)}"}), 500
+
+@app.route("/api/catalog/excel-download/<filename>", methods=["GET"])
+def api_catalog_excel_download(filename):
+    """Arşivdeki Excel veya CSV dosyasını indirir."""
+    safe_filename = os.path.basename(filename)
+    target_path = os.path.join(SISTEM_EXCELI_DIR, safe_filename)
+
+    if not os.path.exists(target_path):
+        return jsonify({"status": "error", "message": "İndirilecek dosya bulunamadı."}), 404
+
+    return send_file(target_path, as_attachment=True, download_name=safe_filename)
+
 @app.route("/api/catalog/upload-excel", methods=["POST"])
 def api_catalog_upload_excel():
-    """Yeni bir Excel dosyası yükler, data/sistem_exceli/ altına kaydeder ve diff analizi yapar."""
+    """Yeni bir Excel/CSV dosyası yükler, data/sistem_exceli/ altına kaydeder ve diff analizi yapar."""
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "Yüklenecek dosya seçilmedi."}), 400
     
@@ -530,8 +909,13 @@ def api_catalog_upload_excel():
     if file.filename == '':
         return jsonify({"status": "error", "message": "Dosya adı geçersiz."}), 400
 
+    orig_name = file.filename
+    ext = os.path.splitext(orig_name)[1].lower()
+    if ext not in ['.xlsx', '.xls', '.csv']:
+        return jsonify({"status": "error", "message": "Lütfen sadece .xlsx, .xls veya .csv dosyası yükleyin."}), 400
+
     now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    safe_filename = f"stok_{now_str}.xlsx"
+    safe_filename = f"stok_{now_str}{ext}"
     target_path = os.path.join(SISTEM_EXCELI_DIR, safe_filename)
 
     try:
@@ -575,6 +959,9 @@ def api_catalog_apply_sync():
         if barcode in prod_map:
             # Fiyat Güncelle (Mevcut Başlığı ve Düzenlemeleri Koru!)
             p = prod_map[barcode]
+            # Eğer etiket fiyatı önceden ayarlanmamışsa, eski fiyatı etiket fiyatı olarak muhafaza et
+            if 'label_price' not in p or not p['label_price']:
+                p['label_price'] = p.get('price', formatted_price)
             p['price'] = formatted_price
             p['date'] = now_date
             p['updated_at'] = now_time_str
@@ -591,6 +978,7 @@ def api_catalog_apply_sync():
                 "brand": item.get('brand') if (item.get('brand') and item.get('brand') not in ['DİĞER', 'DIGER']) else "YARENLER",
                 "origin": "TÜRKİYE",
                 "price": formatted_price,
+                "label_price": "",
                 "date": now_date,
                 "updated_at": now_time_str
             }
@@ -612,7 +1000,56 @@ def api_catalog_apply_sync():
         "backup_name": backup_name
     })
 
+def mark_products_as_printed(barcodes):
+    """Baskısı alınan ürünlerin etiket fiyatını (label_price) güncel sistem fiyatıyla eşitler."""
+    if not barcodes:
+        return
+    try:
+        products = load_json(PRODUCTS_FILE, [])
+        prod_map = {str(p.get('barcode', '')).strip(): p for p in products if p.get('barcode')}
+        now_time_str = datetime.datetime.now().strftime("%d %b %Y %H:%M")
+        changed = False
+        for bc in barcodes:
+            b_str = str(bc).strip()
+            if b_str in prod_map:
+                p = prod_map[b_str]
+                p['label_price'] = p.get('price', '')
+                p['last_printed_at'] = now_time_str
+                changed = True
+        if changed:
+            save_json(PRODUCTS_FILE, products)
+            _DIFF_CACHE.clear()
+    except Exception as e:
+        print(f"[UYARI] mark_products_as_printed hatası: {e}")
+
+@app.route("/api/catalog/sync-label-price", methods=["POST"])
+def api_catalog_sync_label_price():
+    """Belirtilen ürünlerin etiket fiyatını güncel sistem fiyatı ile eşitler."""
+    payload = request.json or {}
+    barcodes = payload.get("barcodes")
+    if not barcodes:
+        bc = payload.get("barcode")
+        barcodes = [bc] if bc else []
+    if not barcodes:
+        return jsonify({"status": "error", "message": "Barkod belirtilmedi."}), 400
+    mark_products_as_printed(barcodes)
+    return jsonify({"status": "success", "message": f"{len(barcodes)} ürünün etiket fiyatı güncellendi."})
+
 # --- YEDEKLEME & GERİ YÜKLEME (ROLLBACK) ENDPOINTLERİ ---
+
+@app.route("/api/backup/create", methods=["POST"])
+def api_backup_create():
+    """Kullanıcı isteğiyle anlık güvenli veritabanı yedeği oluşturur."""
+    payload = request.json or {}
+    reason = payload.get("reason") or "Manuel Kullanıcı Yedeği"
+    fname = create_products_backup(reason=reason)
+    if fname:
+        return jsonify({
+            "status": "success",
+            "message": f"'{fname}' yedeği başarıyla oluşturuldu.",
+            "filename": fname
+        })
+    return jsonify({"status": "error", "message": "Yedek oluşturulamadı."}), 500
 
 @app.route("/api/backup/list", methods=["GET"])
 def api_backup_list():
@@ -972,6 +1409,9 @@ def api_print_send():
     try:
         print_raw_zpl(selected_printer, zpl_command, doc_name="Market Raf Etiketi")
         print(f"[BAŞARILI] {len(zpl_command)} bayt yazıcıya iletildi. {copies} adet etiket basıldı!")
+        u_barcode = str(data.get('barcode', '')).strip()
+        if u_barcode:
+            mark_products_as_printed([u_barcode])
         return jsonify({
             "status": "success",
             "message": f"'{selected_printer}' yazıcısına iletildi! {copies} adet etiket basıldı.",
@@ -1221,6 +1661,9 @@ def api_print_batch():
 
     try:
         print_raw_zpl(selected_printer, combined_zpl, f"Toplu Etiket ({len(products)} Kalem)")
+        printed_barcodes = [str(p.get("barcode", "")).strip() for p in products if p.get("barcode")]
+        if printed_barcodes:
+            mark_products_as_printed(printed_barcodes)
         return jsonify({
             "status": "success",
             "item_count": len(products),
@@ -1312,6 +1755,62 @@ def free_port(port=5000):
     except Exception:
         pass
 
+def start_code_watcher():
+    """Proje kodlarını (.py, .js, .html, .css) arka planda izler ve değişiklik olduğunda terminale anlık bildirim basar."""
+    import threading
+
+    def watch_worker():
+        watch_dirs = [
+            BASE_DIR,
+            os.path.join(BASE_DIR, 'src'),
+            os.path.join(BASE_DIR, 'static', 'js'),
+            os.path.join(BASE_DIR, 'static', 'css'),
+            os.path.join(BASE_DIR, 'templates')
+        ]
+        valid_exts = ('.py', '.js', '.html', '.css')
+        mtimes = {}
+
+        def get_all_watched_files():
+            files = []
+            for d in watch_dirs:
+                if os.path.exists(d):
+                    for root, _, filenames in os.walk(d):
+                        for f in filenames:
+                            if f.lower().endswith(valid_exts):
+                                files.append(os.path.join(root, f))
+            return files
+
+        for fpath in get_all_watched_files():
+            try:
+                mtimes[fpath] = os.path.getmtime(fpath)
+            except Exception:
+                pass
+
+        while True:
+            time.sleep(1.0)
+            current_files = get_all_watched_files()
+            for fpath in current_files:
+                try:
+                    curr_mtime = os.path.getmtime(fpath)
+                    if fpath in mtimes:
+                        if curr_mtime != mtimes[fpath]:
+                            mtimes[fpath] = curr_mtime
+                            fname = os.path.relpath(fpath, BASE_DIR)
+                            now_time = datetime.datetime.now().strftime("%H:%M:%S")
+                            print("\n" + "=" * 65)
+                            print(f"🔄 [KOD GÜNCELLENDİ] '{fname}' dosyasında değişiklik algılandı!")
+                            print(f"[*] Değişiklik Zamanı : {now_time}")
+                            print(f"[*] Sistem ve Önbellek Otomatik Yenilendi.")
+                            print("=" * 65 + "\n")
+                            _DIFF_CACHE.clear()
+                    else:
+                        mtimes[fpath] = curr_mtime
+                except Exception:
+                    pass
+
+    t = threading.Thread(target=watch_worker, daemon=True)
+    t.start()
+
 def run_server(host="0.0.0.0", port=5000):
     free_port(port)
     free_port(port + 1)
@@ -1328,12 +1827,16 @@ def run_server(host="0.0.0.0", port=5000):
     mobile_http = f"http://{local_ip}:{port}/mobile"
     mobile_https = f"https://{local_ip}:{port + 1}/mobile" if cert_path else None
 
+    # Kod izleyicisini başlat (Terminalde anlık değişiklik bildirimi basar)
+    start_code_watcher()
+
     print("=" * 70)
     print("[BASLATILDI] Market Raf Etiketi Paneli & Canlı Mobil Terminal")
     print(f"[*] Masaustu Panel       : {url}")
     print(f"[*] Mobil HTTP (Normal)  : {mobile_http}")
     if mobile_https:
         print(f"[*] Mobil HTTPS (Kamera) : {mobile_https}")
+    print("[*] Canlı Kod İzleyici   : Devrede (Değişikliklerde bildirim verir)")
     print("=" * 70)
 
     try:

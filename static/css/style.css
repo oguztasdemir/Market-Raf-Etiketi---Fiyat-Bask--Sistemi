@@ -1311,8 +1311,68 @@ input:focus, select:focus {
 .catalog-filters {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.catalog-status-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 3px 5px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-status-pill {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.btn-status-pill:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-status-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+}
+
+.btn-status-pill.pill-outdated.active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #fb923c;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.45);
+}
+
+.btn-status-pill.pill-matched.active {
+  background: #059669;
+  color: #ffffff;
+  border-color: #34d399;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+}
+
+.pill-count {
+  font-size: 10.5px;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 10px;
 }
 
 .filter-item select {
@@ -1325,6 +1385,67 @@ input:focus, select:focus {
   min-width: 180px;
   cursor: pointer;
   font-weight: 600;
+}
+
+.badge-label-price {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.badge-label-price.outdated {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.badge-label-price.matched {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.badge-label-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.badge-label-status.matched {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-label-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+
+.btn-label-status.outdated {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.btn-label-status.outdated:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
 }
 
 .catalog-actions-box {
@@ -2339,5 +2460,85 @@ body.light-theme .link-copy-row input {
 .price-diff-badge.down {
   background: rgba(16, 185, 129, 0.2);
   color: #10b981;
+}
+
+/* YEDEKLER PANELİ (TAB-BACKUPS) STİLLERİ */
+.backups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.backups-header-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.backups-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.backups-icon-badge {
+  font-size: 28px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.backups-header-left h2 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.backups-header-left p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.backups-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.backups-table-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  background: var(--bg-card);
+}
+
+.backups-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.btn-sync-all-apply {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  color: #ffffff !important;
+  border: 1px solid #10b981 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.btn-sync-all-apply:hover {
+  background: #10b981 !important;
+  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
 }
 

@@ -48,6 +48,11 @@
         <span class="nav-label">Katalog Güncelleme</span>
       </button>
 
+      <button class="nav-item" onclick="switchTab('tab-backups')">
+        <span class="nav-icon">💾</span>
+        <span class="nav-label">Yedekler</span>
+      </button>
+
       <button class="nav-item" onclick="switchTab('tab-qr')">
         <span class="nav-icon">📱</span>
         <span class="nav-label">QR Bağlantısı</span>
@@ -367,9 +372,21 @@
             </div>
 
             <div class="catalog-filters">
+              <div class="catalog-status-pills">
+                <button type="button" class="btn-status-pill active" id="pill-filter-all" onclick="setCatalogStatusFilter('ALL')">
+                  Tümü <span id="count-pill-all" class="pill-count">0</span>
+                </button>
+                <button type="button" class="btn-status-pill pill-outdated" id="pill-filter-outdated" onclick="setCatalogStatusFilter('OUTDATED')">
+                  ⚠️ Güncel Değil <span id="count-pill-outdated" class="pill-count">0</span>
+                </button>
+                <button type="button" class="btn-status-pill pill-matched" id="pill-filter-matched" onclick="setCatalogStatusFilter('MATCHED')">
+                  ✅ Güncel <span id="count-pill-matched" class="pill-count">0</span>
+                </button>
+              </div>
+
               <div class="filter-item">
                 <select id="catalog-brand-select" class="custom-select" onchange="onCatalogFilterChange()">
-                  <option value="ALL">🏢 Tüm Firmalar (Tümü)</option>
+                  <option value="ALL">🏢 Tüm Firmalar (0)</option>
                 </select>
               </div>
             </div>
@@ -409,25 +426,31 @@
             <table class="catalog-table">
               <thead>
                 <tr>
-                  <th style="width: 40px; min-width: 40px; text-align: center;">
+                  <th style="width: 38px; min-width: 38px; text-align: center;">
                     <input type="checkbox" id="catalog-select-all-chk" onchange="toggleSelectAllCatalog(this.checked)" title="Tümünü Seç / Kaldır">
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 13%; min-width: 120px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 12%; min-width: 100px;">
                     Firma <span class="sort-icon" id="sort-ico-brand">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 12%; min-width: 110px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 11%; min-width: 100px;">
                     Barkod <span class="sort-icon" id="sort-ico-barcode">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 42%; min-width: 240px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 31%; min-width: 190px;">
                     Ürün Adı <span class="sort-icon" id="sort-ico-title">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 11%; min-width: 85px; text-align: right;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('price')" style="width: 9%; min-width: 80px; text-align: right;">
                     Fiyat <span class="sort-icon" id="sort-ico-price">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 14%; min-width: 135px; text-align: center;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('label_price')" style="width: 10%; min-width: 85px; text-align: right;">
+                    Etiket Fiyatı <span class="sort-icon" id="sort-ico-label_price">↕</span>
+                  </th>
+                  <th class="sortable-th" onclick="sortCatalogColumn('date')" style="width: 12%; min-width: 115px; text-align: center;">
                     Değişme Tarihi <span class="sort-icon" id="sort-ico-date">↕</span>
                   </th>
-                  <th style="width: 6%; min-width: 65px; text-align: center;">İşlem</th>
+                  <th class="sortable-th" onclick="sortCatalogColumn('status')" style="width: 10%; min-width: 95px; text-align: center;">
+                    Etiket Durumu <span class="sort-icon" id="sort-ico-status">↕</span>
+                  </th>
+                  <th style="width: 5%; min-width: 55px; text-align: center;">İşlem</th>
                 </tr>
               </thead>
               <tbody id="catalog-tbody">
@@ -455,18 +478,18 @@
           <!-- ÜST KONTROL ŞERİDİ (Dosya, Yedekleme ve Arama) -->
           <div class="sync-top-control-bar">
             
-            <!-- Sol Grup: Excel Dosyası & Geçmiş -->
+            <!-- Sol Grup: Excel / CSV Dosyası & Geçmiş -->
             <div class="sync-left-tools" id="sync-dropzone">
-              <input type="file" id="sync-file-input" accept=".xlsx, .xls" style="display:none;" onchange="onExcelFileSelected(event)">
+              <input type="file" id="sync-file-input" accept=".xlsx, .xls, .csv" style="display:none;" onchange="onExcelFileSelected(event)">
               <button class="btn-sm btn-primary" onclick="document.getElementById('sync-file-input').click()">
-                📂 Excel Yükle
+                📂 Excel / CSV Yükle
               </button>
-              <div class="sync-file-pill" title="Yüklü Sistem Exceli" onclick="openExcelHistoryModal()" style="cursor: pointer;">
+              <div class="sync-file-pill" title="Yüklü Sistem Stok Dosyası (.xlsx / .csv)" onclick="openExcelHistoryModal()" style="cursor: pointer;">
                 <span class="file-icon">📄</span>
                 <span id="sync-current-filename">stok_2026-08-19_16-00-00.xlsx</span>
                 <small id="sync-current-filetime"></small>
               </div>
-              <button class="btn-sm btn-secondary" onclick="openExcelHistoryModal()" title="Geçmiş Excel Dosyaları Arşivi">
+              <button class="btn-sm btn-secondary" onclick="openExcelHistoryModal()" title="Geçmiş Dosyalar Arşivi">
                 📜 Geçmiş
               </button>
               <button class="btn-sm btn-secondary" onclick="loadSyncStatus(true)" title="Dosyayı Yeniden Tara">
@@ -474,12 +497,12 @@
               </button>
             </div>
 
-            <!-- Sağ Grup: Güvenlik / Geri Al & Arama -->
+            <!-- Sağ Grup: Arama, Yedekler, Geri Al -->
             <div class="sync-right-tools">
               <button class="btn-sm btn-secondary btn-rollback" onclick="rollbackLatestBackup()" title="Yazıcı hatası durumunda son işlemi geri alır">
                 ↺ Geri Al
               </button>
-              <button class="btn-sm btn-secondary" onclick="openBackupListModal()" title="Tüm Veritabanı Yedeklerini İncele">
+              <button class="btn-sm btn-secondary" onclick="switchTab('tab-backups')" title="Tüm Veritabanı Yedeklerini İncele">
                 💾 Yedekler
               </button>
               <div class="sync-search-box">
@@ -489,12 +512,18 @@
 
           </div>
 
-          <!-- ALT FİLTRE ŞERİDİ (Temiz Sekmeler & Tüm Ürünler) -->
-          <div class="sync-filter-strip">
+          <!-- ALT FİLTRE ŞERİDİ (En Solda Sekmeler & En Sağda Tüm Fiyatları Güncelle) -->
+          <div class="sync-filter-strip" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
             
-            <div class="sync-tab-pills">
-              <button class="sync-pill-btn active" id="pill-suggested" onclick="filterSyncTab('suggested')">
-                ⚡ Etiket Basılması Önerilenler (<span id="pill-count-suggested">0</span>)
+            <div class="sync-tab-pills" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <button class="sync-pill-btn btn-all-products" id="pill-all" onclick="filterSyncTab('all')">
+                📦 Tüm Ürünler (<span id="pill-count-all">0</span>)
+              </button>
+              <button class="sync-pill-btn active" id="pill-changed" onclick="filterSyncTab('changed')">
+                ⚠️ Fiyatı Değişenler (<span id="pill-count-changed">0</span>)
+              </button>
+              <button class="sync-pill-btn" id="pill-new" onclick="filterSyncTab('new')">
+                ✨ Yeni Ürünler (<span id="pill-count-new">0</span>)
               </button>
               <button class="sync-pill-btn" id="pill-matched" onclick="filterSyncTab('matched')">
                 ✅ Fiyatı Aynı Olanlar (<span id="pill-count-matched">0</span>)
@@ -504,27 +533,20 @@
               </button>
             </div>
 
-            <button class="btn-primary btn-all-products" onclick="filterSyncTab('all')">
-              📦 Tüm Ürünler (<span id="pill-count-all">0</span>)
+            <button class="btn-sm btn-sync-all-apply" id="btn-sync-apply-all-top" onclick="applyAllChangedPricesFromSync()" title="Dosyadaki tüm fiyat değişikliklerini kataloğa uygular (Henüz basılmayanlar '⚠️ Güncel Değil' olur)" style="flex-shrink: 0; padding: 6px 14px; font-weight: 800;">
+              ⚡ Tüm Fiyatları Kataloğa Güncelle (<span id="top-btn-changed-count">0</span>)
             </button>
 
           </div>
 
-          <!-- Toplu İşlem Çubuğu (Batch Bar) -->
+          <!-- Toplu İşlem Çubuğu (Batch Bar - Sadece Veri Güncelleme) -->
           <div id="sync-batch-bar" class="sync-batch-bar" style="display:none;">
             <div class="batch-left">
               <span class="batch-count" id="sync-batch-count">0 ürün seçildi</span>
-              <div class="batch-copies-box">
-                <label>Baskı Adedi:</label>
-                <input type="number" id="sync-batch-copies" value="1" min="1" max="99" class="batch-copies-input">
-              </div>
             </div>
             <div class="batch-right">
-              <button class="btn-batch-action btn-batch-print" onclick="submitSyncBatchPrint()">
-                🖨️ Seçilileri Toplu Yazdır
-              </button>
               <button class="btn-batch-action btn-batch-apply" onclick="submitSyncBatchApply()">
-                💾 Raf Fiyatlarını Güncelle (Senkronize Et)
+                💾 Seçilenleri Kataloğa Güncelle & Aktar
               </button>
               <button class="btn-batch-action btn-batch-blacklist" onclick="submitSyncBatchBlacklist()">
                 🚫 Kara Listeye Ekle
@@ -538,24 +560,27 @@
           <!-- Senkronizasyon & Karşılaştırma Tablosu -->
           <div class="sync-table-wrapper" id="sync-scroll-container">
             <table class="catalog-table sync-table">
-              <thead>
-                <tr>
+              <thead id="sync-thead">
+                <tr id="sync-thead-tr">
                   <th style="width: 40px; min-width: 40px; text-align: center;">
                     <input type="checkbox" id="sync-select-all-chk" onchange="toggleSelectAllSync(this.checked)" title="Tümünü Seç / Temizle">
                   </th>
                   <th class="sortable-th" onclick="sortSyncColumn('barcode')" style="width: 12%; min-width: 110px;">
                     Barkod <span class="sort-icon" id="sync-sort-ico-barcode">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortSyncColumn('excel_title')" style="width: 25%; min-width: 160px;">
+                  <th class="sortable-th" id="sync-th-brand" onclick="sortSyncColumn('brand')" style="width: 14%; min-width: 120px; display: none;">
+                    🏷️ Marka <span class="sort-icon" id="sync-sort-ico-brand">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-excel-title" onclick="sortSyncColumn('excel_title')" style="width: 25%; min-width: 160px;">
                     Sistem Adı (Excel) <span class="sort-icon" id="sync-sort-ico-excel_title">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortSyncColumn('current_title')" style="width: 28%; min-width: 180px;">
+                  <th class="sortable-th" id="sync-th-current-title" onclick="sortSyncColumn('current_title')" style="width: 28%; min-width: 180px;">
                     Etiket Adı (Mevcut) <span class="sort-icon" id="sync-sort-ico-current_title">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortSyncColumn('current_price')" style="width: 10%; min-width: 80px; text-align: right;">
+                  <th class="sortable-th" id="sync-th-current-price" onclick="sortSyncColumn('current_price')" style="width: 10%; min-width: 80px; text-align: right;">
                     Raf Fiyatı <span class="sort-icon" id="sync-sort-ico-current_price">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortSyncColumn('excel_price')" style="width: 10%; min-width: 85px; text-align: right;">
+                  <th class="sortable-th" id="sync-th-excel-price" onclick="sortSyncColumn('excel_price')" style="width: 10%; min-width: 85px; text-align: right;">
                     Sistem Fiyatı <span class="sort-icon" id="sync-sort-ico-excel_price">↕</span>
                   </th>
                   <th class="sortable-th" onclick="sortSyncColumn('status')" style="width: 8%; min-width: 85px; text-align: center;">
@@ -572,6 +597,61 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =========================================================
+           SEKME: YEDEKLER & SİSTEM GERİ YÜKLEME (SOL PANEL)
+           ========================================================= -->
+      <div id="tab-backups" class="tab-content">
+        <div class="backups-container">
+          
+          <!-- Üst Bilgi ve Kontrol Başlığı -->
+          <div class="backups-header-card">
+            <div class="backups-header-left">
+              <div class="backups-icon-badge">💾</div>
+              <div>
+                <h2>Veritabanı & Fiyat Yedekleri</h2>
+                <p>Tüm ürünlerinizin, fiyatlarınızın ve etiket ayarlarınızın otomatik ve manuel güvenlik yedekleri.</p>
+              </div>
+            </div>
+            <div class="backups-header-actions">
+              <button class="btn-primary" onclick="createManualBackup()" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>➕</span> Yeni Güvenli Yedek Al
+              </button>
+              <button class="btn-secondary btn-rollback" onclick="rollbackLatestBackup()" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>↺</span> Son Yedeğe Geri Dön
+              </button>
+              <button class="btn-secondary" onclick="loadBackupsList(true)" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>🔄</span> Yenile
+              </button>
+            </div>
+          </div>
+
+          <!-- Yedek Listesi Tablosu -->
+          <div class="card backups-table-card">
+            <div class="backups-table-wrapper">
+              <table class="catalog-table backups-table">
+                <thead>
+                  <tr>
+                    <th style="width: 22%; min-width: 170px;">Tarih / Saat</th>
+                    <th style="width: 38%; min-width: 250px;">Yedekleme Açıklaması / Sebebi</th>
+                    <th style="width: 20%; min-width: 180px;">Dosya Adı</th>
+                    <th style="width: 10%; min-width: 90px; text-align: right;">Boyut</th>
+                    <th style="width: 10%; min-width: 130px; text-align: center;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="backups-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
+                      ⏳ Yedekler listeleniyor...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>
@@ -852,12 +932,12 @@
   <div id="modal-excel-history" class="modal-backdrop" style="display: none;">
     <div class="modal-card" style="max-width: 650px; width: 95%;">
       <div class="modal-header">
-        <h3>📜 Geçmiş Sistem Excel Dosyaları Arşivi</h3>
+        <h3>📜 Geçmiş Sistem Dosyaları Arşivi (Excel & CSV)</h3>
         <button class="modal-close-btn" onclick="closeExcelHistoryModal()">✕</button>
       </div>
       <div class="modal-body">
         <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #38bdf8; margin-bottom: 12px;">
-          💡 <strong>Bilgi:</strong> Sistemdeki fiyat güncellemeleri ve toplu baskı her zaman <strong>en son yüklenen aktif Excel</strong> üzerinden yapılır. Geçmiş dosyalar geriye dönük inceleme amacıyla saklanır.
+          💡 <strong>Bilgi:</strong> Sistemdeki fiyat güncellemeleri ve toplu baskı her zaman <strong>en son yüklenen aktif dosya (.xlsx / .csv)</strong> üzerinden yapılır. Geçmiş dosyalar geriye dönük inceleme amacıyla saklanır.
         </div>
         <div id="excel-history-list" style="max-height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
           <!-- JS dolduracak -->
@@ -1131,6 +1211,42 @@
       <button onclick="cancelPrintingWithConfirm()" style="flex: 1; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer;">
         ⛔ Baskıyı İptal Et
       </button>
+  <!-- UYGULAMA İÇİ ŞIK ONAY (CONFIRM) MODALI -->
+  <div id="modal-app-confirm" class="modal-backdrop" style="display: none; z-index: 100000;">
+    <div class="modal-card" style="max-width: 440px; width: 92%; border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.85);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+        <h3 id="app-confirm-title" style="font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--text-main); margin: 0;">
+          <span id="app-confirm-icon">⚠️</span> <span id="app-confirm-title-text">Onay Gerekiyor</span>
+        </h3>
+        <button class="modal-close-btn" onclick="_resolveAppConfirm(false)">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0 10px 0;">
+        <p id="app-confirm-msg" style="font-size: 13px; color: #cbd5e1; line-height: 1.5; margin: 0; white-space: pre-line;"></p>
+      </div>
+      <div class="modal-footer" style="gap: 8px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button id="app-confirm-btn-cancel" class="btn-secondary" onclick="_resolveAppConfirm(false)" style="font-size: 12px; padding: 6px 14px;">Vazgeç</button>
+        <button id="app-confirm-btn-ok" class="btn-primary" onclick="_resolveAppConfirm(true)" style="font-size: 12px; padding: 6px 16px; font-weight: 700;">Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UYGULAMA İÇİ ŞIK METİN GİRİŞİ (PROMPT) MODALI -->
+  <div id="modal-app-prompt" class="modal-backdrop" style="display: none; z-index: 100000;">
+    <div class="modal-card" style="max-width: 440px; width: 92%; border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.85);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+        <h3 id="app-prompt-title" style="font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--text-main); margin: 0;">
+          <span>✏️</span> <span id="app-prompt-title-text">Bilgi Girişi</span>
+        </h3>
+        <button class="modal-close-btn" onclick="_resolveAppPrompt(null)">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0 10px 0; display: flex; flex-direction: column; gap: 10px;">
+        <label id="app-prompt-msg" style="font-size: 13px; color: #cbd5e1; line-height: 1.4; margin: 0;"></label>
+        <input type="text" id="app-prompt-input" class="form-control" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px;" onkeydown="if(event.key==='Enter') _resolveAppPrompt(this.value)">
+      </div>
+      <div class="modal-footer" style="gap: 8px; justify-content: flex-end; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button class="btn-secondary" onclick="_resolveAppPrompt(null)" style="font-size: 12px; padding: 6px 14px;">İptal</button>
+        <button class="btn-primary" onclick="_resolveAppPrompt(document.getElementById('app-prompt-input').value)" style="font-size: 12px; padding: 6px 16px; font-weight: 700;">Kaydet</button>
+      </div>
     </div>
   </div>
 

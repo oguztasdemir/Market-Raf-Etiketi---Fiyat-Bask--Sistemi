@@ -24,6 +24,78 @@ const API_BASE = (window.location.protocol === 'file:' || !window.location.port 
   ? 'http://127.0.0.1:5000' 
   : '';
 
+// --- UYGULAMA İÇİ ÖZEL DİYALOG VE ONAY SİSTEMİ (BROWSER POPUPLARI YERİNE) ---
+let _appConfirmResolve = null;
+let _appPromptResolve = null;
+
+function showCustomConfirm(message, title = "Onay Gerekiyor", okText = "Onayla", cancelText = "Vazgeç", icon = "⚠️") {
+  return new Promise((resolve) => {
+    _appConfirmResolve = resolve;
+    const modal = document.getElementById('modal-app-confirm');
+    if (!modal) {
+      resolve(true);
+      return;
+    }
+    const tEl = document.getElementById('app-confirm-title-text');
+    const iEl = document.getElementById('app-confirm-icon');
+    const mEl = document.getElementById('app-confirm-msg');
+    const okEl = document.getElementById('app-confirm-btn-ok');
+    const cancelEl = document.getElementById('app-confirm-btn-cancel');
+
+    if (tEl) tEl.innerText = title;
+    if (iEl) iEl.innerText = icon;
+    if (mEl) mEl.innerText = message;
+    if (okEl) okEl.innerText = okText;
+    if (cancelEl) cancelEl.innerText = cancelText;
+
+    modal.style.display = 'flex';
+  });
+}
+
+function _resolveAppConfirm(val) {
+  const modal = document.getElementById('modal-app-confirm');
+  if (modal) modal.style.display = 'none';
+  if (_appConfirmResolve) {
+    _appConfirmResolve(val);
+    _appConfirmResolve = null;
+  }
+}
+
+function showCustomPrompt(message, defaultValue = "", title = "Bilgi Girişi", okText = "Kaydet", cancelText = "İptal") {
+  return new Promise((resolve) => {
+    _appPromptResolve = resolve;
+    const modal = document.getElementById('modal-app-prompt');
+    if (!modal) {
+      resolve(defaultValue);
+      return;
+    }
+    const tEl = document.getElementById('app-prompt-title-text');
+    const mEl = document.getElementById('app-prompt-msg');
+    const input = document.getElementById('app-prompt-input');
+
+    if (tEl) tEl.innerText = title;
+    if (mEl) mEl.innerText = message;
+    if (input) input.value = defaultValue;
+
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 50);
+  });
+}
+
+function _resolveAppPrompt(val) {
+  const modal = document.getElementById('modal-app-prompt');
+  if (modal) modal.style.display = 'none';
+  if (_appPromptResolve) {
+    _appPromptResolve(val);
+    _appPromptResolve = null;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initAppTheme();
   renderTemplateList();
@@ -141,7 +213,6 @@ function switchTab(tabId) {
     document.body.classList.remove('on-catalog');
   }
 
-  const buttons = document.querySelectorAll('.nav-item');
   const heading = document.getElementById('page-heading');
   const subheading = document.getElementById('page-subheading');
   const topbarActions = document.getElementById('topbar-actions-box');
@@ -150,31 +221,39 @@ function switchTab(tabId) {
     topbarActions.style.display = (tabId === 'tab-print') ? 'flex' : 'none';
   }
 
+  // Aktif menü butonunu belirle
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    const attr = btn.getAttribute('onclick') || '';
+    if (attr.includes(`'${tabId}'`)) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
   if (tabId === 'tab-print') {
-    if (buttons[0]) buttons[0].classList.add('active');
     if (heading) heading.innerText = '🏷️ Etiket Çıkart';
     if (subheading) subheading.innerText = 'Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı';
   } else if (tabId === 'tab-design') {
-    if (buttons[1]) buttons[1].classList.add('active');
     if (heading) heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
     if (subheading) subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
     loadTemplates();
   } else if (tabId === 'tab-catalog') {
-    if (buttons[2]) buttons[2].classList.add('active');
     loadCatalog();
   } else if (tabId === 'tab-sync') {
-    if (buttons[3]) buttons[3].classList.add('active');
     if (heading) heading.innerText = '📊 Katalog Güncelleme & Fiyat Senkronizasyonu';
-    if (subheading) subheading.innerText = 'Sistem Excel (.xlsx) stok listesini içe aktarın, fiyat farklarını tespit edin ve toplu etiket basın';
+    if (subheading) subheading.innerText = 'Sistem Excel / CSV (.xlsx, .csv) stok listesini içe aktarın, fiyat farklarını tespit edin ve toplu etiket basın';
     loadSyncStatus();
+  } else if (tabId === 'tab-backups') {
+    if (heading) heading.innerText = '💾 Veritabanı & Fiyat Yedekleri';
+    if (subheading) subheading.innerText = 'Tüm ürün, fiyat ve etiket ayarlarınızın güvenlik yedekleri ve geri yükleme merkezi';
+    loadBackupsList();
   } else if (tabId === 'tab-qr') {
-    if (buttons[4]) buttons[4].classList.add('active');
     if (heading) heading.innerText = '📱 Mobil QR Bağlantısı';
     if (subheading) subheading.innerText = 'Telefonunuzla reyonlarda gezerken ürün okutup anında etiket basın';
     loadMobileQrCode();
     checkBackendAndDevices();
   } else if (tabId === 'tab-settings') {
-    if (buttons[5]) buttons[5].classList.add('active');
     if (heading) heading.innerText = '⚙️ Sistem & Donanım Ayarları';
     if (subheading) subheading.innerText = 'Yazıcı, kağıt ölçüsü, ofset kalibrasyonu ve mağaza bilgileri';
     loadSettings();
@@ -1035,16 +1114,17 @@ async function saveTemplateFromEditor() {
       activeTemplateId = data.template.id;
       editingTemplateId = data.template.id;
       await loadTemplates();
-      alert("✓ Etiket modeli başarıyla kaydedildi!");
+      showToast("✓ Etiket modeli başarıyla kaydedildi!", "success");
     }
   } catch (e) {
-    alert("Şablon kaydetme hatası!");
+    showToast("❌ Şablon kaydetme hatası!", "error");
   }
 }
 
 async function deleteCurrentTemplate() {
   if (!editingTemplateId || editingTemplateId === 'default') return;
-  if (!confirm("Bu etiket modelini silmek istediğinize emin misiniz?")) return;
+  const ok = await showCustomConfirm("Bu etiket modelini silmek istediğinize emin misiniz?", "Modeli Sil", "Evet, Sil", "Vazgeç", "🗑️");
+  if (!ok) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/templates/${editingTemplateId}`, {
@@ -1055,7 +1135,7 @@ async function deleteCurrentTemplate() {
       activeTemplateId = 'default';
       editingTemplateId = 'default';
       await loadTemplates();
-      alert("✓ Model silindi.");
+      showToast("✓ Model silindi.", "success");
     }
   } catch (e) {}
 }
@@ -1323,6 +1403,71 @@ let filteredCatalogProducts = [];
 let catalogRenderedCount = 100;
 let currentSortColumn = null;
 let currentSortDirection = 'asc'; // 'asc' veya 'desc'
+let catalogStatusFilter = 'ALL'; // 'ALL', 'OUTDATED', 'MATCHED'
+
+function formatBarcodeDisplay(bc) {
+  if (!bc) return '-';
+  let str = String(bc).trim();
+  if (str.endsWith(',00') || str.endsWith('.00')) {
+    str = str.slice(0, -3);
+  } else if (str.endsWith(',0') || str.endsWith('.0')) {
+    str = str.slice(0, -2);
+  }
+  if (str.includes('E+') || str.includes('e+') || str.includes('E-') || str.includes('e-') || (str.includes('E') && /\d/.test(str))) {
+    try {
+      const num = Number(str.replace(',', '.'));
+      if (!isNaN(num) && num > 0) {
+        return Math.round(num).toString();
+      }
+    } catch(e) {}
+  }
+  return str;
+}
+
+function isLabelPriceUpToDate(p) {
+  if (!p) return true;
+  const sysVal = parsePrice(p.price);
+  const labelVal = parsePrice(p.label_price || p.price);
+  if (p.label_price !== undefined && p.label_price !== null && p.label_price !== "") {
+    return Math.abs(sysVal - labelVal) < 0.01;
+  }
+  return true;
+}
+
+function setCatalogStatusFilter(filterType) {
+  catalogStatusFilter = filterType;
+  const pillAll = document.getElementById('pill-filter-all');
+  const pillOutdated = document.getElementById('pill-filter-outdated');
+  const pillMatched = document.getElementById('pill-filter-matched');
+
+  if (pillAll) pillAll.classList.toggle('active', filterType === 'ALL');
+  if (pillOutdated) pillOutdated.classList.toggle('active', filterType === 'OUTDATED');
+  if (pillMatched) pillMatched.classList.toggle('active', filterType === 'MATCHED');
+
+  onCatalogFilterChange();
+}
+
+function updateCatalogStatusCounts() {
+  let total = allCatalogProducts.length;
+  let outdated = 0;
+  let matched = 0;
+
+  allCatalogProducts.forEach(p => {
+    if (isLabelPriceUpToDate(p)) {
+      matched++;
+    } else {
+      outdated++;
+    }
+  });
+
+  const cAll = document.getElementById('count-pill-all');
+  const cOutdated = document.getElementById('count-pill-outdated');
+  const cMatched = document.getElementById('count-pill-matched');
+
+  if (cAll) cAll.innerText = total.toLocaleString('tr-TR');
+  if (cOutdated) cOutdated.innerText = outdated.toLocaleString('tr-TR');
+  if (cMatched) cMatched.innerText = matched.toLocaleString('tr-TR');
+}
 
 async function loadCatalog() {
   try {
@@ -1332,6 +1477,7 @@ async function loadCatalog() {
       allCatalogProducts = data.products;
       populateBrandFilterOptions();
       setupCatalogScrollListener();
+      updateCatalogStatusCounts();
       onCatalogFilterChange();
     }
   } catch(e) {
@@ -1346,16 +1492,18 @@ function populateBrandFilterOptions() {
   // Marka frekanslarını topla
   const brandCounts = {};
   allCatalogProducts.forEach(p => {
-    const b = p.brand || 'DİĞER';
+    const b = (p.brand && p.brand.trim()) || 'DİĞER';
     brandCounts[b] = (brandCounts[b] || 0) + 1;
   });
 
+  // Türkçe Alfabetik Sıralama (A'dan Z'ye)
   const sortedBrands = Object.keys(brandCounts).sort((a, b) => {
-    return brandCounts[b] - brandCounts[a];
+    return a.localeCompare(b, 'tr', { sensitivity: 'base' });
   });
 
+  const uniqueBrandCount = sortedBrands.length;
   const currentVal = brandSelect.value;
-  brandSelect.innerHTML = `<option value="ALL">🏢 Tüm Firmalar (${allCatalogProducts.length.toLocaleString('tr-TR')})</option>`;
+  brandSelect.innerHTML = `<option value="ALL">🏢 Tüm Firmalar (${uniqueBrandCount})</option>`;
 
   sortedBrands.forEach(brand => {
     const opt = document.createElement('option');
@@ -1418,10 +1566,16 @@ function onCatalogFilterChange() {
   const searchTokens = normSearch ? normSearch.split(/\s+/).filter(Boolean) : [];
   const selectedBrand = document.getElementById('catalog-brand-select')?.value || 'ALL';
 
+  updateCatalogStatusCounts();
+
   // 1. Filtrele
   filteredCatalogProducts = allCatalogProducts.filter(p => {
     const matchesBrand = (selectedBrand === 'ALL') || (p.brand === selectedBrand);
     if (!matchesBrand) return false;
+
+    // Etiket Durumu Filtresi (Tümü / Güncel Değil / Güncel)
+    if (catalogStatusFilter === 'OUTDATED' && isLabelPriceUpToDate(p)) return false;
+    if (catalogStatusFilter === 'MATCHED' && !isLabelPriceUpToDate(p)) return false;
 
     if (searchTokens.length === 0) return true;
     const fullTarget = `${p.barcode || ''} ${p.title || ''} ${p.brand || ''}`;
@@ -1466,6 +1620,12 @@ function applyColumnSorting() {
   filteredCatalogProducts.sort((a, b) => {
     if (currentSortColumn === 'price') {
       return (parsePrice(a.price) - parsePrice(b.price)) * dir;
+    } else if (currentSortColumn === 'label_price') {
+      return (parsePrice(a.label_price || a.price) - parsePrice(b.label_price || b.price)) * dir;
+    } else if (currentSortColumn === 'status') {
+      const aUp = isLabelPriceUpToDate(a) ? 1 : 0;
+      const bUp = isLabelPriceUpToDate(b) ? 1 : 0;
+      return (aUp - bUp) * dir;
     } else if (currentSortColumn === 'barcode') {
       return (a.barcode || '').localeCompare(b.barcode || '') * dir;
     } else if (currentSortColumn === 'brand') {
@@ -1480,7 +1640,7 @@ function applyColumnSorting() {
 }
 
 function updateSortIcons() {
-  ['brand', 'barcode', 'title', 'price', 'date'].forEach(col => {
+  ['brand', 'barcode', 'title', 'price', 'label_price', 'date', 'status'].forEach(col => {
     const iconEl = document.getElementById(`sort-ico-${col}`);
     if (iconEl) {
       if (currentSortColumn === col) {
@@ -1783,16 +1943,27 @@ function renderCatalogTable(reset = true) {
     tr.onclick = (e) => handleCatalogRowClick(p.barcode, e);
 
     const displayDate = formatCatalogDate(p);
+    const isUpToDate = isLabelPriceUpToDate(p);
+    const labelPriceText = p.label_price || p.price;
+    const labelPriceBadge = isUpToDate
+      ? `<span class="badge-label-price matched">${labelPriceText}</span>`
+      : `<span class="badge-label-price outdated" title="Basılan Raf Etiketi Fiyatı: ${labelPriceText}">${labelPriceText}</span>`;
+
+    const statusBadge = isUpToDate
+      ? `<span class="badge-label-status matched">✅ Güncel</span>`
+      : `<button class="btn-label-status outdated" onclick="event.stopPropagation(); syncSingleProductLabelAndPrint('${p.barcode}')" title="Fiyat güncellendi ama etiket basılmadı! Tıklayarak etiketi basın ve güncelleyin">⚠️ Güncel Değil</button>`;
 
     tr.innerHTML = `
       <td style="text-align: center;">
         <input type="checkbox" class="catalog-row-chk" data-barcode="${p.barcode}" ${isSelected ? 'checked' : ''} onchange="onRowCheckboxChange('${p.barcode}', this.checked, event)">
       </td>
       <td><span class="badge-brand">${p.brand || 'DİĞER'}</span></td>
-      <td><span class="barcode-text">${p.barcode}</span></td>
+      <td><span class="barcode-text">${formatBarcodeDisplay(p.barcode)}</span></td>
       <td style="font-weight: 700; color: var(--text-main);">${p.title}</td>
       <td style="text-align: right;"><span class="price-text">${p.price}</span></td>
+      <td style="text-align: right;">${labelPriceBadge}</td>
       <td style="text-align: center;"><span class="date-text">${displayDate}</span></td>
+      <td style="text-align: center;">${statusBadge}</td>
       <td style="text-align: center;">
         <button class="btn-sm btn-primary" style="padding: 4px 10px; font-size: 11px;" onclick="event.stopPropagation(); printProductFromCatalog('${p.barcode}')" title="Bu ürünün etiketini tasarımcıya yükle ve bas">
           🏷️ Bas
@@ -1804,6 +1975,30 @@ function renderCatalogTable(reset = true) {
 
   tbody.appendChild(fragment);
   updateBatchActionBar();
+}
+
+async function syncSingleProductLabelAndPrint(barcode) {
+  const product = allCatalogProducts.find(p => p.barcode === barcode);
+  if (!product) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/sync-label-price`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ barcode: barcode })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      product.label_price = product.price;
+      onCatalogFilterChange();
+      showToast(`✓ '${product.title}' etiket fiyatı güncellendi. Tasarımcıya alınıyor...`, "success");
+      printProductFromCatalog(barcode);
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`Bağlantı hatası: ${e.message}`, "error");
+  }
 }
 
 function selectProduct(p) {
@@ -1866,6 +2061,10 @@ async function submitBatchPrint() {
 
     const result = await res.json();
     if (result.status === 'success') {
+      selectedProducts.forEach(p => {
+        p.label_price = p.price;
+      });
+      onCatalogFilterChange();
       showToast(`✓ ${result.message}`, "success");
       clearCatalogSelection();
     } else {
@@ -1960,7 +2159,7 @@ async function loadSyncStatus(isManual = false) {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/catalog/sync-status`);
+    const res = await fetch(`${API_BASE}/api/catalog/sync-status?force=1&_=${Date.now()}`);
     const data = await res.json();
 
     if (data.status === 'success') {
@@ -1973,7 +2172,7 @@ async function loadSyncStatus(isManual = false) {
         tbody.innerHTML = `
           <tr>
             <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
-              📂 Henüz yüklenmiş bir Excel dosyası yok. Yukarıdan bir <strong>.xlsx</strong> dosyası yükleyin.
+              📂 Henüz yüklenmiş bir dosya yok. Yukarıdan bir <strong>.xlsx</strong> veya <strong>.csv</strong> dosyası yükleyin.
             </td>
           </tr>
         `;
@@ -1996,8 +2195,9 @@ function onExcelFileSelected(event) {
 }
 
 async function handleExcelUploadFile(file) {
-  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-    showToast("⚠️ Lütfen sadece .xlsx veya .xls Excel dosyası yükleyin.", "warning");
+  const fileNameLower = file.name.toLowerCase();
+  if (!fileNameLower.endsWith('.xlsx') && !fileNameLower.endsWith('.xls') && !fileNameLower.endsWith('.csv')) {
+    showToast("⚠️ Lütfen sadece .xlsx, .xls veya .csv dosyası yükleyin.", "warning");
     return;
   }
 
@@ -2019,9 +2219,11 @@ async function handleExcelUploadFile(file) {
       currentSyncData = data;
       updateSyncStatsBadges();
       
-      // Varsayılan olarak 'Etiket Basılması Önerilenler' (suggested) sekmesini aç
-      if (data.stats && (data.stats.changed_count > 0 || data.stats.new_count > 0)) {
-        activeSyncFilter = 'suggested';
+      // Varsayılan olarak 'Fiyatı Değişenler' sekmesini aç
+      if (data.stats && data.stats.changed_count > 0) {
+        activeSyncFilter = 'changed';
+      } else if (data.stats && data.stats.new_count > 0) {
+        activeSyncFilter = 'new';
       } else {
         activeSyncFilter = 'all';
       }
@@ -2053,28 +2255,20 @@ function updateSyncStatsBadges() {
   if (fnEl) fnEl.innerText = filename;
   if (ftEl) ftEl.innerText = updatedTime ? `(${updatedTime})` : '';
 
-  const suggestedCount = (stats.changed_count || 0) + (stats.new_count || 0);
-  const statSug = document.getElementById('stat-suggested-total');
-  const pillSug = document.getElementById('pill-count-suggested');
-  if (statSug) statSug.innerText = suggestedCount.toLocaleString('tr-TR');
-  if (pillSug) pillSug.innerText = suggestedCount.toLocaleString('tr-TR');
-
-  const statTotal = document.getElementById('stat-total-excel');
-  const statMatched = document.getElementById('stat-matched-products');
-  const statBlack = document.getElementById('stat-blacklisted');
-
-  if (statTotal) statTotal.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
-  if (statMatched) statMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
-  if (statBlack) statBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
-
   // Pill sayaçları
-  const pillAll = document.getElementById('pill-count-all');
+  const pillChanged = document.getElementById('pill-count-changed');
+  const pillNew = document.getElementById('pill-count-new');
   const pillMatched = document.getElementById('pill-count-matched');
   const pillBlack = document.getElementById('pill-count-blacklisted');
+  const pillAll = document.getElementById('pill-count-all');
+  const topBtnCount = document.getElementById('top-btn-changed-count');
 
-  if (pillAll) pillAll.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
+  if (pillChanged) pillChanged.innerText = (stats.changed_count || 0).toLocaleString('tr-TR');
+  if (pillNew) pillNew.innerText = (stats.new_count || 0).toLocaleString('tr-TR');
   if (pillMatched) pillMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
   if (pillBlack) pillBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
+  if (pillAll) pillAll.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
+  if (topBtnCount) topBtnCount.innerText = (stats.changed_count || 0).toLocaleString('tr-TR');
 }
 
 // 4. Filtreleme Sekmelerini Değiştir
@@ -2085,26 +2279,18 @@ function filterSyncTab(filterName) {
   const statCards = document.querySelectorAll('.sync-stat-card, .stat-chip');
   statCards.forEach(c => c.classList.remove('active-filter'));
 
-  const cardMap = {
-    'suggested': '.chip-suggested',
-    'all': '.stat-total',
-    'matched': '.chip-matched',
-    'blacklisted': '.chip-black'
-  };
-  const activeCards = document.querySelectorAll(cardMap[filterName] || '.chip-suggested');
-  activeCards.forEach(c => c.classList.add('active-filter'));
-
   // Pill butonları aktiflik durumu
   const pillBtns = document.querySelectorAll('.sync-pill-btn');
   pillBtns.forEach(b => b.classList.remove('active'));
 
   const pillMap = {
-    'suggested': 'pill-suggested',
+    'changed': 'pill-changed',
+    'new': 'pill-new',
     'all': 'pill-all',
     'matched': 'pill-matched',
     'blacklisted': 'pill-blacklisted'
   };
-  const activePill = document.getElementById(pillMap[filterName] || 'pill-suggested');
+  const activePill = document.getElementById(pillMap[filterName] || 'pill-changed');
   if (activePill) activePill.classList.add('active');
 
   clearSyncSelection();
@@ -2132,11 +2318,53 @@ function setupSyncScrollListener() {
   });
 }
 
-// 5. Senkronizasyon Tablosunu Çiz (Yüksek Performanslı Chunk Rendering)
+// 5. Senkronizasyon Tablosunu Çiz (Yüksek Performanslı Chunk Rendering & Dinamik Sütunlar)
+function updateSyncTableHeaders() {
+  const thBrand = document.getElementById('sync-th-brand');
+  const thCurrentTitle = document.getElementById('sync-th-current-title');
+  const thCurrentPrice = document.getElementById('sync-th-current-price');
+  const thExcelTitle = document.getElementById('sync-th-excel-title');
+  const thExcelPrice = document.getElementById('sync-th-excel-price');
+
+  if (activeSyncFilter === 'new') {
+    if (thBrand) thBrand.style.display = '';
+    if (thCurrentTitle) thCurrentTitle.style.display = 'none';
+    if (thCurrentPrice) thCurrentPrice.style.display = 'none';
+    if (thExcelTitle) thExcelTitle.style.width = '35%';
+    if (thExcelPrice) thExcelPrice.style.width = '14%';
+  } else {
+    if (thBrand) thBrand.style.display = 'none';
+    if (thCurrentTitle) thCurrentTitle.style.display = '';
+    if (thCurrentPrice) thCurrentPrice.style.display = '';
+    if (thExcelTitle) thExcelTitle.style.width = '25%';
+    if (thExcelPrice) thExcelPrice.style.width = '10%';
+  }
+}
+
+async function editNewProductBrand(barcode) {
+  const item = (currentSyncData && currentSyncData.new_products && currentSyncData.new_products.find(p => p.barcode === barcode))
+            || (filteredSyncItems && filteredSyncItems.find(p => p.barcode === barcode));
+  if (!item) return;
+
+  const currentBrand = item.brand || '';
+  const newBrand = await showCustomPrompt(
+    `'${item.excel_title}' ürünü için marka girin veya seçin:`,
+    currentBrand || "ÜLKER",
+    "🏷️ Marka Belirle"
+  );
+  if (newBrand === null) return;
+
+  item.brand = (newBrand.trim().toUpperCase()) || 'DİĞER';
+  item.brand_detected = item.brand !== 'DİĞER' && item.brand !== '';
+  showToast(`✓ '${item.excel_title}' markası '${item.brand}' olarak ayarlandı.`, "success");
+  renderSyncTable(true);
+}
+
 function renderSyncTable(reset = true) {
   const tbody = document.getElementById('sync-tbody');
   if (!tbody) return;
 
+  updateSyncTableHeaders();
   setupSyncScrollListener();
 
   if (!currentSyncData) {
@@ -2149,7 +2377,6 @@ function renderSyncTable(reset = true) {
     // 1. Aktif filtreye göre ürün havuzunu topla
     let rawList = [];
     if (activeSyncFilter === 'suggested') {
-      // Fiyatı Değişenler + Yeni Ürünler (Etiket Basılması Önerilenler!)
       rawList = [
         ...(currentSyncData.changed_prices || []),
         ...(currentSyncData.new_products || [])
@@ -2163,7 +2390,6 @@ function renderSyncTable(reset = true) {
     } else if (activeSyncFilter === 'blacklisted') {
       rawList = currentSyncData.blacklisted_items || [];
     } else {
-      // 'all' -> Hepsini birleştir (Fiyatı değişenler en başta, sonra yeniler, sonra diğerleri)
       rawList = [
         ...(currentSyncData.changed_prices || []),
         ...(currentSyncData.new_products || []),
@@ -2180,7 +2406,8 @@ function renderSyncTable(reset = true) {
         const b = (item.barcode || '').toLowerCase();
         const t1 = normalizeTurkish(item.excel_title || '');
         const t2 = normalizeTurkish(item.current_title || '');
-        const combined = `${b} ${t1} ${t2}`;
+        const br = normalizeTurkish(item.brand || '');
+        const combined = `${b} ${t1} ${t2} ${br}`;
         return words.every(w => combined.includes(w));
       });
     } else {
@@ -2190,13 +2417,16 @@ function renderSyncTable(reset = true) {
     tbody.innerHTML = '';
   }
 
+  const isNewTab = activeSyncFilter === 'new';
+  const totalCols = isNewTab ? 7 : 8;
+
   if (filteredSyncItems.length === 0) {
     let emptyMsg = "Eşleşen kayıt bulunamadı.";
     if (activeSyncFilter === 'changed') emptyMsg = "🎉 Harika! Fiyatı değişen ürün bulunmuyor, tüm raf etiketleri güncel.";
     else if (activeSyncFilter === 'new') emptyMsg = "✨ Yeni eklenen ürün bulunmuyor.";
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px;">
+        <td colspan="${totalCols}" style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px;">
           ${emptyMsg}
         </td>
       </tr>
@@ -2223,44 +2453,77 @@ function renderSyncTable(reset = true) {
 
     if (isBlack) {
       statusBadge = `<span class="badge-sync-status blacklisted">🚫 Kara Liste</span>`;
-      actionBtn = `<button class="btn-sm btn-secondary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); printProductFromCatalog('${item.barcode}')">🏷️ Bas</button>`;
+      actionBtn = `<span style="color: var(--text-muted); font-size:11px; font-weight:600;">Engellendi</span>`;
     } else if (item.status === 'changed') {
       const isUp = (item.diff_amount || 0) > 0;
       const diffBadge = `<span class="price-diff-badge ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${item.diff_amount} TL (${item.diff_percent}%)</span>`;
       statusBadge = `<span class="badge-sync-status changed">⚠️ Fiyat Değişti</span>${diffBadge}`;
       actionBtn = `
-        <button class="btn-sm btn-primary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); syncSingleItemPrice('${item.barcode}', '${item.excel_price}')" title="Fiyatı güncelle ve etiket tasarımcısına al">
-          🏷️ Güncelle & Bas
+        <button class="btn-sm btn-secondary" style="font-size:11px; padding:4px 10px; font-weight:700;" onclick="event.stopPropagation(); syncSingleItemPriceOnly('${item.barcode}', '${item.excel_price}')" title="Bu fiyatı kataloğa aktar">
+          💾 Güncelle
         </button>
       `;
     } else if (item.status === 'new') {
       statusBadge = `<span class="badge-sync-status new">✨ Yeni Ürün</span>`;
+      const brandVal = (item.brand || 'DİĞER').replace(/'/g, "\\'");
       actionBtn = `
-        <button class="btn-sm btn-primary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); syncSingleItemNew('${item.barcode}', '${item.excel_price}', '${(item.excel_title || '').replace(/'/g, "\\'")}')" title="Stoğa ekle ve etiket bas">
-          ➕ Stoğa Ekle & Bas
+        <button class="btn-sm btn-primary" style="font-size:11px; padding:4px 10px; font-weight:700;" onclick="event.stopPropagation(); syncSingleItemNewOnly('${item.barcode}', '${item.excel_price}', '${(item.excel_title || '').replace(/'/g, "\\'")}', '${brandVal}')" title="Stoğa yeni ürün olarak ekle">
+          ➕ Stoğa Ekle
         </button>
       `;
     } else {
       statusBadge = `<span class="badge-sync-status matched">✅ Uyumlu</span>`;
-      actionBtn = `
-        <button class="btn-sm btn-secondary" style="font-size:11px; padding:3px 8px;" onclick="event.stopPropagation(); printProductFromCatalog('${item.barcode}')">
-          🏷️ Bas
-        </button>
-      `;
+      actionBtn = `<span style="color: #34d399; font-size:11px; font-weight:700;">✓ Güncel</span>`;
     }
 
-    tr.innerHTML = `
-      <td style="text-align: center;">
-        <input type="checkbox" class="sync-row-chk" data-barcode="${item.barcode}" ${isSelected ? 'checked' : ''} onchange="onSyncCheckboxChange('${item.barcode}', this.checked, event)">
-      </td>
-      <td><span class="barcode-text">${item.barcode}</span></td>
-      <td style="color: var(--text-muted); font-size:11.5px;">${item.excel_title || item.current_title || '-'}</td>
-      <td style="font-weight: 700; color: var(--text-main);">${item.current_title || item.excel_title || '-'}</td>
-      <td style="text-align: right; color: var(--text-muted);">${item.current_price || '-'}</td>
-      <td style="text-align: right; font-weight: 800; color: #38bdf8;">${item.excel_price || '-'}</td>
-      <td style="text-align: center;">${statusBadge}</td>
-      <td style="text-align: center;">${actionBtn}</td>
-    `;
+    if (isNewTab) {
+      // YENİ ÜRÜNLER ÖZEL GÖRÜNÜMÜ: Marka sütunu var, Etiket Adı ve Raf Fiyatı gizli
+      const hasBrand = Boolean(item.brand && item.brand !== 'DİĞER' && item.brand.trim() !== '');
+      let brandCell = "";
+      if (hasBrand) {
+        brandCell = `
+          <div style="display:flex; align-items:center; gap:5px;">
+            <span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">${item.brand}</span>
+            <button class="btn-sm btn-secondary" onclick="event.stopPropagation(); editNewProductBrand('${item.barcode}')" style="padding:1px 5px; font-size:10px; opacity:0.75;" title="Markayı Düzenle">✏️</button>
+          </div>
+        `;
+      } else {
+        brandCell = `
+          <button class="btn-sm" onclick="event.stopPropagation(); editNewProductBrand('${item.barcode}')" style="background:rgba(245,158,11,0.2); color:#f59e0b; border:1px solid #f59e0b; padding:3px 8px; font-size:11px; font-weight:800; border-radius:6px; cursor:pointer;" title="Marka tespit edilemedi, belirlemek için tıklayın">
+            ⚠️ Marka Seçin ▾
+          </button>
+        `;
+      }
+
+      tr.innerHTML = `
+        <td style="text-align: center;">
+          <input type="checkbox" class="sync-row-chk" data-barcode="${item.barcode}" ${isSelected ? 'checked' : ''} onchange="onSyncCheckboxChange('${item.barcode}', this.checked, event)">
+        </td>
+        <td><span class="barcode-text">${formatBarcodeDisplay(item.barcode)}</span></td>
+        <td>${brandCell}</td>
+        <td style="font-weight: 700; color: var(--text-main); font-size:12.5px;">${item.excel_title || '-'}</td>
+        <td style="text-align: right; font-weight: 800; color: #38bdf8;">${item.excel_price || '-'}</td>
+        <td style="text-align: center;">${statusBadge}</td>
+        <td style="text-align: center;">${actionBtn}</td>
+      `;
+    } else {
+      // STANDART GÖRÜNÜM
+      const currentTitleDisplay = (item.current_title && item.current_title !== '-') ? item.current_title : '-';
+      const currentTitleStyle = (item.current_title && item.current_title !== '-') ? 'font-weight: 700; color: var(--text-main);' : 'color: var(--text-muted); font-style: italic;';
+
+      tr.innerHTML = `
+        <td style="text-align: center;">
+          <input type="checkbox" class="sync-row-chk" data-barcode="${item.barcode}" ${isSelected ? 'checked' : ''} onchange="onSyncCheckboxChange('${item.barcode}', this.checked, event)">
+        </td>
+        <td><span class="barcode-text">${formatBarcodeDisplay(item.barcode)}</span></td>
+        <td style="color: var(--text-muted); font-size:11.5px;">${item.excel_title || '-'}</td>
+        <td style="${currentTitleStyle}">${currentTitleDisplay}</td>
+        <td style="text-align: right; color: var(--text-muted);">${item.current_price || '-'}</td>
+        <td style="text-align: right; font-weight: 800; color: #38bdf8;">${item.excel_price || '-'}</td>
+        <td style="text-align: center;">${statusBadge}</td>
+        <td style="text-align: center;">${actionBtn}</td>
+      `;
+    }
 
     fragment.appendChild(tr);
   });
@@ -2334,12 +2597,13 @@ function openSyncProductDetailModal(barcode) {
   if (!modal) return;
 
   modal.style.display = 'flex';
-  document.getElementById('sync-detail-title').innerText = item.current_title || item.title || item.excel_title || "Ürün Detayı";
+  const hasValidCurrentTitle = item.current_title && item.current_title !== '-';
+  document.getElementById('sync-detail-title').innerText = hasValidCurrentTitle ? item.current_title : (item.excel_title || item.title || "Ürün Detayı");
   document.getElementById('sync-detail-barcode').innerText = item.barcode;
   document.getElementById('sync-detail-current-price').innerText = item.current_price || item.price || "-";
   document.getElementById('sync-detail-excel-price').innerText = item.excel_price || item.price || "-";
   document.getElementById('sync-detail-excel-title').innerText = item.excel_title || "-";
-  document.getElementById('sync-detail-current-title').innerText = item.current_title || item.title || item.title1 || "-";
+  document.getElementById('sync-detail-current-title').innerText = hasValidCurrentTitle ? item.current_title : "-";
   document.getElementById('sync-detail-brand').innerText = item.brand || "DİĞER";
 
   let statusText = "✅ Fiyat Uyumlu";
@@ -2372,6 +2636,35 @@ function openSyncProductDetailModal(barcode) {
 function closeSyncProductDetailModal() {
   const modal = document.getElementById('modal-sync-product-detail');
   if (modal) modal.style.display = 'none';
+}
+
+function loadProductToDesigner(barcode) {
+  const item = (filteredSyncItems && filteredSyncItems.find(p => p.barcode === barcode)) 
+            || (allCatalogProducts && allCatalogProducts.find(p => p.barcode === barcode));
+  if (!item) {
+    showToast("Ürün bilgisi bulunamadı.", "error");
+    return;
+  }
+
+  const fullTitle = (item.current_title && item.current_title !== '-') 
+                  ? item.current_title 
+                  : (item.excel_title || item.title || item.title1 || '');
+  const price = item.excel_price || item.current_price || item.price || '';
+  const brand = item.brand || 'YARENLER';
+
+  selectProductFromStock({
+    barcode: item.barcode,
+    title: fullTitle,
+    price: price,
+    brand: brand,
+    origin: item.origin || 'TÜRKİYE',
+    date: item.date
+  });
+
+  updatePreviewLive();
+  renderBarcode();
+  switchTab('tab-print');
+  showToast(`🎨 '${fullTitle}' etiket tasarımcısına aktarıldı.`, "info");
 }
 
 async function submitSingleBlacklist(barcode, title) {
@@ -2500,7 +2793,7 @@ function updateSyncRowSelections() {
 }
 
 // 7. Tekli İşlemler
-async function syncSingleItemPrice(barcode, newPrice) {
+async function syncSingleItemPriceOnly(barcode, newPrice) {
   try {
     const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
       method: 'POST',
@@ -2512,10 +2805,9 @@ async function syncSingleItemPrice(barcode, newPrice) {
     });
     const result = await res.json();
     if (result.status === 'success') {
-      showToast("✓ Fiyat güncellendi. Tasarımcıya aktarılıyor...", "success");
+      showToast("✓ Fiyat güncellendi. Ürün '⚠️ Güncel Değil' olarak işaretlendi.", "success");
       await loadCatalog();
       await loadSyncStatus();
-      printProductFromCatalog(barcode);
     } else {
       showToast(`❌ Hata: ${result.message}`, "error");
     }
@@ -2524,24 +2816,198 @@ async function syncSingleItemPrice(barcode, newPrice) {
   }
 }
 
-async function syncSingleItemNew(barcode, newPrice, excelTitle) {
+async function syncSingleItemNewOnly(barcode, newPrice, excelTitle, brand) {
   try {
     const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: "add_new_products",
-        items: [{ barcode: barcode, new_price: newPrice, excel_title: excelTitle }]
+        items: [{ barcode: barcode, new_price: newPrice, excel_title: excelTitle, brand: brand || 'DİĞER' }]
       })
     });
     const result = await res.json();
     if (result.status === 'success') {
-      showToast("✓ Yeni ürün stoğa eklendi. Tasarımcıya aktarılıyor...", "success");
+      showToast("✓ Yeni ürün kataloğa eklendi. 'Ürün Kataloğu' sekmesinden etiket basabilirsiniz.", "success");
       await loadCatalog();
       await loadSyncStatus();
-      printProductFromCatalog(barcode);
     } else {
       showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+async function applyAllChangedPricesFromSync() {
+  if (!currentSyncData || !currentSyncData.changed_prices || currentSyncData.changed_prices.length === 0) {
+    showToast("Uygulanacak fiyat değişikliği bulunamadı.", "info");
+    return;
+  }
+
+  const count = currentSyncData.changed_prices.length;
+  const ok = await showCustomConfirm(
+    `Stok dosyasındaki toplam ${count} adet fiyat değişikliği ürün kataloğuna uygulanacaktır.\n\nHenüz baskı alınmayan bu ürünler katalogda '⚠️ Güncel Değil' olarak işaretlenecektir. Onaylıyor musunuz?`,
+    "Tüm Fiyatları Güncelle",
+    "Fiyatları Güncelle",
+    "Vazgeç",
+    "⚡"
+  );
+  if (!ok) return;
+
+  const itemsToApply = currentSyncData.changed_prices.map(item => ({
+    barcode: item.barcode,
+    new_price: item.excel_price,
+    excel_title: item.excel_title,
+    current_title: item.current_title
+  }));
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/apply-sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: "sync_all",
+        items: itemsToApply
+      })
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      showToast(`✅ ${result.message}`, "success");
+      await loadCatalog();
+      await loadSyncStatus();
+    } else {
+      showToast(`❌ Hata: ${result.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+// --- YEDEK YÖNETİMİ & GERİ YÜKLEME SİSTEMİ (TAB-BACKUPS) ---
+async function loadBackupsList(isManual = false) {
+  const tbody = document.getElementById('backups-tbody');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/list`);
+    const data = await res.json();
+    if (data.status === 'success' && data.backups) {
+      if (data.backups.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted);">
+              Henüz kayıtlı bir veritabanı yedeği bulunmuyor.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      data.backups.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: #38bdf8;">🕒 ${b.date}</td>
+          <td style="font-weight: 600; color: var(--text-main);">${b.reason}</td>
+          <td style="font-family: monospace; color: var(--text-muted); font-size: 11.5px;">${b.filename}</td>
+          <td style="text-align: right; color: var(--text-muted); font-weight: 600;">${b.size}</td>
+          <td style="text-align: center;">
+            <button class="btn-sm btn-secondary btn-rollback" onclick="restoreBackup('${b.filename}')" title="Bu tarihteki veritabanı haline geri dön" style="padding: 4px 10px; font-size: 11px;">
+              ↺ Geri Yükle
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (isManual) {
+        showToast("✓ Yedek listesi güncellendi.", "info");
+      }
+    }
+  } catch (e) {
+    console.error("Yedekler yüklenemedi:", e);
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444; padding:20px;">Yedekler yüklenirken hata oluştu.</td></tr>`;
+  }
+}
+
+async function createManualBackup() {
+  const reason = await showCustomPrompt("Yedekleme için bir açıklama / not girin:", "Manuel Kullanıcı Yedeği", "➕ Yeni Güvenli Yedek Al");
+  if (reason === null) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: (reason && reason.trim()) || "Manuel Kullanıcı Yedeği" })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(`✅ ${data.message}`, "success");
+      loadBackupsList();
+    } else {
+      showToast(`❌ Hata: ${data.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+async function restoreBackup(filename) {
+  if (!filename) return;
+  const ok = await showCustomConfirm(
+    `'${filename}' yedeğindeki veritabanı geri yüklenecektir.\n\nMevcut veritabanınız bu tarihteki haline dönecektir. Devam etmek istiyor musunuz?`,
+    "Veritabanı Geri Yükleme",
+    "Geri Yükle",
+    "Vazgeç",
+    "↺"
+  );
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/restore`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: filename })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(`✅ ${data.message}`, "success");
+      await loadCatalog();
+      await loadSyncStatus();
+      await loadBackupsList();
+    } else {
+      showToast(`❌ Hata: ${data.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
+  }
+}
+
+async function rollbackLatestBackup() {
+  const ok = await showCustomConfirm(
+    "Son işlemi geri alıp bir önceki güvenlik yedeğine dönmek istediğinize emin misiniz?",
+    "Son İşlemi Geri Al",
+    "Evet, Geri Al",
+    "Vazgeç",
+    "↺"
+  );
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/backup/rollback-latest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(`✅ ${data.message}`, "success");
+      await loadCatalog();
+      await loadSyncStatus();
+      await loadBackupsList();
+    } else {
+      showToast(`❌ Hata: ${data.message}`, "error");
     }
   } catch (e) {
     showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
@@ -3092,26 +3558,44 @@ async function openExcelHistoryModal() {
       listEl.innerHTML = '';
       data.history.forEach(item => {
         const row = document.createElement('div');
-        row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#090d16; border:1px solid var(--border-color); border-radius:8px;';
+        row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:#090d16; border:1px solid var(--border-color); border-radius:10px; gap:12px;';
         
         const isLatest = item.is_latest;
         const statusBadge = isLatest 
           ? '<span style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4); padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">🟢 Aktif (En Güncel)</span>'
-          : '<span style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3); padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700;">🔒 Arşiv (Salt Okunur)</span>';
+          : '<span style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3); padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700;">🔒 Arşiv</span>';
+
+        const stats = item.stats || {};
+        const totalRows = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
+        const changedCount = (stats.changed_count || 0).toLocaleString('tr-TR');
+        const newCount = (stats.new_count || 0).toLocaleString('tr-TR');
+        const matchedCount = (stats.matched_count || 0).toLocaleString('tr-TR');
+        const blackCount = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
 
         row.innerHTML = `
-          <div style="display:flex; flex-direction:column; gap:3px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <strong style="color:var(--text-main); font-size:13px;">📄 ${item.filename}</strong>
+          <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong style="color:var(--text-main); font-size:13px;">📅 ${item.date} Yüklemesi</strong>
+              <span style="font-size:11px; color:var(--text-muted);">(${item.size})</span>
               ${statusBadge}
             </div>
-            <div style="font-size:11.5px; color:var(--text-muted);">
-              📅 Yükleme: <strong>${item.date}</strong> &bull; Boyut: ${item.size}
+            <div style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">
+              📦 Toplam <b>${totalRows}</b> ürün &bull; 
+              ⚠️ Fiyatı Farklı: <b style="color:#f59e0b;">${changedCount}</b> &bull; 
+              ✨ Yeni: <b style="color:#38bdf8;">${newCount}</b> &bull; 
+              ✅ Aynı: <b style="color:#10b981;">${matchedCount}</b> &bull; 
+              🚫 Kara Liste: <b style="color:#ef4444;">${blackCount}</b>
             </div>
           </div>
-          <div>
-            <button class="btn-sm btn-secondary" onclick="openExcelDetailModal('${item.filename}')" style="font-size:11.5px; padding:4px 10px;">
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <a href="${API_BASE}/api/catalog/excel-download/${encodeURIComponent(item.filename)}" class="btn-sm btn-secondary" style="font-size:11px; padding:5px 10px; display:inline-flex; align-items:center; gap:4px; text-decoration:none;" title="Excel/CSV dosyasını bilgisayarına indir">
+              📥 İndir
+            </a>
+            <button class="btn-sm btn-secondary" onclick="openExcelDetailModal('${item.filename}')" style="font-size:11px; padding:5px 10px;" title="Dosyadaki ürünleri ve fiyat farklarını detaylı incele">
               🔍 İncele
+            </button>
+            <button class="btn-sm btn-secondary" onclick="deleteExcelArchive('${item.filename}', ${isLatest})" style="font-size:11px; padding:5px 8px; color:#ef4444; border-color:rgba(239,68,68,0.4);" title="Bu arşiv dosyasını sil">
+              🗑️ Sil
             </button>
           </div>
         `;
@@ -3122,6 +3606,33 @@ async function openExcelHistoryModal() {
     }
   } catch(e) {
     listEl.innerHTML = `<div style="text-align:center; padding:20px; color:#ef4444;">Hata: ${e.message}</div>`;
+  }
+}
+
+async function deleteExcelArchive(filename, isLatest) {
+  let msg = `Bu arşiv dosyasını silmek istediğinize emin misiniz?`;
+  if (isLatest) {
+    msg = `⚠️ DİKKAT: Bu dosya şu anda sistemdeki EN GÜNCEL aktif stok dosyasıdır!\n\nSilerseniz sistem bir önceki arşiv dosyasına dönecektir. Onaylıyor musunuz?`;
+  }
+  const ok = await showCustomConfirm(msg, "Dosyayı Sil", "Evet, Sil", "Vazgeç", "🗑️");
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/excel-delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: filename })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast("✓ Dosya başarıyla silindi.", "success");
+      await openExcelHistoryModal();
+      await loadSyncStatus(true);
+    } else {
+      showToast(`❌ Hata: ${data.message}`, "error");
+    }
+  } catch (e) {
+    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
   }
 }
 
