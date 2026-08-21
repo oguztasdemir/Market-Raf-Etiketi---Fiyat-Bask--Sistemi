@@ -42,6 +42,90 @@ body.app-layout {
   flex-direction: column;
   flex-shrink: 0;
   z-index: 100;
+  position: relative;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ortadaki Daraltma/Genişletme Butonu */
+.sidebar-toggle-btn {
+  position: absolute;
+  right: -13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  background: #1e293b;
+  border: 1.5px solid #38bdf8;
+  border-radius: 50%;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 150;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle-btn:hover {
+  background: #38bdf8;
+  color: #090d16;
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
+}
+
+/* Daraltılmış Mini Sidebar (İkon Modu) */
+.app-sidebar.collapsed {
+  width: 68px;
+}
+
+.app-sidebar.collapsed .sidebar-logo {
+  padding: 20px 8px;
+  justify-content: center;
+}
+
+.app-sidebar.collapsed .logo-text {
+  display: none;
+}
+
+.app-sidebar.collapsed .sidebar-nav {
+  padding: 16px 8px;
+}
+
+.app-sidebar.collapsed .nav-item {
+  padding: 12px 0;
+  justify-content: center;
+  gap: 0;
+}
+
+.app-sidebar.collapsed .nav-label {
+  display: none;
+}
+
+.app-sidebar.collapsed .nav-icon {
+  font-size: 20px;
+}
+
+.app-sidebar.collapsed .sidebar-footer {
+  padding: 10px 6px;
+}
+
+.app-sidebar.collapsed .device-status-card {
+  padding: 8px 0;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
+
+.app-sidebar.collapsed .status-info {
+  display: none;
+}
+
+.app-sidebar.collapsed .status-dot {
+  width: 10px;
+  height: 10px;
 }
 
 .sidebar-logo {
@@ -50,6 +134,7 @@ body.app-layout {
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid var(--border-color);
+  transition: padding 0.25s ease;
 }
 
 .logo-icon {
@@ -155,6 +240,7 @@ body.app-layout {
    ========================================= */
 .app-content-wrapper {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -581,6 +667,14 @@ input:focus, select:focus {
   line-height: 1.18;
   letter-spacing: -0.2px;
   text-transform: uppercase;
+}
+
+.ml-title-line1.single-line-big {
+  font-size: 15.5px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  padding: 2.5px 0;
 }
 
 .ml-title-line2 {
@@ -1260,8 +1354,8 @@ input:focus, select:focus {
   padding: 8px 14px;
   background: #0d1527;
   border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-  flex-shrink: 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
 
 .catalog-title-inline {
@@ -1478,6 +1572,7 @@ input:focus, select:focus {
 
 .catalog-table {
   width: 100%;
+  min-width: 900px;
   table-layout: fixed;
   border-collapse: collapse;
   text-align: left;
@@ -1531,28 +1626,66 @@ input:focus, select:focus {
 }
 
 /* Satır Tıklama ve Seçim */
-.catalog-table tr {
+.catalog-table tr, .sync-table tr {
   cursor: pointer;
   user-select: none;
 }
 
-.catalog-row-chk, #catalog-select-all-chk {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #0284c7;
-  vertical-align: middle;
+/* Sol Kare Seçim Sütunu */
+.td-select-col {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  text-align: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  vertical-align: middle !important;
+}
+
+.custom-select-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  color: transparent;
+  font-size: 13px;
+  font-weight: 900;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.td-select-col:hover .custom-select-square {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  transform: scale(1.08);
+}
+
+tr.selected-row .custom-select-square, .custom-select-square.active-checked {
+  background: #0284c7 !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.custom-select-square.indeterminate-checked {
+  background: rgba(2, 132, 199, 0.6) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
 }
 
 /* Seçili Satır Vurgusu */
-.catalog-table tr.selected-row td {
+.catalog-table tr.selected-row td, .sync-table tr.selected-row td {
   background: rgba(56, 189, 248, 0.2) !important;
   border-top-color: #38bdf8;
   border-bottom-color: #38bdf8;
   color: #ffffff;
 }
 
-.catalog-table tr.selected-row:hover td {
+.catalog-table tr.selected-row:hover td, .sync-table tr.selected-row:hover td {
   background: rgba(56, 189, 248, 0.32) !important;
 }
 
@@ -2390,7 +2523,7 @@ body.light-theme .link-copy-row input {
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   flex: 1;
   width: 100%;
   min-height: 0;
@@ -2399,6 +2532,7 @@ body.light-theme .link-copy-row input {
 
 .sync-table {
   width: 100%;
+  min-width: 850px;
   table-layout: fixed;
   border-collapse: collapse;
 }
@@ -2526,6 +2660,14 @@ body.light-theme .link-copy-row input {
 .backups-table-wrapper {
   flex: 1;
   overflow-y: auto;
+  overflow-x: auto;
+}
+
+.backups-table {
+  width: 100%;
+  min-width: 780px;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
 .btn-sync-all-apply {
@@ -2534,6 +2676,7 @@ body.light-theme .link-copy-row input {
   border: 1px solid #10b981 !important;
   font-weight: 800 !important;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  cursor: pointer !important;
 }
 
 .btn-sync-all-apply:hover {
@@ -2541,4 +2684,472 @@ body.light-theme .link-copy-row input {
   box-shadow: 0 3px 12px rgba(16, 185, 129, 0.5);
   transform: translateY(-1px);
 }
+
+/* =========================================
+   EVRENSEL MODAL DİYALOG VE PENCERE DÜZENİ
+   ========================================= */
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(4, 8, 16, 0.88) !important;
+  backdrop-filter: blur(8px) !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+}
+
+.modal-card {
+  background: #0d1527 !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+  position: relative !important;
+  margin: auto !important;
+  animation: modalScaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes modalScaleUp {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================
+   İNCE VE ŞIK EVRENSEL SCROLLBAR & TABLO GÜVENLİĞİ
+   ========================================= */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+.table-action-group {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* =========================================
+   KATALOG GELİŞMİŞ DÜZENLEME & TOPLU İŞLEM STİLLERİ
+   ========================================= */
+
+/* Filtreleri Sıfırla Butonu */
+.btn-catalog-reset {
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-catalog-reset:hover {
+  background: rgba(148, 163, 184, 0.25);
+  color: #ffffff;
+  border-color: #94a3b8;
+}
+
+/* Manuel Düzenlemeler Açılır Menü */
+.manual-edit-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-quick-edit-toggle {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.btn-quick-edit-toggle:hover, .btn-quick-edit-toggle.active {
+  background: #f59e0b;
+  color: #090d16;
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-quick-edit-exit {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  animation: batchSlideDown 0.15s ease-out;
+}
+
+.btn-quick-edit-exit:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.quick-edit-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 230px;
+  background: #0f172a;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  padding: 6px;
+  z-index: 1000;
+  animation: batchSlideDown 0.15s ease-out;
+}
+
+.quick-edit-menu-item {
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-edit-menu-item:hover {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.quick-edit-menu-item.active {
+  background: #f59e0b;
+  color: #0f172a;
+}
+
+.quick-edit-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
+}
+
+.quick-edit-menu-item.item-off {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.quick-edit-menu-item.item-off:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* Batch Bar Aksiyon Butonları */
+.btn-batch-action {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-batch-price-btn {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.btn-batch-price-btn:hover {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-batch-brand-btn {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.btn-batch-brand-btn:hover {
+  background: #a855f7;
+  color: #ffffff;
+}
+
+.btn-batch-blacklist-btn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.btn-batch-blacklist-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Toplu Fiyat 2 Sütunlu Grid */
+.batch-price-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 16px;
+}
+
+.batch-price-left-col {
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.batch-price-scroll-list {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.batch-price-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #131b2e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+}
+
+.batch-price-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 65%;
+}
+
+.batch-price-item-title {
+  font-weight: 700;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.batch-price-item-barcode {
+  font-size: 10px;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.batch-price-item-old-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.batch-price-item-new-price {
+  font-size: 12px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.batch-price-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.batch-price-control-box {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.batch-price-big-input {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 800;
+  color: #38bdf8;
+  padding: 8px 12px;
+  background: #090d16;
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.batch-price-summary-box {
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* =========================================
+   ARAMALI FİRMA / MARKA DROPDOWN STİLLERİ
+   ========================================= */
+.searchable-brand-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.brand-dropdown-btn {
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 180px;
+  max-width: 240px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-dropdown-btn:hover, .brand-dropdown-btn.active {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+}
+
+.brand-dropdown-popup {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 290px;
+  max-width: 90vw;
+  background: #0f172a;
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+  padding: 8px;
+  z-index: 1050;
+  animation: batchSlideDown 0.15s ease-out;
+}
+
+.brand-dropdown-search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.brand-dropdown-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  outline: none;
+  font-weight: 600;
+}
+
+.brand-search-clear-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.brand-search-clear-btn:hover {
+  color: #f87171;
+}
+
+.brand-options-list {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 2px;
+}
+
+.brand-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.brand-option-item:hover {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+}
+
+.brand-option-item.selected {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.brand-option-count {
+  font-size: 11px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+
 

@@ -65,16 +65,17 @@ def print_raw_zpl(printer_name, zpl_code, doc_name="Market Raf Etiketi"):
     finally:
         win32print.ClosePrinter(hPrinter)
 
-def purge_printer_queue(printer_name):
-    """Yazıcı kuyruğundaki bekleyen tüm yazdırma işlerini iptal eder ve temizler."""
+def get_printer_status(printer_name):
+    """Yazıcının çevrimiçi/hata durumunu kontrol eder."""
     try:
-        hPrinter = win32print.OpenPrinter(printer_name, {"DesiredAccess": win32print.PRINTER_ALL_ACCESS})
+        hPrinter = win32print.OpenPrinter(printer_name)
         try:
-            win32print.SetPrinter(hPrinter, 0, None, win32print.PRINTER_CONTROL_PURGE)
-            return True
+            info = win32print.GetPrinter(hPrinter, 2)
+            status = info.get('Status', 0)
+            is_online = (status == 0)
+            return {"is_online": is_online, "status": "Hazır" if is_online else f"Durum Kodu: {status}"}
         finally:
             win32print.ClosePrinter(hPrinter)
-    except Exception as e:
-        print(f"Kuyruk temizleme hatası: {e}")
-        return False
+    except Exception:
+        return {"is_online": True, "status": "Hazır"}
 

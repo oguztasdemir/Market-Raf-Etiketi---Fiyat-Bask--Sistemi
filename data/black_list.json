@@ -1306,5 +1306,565 @@
   {
     "barcode": "PINAR SÜT TAM YA?LI",
     "title": "PINAR SÜT TAM YAİLI 1 LT"
+  },
+  {
+    "barcode": "AV?AR 24LÜ SADE SODA",
+    "title": "SODA AVİAR SADE 24LÜ",
+    "reason": "Barkodda kelime/metin içerdiği için otomatik kara listeye alındı"
+  },
+  {
+    "barcode": "NESCAFE",
+    "title": "NESCAFE",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "ASASFAS",
+    "title": "ÇAYKUR BARDAK SÜZME ÇAY 25LI",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "AVŞAR SODA SADE 24LÜ",
+    "title": "SODA AVŞAR SADE 24LÜ",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "ÖZKAYNAK 10LT",
+    "title": "ÖZKAYNAK 10LT",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "000DENEME",
+    "title": "000DENEME",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "PINAR SÜT TAM YAĞLI 1LT",
+    "title": "PINAR SÜT TAM YAĞLI 1LT",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "VADE FARKI6",
+    "title": "nan",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "Ürün Barkodunu Okutunuz!8682287364437",
+    "title": "BİZİM MUTFAK ÇİKOLATALI SOS 98 GR",
+    "reason": "Excel dosyasında barkod alanında kelime/metin içerdiği için kara listeye eklendi"
+  },
+  {
+    "barcode": "86835080856131223",
+    "title": "ÜLKER ALBENİ CAPPUCİNO 36 GR",
+    "reason": "17 Haneli Bozuk / Çift Barkod"
+  },
+  {
+    "barcode": "86835080856131200",
+    "title": "ÜÜÜLKER ALBEN CAPPUCİNO 36 GR",
+    "reason": "17 Haneli Bozuk Barkod"
+  },
+  {
+    "barcode": "86976950294348697695029861",
+    "title": "BEYŞEHİR SÜZME ÇİÇEK BALI MATARA",
+    "reason": "26 Haneli Yapışık EAN-13 Barkod"
+  },
+  {
+    "barcode": "86976950294348600000000000",
+    "title": "BEYİEHİR SÜZME ÇİÇEK BALI MATARA",
+    "reason": "26 Haneli Bozuk Sıfırlı Barkod"
+  },
+  {
+    "barcode": "1261800630610009",
+    "title": "OYUNCAK MANTAR MERMİ",
+    "reason": "16 Haneli Standart Dışı Barkod"
+  },
+  {
+    "barcode": "1261800630610000",
+    "title": "OYUNCAK MANTAR MERM",
+    "reason": "16 Haneli Bozuk Seri Barkod"
+  },
+  {
+    "barcode": "1234567890135",
+    "title": "SİGARA MENTOLÜ",
+    "reason": "Test / Sahte Sıralı Barkod (123456...)"
+  },
+  {
+    "barcode": "86938198",
+    "title": "SİGARA CHESTERFIELD MODE NAVY BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86935401",
+    "title": "SİGARA CHESTERFIELD NAVY BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86935999",
+    "title": "SİGARA CHESTERFIELD NAVY BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86932516",
+    "title": "SİGARA LARK BLUE UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86931854",
+    "title": "SİGARA LARK MAVI KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86919937",
+    "title": "SİGARA LM RED LABEL",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86935012",
+    "title": "SİGARA LM RED LABEL LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941907",
+    "title": "SİGARA MARLBORO EDGE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937757",
+    "title": "SİGARA MARLBORO EDGE BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937764",
+    "title": "SİGARA MARLBORO EDGE SKY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86944052",
+    "title": "SİGARA MARLBORO EDGE SLİMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86912464",
+    "title": "SİGARA MARLBORO RED KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86912440",
+    "title": "SİGARA MARLBORO RED LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86916240",
+    "title": "SİGARA MARLBORO TOUCH",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86935241",
+    "title": "SİGARA MARLBORO TOUCH BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86935258",
+    "title": "SİGARA MARLBORO TOUCH GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941914",
+    "title": "SİGARA MARLBORO TOUCH WHITE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86936491",
+    "title": "SİGARA MURATTI BLU",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86918725",
+    "title": "SİGARA MURATTI ROSSO",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86919951",
+    "title": "SİGARA PARLIAMENT AQUA BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86933797",
+    "title": "SİGARA PARLIAMENT AQUA BLUE SLIMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940610",
+    "title": "SİGARA PARLIAMENT MIDNIGHT BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86918091",
+    "title": "SİGARA PARLIAMENT NIGHT BLUE -- KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86912488",
+    "title": "SİGARA PARLIAMENT NIGHT BLUE PACK -- UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86931465",
+    "title": "SİGARA PARLIAMENT RESERVE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86939584",
+    "title": "S.LD LODOS DENIZCISI BLUE UZUN KUTU",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86932936",
+    "title": "SİGARA CAMEL BLACK",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937832",
+    "title": "SİGARA CAMEL BROWN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86933261",
+    "title": "SİGARA CAMEL DEEP BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937337",
+    "title": "SİGARA CAMEL SLENDER BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937344",
+    "title": "SİGARA CAMEL SLENDER GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940337",
+    "title": "SİGARA CAMEL SLENDER GRAY LINE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86933001",
+    "title": "SİGARA CAMEL WHITE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941198",
+    "title": "SİGARA CAMEL YELLOW KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941204",
+    "title": "SİGARA CAMEL YELLOW KISA SOFT",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941211",
+    "title": "SİGARA CAMEL YELLOW UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86932035",
+    "title": "SİGARA LD KISA BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86939577",
+    "title": "SİGARA LD RED LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86932356",
+    "title": "SİGARA LD SLİMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940450",
+    "title": "SİGARA MONTE CARLO DARK BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940412",
+    "title": "SİGARA MONTE CARLO RED",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86939775",
+    "title": "SİGARA MONTE CARLO SLENDER DARK BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "40329574",
+    "title": "SİGARA WINSTON BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941334",
+    "title": "SİGARA WINSTON BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937870",
+    "title": "SİGARA WINSTON DARK BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937887",
+    "title": "SİGARA WINSTON DARK BLUE UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86937894",
+    "title": "SİGARA WINSTON DEEP BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941297",
+    "title": "SİGARA WINSTON RED",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941310",
+    "title": "SİGARA WINSTON RED LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86944335",
+    "title": "SİGARA WINSTON SLENDER BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86947398",
+    "title": "SİGARA WINSTON SLENDER Q LİNE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940573",
+    "title": "SİGARA WINSTON SLENDER BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940580",
+    "title": "SİGARA WINSTON SLENDER GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86944267",
+    "title": "SİGARA WINSTON SLIMS BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86944274",
+    "title": "SİGARA WINSTON SLIMS GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86944465",
+    "title": "SİGARA WINSTON SLİMS Q LİNE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940559",
+    "title": "SİGARA WINSTON XSENCE BLACK",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940566",
+    "title": "SİGARA WINSTON XSENCE GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941341",
+    "title": "WINSTON GRAY KISA BOX",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941938",
+    "title": "WINSTON SLENDER DARK BLUE SG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "4030600021453",
+    "title": "SİGARA WEST GR",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8698562472414",
+    "title": "SİGARA HD 99 KAT",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86938433",
+    "title": "SİGARA KENT BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86938440",
+    "title": "SİGARA KENT GREY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "4030600192030",
+    "title": "SİGARA WEST NAVY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86938457",
+    "title": "SİGARA KENT WHITE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "46089953",
+    "title": "SİGARA KENT SWITCH",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941402",
+    "title": "SİGARA VICEROY RED",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8684184790074",
+    "title": "SİGARA HD BLUE SLİMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941440",
+    "title": "SİGARA KENT DARK BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940726",
+    "title": "SİGARA KENT SLIMS GREY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "4030600023259",
+    "title": "SİGARA POLO SLIMS GREY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940719",
+    "title": "SİGARA KENT SLIMS BLACK",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8801116001392",
+    "title": "SİGARA ESSE BLACK SLIMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940672",
+    "title": "SİGARA KENT D RANGE BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940689",
+    "title": "SİGARA KENT D RANGE GREY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940849",
+    "title": "SİGARA VICEROY NAVY LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8684184790739",
+    "title": "SİGARA WİNNER BLUE SLİMS",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940740",
+    "title": "SİGARA ROTHMANS BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8684184790616",
+    "title": "SİGARA PRESİDENT SEA BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86942478",
+    "title": "SİGARA KENT DARK BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86934879",
+    "title": "SİGARA TEKEL 2001 RED KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "8801116032136",
+    "title": "SIGARA RAISON RESERVY GRAY",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940771",
+    "title": "SİGARA ROTHMANS D-RANGE BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940870",
+    "title": "SİGARA TEKEL 2000 MAVI KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941433",
+    "title": "SİGARA TEKEL 2001 MAVI UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940696",
+    "title": "SİGARA KENT D-RANGE BLUE LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940702",
+    "title": "SİGARA KENT D-RANGE GREY LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86942782",
+    "title": "SİGARA KENT SWITCH DARK BLUE",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940832",
+    "title": "SİGARA VICEROY NAVY KISA BOX",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940733",
+    "title": "SİGARA ROTHMANS BLUE KISA KUTU",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940856",
+    "title": "SİGARA TEKEL 2000 KIRMIZI KISA",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940863",
+    "title": "SİGARA TEKEL 2000 KIRMIZI UZUN",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940887",
+    "title": "SİGARA TEKEL 2000 MAVI UZUN KUTU",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86941426",
+    "title": "SİGARA TEKEL 2001 KISA MAVI KUTU",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
+  },
+  {
+    "barcode": "86940795",
+    "title": "SİGARA ROTHMANS D-RANGE BLACK LONG",
+    "reason": "Kullanıcı Toplu Seçimle Ekledi"
   }
 ]

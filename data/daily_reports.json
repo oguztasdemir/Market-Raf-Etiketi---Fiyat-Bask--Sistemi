@@ -1,0 +1,4506 @@
+{
+  "2026-08-20": {
+    "date_key": "2026-08-20",
+    "display_date": "20 Ağu 2026",
+    "total_catalog_products": 4792,
+    "stats": {
+      "mobile_price_changes": 7,
+      "pc_price_changes": 4,
+      "total_printed_barcodes": 326,
+      "mobile_printed_barcodes": 326,
+      "pc_printed_barcodes": 0
+    },
+    "price_changes": [
+      {
+        "time": "17:33",
+        "barcode": "8690558010020",
+        "title": "DİMES TETRA 1 LT ŞEFTALİ",
+        "old_price": "70,00 TL",
+        "new_price": "75,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558010013",
+        "title": "DİMES TETRA 1 LT KAYISI",
+        "old_price": "70,00 TL",
+        "new_price": "75,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558023921",
+        "title": "DİMES TETRA 1 LT EKSI ELMA",
+        "old_price": "70,00 TL",
+        "new_price": "75,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526696379",
+        "title": "ETİ SÜTBURGER YABAN MERSİNLİ",
+        "old_price": "20,00 TL",
+        "new_price": "30,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8692971433561",
+        "title": "İÇİM SÜZME PEYNİR 500 GR",
+        "old_price": "145,00 TL",
+        "new_price": "150,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:34",
+        "barcode": "7622202207143",
+        "title": "KENT JELİBON TURUNCU ŞEFTALİ",
+        "old_price": "70,00 TL",
+        "new_price": "60,00 TL",
+        "source": "PC"
+      },
+      {
+        "time": "16:34",
+        "barcode": "7622202207143",
+        "title": "KENT JELİBON TURUNCU ŞEFTALİ",
+        "old_price": "60,00 TL",
+        "new_price": "70,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:33",
+        "barcode": "7622202207143",
+        "title": "KENT JELİBON TURUNCU ŞEFTALİ",
+        "old_price": "50,00 TL",
+        "new_price": "60,00 TL",
+        "source": "PC"
+      },
+      {
+        "time": "16:30",
+        "barcode": "8698529301405",
+        "title": "SEYİTOGLU HELVA 175 GR FISTIKLI",
+        "old_price": "150,00 TL",
+        "new_price": "115,00 TL",
+        "source": "PC"
+      },
+      {
+        "time": "16:28",
+        "barcode": "8698529301405",
+        "title": "SEYİTOGLU HELVA 175 GR FISTIKLI",
+        "old_price": "110,00 TL",
+        "new_price": "150,00 TL",
+        "source": "PC"
+      },
+      {
+        "time": "16:27",
+        "barcode": "8698529301405",
+        "title": "SEYİTOGLU HELVA 175 GR FISTIKLI",
+        "old_price": "85,00 TL",
+        "new_price": "110,00 TL",
+        "source": "MOBILE"
+      }
+    ],
+    "printed_items": [
+      {
+        "time": "17:40",
+        "barcode": "54490000",
+        "title": "COCA COLA 200 ML SISE",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664560",
+        "title": "FANTA 330 ML PORTAKAL",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664478",
+        "title": "COCA COLA 330 KUTU 60",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664492",
+        "title": "COCA COLA 1 LT KOLA",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "8697520101014",
+        "title": "COLA TURKA 1 LT",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664881",
+        "title": "COCA COLA ZERO 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "8697520101083",
+        "title": "COLA TURKA 1.5 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112672039",
+        "title": "COCA COLA 1.5 LT KOLA",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112665116",
+        "title": "COCA COLA 2 LT KOLA",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664553",
+        "title": "COCA COLA 2,5 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "8697520101021",
+        "title": "COLA TURKA 2.5 LT",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112670288",
+        "title": "FANTA 2.5 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112664997",
+        "title": "SPRİTE 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112666427",
+        "title": "SCHWEPPES MANDARİN",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112665147",
+        "title": "FANTA 2 LT",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:40",
+        "barcode": "5000112666229",
+        "title": "FUSE TEA 1.5 LT KARPUZ",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5449000021588",
+        "title": "CAPPY 330 ML KUTU ŞEFTALİ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5061013944373",
+        "title": "MONSTERENERJİ İÇECEĞİ 500 ML",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5061013944465",
+        "title": "MONSTER ENERJİ İÇECEĞİ 500 ML ULTRA",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8690105014969",
+        "title": "DİDİ SOGUK ÇAY 330 ML ŞEFTALİ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5449000021601",
+        "title": "CAPPY 330 ML KUTU KAYISI",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5000112666090",
+        "title": "FUSE TEA 1 LT KARPUZ AROMALI",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8699878420762",
+        "title": "BUZDAĞI 1 LT",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5000112666175",
+        "title": "FUSE TEA 1 LT MANGO ANANAS",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5449000021588",
+        "title": "CAPPY 330 ML KUTU ŞEFTALİ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5061013944373",
+        "title": "MONSTERENERJİ İÇECEĞİ 500 ML",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5061013944465",
+        "title": "MONSTER ENERJİ İÇECEĞİ 500 ML ULTRA",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8690105014969",
+        "title": "DİDİ SOGUK ÇAY 330 ML ŞEFTALİ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5449000021601",
+        "title": "CAPPY 330 ML KUTU KAYISI",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5000112666090",
+        "title": "FUSE TEA 1 LT KARPUZ AROMALI",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8699878420762",
+        "title": "BUZDAĞI 1 LT",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:38",
+        "barcode": "5000112666175",
+        "title": "FUSE TEA 1 LT MANGO ANANAS",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:36",
+        "barcode": "8690558010020",
+        "title": "DİMES TETRA 1 LT ŞEFTALİ",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558010020",
+        "title": "DİMES TETRA 1 LT ŞEFTALİ",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558010020",
+        "title": "DİMES TETRA 1 LT ŞEFTALİ",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558010013",
+        "title": "DİMES TETRA 1 LT KAYISI",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:33",
+        "barcode": "8690558023921",
+        "title": "DİMES TETRA 1 LT EKSI ELMA",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:32",
+        "barcode": "8690558010020",
+        "title": "DİMES TETRA 1 LT ŞEFTALİ",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:32",
+        "barcode": "8690558010013",
+        "title": "DİMES TETRA 1 LT KAYISI",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:32",
+        "barcode": "8690558023921",
+        "title": "DİMES TETRA 1 LT EKSI ELMA",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:32",
+        "barcode": "8690767160042",
+        "title": "SÜTAŞ AYRAN 295 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:32",
+        "barcode": "8690767714450",
+        "title": "SÜTAŞ AYRAN 175 ML",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:31",
+        "barcode": "8690767160042",
+        "title": "SÜTAŞ AYRAN 295 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:31",
+        "barcode": "8690767714450",
+        "title": "SÜTAŞ AYRAN 175 ML",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:30",
+        "barcode": "8681324004831",
+        "title": "SÜTAŞ KAF KEFİR CİLEK 250 ML",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:30",
+        "barcode": "8690504429210",
+        "title": "İÇİM KEFİR 1 LT SADE",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:30",
+        "barcode": "8681324004831",
+        "title": "SÜTAŞ KAF KEFİR CİLEK 250 ML",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:30",
+        "barcode": "8690504429210",
+        "title": "İÇİM KEFİR 1 LT SADE",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8692562041205",
+        "title": "UMBA TATALI KURABIYE",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8690504069409",
+        "title": "ÜLKER KAT KAT TAT 32 GR CILEKLI",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8690504069003",
+        "title": "ULK 695-7 KAT KAT TAT 28 GRF.KAKAO",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "7622202050947",
+        "title": "7DAYS CROSSANT KAKAO KREMALI 60 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "7622202365355",
+        "title": "SEVEN DÇÇAYS KRUVASAÇÇN ÇİÇİÇİLEKL",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8699141059507",
+        "title": "ŞÖLEN LUPPO SUFLE 40 GR ÇİKOLATALI",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8699141032296",
+        "title": "ŞÖLEN PAPİTA DONUT 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8699141032302",
+        "title": "ŞÖLEN PAPİTA DONUT ÇİLEKLİ 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8684712115546",
+        "title": "LUPPER GO 50 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8699141057053",
+        "title": "ŞÖLEN BISCOLATA MOOD 125 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8699141057039",
+        "title": "ŞÖLEN BISCOLATA MOOD 125 GR BITTER",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417003295",
+        "title": "TADELLE GOFRET 28 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417000614",
+        "title": "TADELLE GOFRET MAXINUT 30 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417000140",
+        "title": "TADELLE ÇİKOLATA 30 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417000270",
+        "title": "TADELLE ÇİKOLATA KINGSIZE 52 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417000201",
+        "title": "TADELLA BEYAZ CIK 30 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8683417000799",
+        "title": "GOL DRAJE 36 GR SUTLU",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8691707036014",
+        "title": "OZMO YUMURTA 20 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8691707087962",
+        "title": "OZMO FUN 23 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8691707036694",
+        "title": "ŞÖLEN OZMO CAILLOU KAKOLU FINDIKLI KREMALI TÜP ÇİKOLATA 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:23",
+        "barcode": "8691707090122",
+        "title": "OZMO CORNET 25 GR FINDIK KREMA DOLGULU",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8692562041205",
+        "title": "UMBA TATALI KURABIYE",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8690504069409",
+        "title": "ÜLKER KAT KAT TAT 32 GR CILEKLI",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8690504069003",
+        "title": "ULK 695-7 KAT KAT TAT 28 GRF.KAKAO",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "7622202050947",
+        "title": "7DAYS CROSSANT KAKAO KREMALI 60 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "7622202365355",
+        "title": "SEVEN DÇÇAYS KRUVASAÇÇN ÇİÇİÇİLEKL",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8699141059507",
+        "title": "ŞÖLEN LUPPO SUFLE 40 GR ÇİKOLATALI",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8699141032296",
+        "title": "ŞÖLEN PAPİTA DONUT 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8699141032302",
+        "title": "ŞÖLEN PAPİTA DONUT ÇİLEKLİ 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8684712115546",
+        "title": "LUPPER GO 50 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8699141057053",
+        "title": "ŞÖLEN BISCOLATA MOOD 125 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8699141057039",
+        "title": "ŞÖLEN BISCOLATA MOOD 125 GR BITTER",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417003295",
+        "title": "TADELLE GOFRET 28 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417000614",
+        "title": "TADELLE GOFRET MAXINUT 30 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417000140",
+        "title": "TADELLE ÇİKOLATA 30 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417000270",
+        "title": "TADELLE ÇİKOLATA KINGSIZE 52 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417000201",
+        "title": "TADELLA BEYAZ CIK 30 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8683417000799",
+        "title": "GOL DRAJE 36 GR SUTLU",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8691707036014",
+        "title": "OZMO YUMURTA 20 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8691707087962",
+        "title": "OZMO FUN 23 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8691707036694",
+        "title": "ŞÖLEN OZMO CAILLOU KAKOLU FINDIKLI KREMALI TÜP ÇİKOLATA 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:22",
+        "barcode": "8691707090122",
+        "title": "OZMO CORNET 25 GR FINDIK KREMA DOLGULU",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707079660",
+        "title": "OZMO POPSY 24 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062181",
+        "title": "OZMOCHOCOLATE",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157111",
+        "title": "OZMO HOPPO 40 GR CILEK KREMA DOLGULU",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157104",
+        "title": "OZMO HOPPO ÇİKOLATALI KREMA DOLGULU BİSKÜVİ 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157005",
+        "title": "ŞÖLEN BISCOLATA MOOD SÜTLÜ ÇİKOLATA 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707140193",
+        "title": "BISCOLATA STIX SUTLU ÇİKOLATALI 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707140414",
+        "title": "BISCOLATA STIX PİRİNÇ PATLAKLI 34 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "7622202312564",
+        "title": "OREO ÇİLEKLİ 95 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "7622202312939",
+        "title": "OREO ÇİKOLATALI 95 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526097893",
+        "title": "ETİ PETİTO PATİ 18 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526047881",
+        "title": "ETİ PETİTO AYICIKLI 8 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707092072",
+        "title": "ŞÖLEN PAPİTA DUO X2",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062747",
+        "title": "ŞÖLEN PAPİTA KARAMEL 20 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062730",
+        "title": "ŞÖLEN PAPİTA SÜTLÜ 20 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141059699",
+        "title": "ŞÖLEN BOOM BASTIC 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141059286",
+        "title": "ŞÖLEN BOMBASTIC KEK 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707096964",
+        "title": "NUTYMAX EKSTRA FINDIK 40 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707095936",
+        "title": "ŞÖLEN NUTYMAX FINDIK KREMALI 46 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707096001",
+        "title": "ŞÖLEN NUTYMAX ANTEP FISTIKLI 46 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141058821",
+        "title": "BİSCOLATA PŞABROWNIE",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632060392",
+        "title": "NESTLE KİTKAT BEYAZ",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632059150",
+        "title": "NESTLE KİTKAT 38 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632708874",
+        "title": "NESTLE CRUNCH PATT 27 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632764474",
+        "title": "NESTLE KİTKAT CHUNKY BİTTER 38 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526961859",
+        "title": "ET PETİTBUERRE 22,5 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632712123",
+        "title": "NESTLE DAMAK ALA 30 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632049168",
+        "title": "NESTLE NESGUIK GOFRET 26.7 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690504034506",
+        "title": "ÜLKER ALBENİ BATON 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707079660",
+        "title": "OZMO POPSY 24 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062181",
+        "title": "OZMOCHOCOLATE",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157111",
+        "title": "OZMO HOPPO 40 GR CILEK KREMA DOLGULU",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157104",
+        "title": "OZMO HOPPO ÇİKOLATALI KREMA DOLGULU BİSKÜVİ 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141157005",
+        "title": "ŞÖLEN BISCOLATA MOOD SÜTLÜ ÇİKOLATA 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707140193",
+        "title": "BISCOLATA STIX SUTLU ÇİKOLATALI 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707140414",
+        "title": "BISCOLATA STIX PİRİNÇ PATLAKLI 34 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "7622202312564",
+        "title": "OREO ÇİLEKLİ 95 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "7622202312939",
+        "title": "OREO ÇİKOLATALI 95 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526097893",
+        "title": "ETİ PETİTO PATİ 18 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526047881",
+        "title": "ETİ PETİTO AYICIKLI 8 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707092072",
+        "title": "ŞÖLEN PAPİTA DUO X2",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062747",
+        "title": "ŞÖLEN PAPİTA KARAMEL 20 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707062730",
+        "title": "ŞÖLEN PAPİTA SÜTLÜ 20 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141059699",
+        "title": "ŞÖLEN BOOM BASTIC 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141059286",
+        "title": "ŞÖLEN BOMBASTIC KEK 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707096964",
+        "title": "NUTYMAX EKSTRA FINDIK 40 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707095936",
+        "title": "ŞÖLEN NUTYMAX FINDIK KREMALI 46 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8691707096001",
+        "title": "ŞÖLEN NUTYMAX ANTEP FISTIKLI 46 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8699141058821",
+        "title": "BİSCOLATA PŞABROWNIE",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632060392",
+        "title": "NESTLE KİTKAT BEYAZ",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632059150",
+        "title": "NESTLE KİTKAT 38 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632708874",
+        "title": "NESTLE CRUNCH PATT 27 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632764474",
+        "title": "NESTLE KİTKAT CHUNKY BİTTER 38 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690526961859",
+        "title": "ET PETİTBUERRE 22,5 GR",
+        "price": "10,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632712123",
+        "title": "NESTLE DAMAK ALA 30 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690632049168",
+        "title": "NESTLE NESGUIK GOFRET 26.7 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:18",
+        "barcode": "8690504034506",
+        "title": "ÜLKER ALBENİ BATON 40 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504027508",
+        "title": "ÜLKER ÇOKONAT 32 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504028536",
+        "title": "ÜLKER DİDO KLASİK 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504131458",
+        "title": "ÜLKER DİDO 36.5 GR TRİO 992921",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690766149949",
+        "title": "ÜLKER CARAMIO BATON ÇİKOLATA 32 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504050056",
+        "title": "ÜLKER COCO STAR HİNDİSTAN CEVİZLİ 25 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504084877",
+        "title": "ÜLKER ALPELLA HARBY KARAMELLI 25 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504027508",
+        "title": "ÜLKER ÇOKONAT 32 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504028536",
+        "title": "ÜLKER DİDO KLASİK 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504131458",
+        "title": "ÜLKER DİDO 36.5 GR TRİO 992921",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690766149949",
+        "title": "ÜLKER CARAMIO BATON ÇİKOLATA 32 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504050056",
+        "title": "ÜLKER COCO STAR HİNDİSTAN CEVİZLİ 25 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:15",
+        "barcode": "8690504084877",
+        "title": "ÜLKER ALPELLA HARBY KARAMELLI 25 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504154594",
+        "title": "ÜLKER ALBENİ TANE TANE 29 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526067438",
+        "title": "ETİ ÇİKOLATA MAXİMUS LOADING",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526087351",
+        "title": "ETİ ÇİKOLATA MAXİMUS SÜTLÜ 36 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526017099",
+        "title": "ETİ ÇİKOLATA WANTED BUMBA HİNDİSTAN CEVİZLİ 20 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526018713",
+        "title": "ETİ ÇİKOLATA WANTED MISIR GEVREKLİ KAREMELLİ 22 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526784755",
+        "title": "ETİ BROWNİ CLASSİC FINDIKLI KEK",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526671284",
+        "title": "ETİ CANGA ANTEP FISTIKLI 45 GR",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526047256",
+        "title": "ETİ ÇİKOLATA CANGA YER FISTIKLI 45 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526069920",
+        "title": "ETİ ÇİKOLATA BROWNİ INTENSE GOLD 48 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526095417",
+        "title": "ETİ ÇİKOLATA KARAM GURME 50 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504023135",
+        "title": "ÜLKER NAPOLİTEN 33 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526019222",
+        "title": "ETİ ÇİKOLATALI GOFRET GOLD 29 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526356457",
+        "title": "ETİ HOŞBEŞ GOFRET ÇİLEKLİ",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "40257389",
+        "title": "MILKA 32 GR LILA PAUSE",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "7622300821784",
+        "title": "MILKA GOFREE CIKO.28.5 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8699270013418",
+        "title": "KAHVE DÜNYASI FISTIKLI SÜTLÜ GOFRET 33 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504136514",
+        "title": "ÜLKER ÇİKOLATALI GOFRET MAXI 47 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504136521",
+        "title": "ÜLKER ÇİKOLATALI GOFRET BEYAZ 35 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504035909",
+        "title": "ÜLKER METRO 36 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504033936",
+        "title": "ÜLKER ALBENİ BÜYÜK BOY 52 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504142096",
+        "title": "ÜLKER FINDIK RÜYASI 40.5 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504154594",
+        "title": "ÜLKER ALBENİ TANE TANE 29 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526067438",
+        "title": "ETİ ÇİKOLATA MAXİMUS LOADING",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526087351",
+        "title": "ETİ ÇİKOLATA MAXİMUS SÜTLÜ 36 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526017099",
+        "title": "ETİ ÇİKOLATA WANTED BUMBA HİNDİSTAN CEVİZLİ 20 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526018713",
+        "title": "ETİ ÇİKOLATA WANTED MISIR GEVREKLİ KAREMELLİ 22 GR",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526784755",
+        "title": "ETİ BROWNİ CLASSİC FINDIKLI KEK",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526671284",
+        "title": "ETİ CANGA ANTEP FISTIKLI 45 GR",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526047256",
+        "title": "ETİ ÇİKOLATA CANGA YER FISTIKLI 45 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526069920",
+        "title": "ETİ ÇİKOLATA BROWNİ INTENSE GOLD 48 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526095417",
+        "title": "ETİ ÇİKOLATA KARAM GURME 50 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504023135",
+        "title": "ÜLKER NAPOLİTEN 33 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526019222",
+        "title": "ETİ ÇİKOLATALI GOFRET GOLD 29 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690526356457",
+        "title": "ETİ HOŞBEŞ GOFRET ÇİLEKLİ",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "40257389",
+        "title": "MILKA 32 GR LILA PAUSE",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "7622300821784",
+        "title": "MILKA GOFREE CIKO.28.5 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8699270013418",
+        "title": "KAHVE DÜNYASI FISTIKLI SÜTLÜ GOFRET 33 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504136514",
+        "title": "ÜLKER ÇİKOLATALI GOFRET MAXI 47 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504136521",
+        "title": "ÜLKER ÇİKOLATALI GOFRET BEYAZ 35 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504035909",
+        "title": "ÜLKER METRO 36 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504033936",
+        "title": "ÜLKER ALBENİ BÜYÜK BOY 52 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:07",
+        "barcode": "8690504142096",
+        "title": "ÜLKER FINDIK RÜYASI 40.5 GR",
+        "price": "35,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8692971071008",
+        "title": "ÜLKER LİNK İÇECEK VİŞNELİ 200 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8683789551158",
+        "title": "BLACK BURN ORIGINAL 1 LT",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558038833",
+        "title": "DİMES VİŞNE 250 ML CAM",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558013236",
+        "title": "DİMES TETRA 1 LT KARISIK",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "86900201",
+        "title": "DİMES 200 ML SEFTALI",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558033050",
+        "title": "DİMES TAZE SIKMA 700 ML KARISIK",
+        "price": "190,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8693354001094",
+        "title": "DOĞANAY ŞALGAM ACILI 1 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8699036675157",
+        "title": "KİLİKYA ADANA ŞALGAM ACILI 1 LT",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608209",
+        "title": "BİZİM MARGARİN 250 GR",
+        "price": "49,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608407",
+        "title": "TEREM MARGARIN 250 GR",
+        "price": "55,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8719200751613",
+        "title": "SANA KLASIK 250 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608551",
+        "title": "ÜLKER TEREMYAĞ KASE 250 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8692971071008",
+        "title": "ÜLKER LİNK İÇECEK VİŞNELİ 200 GR",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8683789551158",
+        "title": "BLACK BURN ORIGINAL 1 LT",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558038833",
+        "title": "DİMES VİŞNE 250 ML CAM",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558013236",
+        "title": "DİMES TETRA 1 LT KARISIK",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "86900201",
+        "title": "DİMES 200 ML SEFTALI",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8690558033050",
+        "title": "DİMES TAZE SIKMA 700 ML KARISIK",
+        "price": "190,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8693354001094",
+        "title": "DOĞANAY ŞALGAM ACILI 1 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8699036675157",
+        "title": "KİLİKYA ADANA ŞALGAM ACILI 1 LT",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608209",
+        "title": "BİZİM MARGARİN 250 GR",
+        "price": "49,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608407",
+        "title": "TEREM MARGARIN 250 GR",
+        "price": "55,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8719200751613",
+        "title": "SANA KLASIK 250 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:00",
+        "barcode": "8691375608551",
+        "title": "ÜLKER TEREMYAĞ KASE 250 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659408013",
+        "title": "ÜNAL ESKI KAŞAR 250 GR ANADOLU",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692773023717",
+        "title": "DOĞUŞ BEYAZ PEYNİR 600 GR SERT YAM YAGLI",
+        "price": "330,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659414182",
+        "title": "ÜNAL TRAKYA TAM YAGLI BEYAZ PEYNİR 500 GR",
+        "price": "350,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659414168",
+        "title": "ÜNAL DİLİMLİ TRAKYA TAM YAGLI BEYAZ PEYNİR 450 GR",
+        "price": "350,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692773023861",
+        "title": "DOĞUŞ BEYAZ PEYNİR 600 GR TAM YAGLI",
+        "price": "330,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8690767716546",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 600 GR",
+        "price": "299,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692971433264",
+        "title": "İÇİM TAZE KAŞAR 600 GR",
+        "price": "295,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8690767671029",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 400 GR",
+        "price": "235,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659408013",
+        "title": "ÜNAL ESKI KAŞAR 250 GR ANADOLU",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692773023717",
+        "title": "DOĞUŞ BEYAZ PEYNİR 600 GR SERT YAM YAGLI",
+        "price": "330,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659414182",
+        "title": "ÜNAL TRAKYA TAM YAGLI BEYAZ PEYNİR 500 GR",
+        "price": "350,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8691659414168",
+        "title": "ÜNAL DİLİMLİ TRAKYA TAM YAGLI BEYAZ PEYNİR 450 GR",
+        "price": "350,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692773023861",
+        "title": "DOĞUŞ BEYAZ PEYNİR 600 GR TAM YAGLI",
+        "price": "330,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8690767716546",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 600 GR",
+        "price": "299,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8692971433264",
+        "title": "İÇİM TAZE KAŞAR 600 GR",
+        "price": "295,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:57",
+        "barcode": "8690767671029",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 400 GR",
+        "price": "235,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8690504432227",
+        "title": "İÇİM TAZE KAŞAR 400 GR",
+        "price": "235,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8690767716638",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 200 GR",
+        "price": "119,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8692971031347",
+        "title": "İÇİM TAZE KAŞAR 200 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8681324000352",
+        "title": "SÜTAŞ KAŞAR DİLİMLİ 60 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8691659454409",
+        "title": "ÜNAL 200 GR TAM YAĞLI ÇEÇİL PEYNİR",
+        "price": "145,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8695543003810",
+        "title": "MURATBEY 500 GR LOR PEYNİRİ",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8698720179674",
+        "title": "EFENDI GIL TULUM PEYNİRİ 470 GR",
+        "price": "475,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8690504432227",
+        "title": "İÇİM TAZE KAŞAR 400 GR",
+        "price": "235,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8690767716638",
+        "title": "SÜTAŞ KAŞAR PEYNİRİ 200 GR",
+        "price": "119,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8692971031347",
+        "title": "İÇİM TAZE KAŞAR 200 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8681324000352",
+        "title": "SÜTAŞ KAŞAR DİLİMLİ 60 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8691659454409",
+        "title": "ÜNAL 200 GR TAM YAĞLI ÇEÇİL PEYNİR",
+        "price": "145,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8695543003810",
+        "title": "MURATBEY 500 GR LOR PEYNİRİ",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:56",
+        "barcode": "8698720179674",
+        "title": "EFENDI GIL TULUM PEYNİRİ 470 GR",
+        "price": "475,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8690767673658",
+        "title": "SÜTAŞ MEYVELİ YOĞURT 475 GR ORMAN",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8690767673726",
+        "title": "SÜTAŞ MEYVELİ YOĞURT 475 GR CILEKLI",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8681324000253",
+        "title": "SÜTAŞ MINIMIKS CILEK",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8699141058814",
+        "title": "ŞÖLEN BİSCOLATA İCE FİRE 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8699141059187",
+        "title": "OZMO COOL SÜTLÜ BALLI",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8690767673658",
+        "title": "SÜTAŞ MEYVELİ YOĞURT 475 GR ORMAN",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8690767673726",
+        "title": "SÜTAŞ MEYVELİ YOĞURT 475 GR CILEKLI",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8681324000253",
+        "title": "SÜTAŞ MINIMIKS CILEK",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8699141058814",
+        "title": "ŞÖLEN BİSCOLATA İCE FİRE 40 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:53",
+        "barcode": "8699141059187",
+        "title": "OZMO COOL SÜTLÜ BALLI",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526696379",
+        "title": "ETİ SÜTBURGER YABAN MERSİNLİ",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526220659",
+        "title": "ET SUT BURGER BOL SUTLU KAKAOLU",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526076843",
+        "title": "ETİ SÜT BURGER ÇİLEKLİ 35 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526522647",
+        "title": "ETİ SÜT BURGER MUZLU 35 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526096506",
+        "title": "ETİ BROWNİ MOUSSE 48 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "40084725",
+        "title": "KINDER SÜT DİLİMİ",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526696379",
+        "title": "ETİ SÜTBURGER YABAN MERSİNLİ",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526220659",
+        "title": "ET SUT BURGER BOL SUTLU KAKAOLU",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526076843",
+        "title": "ETİ SÜT BURGER ÇİLEKLİ 35 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526522647",
+        "title": "ETİ SÜT BURGER MUZLU 35 GR",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "8690526096506",
+        "title": "ETİ BROWNİ MOUSSE 48 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:52",
+        "barcode": "40084725",
+        "title": "KINDER SÜT DİLİMİ",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527200278",
+        "title": "PINAR AC BITIR HINDI FUME 60 GR",
+        "price": "49,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527011737",
+        "title": "PINAR AÇ BİTİR DANA 50 GR",
+        "price": "79,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527010839",
+        "title": "PINAR AÇ BİTİR HİNDİ SALAM 75 GR",
+        "price": "49,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8697471721026",
+        "title": "NAMET HINDI SALAM 60 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8691114011369",
+        "title": "COŞKUN BATON SUCUK MINI 130 GR",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690767670190",
+        "title": "SÜTAŞ ÜÇGEN PEYNİR 8'Lİ",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8692971435022",
+        "title": "İÇİM ÜÇGEN PEYNİR 8Lİ 100 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690565006702",
+        "title": "PINAR BEYAZ 180 GR",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690565006832",
+        "title": "PINAR LABNE 180 GR",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690767710469",
+        "title": "SÜTAŞ LABNE 200 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8692971431840",
+        "title": "İÇİM KREM PEYNİR 180 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527200278",
+        "title": "PINAR AC BITIR HINDI FUME 60 GR",
+        "price": "49,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527011737",
+        "title": "PINAR AÇ BİTİR DANA 50 GR",
+        "price": "79,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690527010839",
+        "title": "PINAR AÇ BİTİR HİNDİ SALAM 75 GR",
+        "price": "49,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8697471721026",
+        "title": "NAMET HINDI SALAM 60 GR",
+        "price": "45,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8691114011369",
+        "title": "COŞKUN BATON SUCUK MINI 130 GR",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8690767670190",
+        "title": "SÜTAŞ ÜÇGEN PEYNİR 8'Lİ",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:50",
+        "barcode": "8692971435022",
+        "title": "İÇİM ÜÇGEN PEYNİR 8Lİ 100 GR",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:48",
+        "barcode": "8690565006702",
+        "title": "PINAR BEYAZ 180 GR",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:48",
+        "barcode": "8690565006832",
+        "title": "PINAR LABNE 180 GR",
+        "price": "85,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:48",
+        "barcode": "8690767710469",
+        "title": "SÜTAŞ LABNE 200 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:48",
+        "barcode": "8692971431840",
+        "title": "İÇİM KREM PEYNİR 180 GR",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:43",
+        "barcode": "8690504065395",
+        "title": "ÜLKER LAVİVA 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:42",
+        "barcode": "8690504065395",
+        "title": "ÜLKER LAVİVA 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:40",
+        "barcode": "8690504039884",
+        "title": "ÜLKER METRO 50 GR BUYUK",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:40",
+        "barcode": "8690504039884",
+        "title": "ÜLKER METRO 50 GR BUYUK",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:39",
+        "barcode": "8692971430898",
+        "title": "İÇİM LABNE 180 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:39",
+        "barcode": "8692971433554",
+        "title": "İÇİM SÜZME PEYNİR 250 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:38",
+        "barcode": "8692971430898",
+        "title": "İÇİM LABNE 180 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:38",
+        "barcode": "8692971433554",
+        "title": "İÇİM SÜZME PEYNİR 250 GR",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8692971433561",
+        "title": "İÇİM SÜZME PEYNİR 500 GR",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767670923",
+        "title": "SÜTAŞ BEYAZ PEYNİR 500 GR",
+        "price": "159,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767675089",
+        "title": "SÜTAŞ SÜZME PEYNİR 500 GR",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767675225",
+        "title": "SÜTAŞ SÜZME PEYNİR 250 GR",
+        "price": "79,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8692971433561",
+        "title": "İÇİM SÜZME PEYNİR 500 GR",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767670923",
+        "title": "SÜTAŞ BEYAZ PEYNİR 500 GR",
+        "price": "159,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767675089",
+        "title": "SÜTAŞ SÜZME PEYNİR 500 GR",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:37",
+        "barcode": "8690767675225",
+        "title": "SÜTAŞ SÜZME PEYNİR 250 GR",
+        "price": "79,50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:34",
+        "barcode": "7622202207143",
+        "title": "KENT JELİBON TURUNCU ŞEFTALİ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:34",
+        "barcode": "7622202207143",
+        "title": "KENT JELİBON TURUNCU ŞEFTALİ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:27",
+        "barcode": "8698529301405",
+        "title": "SEYİTOGLU HELVA 175 GR FISTIKLI",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "16:27",
+        "barcode": "8698529301405",
+        "title": "SEYİTOGLU HELVA 175 GR FISTIKLI",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      }
+    ]
+  },
+  "2026-08-21": {
+    "date_key": "2026-08-21",
+    "display_date": "21 Ağu 2026",
+    "total_catalog_products": 4792,
+    "stats": {
+      "mobile_price_changes": 18,
+      "pc_price_changes": 0,
+      "total_printed_barcodes": 204,
+      "mobile_printed_barcodes": 204,
+      "pc_printed_barcodes": 0
+    },
+    "price_changes": [
+      {
+        "time": "18:25",
+        "barcode": "8693891402026",
+        "title": "ÖNCÜ 1 KG ZEYTİN 261-290 M BOY",
+        "old_price": "575,00 TL",
+        "new_price": "625,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292413",
+        "title": "MARMARABIRLIK ZEYTİN 400 GR KURU SELE (321-350)",
+        "old_price": "190,00 TL",
+        "new_price": "195,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292390",
+        "title": "M.BIRLIK KURU SELE 400 GR ELIT PET",
+        "old_price": "150,00 TL",
+        "new_price": "195,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8690526095417",
+        "title": "ETİ ÇİKOLATA KARAM GURME 50 GR",
+        "old_price": "30,00 TL",
+        "new_price": "40,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529301399",
+        "title": "SEYİDOĞLU HELVA 175 GR KAKAOLU",
+        "old_price": "50,00 TL",
+        "new_price": "65,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529301382",
+        "title": "SEYİDOĞLU HELVA 175 GR SADE",
+        "old_price": "45,00 TL",
+        "new_price": "65,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529303270",
+        "title": "SEYİDOĞLU PEKMEZ 700 GR BİDON ÜZÜM",
+        "old_price": "230,00 TL",
+        "new_price": "245,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444360",
+        "title": "ULUDA FRUTTİ 1 LT ORMAN MEYVELİ",
+        "old_price": "75,00 TL",
+        "new_price": "80,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444339",
+        "title": "ULUDA FRUTTİ EXTRA YEŞİL LİMONLU",
+        "old_price": "75,00 TL",
+        "new_price": "80,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723443998",
+        "title": "Uludağ Limonata 330 ML",
+        "old_price": "Yeni Ürün",
+        "new_price": "50,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574115150",
+        "title": "LİPTON İCE TEA 1 LT ŞEFTALİ AROMALI İÇECEK",
+        "old_price": "65,00 TL",
+        "new_price": "70,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "86946247",
+        "title": "PEPSİ 200 ML CAM",
+        "old_price": "40,00 TL",
+        "new_price": "50,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558039359",
+        "title": "DİMES COOL BERRY ÖZÜ 310 ML",
+        "old_price": "60,00 TL",
+        "new_price": "70,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558033418",
+        "title": "DİMES MILK SHAKE ÇİLEK VE VANILYA 310 ML",
+        "old_price": "60,00 TL",
+        "new_price": "70,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558037751",
+        "title": "COOL LİME ÖZÜ 310 ML",
+        "old_price": "60,00 TL",
+        "new_price": "70,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690767711381",
+        "title": "SÜTAŞ BUYUMIX M. YOĞURT 6X40 BISKUVILI",
+        "old_price": "45,00 TL",
+        "new_price": "60,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690526076843",
+        "title": "ETİ SÜT BURGER ÇİLEKLİ 35 GR",
+        "old_price": "25,00 TL",
+        "new_price": "30,00 TL",
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:43",
+        "barcode": "8690632060392",
+        "title": "NESTLE KİTKAT BEYAZ",
+        "old_price": "35,00 TL",
+        "new_price": "40,00 TL",
+        "source": "MOBILE"
+      }
+    ],
+    "printed_items": [
+      {
+        "time": "18:25",
+        "barcode": "8690531210720",
+        "title": "BERRAK 720 ML YESIL KOKTEYL ZEYTİN",
+        "price": "155,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742931130",
+        "title": "KEPİRTEPE LİMONATA 3 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742931123",
+        "title": "KEPİRTEPE KARADUT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742950032",
+        "title": "ERZİNCAN SUZME CICEK BALI 460 GR",
+        "price": "200,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742950025",
+        "title": "ERZİNCAN SUZME CICEK BALI 225 GR",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8696768060022",
+        "title": "BALARISI 460 GR SUZME CICEK BALI",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742952227",
+        "title": "ERZİNCAN SUZME CICEK BALI 280 GR ÇIT KAPAK",
+        "price": "140,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8693891402026",
+        "title": "ÖNCÜ 1 KG ZEYTİN 261-290 M BOY",
+        "price": "625,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8693891400510",
+        "title": "ÖNCÜ DOĞAL SİYAH ZEYTİN PREMİUM 1 KG",
+        "price": "625,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8690531210720",
+        "title": "BERRAK 720 ML YESIL KOKTEYL ZEYTİN",
+        "price": "155,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742931130",
+        "title": "KEPİRTEPE LİMONATA 3 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742931123",
+        "title": "KEPİRTEPE KARADUT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742950032",
+        "title": "ERZİNCAN SUZME CICEK BALI 460 GR",
+        "price": "200,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:25",
+        "barcode": "8697742950025",
+        "title": "ERZİNCAN SUZME CICEK BALI 225 GR",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:24",
+        "barcode": "8696768060022",
+        "title": "BALARISI 460 GR SUZME CICEK BALI",
+        "price": "225,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:24",
+        "barcode": "8697742952227",
+        "title": "ERZİNCAN SUZME CICEK BALI 280 GR ÇIT KAPAK",
+        "price": "140,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:24",
+        "barcode": "8693891402026",
+        "title": "ÖNCÜ 1 KG ZEYTİN 261-290 M BOY",
+        "price": "625,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:24",
+        "barcode": "8693891400510",
+        "title": "ÖNCÜ DOĞAL SİYAH ZEYTİN PREMİUM 1 KG",
+        "price": "625,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8695336110503",
+        "title": "BAĞCI GURME KURU SELE SIYAH ZEYTİN 400 GR",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292413",
+        "title": "MARMARABIRLIK ZEYTİN 400 GR KURU SELE (321-350)",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292390",
+        "title": "M.BIRLIK KURU SELE 400 GR ELIT PET",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8697742950049",
+        "title": "ERZİNCAN SUZME CICEK BALI 860 GR",
+        "price": "380,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8695336110503",
+        "title": "BAĞCI GURME KURU SELE SIYAH ZEYTİN 400 GR",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292413",
+        "title": "MARMARABIRLIK ZEYTİN 400 GR KURU SELE (321-350)",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8690103292390",
+        "title": "M.BIRLIK KURU SELE 400 GR ELIT PET",
+        "price": "195,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:23",
+        "barcode": "8697742950049",
+        "title": "ERZİNCAN SUZME CICEK BALI 860 GR",
+        "price": "380,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690998151826",
+        "title": "BALPARMAK BAL 850 GR",
+        "price": "595,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690508509215",
+        "title": "TUKAŞ BÖĞÜRTLEN REÇELİ 380 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690508502216",
+        "title": "TUKAŞ KAYISI REÇELI 380 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8698529300972",
+        "title": "SEYIDOGLU RECEL 380 GR ÇİLEK",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8698529301009",
+        "title": "S.OGÜÇLÜU RECEL 380 GR AHUDUDU",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8698529300965",
+        "title": "SEYIDOGLU RECEL 380 GR VISNE",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690120161624",
+        "title": "TORKUBANADA 700 GR",
+        "price": "285,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8697427870761",
+        "title": "FRİGGY PARÇACIKLI FISTIK EZMESİ",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690120070056",
+        "title": "TORKU BANADA 400 GR",
+        "price": "199,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8698529311350",
+        "title": "SEYIDOGLU DUT PEKMEZI 400 GR MINI",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690120070148",
+        "title": "TORKU BANADA 700 GR",
+        "price": "295,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690504005308",
+        "title": "ÜLKER ÇOKOKREM 180 GR",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:19",
+        "barcode": "8690504121336",
+        "title": "ÜLKER ÇOKOKREM 400 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690998151826",
+        "title": "BALPARMAK BAL 850 GR",
+        "price": "595,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690508509215",
+        "title": "TUKAŞ BÖĞÜRTLEN REÇELİ 380 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690508502216",
+        "title": "TUKAŞ KAYISI REÇELI 380 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8698529300972",
+        "title": "SEYIDOGLU RECEL 380 GR ÇİLEK",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8698529301009",
+        "title": "S.OGÜÇLÜU RECEL 380 GR AHUDUDU",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8698529300965",
+        "title": "SEYIDOGLU RECEL 380 GR VISNE",
+        "price": "150,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690120161624",
+        "title": "TORKUBANADA 700 GR",
+        "price": "285,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8697427870761",
+        "title": "FRİGGY PARÇACIKLI FISTIK EZMESİ",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690120070056",
+        "title": "TORKU BANADA 400 GR",
+        "price": "199,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8698529311350",
+        "title": "SEYIDOGLU DUT PEKMEZI 400 GR MINI",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690120070148",
+        "title": "TORKU BANADA 700 GR",
+        "price": "295,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690504005308",
+        "title": "ÜLKER ÇOKOKREM 180 GR",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:17",
+        "barcode": "8690504121336",
+        "title": "ÜLKER ÇOKOKREM 400 GR",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8690526095417",
+        "title": "ETİ ÇİKOLATA KARAM GURME 50 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8690103131149",
+        "title": "M.BIRLIK Z.EZME 175 GR SADE",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336107343",
+        "title": "BAĞCI ZEYTİN 200 GR",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336107169",
+        "title": "BAĞCI ÇİZİK YEŞİL ZEYTİN 200 GR",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336108326",
+        "title": "BAĞCI ZEYTİN 200 GR SECME 80",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8690526095417",
+        "title": "ETİ ÇİKOLATA KARAM GURME 50 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8690103131149",
+        "title": "M.BIRLIK Z.EZME 175 GR SADE",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336107343",
+        "title": "BAĞCI ZEYTİN 200 GR",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336107169",
+        "title": "BAĞCI ÇİZİK YEŞİL ZEYTİN 200 GR",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:13",
+        "barcode": "8695336108326",
+        "title": "BAĞCI ZEYTİN 200 GR SECME 80",
+        "price": "110,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:11",
+        "barcode": "8690998117136",
+        "title": "BALPARMAK ÇITKAPAK CICEK BALI 600 GR",
+        "price": "495,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:11",
+        "barcode": "8690998117136",
+        "title": "BALPARMAK ÇITKAPAK CICEK BALI 600 GR",
+        "price": "495,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529301399",
+        "title": "SEYİDOĞLU HELVA 175 GR KAKAOLU",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529301382",
+        "title": "SEYİDOĞLU HELVA 175 GR SADE",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8691351000584",
+        "title": "TATSAN KARAMEL CEVIZ HELVA 425 GR",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8690710009442",
+        "title": "KOSKA FISTIKLI HELVA 200 GR",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529311305",
+        "title": "SEYIDOGLU TAHIN 300 GR MINI",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529311350",
+        "title": "SEYIDOGLU DUT PEKMEZI 400 GR MINI",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529311312",
+        "title": "SEYIDOGLU PEKMEZ UZUM 400 GR PVC",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529303270",
+        "title": "SEYİDOĞLU PEKMEZ 700 GR BİDON ÜZÜM",
+        "price": "245,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529303287",
+        "title": "SEYİDOGLU PEKMEZ 700 GR BIDON DUT",
+        "price": "245,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8698529303300",
+        "title": "SEYİDOĞLU TAHİN 550 GR BİDON",
+        "price": "230,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8690998151826",
+        "title": "BALPARMAK BAL 850 GR",
+        "price": "595,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8690998117136",
+        "title": "BALPARMAK ÇITKAPAK CICEK BALI 600 GR",
+        "price": "495,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:09",
+        "barcode": "8697742950124",
+        "title": "ERZİNCAN PETEK BAL 300 GR",
+        "price": "190,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529301399",
+        "title": "SEYİDOĞLU HELVA 175 GR KAKAOLU",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529301382",
+        "title": "SEYİDOĞLU HELVA 175 GR SADE",
+        "price": "65,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8691351000584",
+        "title": "TATSAN KARAMEL CEVIZ HELVA 425 GR",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8690710009442",
+        "title": "KOSKA FISTIKLI HELVA 200 GR",
+        "price": "165,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529311305",
+        "title": "SEYIDOGLU TAHIN 300 GR MINI",
+        "price": "125,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529311350",
+        "title": "SEYIDOGLU DUT PEKMEZI 400 GR MINI",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529311312",
+        "title": "SEYIDOGLU PEKMEZ UZUM 400 GR PVC",
+        "price": "159,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529303270",
+        "title": "SEYİDOĞLU PEKMEZ 700 GR BİDON ÜZÜM",
+        "price": "245,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529303287",
+        "title": "SEYİDOGLU PEKMEZ 700 GR BIDON DUT",
+        "price": "245,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8698529303300",
+        "title": "SEYİDOĞLU TAHİN 550 GR BİDON",
+        "price": "230,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8690998151826",
+        "title": "BALPARMAK BAL 850 GR",
+        "price": "595,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8690998117136",
+        "title": "BALPARMAK ÇITKAPAK CICEK BALI 600 GR",
+        "price": "495,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "18:08",
+        "barcode": "8697742950124",
+        "title": "ERZİNCAN PETEK BAL 300 GR",
+        "price": "190,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801642",
+        "title": "ULUDAĞ LİMONATA 2 LT ŞEKERLİ",
+        "price": "120,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801758",
+        "title": "ULUDAĞ LİMONATA 2 LT ŞEKERSİZ",
+        "price": "120,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8693354001346",
+        "title": "DOĞANAY LİMONATA 1 LT",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801659",
+        "title": "ULUDAĞ LİMONATA 1 LT ŞEKERLİ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801765",
+        "title": "ULUDAĞ LİMONATA 1 LT ŞEKERSİZ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690105014594",
+        "title": "ÇAYKUR DİDİ ŞEFTALİ 2.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "15000149",
+        "title": "ULUDAĞ EFSANE GAZOZ 2.5 LT",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949057",
+        "title": "ULUDAĞ GAZOZ 1.5 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "15000071",
+        "title": "ULUDAĞ EFSANE GAZOZ 2.5 LT PORTAKALLI",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444117",
+        "title": "ULUDAİMEYVELİM MANDALİNA 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444360",
+        "title": "ULUDA FRUTTİ 1 LT ORMAN MEYVELİ",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444339",
+        "title": "ULUDA FRUTTİ EXTRA YEŞİL LİMONLU",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144802281",
+        "title": "ULUDAĞ FRUTTİ MANDALİNA 250 ML ŞİŞE 50",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801833",
+        "title": "ULUDAĞ FRUTTİ EXTRA YEŞİL LİMONLU 250 ML",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949729",
+        "title": "ULUDAĞ FRUTTİ KARADUT FRENK ÜZÜMLÜ 250 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949743",
+        "title": "ULUDAĞ SODA FRUTTİ ELMALI",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723443998",
+        "title": "Uludağ Limonata 330 ml",
+        "price": "50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86947053",
+        "title": "MALTANA ANANAS",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8692813005659",
+        "title": "KIZILÇÇAY SODA KARADUT",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8691058005769",
+        "title": "SODA SIRMA LİMONLU 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8691381000486",
+        "title": "SODA BEYPAZARI SADE 200 ML",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8681349030747",
+        "title": "SODA AVŞAR LİMONLU 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801642",
+        "title": "ULUDAĞ LİMONATA 2 LT ŞEKERLİ",
+        "price": "120,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801758",
+        "title": "ULUDAĞ LİMONATA 2 LT ŞEKERSİZ",
+        "price": "120,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8693354001346",
+        "title": "DOĞANAY LİMONATA 1 LT",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801659",
+        "title": "ULUDAĞ LİMONATA 1 LT ŞEKERLİ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801765",
+        "title": "ULUDAĞ LİMONATA 1 LT ŞEKERSİZ",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690105014594",
+        "title": "ÇAYKUR DİDİ ŞEFTALİ 2.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "15000149",
+        "title": "ULUDAĞ EFSANE GAZOZ 2.5 LT",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949057",
+        "title": "ULUDAĞ GAZOZ 1.5 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "15000071",
+        "title": "ULUDAĞ EFSANE GAZOZ 2.5 LT PORTAKALLI",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444117",
+        "title": "ULUDAİMEYVELİM MANDALİNA 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444360",
+        "title": "ULUDA FRUTTİ 1 LT ORMAN MEYVELİ",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723444339",
+        "title": "ULUDA FRUTTİ EXTRA YEŞİL LİMONLU",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144802281",
+        "title": "ULUDAĞ FRUTTİ MANDALİNA 250 ML ŞİŞE 50",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "1500144801833",
+        "title": "ULUDAĞ FRUTTİ EXTRA YEŞİL LİMONLU 250 ML",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949729",
+        "title": "ULUDAĞ FRUTTİ KARADUT FRENK ÜZÜMLÜ 250 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86949743",
+        "title": "ULUDAĞ SODA FRUTTİ ELMALI",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690793020099",
+        "title": "SU ERİKLİ 1 LT",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8699878420755",
+        "title": "SU BUZDAĞI 0.5 LT",
+        "price": "15,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8690723443998",
+        "title": "Uludağ Limonata 330 ml",
+        "price": "50 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "86947053",
+        "title": "MALTANA ANANAS",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8692813005659",
+        "title": "KIZILÇÇAY SODA KARADUT",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8691058005769",
+        "title": "SODA SIRMA LİMONLU 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8691381000486",
+        "title": "SODA BEYPAZARI SADE 200 ML",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:56",
+        "barcode": "8681349030747",
+        "title": "SODA AVŞAR LİMONLU 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574115150",
+        "title": "LİPTON İCE TEA 1 LT ŞEFTALİ AROMALI İÇECEK",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574118748",
+        "title": "LİPTON SOĞUK ÇAY PORTAKAL MANGO 1 LT",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114979",
+        "title": "LİPTON İCE TEA 1.5 LT MANGO",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574116775",
+        "title": "LİPTON İCE TEA ŞEFTALİ 1.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690105014594",
+        "title": "ÇAYKUR DİDİ ŞEFTALİ 2.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114856",
+        "title": "LİPTON İCE TEA 2 LT ŞEFTALİ",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8697520103018",
+        "title": "ÇAMLICA GAZOZ 1.5 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "5000112695410",
+        "title": "COCA COLA NARLI FANTA 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114528",
+        "title": "PEPSİ 2.5 LT KOLA",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114498",
+        "title": "PEPSİ 1.5 LT KOLA",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114764",
+        "title": "YEDİGÜN 1,5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574115020",
+        "title": "7UP 1 LT GAZOZ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114795",
+        "title": "PEPSİ 1 LT KOLA",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114740",
+        "title": "YEDİGÜN 1 LT PORTAKALLI",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8681349030822",
+        "title": "SODA AVŞAR DÜŞEŞ ARMUDU NEKTARİN 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8681349030792",
+        "title": "SODA AVŞAR KARPUZ ÇİLEK 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8697520104053",
+        "title": "ÇAMLICA SİŞE",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8691395001165",
+        "title": "BURSA GAZOZU KINIK ŞİŞE",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114450",
+        "title": "LİPTON ICETEA SOS MANGO 330 KUTU",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "8690574114658",
+        "title": "PEPSİ 330 ML KOLA",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:52",
+        "barcode": "86946247",
+        "title": "PEPSİ 200 ML CAM",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574115150",
+        "title": "LİPTON İCE TEA 1 LT ŞEFTALİ AROMALI İÇECEK",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574118748",
+        "title": "LİPTON SOĞUK ÇAY PORTAKAL MANGO 1 LT",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114979",
+        "title": "LİPTON İCE TEA 1.5 LT MANGO",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574116775",
+        "title": "LİPTON İCE TEA ŞEFTALİ 1.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690105014594",
+        "title": "ÇAYKUR DİDİ ŞEFTALİ 2.5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114856",
+        "title": "LİPTON İCE TEA 2 LT ŞEFTALİ",
+        "price": "90,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8697520103018",
+        "title": "ÇAMLICA GAZOZ 1.5 LT",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "5000112695410",
+        "title": "COCA COLA NARLI FANTA 1 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114528",
+        "title": "PEPSİ 2.5 LT KOLA",
+        "price": "95,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114498",
+        "title": "PEPSİ 1.5 LT KOLA",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114764",
+        "title": "YEDİGÜN 1,5 LT",
+        "price": "80,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574115020",
+        "title": "7UP 1 LT GAZOZ",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114795",
+        "title": "PEPSİ 1 LT KOLA",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114740",
+        "title": "YEDİGÜN 1 LT PORTAKALLI",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8681349030822",
+        "title": "SODA AVŞAR DÜŞEŞ ARMUDU NEKTARİN 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8681349030792",
+        "title": "SODA AVŞAR KARPUZ ÇİLEK 200 ML",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8697520104053",
+        "title": "ÇAMLICA SİŞE",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8691395001165",
+        "title": "BURSA GAZOZU KINIK ŞİŞE",
+        "price": "25,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114450",
+        "title": "LİPTON ICETEA SOS MANGO 330 KUTU",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "8690574114658",
+        "title": "PEPSİ 330 ML KOLA",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:51",
+        "barcode": "86946247",
+        "title": "PEPSİ 200 ML CAM",
+        "price": "50,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558039359",
+        "title": "DİMES COOL BERRY ÖZÜ 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558033418",
+        "title": "DİMES MILK SHAKE ÇİLEK VE VANILYA 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558037751",
+        "title": "COOL LİME ÖZÜ 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558039359",
+        "title": "DİMES COOL BERRY ÖZÜ 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:47",
+        "barcode": "8690558033418",
+        "title": "DİMES MILK SHAKE ÇİLEK VE VANILYA 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690558037751",
+        "title": "COOL LİME ÖZÜ 310 ML",
+        "price": "70,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690558010013",
+        "title": "DİMES TETRA 1 LT KAYISI",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690558010013",
+        "title": "DİMES TETRA 1 LT KAYISI",
+        "price": "75,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690767711381",
+        "title": "SÜTAŞ BUYUMIX M. YOĞURT 6X40 BISKUVILI",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690767716706",
+        "title": "SÜTAŞ SÜT ÇİLEKLİ 200 ML",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690767711381",
+        "title": "SÜTAŞ BUYUMIX M. YOĞURT 6X40 BISKUVILI",
+        "price": "60,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:46",
+        "barcode": "8690767716706",
+        "title": "SÜTAŞ SÜT ÇİLEKLİ 200 ML",
+        "price": "20,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690767160189",
+        "title": "SÜTAŞ AYRAN 1 LT",
+        "price": "55,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690767671081",
+        "title": "SÜTAŞ AYRAN 2 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690526076843",
+        "title": "ETİ SÜT BURGER ÇİLEKLİ 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690558038840",
+        "title": "DİMES VİŞNE",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690767160189",
+        "title": "SÜTAŞ AYRAN 1 LT",
+        "price": "55,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690767671081",
+        "title": "SÜTAŞ AYRAN 2 LT",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690526076843",
+        "title": "ETİ SÜT BURGER ÇİLEKLİ 35 GR",
+        "price": "30,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:45",
+        "barcode": "8690558038840",
+        "title": "DİMES VİŞNE",
+        "price": "100,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:43",
+        "barcode": "8690632060392",
+        "title": "NESTLE KİTKAT BEYAZ",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:43",
+        "barcode": "8690632060392",
+        "title": "NESTLE KİTKAT BEYAZ",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:43",
+        "barcode": "8690632764474",
+        "title": "NESTLE KİTKAT CHUNKY BİTTER 38 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      },
+      {
+        "time": "17:41",
+        "barcode": "8690632764474",
+        "title": "NESTLE KİTKAT CHUNKY BİTTER 38 GR",
+        "price": "40,00 TL",
+        "copies": 1,
+        "source": "MOBILE"
+      }
+    ]
+  }
+}

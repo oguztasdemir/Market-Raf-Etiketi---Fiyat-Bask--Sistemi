@@ -9,18 +9,7 @@ MONTHS_TR = {
 }
 
 def get_online_or_system_date():
-    """İnternetten Türkiye saati ile (veya sistemden) günün güncel tarihini çeker."""
-    try:
-        req = urllib.request.Request("http://worldtimeapi.org/api/timezone/Europe/Istanbul", headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=1.2) as resp:
-            data = json.loads(resp.read().decode())
-            dt_str = data.get('datetime', '')
-            dt = datetime.datetime.fromisoformat(dt_str)
-            return f"{dt.day} {MONTHS_TR.get(dt.month, '')} {dt.year}"
-    except Exception:
-        pass
-    
-    # Sistem Saati Fallback
+    """Türkiye yerel saati ile güncel tarihi döner."""
     now = datetime.datetime.now()
     return f"{now.day} {MONTHS_TR.get(now.month, '')} {now.year}"
 
@@ -47,24 +36,15 @@ def split_title_lines(title1, title2="", max_chars_per_line=30):
     t2 = clean_tr(title2).strip().upper()
     
     if t2:
-        full_text = f"{t1} {t2}".strip()
-    else:
-        full_text = t1
-
-    lines = textwrap.wrap(full_text, width=max_chars_per_line)
+        return t1[:34], t2[:34]
     
-    line1 = lines[0] if len(lines) > 0 else ""
-    line2 = lines[1] if len(lines) > 1 else ""
-    
-    if len(lines) > 2:
-        line2 = (line2 + " " + " ".join(lines[2:])).strip()
-    
-    if len(line1) > 34:
-        line1 = line1[:34]
-    if len(line2) > 34:
-        line2 = line2[:34]
+    if len(t1) <= max_chars_per_line:
+        return t1, ""
         
-    return line1, line2
+    lines = textwrap.wrap(t1, width=max_chars_per_line)
+    line1 = lines[0] if len(lines) > 0 else ""
+    line2 = " ".join(lines[1:]) if len(lines) > 1 else ""
+    return line1[:34], line2[:34]
 
 def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, width_mm=76, height_mm=40, dpi=203, copies=1):
     """
@@ -99,12 +79,12 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
         brand = 'YARENLER'
     origin = clean_tr(data.get('origin', 'TURKIYE')).strip().upper()
     
-    # Her zaman internetten / sistemden güncel tarih
+    # Tarih belirleme
     custom_date = data.get('date')
-    if not custom_date or custom_date in ['14 May 2025', '19 Agu 2026', '']:
-        date = get_online_or_system_date()
-    else:
+    if custom_date and str(custom_date).strip():
         date = clean_tr(custom_date).strip()
+    else:
+        date = get_online_or_system_date()
         
     unit_price = clean_tr(data.get('unit_price', '250.00 TL/Kg')).strip()
     barcode = str(data.get('barcode', '8690504114925')).strip()
@@ -141,7 +121,7 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
                 f"^FO{ox + 240},{oy + 20}^A0R,25,21^FD{t2}^FS",
             ])
         else:
-            zpl.append(f"^FO{ox + 255},{oy + 20}^A0R,32,28^FD{t1}^FS")
+            zpl.append(f"^FO{ox + 252},{oy + 20}^A0R,38,34^FD{t1}^FS")
 
         # Sağ Üst Köşe Özelleştirmeleri
         if top_right_mode == 'unit_price':
@@ -268,7 +248,7 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
                 f"^FO{ox + 20},{oy + 48}^A0N,24,20^FD{t2}^FS",
             ])
         else:
-            zpl.append(f"^FO{ox + 20},{oy + 25}^A0N,32,28^FD{t1}^FS")
+            zpl.append(f"^FO{ox + 20},{oy + 22}^A0N,38,34^FD{t1}^FS")
 
         line1_y = oy + int(h_dots * 0.32)
         zpl.append(f"^FO{ox + 10},{line1_y}^GB{w_dots - 20},2,2^FS")
