@@ -535,7 +535,7 @@ function getActiveDraftSnapshot() {
   return {
     timestamp: now.getTime(),
     saved_at: timeFormatted,
-    active_tab: localStorage.getItem('active_tab') || 'tab-print',
+    active_tab: localStorage.getItem('active_tab') || 'tab-catalog',
     is_dirty: isDifferentFromDefault,
     label_form: {
       title1: t1,

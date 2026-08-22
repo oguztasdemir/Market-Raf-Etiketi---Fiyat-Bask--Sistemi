@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initAppTheme();
 
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
-  const savedTab = hashTab || localStorage.getItem('active_tab') || 'tab-print';
-  if (savedTab && document.getElementById(savedTab)) {
+  const savedTab = hashTab || localStorage.getItem('active_tab') || 'tab-catalog';
+  if (savedTab && savedTab !== 'tab-print' && document.getElementById(savedTab)) {
     switchTab(savedTab);
   } else {
-    switchTab('tab-print');
+    switchTab('tab-catalog');
   }
 
   // 2. Varsayılan Boyut ve Önizleme
@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCatalog(),
     loadSyncStatus(),
     loadBackupsList(),
+    loadDailyReportsSummary(),
+    loadManavStatus(),
     loadCurrentDate()
   ]).catch(err => console.error("Modül veri yükleme hatası:", err));
 

@@ -1329,15 +1329,44 @@ function selectProduct(p) {
 }
 
 
-function printProductFromCatalog(barcode) {
+async function printProductFromCatalog(barcode) {
   const product = allCatalogProducts.find(p => p.barcode === barcode);
   if (!product) return;
 
-  // 1. Ana Etiket Çıkart sekmesine aktar
-  selectProduct(product);
-  
-  // 2. Etiket Çıkart sekmesini aç
-  switchTab('tab-print');
+  if (typeof showToast === 'function') {
+    showToast(`🖨️ "${product.title}" için 1 adet etiket basılıyor...`, 'info');
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/print/custom`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcode: product.barcode,
+        title: product.title,
+        title1: product.title1 || product.title,
+        title2: product.title2 || '',
+        price: product.price,
+        brand: product.brand || '',
+        origin: product.origin || 'TÜRKİYE',
+        copies: 1
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      if (typeof showToast === 'function') {
+        showToast(`✅ "${product.title}" etiketi başarıyla yazdırıldı.`, 'success');
+      }
+    } else {
+      if (typeof showToast === 'function') {
+        showToast(`⚠️ Yazdırma hatası: ${data.message}`, 'error');
+      }
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') {
+      showToast(`Yazıcı bağlantı hatası: ${err.message}`, 'error');
+    }
+  }
 }
 
 

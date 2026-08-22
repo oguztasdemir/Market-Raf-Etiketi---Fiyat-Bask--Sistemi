@@ -430,10 +430,10 @@ function loadProductToDesigner(barcode) {
     date: item.date
   });
 
-  updatePreviewLive();
-  renderBarcode();
-  switchTab('tab-print');
-  showToast(`🎨 '${fullTitle}' etiket tasarımcısına aktarıldı.`, "info");
+  if (typeof updatePreviewLive === 'function') updatePreviewLive();
+  if (typeof renderBarcode === 'function') renderBarcode();
+  switchTab('tab-design');
+  showToast(`🎨 '${fullTitle}' etiket tasarım stüdyosuna aktarıldı.`, "info");
 }
 
 

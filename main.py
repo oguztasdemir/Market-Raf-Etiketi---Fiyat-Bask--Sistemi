@@ -9,7 +9,8 @@ import time
 import signal
 import webbrowser
 import threading
-from flask import Flask, render_template, send_from_directory
+import logging
+from flask import Flask, render_template, send_from_directory, request
 
 # src paket yolunu ekle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,10 @@ from src.routes.backup_routes import backup_bp
 from src.routes.template_routes import template_bp
 from src.routes.print_routes import print_bp
 from src.routes.report_routes import report_bp
+from src.routes.scale_routes import scale_bp
+
+# Werkzeug'in ham HTTP erişim loglarını (GET /api/... 200) sustur
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 app = Flask(__name__, static_folder=STATIC_DIR, template_folder=TEMPLATES_DIR)
 app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024  # 64 MB dosya yükleme limiti
@@ -39,16 +44,64 @@ app.register_blueprint(backup_bp)
 app.register_blueprint(template_bp)
 app.register_blueprint(print_bp)
 app.register_blueprint(report_bp)
+app.register_blueprint(scale_bp)
+
+def get_device_label(ip: str) -> str:
+    """İstemci IP adresini anlaşılır cihaz ismine dönüştürür."""
+    if not ip or ip in ("127.0.0.1", "localhost", "::1", "192.168.1.34"):
+        return "💻 [Bu Laptop]"
+    elif ip == "192.168.1.33":
+        return "🖥️ [Ana Bilgisayar]"
+    elif ip == "192.168.1.61":
+        return "⚖️ [DIGI Terazi]"
+    else:
+        return f"📱 [Cihaz: {ip}]"
 
 @app.context_processor
 def inject_cache_bust():
     return dict(cache_bust=int(time.time()))
 
 @app.after_request
-def add_no_cache_headers(response):
+def log_user_action_and_headers(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0, post-check=0, pre-check=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
+
+    # Gereksiz/sürekli tekrarlayan arka plan sorgularını terminale basma (spam engelleme)
+    path = request.path
+    if path.startswith("/static/") or path in ("/favicon.ico", "/api/scale/status"):
+        return response
+
+    if request.method == "GET" and path in ("/api/scale/products", "/api/products", "/api/scale/settings"):
+        return response
+
+    # Anlaşılır Türkçe eylem mesajları
+    ip = request.remote_addr or "Bilinmiyor"
+    device = get_device_label(ip)
+    now_time = time.strftime("%H:%M:%S")
+
+    action_msg = None
+    if path == "/api/scale/send_all_stream":
+        action_msg = "🚀 Teraziye Toplu Fiyat Gönderme İşlemi Başlattı"
+    elif path == "/api/scale/fetch_prices_stream" or path == "/api/scale/fetch_prices":
+        action_msg = "📥 DIGI SM-100 Terazisinden Güncel Fiyatları Çekti"
+    elif path.startswith("/api/scale/send_price/"):
+        plu_id = path.split("/")[-1]
+        action_msg = f"🚀 PLU {plu_id} için Teraziye Tekli Fiyat Gönderdi"
+    elif path == "/api/scale/products" and request.method == "POST":
+        action_msg = "✏️ Manav Ürün / Fiyat Listesini Güncelledi"
+    elif path.startswith("/api/print"):
+        action_msg = "🖨️ Barkod / Raf Etiketi Baskısı Gönderdi"
+    elif path.startswith("/api/sync"):
+        action_msg = "🔄 Fiyat Listesi Senkronizasyonu Çalıştırdı"
+    elif path == "/":
+        action_msg = "🌐 Masaüstü Yönetim Panelini Açtı"
+    elif path == "/mobile":
+        action_msg = "📱 Canlı Mobil Terminal Arayüzünü Açtı"
+
+    if action_msg:
+        print(f"[{now_time}] {device:<22} -> {action_msg}")
+
     return response
 
 @app.route("/")

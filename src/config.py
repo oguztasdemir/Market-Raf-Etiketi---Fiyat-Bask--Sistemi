@@ -22,7 +22,10 @@ BLACKLIST_FILE = os.path.join(DATA_DIR, 'black_list.json')
 TEMPLATES_FILE = os.path.join(DATA_DIR, 'templates.json')
 SETTINGS_FILE = os.path.join(DATA_DIR, 'settings.json')
 DRAFT_CACHE_FILE = os.path.join(DATA_DIR, 'draft_cache.json')
+MANAV_PRODUCTS_FILE = os.path.join(DATA_DIR, 'manav_products.json')
+SCALE_SETTINGS_FILE = os.path.join(DATA_DIR, 'scale_settings.json')
+SCALE_EXPORT_DIR = os.path.join(DATA_DIR, 'scale_export')
 
 # Gerekli klasörlerin varlığını garantiye al
-for directory in [DATA_DIR, BACKUPS_DIR, SISTEM_EXCELI_DIR, FONTS_DIR, CERTS_DIR]:
+for directory in [DATA_DIR, BACKUPS_DIR, SISTEM_EXCELI_DIR, FONTS_DIR, CERTS_DIR, SCALE_EXPORT_DIR]:
     os.makedirs(directory, exist_ok=True)

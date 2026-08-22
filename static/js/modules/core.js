@@ -170,8 +170,8 @@ async function loadCurrentDate() {
 
 
 function switchTab(tabId) {
-  if (!tabId || !document.getElementById(tabId)) {
-    tabId = 'tab-print';
+  if (!tabId || !document.getElementById(tabId) || tabId === 'tab-print') {
+    tabId = 'tab-catalog';
   }
 
   // Kalıcılık kaydı
@@ -189,7 +189,7 @@ function switchTab(tabId) {
   }
 
   // Katalog ve Güncelleme sekmeleri için tam ekran kiti
-  if (tabId === 'tab-catalog' || tabId === 'tab-sync') {
+  if (tabId === 'tab-catalog' || tabId === 'tab-sync' || tabId === 'tab-manav') {
     document.body.classList.add('on-catalog');
   } else {
     document.body.classList.remove('on-catalog');
@@ -197,11 +197,6 @@ function switchTab(tabId) {
 
   const heading = document.getElementById('page-heading');
   const subheading = document.getElementById('page-subheading');
-  const topbarActions = document.getElementById('topbar-actions-box');
-
-  if (topbarActions) {
-    topbarActions.style.display = (tabId === 'tab-print') ? 'flex' : 'none';
-  }
 
   // Aktif menü butonunu belirle
   document.querySelectorAll('.nav-item').forEach(btn => {
@@ -213,9 +208,10 @@ function switchTab(tabId) {
     }
   });
 
-  if (tabId === 'tab-print') {
-    if (heading) heading.innerText = '🏷️ Etiket Çıkart';
-    if (subheading) subheading.innerText = 'Hızlı veri girişi, canlı önizleme ve doğrudan termal baskı';
+  if (tabId === 'tab-catalog') {
+    if (heading) heading.innerText = '📦 Ürün Kataloğu & Hızlı Baskı';
+    if (subheading) subheading.innerText = 'Kayıtlı ürünler, raf fiyatları ve doğrudan termal etiket baskı yönetimi';
+    loadCatalog();
   } else if (tabId === 'tab-design') {
     if (heading) heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
     if (subheading) subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
@@ -225,7 +221,14 @@ function switchTab(tabId) {
   } else if (tabId === 'tab-sync') {
     if (heading) heading.innerText = '📊 Katalog Güncelleme & Fiyat Senkronizasyonu';
     if (subheading) subheading.innerText = 'Sistem Excel / CSV (.xlsx, .csv) stok listesini içe aktarın, fiyat farklarını tespit edin ve toplu etiket basın';
-    loadSyncStatus();
+  } else if (tabId === 'tab-reports') {
+    if (heading) heading.innerText = '📈 Günlük Faaliyet & Fiyat Değişiklik Raporları';
+    if (subheading) subheading.innerText = 'Mobil ve PC üzerinden yapılan fiyat güncellemeleri ve basılan barkodların günlük arşivi';
+    loadDailyReportsSummary();
+  } else if (tabId === 'tab-manav') {
+    if (heading) heading.innerText = '🥬 Manav & Barkodlu Terazi Yönetimi';
+    if (subheading) subheading.innerText = 'PLU tuşlarına göre ürün yönetimi, teraziye fiyat gönderme ve senkronizasyon';
+    initManavPanel();
   } else if (tabId === 'tab-backups') {
     if (heading) heading.innerText = '💾 Veritabanı & Fiyat Yedekleri';
     if (subheading) subheading.innerText = 'Tüm ürün, fiyat ve etiket ayarlarınızın güvenlik yedekleri ve geri yükleme merkezi';
@@ -244,45 +247,8 @@ function switchTab(tabId) {
 
 
 function showToast(msg, type = "info") {
-  let container = document.getElementById('toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    container.style.position = 'fixed';
-    container.style.top = '20px';
-    container.style.right = '20px';
-    container.style.zIndex = '99999';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '10px';
-    document.body.appendChild(container);
-  }
-
-  const toast = document.createElement('div');
-  const bg = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#0284c7';
-  toast.style.background = bg;
-  toast.style.color = '#ffffff';
-  toast.style.padding = '10px 18px';
-  toast.style.borderRadius = '8px';
-  toast.style.fontWeight = '700';
-  toast.style.fontSize = '13px';
-  toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.35)';
-  toast.style.transition = 'all 0.3s ease';
-  toast.style.opacity = '0';
-  toast.style.transform = 'translateY(-10px)';
-  toast.innerText = msg;
-
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
-  }, 10);
-
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3500);
+  // Kullanıcı isteği: Sağ üstte bildirim kutusu çıkmasın
+  console.log(`[Bildirim - ${type.toUpperCase()}]:`, msg);
 }
 
 

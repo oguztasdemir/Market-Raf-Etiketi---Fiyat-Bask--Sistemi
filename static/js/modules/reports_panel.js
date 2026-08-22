@@ -3,56 +3,139 @@
  */
 
 let dailyReportsData = [];
+let filteredReportsData = [];
 let currentDayDetail = null;
 let currentDetailTab = 'price_changes'; // 'price_changes' | 'printed_items'
 
-async function openDailyReportsModal() {
-  const modal = document.getElementById('modal-daily-reports');
-  if (!modal) return;
-  modal.style.display = 'flex';
-  await loadDailyReportsSummary();
+// Geriye dönük uyumluluk için (Herhangi bir yerden çağrılırsa direkt sekmeye yönlendirir)
+function openDailyReportsModal() {
+  if (typeof switchTab === 'function') {
+    switchTab('tab-reports');
+  }
 }
 
 function closeDailyReportsModal() {
-  const modal = document.getElementById('modal-daily-reports');
-  if (modal) modal.style.display = 'none';
+  // Geriye dönük no-op
 }
 
-async function loadDailyReportsSummary() {
+async function loadDailyReportsSummary(showToastFeedback = false) {
   const container = document.getElementById('daily-reports-list');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-      <div class="spinner" style="margin: 0 auto 12px;"></div>
-      Raporlar yükleniyor...
-    </div>
-  `;
+  const kpiContainer = document.getElementById('reports-kpi-summary');
+  
+  if (container) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 50px 20px; color: var(--text-muted);">
+        <div class="spinner" style="margin: 0 auto 14px;"></div>
+        <div style="font-size: 13px; font-weight: 600;">Faaliyet raporları yükleniyor...</div>
+      </div>
+    `;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/reports/daily`);
     const data = await res.json();
     if (data.status === 'success') {
       dailyReportsData = data.reports || [];
-      renderDailyReportsList(dailyReportsData);
+      filteredReportsData = [...dailyReportsData];
+      
+      const searchInp = document.getElementById('reports-search-inp');
+      if (searchInp && searchInp.value.trim()) {
+        onDailyReportsSearchInput(searchInp.value);
+      } else {
+        renderDailyReportsKPIs(dailyReportsData);
+        renderDailyReportsList(dailyReportsData);
+      }
+
+      if (showToastFeedback && typeof showToast === 'function') {
+        showToast('Raporlar başarıyla güncellendi.', 'success');
+      }
     } else {
-      container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 30px;">Hata: ${data.message}</div>`;
+      if (container) {
+        container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 30px;">Hata: ${data.message}</div>`;
+      }
     }
   } catch (err) {
-    container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 30px;">Bağlantı hatası: ${err.message}</div>`;
+    if (container) {
+      container.innerHTML = `<div style="text-align: center; color: #ef4444; padding: 30px;">Bağlantı hatası: ${err.message}</div>`;
+    }
   }
+}
+
+function renderDailyReportsKPIs(reports) {
+  const kpiContainer = document.getElementById('reports-kpi-summary');
+  if (!kpiContainer) return;
+
+  let totalDays = reports.length;
+  let totalMobileChanges = 0;
+  let totalPcChanges = 0;
+  let totalPrinted = 0;
+
+  reports.forEach(r => {
+    totalMobileChanges += (r.mobile_price_changes || 0);
+    totalPcChanges += (r.pc_price_changes || 0);
+    totalPrinted += (r.total_printed_barcodes || 0);
+  });
+
+  kpiContainer.innerHTML = `
+    <div class="report-kpi-card" style="border-top: 3px solid #38bdf8;">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-content">
+        <span class="kpi-label">KAYITLI GÜN SAYISI</span>
+        <strong class="kpi-value text-accent">${totalDays} Gün</strong>
+      </div>
+    </div>
+
+    <div class="report-kpi-card" style="border-top: 3px solid #a78bfa;">
+      <div class="kpi-icon">📱</div>
+      <div class="kpi-content">
+        <span class="kpi-label">TOPLAM MOBİL DEĞİŞİKLİK</span>
+        <strong class="kpi-value" style="color: #c4b5fd;">${totalMobileChanges.toLocaleString('tr-TR')} Adet</strong>
+      </div>
+    </div>
+
+    <div class="report-kpi-card" style="border-top: 3px solid #60a5fa;">
+      <div class="kpi-icon">💻</div>
+      <div class="kpi-content">
+        <span class="kpi-label">TOPLAM PC DEĞİŞİKLİK</span>
+        <strong class="kpi-value" style="color: #93c5fd;">${totalPcChanges.toLocaleString('tr-TR')} Adet</strong>
+      </div>
+    </div>
+
+    <div class="report-kpi-card" style="border-top: 3px solid #34d399;">
+      <div class="kpi-icon">🖨️</div>
+      <div class="kpi-content">
+        <span class="kpi-label">TOPLAM BASILAN BARKOD</span>
+        <strong class="kpi-value" style="color: #34d399;">${totalPrinted.toLocaleString('tr-TR')} Adet</strong>
+      </div>
+    </div>
+  `;
+}
+
+function onDailyReportsSearchInput(query) {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    filteredReportsData = [...dailyReportsData];
+  } else {
+    filteredReportsData = dailyReportsData.filter(r => {
+      return (r.display_date || '').toLowerCase().includes(q) ||
+             (r.date_key || '').toLowerCase().includes(q);
+    });
+  }
+  renderDailyReportsList(filteredReportsData);
 }
 
 function renderDailyReportsList(reports) {
   const container = document.getElementById('daily-reports-list');
   if (!container) return;
 
-  if (reports.length === 0) {
+  if (!reports || reports.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: var(--text-muted); background: #090d16; border-radius: 10px; border: 1px solid var(--border-color);">
-        <span style="font-size: 32px; display: block; margin-bottom: 8px;">📊</span>
-        <strong>Henüz kaydedilmiş bir faaliyet raporu bulunmuyor.</strong>
-        <p style="font-size: 12px; margin-top: 4px;">Bugün yapılan fiyat değişiklikleri ve baskılar otomatik olarak burada gün gün listelenecektir.</p>
+      <div style="text-align: center; padding: 50px 20px; color: var(--text-muted); background: #090d16; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 6px;">
+        <span style="font-size: 38px; display: block; margin-bottom: 10px;">📊</span>
+        <strong style="font-size: 15px; color: var(--text-main);">Kayıtlı Faaliyet Raporu Bulunamadı</strong>
+        <p style="font-size: 12.5px; margin-top: 6px; color: var(--text-muted);">
+          Mobil ve PC üzerinden yapılan fiyat değişiklikleri ve basılan etiketler otomatik olarak burada gün gün arşivlenir.
+        </p>
       </div>
     `;
     return;
@@ -62,53 +145,51 @@ function renderDailyReportsList(reports) {
   reports.forEach((r, idx) => {
     const card = document.createElement('div');
     card.className = 'daily-report-card';
-    card.style.cssText = `
-      background: #0d1322;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      transition: transform 0.15s ease, border-color 0.15s ease;
-    `;
 
     const isToday = idx === 0;
     const todayBadge = isToday 
-      ? '<span style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4); padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; margin-left: 8px;">BUGÜN</span>' 
+      ? '<span class="today-badge">BUGÜN</span>' 
       : '';
 
+    const totalActions = (r.price_changes_count || 0) + (r.printed_items_count || 0);
+
     card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 12px; margin-bottom: 12px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 20px;">📅</span>
-          <strong style="font-size: 15px; color: #ffffff;">${r.display_date}</strong>
+      <div class="report-card-header">
+        <div class="report-card-title-group">
+          <span class="report-cal-icon">📅</span>
+          <strong class="report-date-text">${r.display_date}</strong>
+          <span class="report-date-key">${r.date_key}</span>
           ${todayBadge}
         </div>
-        <button class="btn-sm btn-primary" onclick="openDailyDetailModal('${r.date_key}')" style="padding: 6px 14px; font-weight: 700; font-size: 12px;">
-          🔍 Günün Detaylarını Gör (${r.price_changes_count + r.printed_items_count} İşlem)
+        <button class="btn-sm btn-primary" onclick="openDailyDetailModal('${r.date_key}')" style="padding: 7px 16px; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>🔍</span> Günün Detaylarını Gör (${totalActions} İşlem)
         </button>
       </div>
 
       <!-- 4 Temel Metrik Kutucuğu -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-        <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">📦 TOPLAM ÜRÜN</div>
-          <div style="font-size: 18px; font-weight: 900; color: #38bdf8; margin-top: 2px;">${r.total_catalog_products.toLocaleString('tr-TR')}</div>
+      <div class="report-metrics-grid">
+        <div class="metric-box">
+          <div class="metric-label">📦 TOPLAM KATALOG</div>
+          <div class="metric-val" style="color: #38bdf8;">${(r.total_catalog_products || 0).toLocaleString('tr-TR')}</div>
+          <small class="metric-sub">Kayıtlı Ürün</small>
         </div>
 
-        <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">📱 MOBİLDEN FİYAT DEĞİŞİMİ</div>
-          <div style="font-size: 18px; font-weight: 900; color: #a78bfa; margin-top: 2px;">${r.mobile_price_changes} Adet</div>
+        <div class="metric-box">
+          <div class="metric-label">📱 MOBİL FİYAT DEĞİŞİMİ</div>
+          <div class="metric-val" style="color: #c4b5fd;">${(r.mobile_price_changes || 0).toLocaleString('tr-TR')} Adet</div>
+          <small class="metric-sub">Reyondan Güncelleme</small>
         </div>
 
-        <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">💻 PC'DEN FİYAT DEĞİŞİMİ</div>
-          <div style="font-size: 18px; font-weight: 900; color: #60a5fa; margin-top: 2px;">${r.pc_price_changes} Adet</div>
+        <div class="metric-box">
+          <div class="metric-label">💻 PC FİYAT DEĞİŞİMİ</div>
+          <div class="metric-val" style="color: #93c5fd;">${(r.pc_price_changes || 0).toLocaleString('tr-TR')} Adet</div>
+          <small class="metric-sub">Sistem / Excel</small>
         </div>
 
-        <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
-          <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">🖨️ BASILAN BARKOD/ETİKET</div>
-          <div style="font-size: 18px; font-weight: 900; color: #34d399; margin-top: 2px;">${r.total_printed_barcodes} Adet</div>
+        <div class="metric-box">
+          <div class="metric-label">🖨️ BASILAN BARKOD/ETİKET</div>
+          <div class="metric-val" style="color: #34d399;">${(r.total_printed_barcodes || 0).toLocaleString('tr-TR')} Adet</div>
+          <small class="metric-sub">Termal Çıktı</small>
         </div>
       </div>
     `;
@@ -127,7 +208,7 @@ async function openDailyDetailModal(dayKey) {
   const bodyEl = document.getElementById('daily-detail-modal-content');
 
   if (titleEl) titleEl.innerText = `Günün İşlem Detayları (${dayKey})`;
-  if (bodyEl) bodyEl.innerHTML = '<div class="spinner" style="margin:40px auto;"></div>';
+  if (bodyEl) bodyEl.innerHTML = '<div class="spinner" style="margin:50px auto;"></div>';
 
   try {
     const res = await fetch(`${API_BASE}/api/reports/daily/${dayKey}`);
@@ -192,12 +273,12 @@ function renderCurrentDayDetailContent() {
 
       rowsHtml += `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-          <td style="padding: 8px 10px; font-family: monospace; color: #94a3b8;">${item.time}</td>
-          <td style="padding: 8px 10px;">${srcBadge}</td>
-          <td style="padding: 8px 10px; font-family: monospace; color: #38bdf8;">${item.barcode}</td>
-          <td style="padding: 8px 10px; font-weight: 700; color: #ffffff;">${item.title}</td>
-          <td style="padding: 8px 10px; color: #ef4444; text-decoration: line-through; text-align: right;">${item.old_price}</td>
-          <td style="padding: 8px 10px; color: #34d399; font-weight: 900; text-align: right;">${item.new_price}</td>
+          <td style="padding: 9px 12px; font-family: monospace; color: #94a3b8;">${item.time}</td>
+          <td style="padding: 9px 12px;">${srcBadge}</td>
+          <td style="padding: 9px 12px; font-family: monospace; color: #38bdf8; font-weight: 700;">${item.barcode}</td>
+          <td style="padding: 9px 12px; font-weight: 700; color: #ffffff;">${item.title}</td>
+          <td style="padding: 9px 12px; color: #ef4444; text-decoration: line-through; text-align: right; font-weight: 600;">${item.old_price}</td>
+          <td style="padding: 9px 12px; color: #34d399; font-weight: 900; text-align: right;">${item.new_price}</td>
         </tr>
       `;
     });
@@ -206,12 +287,12 @@ function renderCurrentDayDetailContent() {
       <table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
         <thead>
           <tr style="background: #090d16; color: var(--text-muted); text-align: left; position: sticky; top: 0; z-index: 2;">
-            <th style="padding: 8px 10px; width: 70px;">Saat</th>
-            <th style="padding: 8px 10px; width: 90px;">Kaynak</th>
-            <th style="padding: 8px 10px; width: 120px;">Barkod</th>
-            <th style="padding: 8px 10px;">Ürün Adı</th>
-            <th style="padding: 8px 10px; text-align: right; width: 100px;">Eski Fiyat</th>
-            <th style="padding: 8px 10px; text-align: right; width: 110px;">Yeni Fiyat</th>
+            <th style="padding: 9px 12px; width: 70px;">Saat</th>
+            <th style="padding: 9px 12px; width: 90px;">Kaynak</th>
+            <th style="padding: 9px 12px; width: 130px;">Barkod</th>
+            <th style="padding: 9px 12px;">Ürün Adı</th>
+            <th style="padding: 9px 12px; text-align: right; width: 100px;">Eski Fiyat</th>
+            <th style="padding: 9px 12px; text-align: right; width: 110px;">Yeni Fiyat</th>
           </tr>
         </thead>
         <tbody>
@@ -245,12 +326,12 @@ function renderCurrentDayDetailContent() {
 
       rowsHtml += `
         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-          <td style="padding: 8px 10px; font-family: monospace; color: #94a3b8;">${item.time}</td>
-          <td style="padding: 8px 10px;">${srcBadge}</td>
-          <td style="padding: 8px 10px; font-family: monospace; color: #38bdf8;">${item.barcode || '-'}</td>
-          <td style="padding: 8px 10px; font-weight: 700; color: #ffffff;">${item.title}</td>
-          <td style="padding: 8px 10px; color: #34d399; font-weight: 900; text-align: right;">${item.price || '-'}</td>
-          <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #38bdf8;">${item.copies || 1} Adet</td>
+          <td style="padding: 9px 12px; font-family: monospace; color: #94a3b8;">${item.time}</td>
+          <td style="padding: 9px 12px;">${srcBadge}</td>
+          <td style="padding: 9px 12px; font-family: monospace; color: #38bdf8; font-weight: 700;">${item.barcode || '-'}</td>
+          <td style="padding: 9px 12px; font-weight: 700; color: #ffffff;">${item.title}</td>
+          <td style="padding: 9px 12px; color: #34d399; font-weight: 900; text-align: right;">${item.price || '-'}</td>
+          <td style="padding: 9px 12px; text-align: center; font-weight: 800; color: #38bdf8;">${item.copies || 1} Adet</td>
         </tr>
       `;
     });
@@ -259,12 +340,12 @@ function renderCurrentDayDetailContent() {
       <table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
         <thead>
           <tr style="background: #090d16; color: var(--text-muted); text-align: left; position: sticky; top: 0; z-index: 2;">
-            <th style="padding: 8px 10px; width: 70px;">Saat</th>
-            <th style="padding: 8px 10px; width: 90px;">Kaynak</th>
-            <th style="padding: 8px 10px; width: 120px;">Barkod</th>
-            <th style="padding: 8px 10px;">Ürün Adı</th>
-            <th style="padding: 8px 10px; text-align: right; width: 110px;">Basılan Fiyat</th>
-            <th style="padding: 8px 10px; text-align: center; width: 90px;">Baskı Adedi</th>
+            <th style="padding: 9px 12px; width: 70px;">Saat</th>
+            <th style="padding: 9px 12px; width: 90px;">Kaynak</th>
+            <th style="padding: 9px 12px; width: 130px;">Barkod</th>
+            <th style="padding: 9px 12px;">Ürün Adı</th>
+            <th style="padding: 9px 12px; text-align: right; width: 110px;">Basılan Fiyat</th>
+            <th style="padding: 9px 12px; text-align: center; width: 90px;">Baskı Adedi</th>
           </tr>
         </thead>
         <tbody>
@@ -278,6 +359,8 @@ function renderCurrentDayDetailContent() {
 // Global olarak pencereye bağla
 window.openDailyReportsModal = openDailyReportsModal;
 window.closeDailyReportsModal = closeDailyReportsModal;
+window.loadDailyReportsSummary = loadDailyReportsSummary;
+window.onDailyReportsSearchInput = onDailyReportsSearchInput;
 window.openDailyDetailModal = openDailyDetailModal;
 window.closeDailyDetailModal = closeDailyDetailModal;
 window.switchDetailSubTab = switchDetailSubTab;

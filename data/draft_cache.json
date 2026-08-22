@@ -1,17 +1,17 @@
 {
-  "timestamp": 1787323201638,
-  "saved_at": "21 Ağu 2026 17:40:01",
-  "active_tab": "tab-qr",
+  "timestamp": 1787327965136,
+  "saved_at": "21 Ağu 2026 18:59:25",
+  "active_tab": "tab-catalog",
   "is_dirty": true,
   "label_form": {
-    "title1": "ULK 398-6 PİKO PORTAKAL",
-    "title2": "PİR PAT KAP",
+    "title1": "DOMATES",
+    "title2": "",
     "brand": "YARENLER",
     "origin": "TÜRKİYE",
     "date": "21 Ağu 2026",
-    "unit_price": "250,00 ₺/Kg",
-    "barcode": "8690504114925",
-    "price": "10,00 TL",
+    "unit_price": "79,95 TL / Kg",
+    "barcode": "1001",
+    "price": "79,95 TL",
     "copies": "1"
   }
 }
