@@ -2,15 +2,13 @@
 """
 Termal Baskı Gönderme, Toplu Yazdırma, Canlı Durum, Ağ & Ayarlar API Rotaları
 """
-import io
 import time
 import math
 import base64
-import datetime
 from flask import Blueprint, jsonify, request
-from backend.ayarlar import PRODUCTS_FILE, DRAFT_CACHE_FILE, SETTINGS_FILE
+from backend.ayarlar import DRAFT_CACHE_FILE, SETTINGS_FILE
 from backend.araclar.depolama_araclari import load_json, save_json
-from backend.araclar.metin_duzenleyici import clean_barcode, get_online_or_system_date
+from backend.araclar.metin_duzenleyici import get_online_or_system_date
 from backend.araclar.excel_dosya_izleyici import get_local_ip
 from backend.yazdirma.yazdirma_servisi import (
     get_installed_printers, generate_tspl_command, send_raw_to_printer,
@@ -18,7 +16,6 @@ from backend.yazdirma.yazdirma_servisi import (
 )
 from backend.yazdirma.zpl_etiket_kodlayici import generate_market_shelf_zpl
 from backend.yazdirma.yazici_baglanti_servisi import print_raw_zpl, get_printer_status
-from backend.katalog.excel_katalog_servisi import clear_diff_cache
 from backend.raporlama.raporlama_servisi import log_printed_batch
 
 print_bp = Blueprint('print_bp', __name__)
@@ -190,23 +187,89 @@ def api_devices():
 
 @print_bp.route("/api/settings", methods=["GET", "POST"])
 def api_settings():
-    """Sistem ayarlarını okur veya günceller."""
+    """Market bilgileri, POS komisyon ve donanım ayarlarını okur veya günceller."""
     if request.method == "POST":
         data = request.json or {}
-        save_json(SETTINGS_FILE, data)
-        return jsonify({"status": "success", "message": "Ayarlar kaydedildi."})
+        current = load_json(SETTINGS_FILE, DEFAULT_MARKET_SETTINGS)
+        current.update(data)
+        save_json(SETTINGS_FILE, current)
+        return jsonify({"status": "success", "message": "Ayarlar başarıyla kaydedildi.", "settings": current})
     else:
-        settings = load_json(SETTINGS_FILE, {
-            "printer": "Termal Etiket Yazici",
-            "dpi": 203,
-            "width_mm": 76,
-            "height_mm": 40,
-            "x_offset": 0,
-            "y_offset": 0,
-            "orientation": "POR",
-            "theme": "dark"
-        })
-        return jsonify({"status": "success", "settings": settings})
+        settings = load_json(SETTINGS_FILE, DEFAULT_MARKET_SETTINGS)
+        # Eksik varsayılanları tamamla
+        merged = dict(DEFAULT_MARKET_SETTINGS)
+        merged.update(settings)
+        return jsonify({"status": "success", "settings": merged})
+
+@print_bp.route("/api/cashiers", methods=["GET", "POST"])
+def api_cashiers():
+    """Kasiyer listesini döner veya yeni kasiyer ekler."""
+    if request.method == "POST":
+        req = request.json or {}
+        name = str(req.get("name", "")).strip()
+        cid = str(req.get("id", "")).strip().lower() or name.lower().replace(" ", "_")
+        pin = str(req.get("pin", "")).strip()
+        role = req.get("role", "cashier")
+        
+        if not name:
+            return jsonify({"status": "error", "message": "Kasiyer adı boş olamaz."}), 400
+            
+        cashiers = load_json(CASHIERS_FILE, [])
+        # Var olanı kontrol et
+        for c in cashiers:
+            if c.get("id") == cid:
+                c["name"] = name
+                if pin:
+                    c["pin"] = pin
+                c["role"] = role
+                c["active"] = req.get("active", True)
+                save_json(CASHIERS_FILE, cashiers)
+                return jsonify({"status": "success", "message": "Kasiyer bilgileri güncellendi.", "cashiers": cashiers})
+                
+        # Yeni Kasiyer Ekle
+        new_cashier = {
+            "id": cid,
+            "name": name,
+            "pin": pin,
+            "role": role,
+            "active": True,
+            "created_at": time.strftime("%Y-%m-%d %H:%M")
+        }
+        cashiers.append(new_cashier)
+        save_json(CASHIERS_FILE, cashiers)
+        return jsonify({"status": "success", "message": f"{name} başarıyla kasiyer olarak eklendi.", "cashiers": cashiers})
+    else:
+        cashiers = load_json(CASHIERS_FILE, [
+            {"id": "kasa1", "name": "Kasa 1 (Kasiyer 1)", "pin": "", "role": "cashier", "active": True},
+            {"id": "admin", "name": "Yönetici (Admin)", "pin": "", "role": "admin", "active": True}
+        ])
+        return jsonify({"status": "success", "cashiers": cashiers})
+
+@print_bp.route("/api/cashiers/delete", methods=["POST"])
+def api_delete_cashier():
+    """Kasiyeri siler."""
+    req = request.json or {}
+    cid = req.get("id")
+    if not cid:
+        return jsonify({"status": "error", "message": "Geçersiz kasiyer ID."}), 400
+        
+    cashiers = load_json(CASHIERS_FILE, [])
+    cashiers = [c for c in cashiers if c.get("id") != cid]
+    save_json(CASHIERS_FILE, cashiers)
+    return jsonify({"status": "success", "message": "Kasiyer sistemden silindi.", "cashiers": cashiers})
+
+@print_bp.route("/api/cashiers/toggle-active", methods=["POST"])
+def api_toggle_cashier_active():
+    """Kasiyer aktif/pasif durumunu değiştirir."""
+    req = request.json or {}
+    cid = req.get("id")
+    cashiers = load_json(CASHIERS_FILE, [])
+    for c in cashiers:
+        if c.get("id") == cid:
+            c["active"] = not c.get("active", True)
+            break
+    save_json(CASHIERS_FILE, cashiers)
+    return jsonify({"status": "success", "message": "Kasiyer durumu güncellendi.", "cashiers": cashiers})
 
 @print_bp.route("/api/preview/zpl", methods=["POST"])
 def api_preview_zpl():

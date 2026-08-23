@@ -1,0 +1,86 @@
+<div id="modal-pos-mobile-qr" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
+    <div style="background: #0b1329; border: 2px solid #0284c7; border-radius: 16px; width: 780px; max-width: 95%; overflow: hidden; box-shadow: 0 0 50px rgba(2,132,199,0.35); animation: modalPop 0.2s ease; padding: 22px; box-sizing: border-box;">
+      
+      <!-- Başlık & Kapat Butonu -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="background: linear-gradient(135deg, #0284c7, #0369a1); width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 0 15px rgba(2,132,199,0.4);">📱</div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; font-weight: 900; color: #38bdf8;">Canlı Mobil Terminal & Reyon Okuyucu</h3>
+            <small style="color: #94a3b8; font-size: 11.5px;">Telefonunuzun kamerasıyla QR kodu okutarak anında bağlanın</small>
+          </div>
+        </div>
+        <button onclick="closePosMobileQrModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 0 4px;" title="Kapat [ESC]">&times;</button>
+      </div>
+
+      <!-- 2 Sütunlu İçerik (Solda QR & Adres, Sağda Bağlı Cihazlar) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        
+        <!-- SOL: QR KOD & ADRES -->
+        <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+          <div style="background: #ffffff; padding: 12px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; min-width: 170px; min-height: 170px;">
+            <canvas id="pos-mobile-qr-canvas"></canvas>
+          </div>
+          
+          <div style="width: 100%; display: flex; gap: 6px; align-items: center; margin-bottom: 8px;">
+            <input type="text" id="pos-mobile-url-inp" readonly style="flex: 1; padding: 7px 10px; background: #070d1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #38bdf8; font-family: monospace; font-size: 12px; font-weight: 700; outline: none; text-align: center;">
+            <button type="button" class="btn-secondary" onclick="copyPosMobileUrl()" style="padding: 7px 12px; font-size: 11.5px; font-weight: 800; border-color: rgba(56,189,248,0.4); color: #38bdf8; white-space: nowrap;">
+              📋 Kopyala
+            </button>
+          </div>
+
+          <div style="display: flex; gap: 6px; width: 100%;">
+            <button type="button" onclick="switchPosMobileQrProtocol('https')" id="btn-qr-https" style="flex: 1; padding: 6px 4px; font-size: 11px; font-weight: 800; border-radius: 6px; background: #0284c7; border: 1px solid #38bdf8; color: #fff; cursor: pointer;">
+              📷 HTTPS (Kamera)
+            </button>
+            <button type="button" onclick="switchPosMobileQrProtocol('http')" id="btn-qr-http" style="flex: 1; padding: 6px 4px; font-size: 11px; font-weight: 800; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; cursor: pointer;">
+              🌐 HTTP (Normal)
+            </button>
+          </div>
+        </div>
+
+        <!-- SAĞ: BAĞLI MOBİL CİHAZLAR -->
+        <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; display: flex; flex-direction: column;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <strong style="color: #f8fafc; font-size: 13px; font-weight: 800;">📱 Bağlı Mobil Cihazlar</strong>
+              <span id="pos-mobile-connected-badge" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); color: #34d399; font-size: 10.5px; font-weight: 900; padding: 2px 7px; border-radius: 6px;">0 Cihaz</span>
+            </div>
+            <button type="button" onclick="loadConnectedDevices()" style="background: transparent; border: none; color: #38bdf8; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              🔄 Yenile
+            </button>
+          </div>
+
+          <!-- Cihaz Listesi -->
+          <div id="pos-mobile-devices-list" style="flex: 1; min-height: 150px; max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px;">
+            <div style="color: #64748b; font-size: 12px; text-align: center; margin: auto; padding: 20px 0;">
+              Henüz bağlı mobil cihaz bulunmuyor.<br>
+              <small style="color: #475569; font-size: 11px;">Soldaki QR kodu telefonunuzla okutun</small>
+            </div>
+          </div>
+
+          <div style="background: rgba(2,132,199,0.1); border: 1px solid rgba(2,132,199,0.25); border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #7dd3fc; margin-top: 8px;">
+            💡 <strong>İpucu:</strong> Reyondaki personel barkod okuttukça veya fiyat güncelledikçe anında kasada görünür.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Alt Bilgi & Kapat Butonu -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #10b981; font-weight: 700;">
+          <span style="font-size: 14px;">🟢</span> Arka planda mobil bağlantı kesintisiz aktiftir (Kapatınca bağlantı kopmaz).
+        </div>
+        <button type="button" class="btn-primary" onclick="closePosMobileQrModal()" style="padding: 9px 24px; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+          ✕ Tamam / Kapat [ESC]
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: HIZLI ÜRÜN EKLE / DÜZENLE (BARKODLU ANLIK SORGULU)
+       ========================================================= -->

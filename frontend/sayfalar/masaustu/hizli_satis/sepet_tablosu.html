@@ -1,0 +1,99 @@
+<!-- SOL: POS KASA SEPETİ -->
+          <div style="display: flex; flex-direction: column; gap: 8px; background: #0b1329; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 12px; overflow: hidden;">
+
+            <!-- 2. BOYDAN BOYA SARI FİLİGRAN SATIŞ SERİ SAYACI BARI -->
+            <div class="pos-sales-watermark-bar" style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(90deg, rgba(234, 179, 8, 0.08) 0%, rgba(250, 204, 21, 0.18) 50%, rgba(234, 179, 8, 0.08) 100%); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 6px 14px; box-sizing: border-box; overflow: hidden; box-shadow: 0 0 15px rgba(234, 179, 8, 0.08);">
+              
+              <!-- Sol Kısım: Küçük Canlı İkon / İndikatör -->
+              <div style="position: absolute; left: 12px; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #eab308; opacity: 0.9;">
+                <span>⚡ SATIŞ:</span>
+              </div>
+
+              <!-- TAM ORTA: BÜYÜK SARI FİLİGRAN SATIŞ KODU (A000.000.001) -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <strong id="pos-lifetime-sales-count" style="color: #fef08a; font-family: 'JetBrains Mono', 'Fira Code', monospace, sans-serif; font-size: 17px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 12px rgba(250, 204, 21, 0.6); text-transform: uppercase;">
+                  A000.000.001
+                </strong>
+              </div>
+
+              <!-- Sağ Kısım: İpucu -->
+              <div style="position: absolute; right: 12px; font-size: 11px; color: #94a3b8;">
+                İpucu: <strong style="color: #cbd5e1;">10*Barkod</strong> veya <strong style="color: #cbd5e1;">*1 (1 TL)</strong>
+              </div>
+            </div>
+
+            <!-- 2.5. BEKLEYEN X (GENİŞ, TIKLANABİLİR, SADECE YAZISI YANIP SÖNEN DİNAMİK BUTON BARI) -->
+            <div id="pos-waiting-bar-container" class="pos-waiting-inactive" onclick="handleWaitingBarClick()" style="border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 15px; font-weight: 900; letter-spacing: 1.5px; transition: all 0.25s; user-select: none;" title="Bekleyen Fişi Geri Yükle">
+              <span id="pos-waiting-bar-text" class="pos-waiting-blink-text">BEKLEYEN 0</span>
+            </div>
+
+            <!-- 2.6. BEKLEYEN ÜRÜNLERİ GÖRME & ÖNİZLEME ALANI -->
+            <div id="pos-waiting-preview-container" style="display: none; background: rgba(15,23,42,0.9); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; padding: 6px 10px; font-size: 11.5px; max-height: 90px; overflow-y: auto;">
+              <div id="pos-waiting-preview-list" style="display: flex; flex-direction: column; gap: 4px;">
+                <!-- JS dinamik dolduracak -->
+              </div>
+            </div>
+
+            <!-- 3. BARKOD NUMARASI VEYA İSİMLE ÜRÜN ARAMA GİRİŞ ALANI -->
+            <div style="display: flex; gap: 6px; align-items: center; position: relative;">
+              <div style="flex: 1; position: relative;">
+                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px;">🔍</span>
+                <input type="text" id="pos-barcode-input" placeholder="Barkod veya Ürün Adı yazın (Örn: Domates, Elma, 5*869...)" oninput="onPosBarcodeInputLive(this.value)" onkeydown="handlePosBarcodeInput(event)" onfocus="setPosActiveInput(this)" autofocus style="width: 100%; padding: 10px 12px 10px 38px; font-size: 14px; font-weight: 600; border-radius: 8px; background: #0f172a; border: 2px solid #38bdf8; color: #ffffff; outline: none; box-shadow: 0 0 12px rgba(56,189,248,0.12); box-sizing: border-box;" autocomplete="off">
+                
+                <!-- Canlı Ürün Arama & Otomatik Tamamlama Açılır Paneli -->
+                <div id="pos-autocomplete-popup" style="display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 99999; background: #0b1329; border: 2px solid #38bdf8; border-radius: 10px; box-shadow: 0 16px 45px rgba(0,0,0,0.9); max-height: 290px; overflow-y: auto;">
+                  <!-- JS Dinamik Dolduracak -->
+                </div>
+              </div>
+              <button type="button" class="btn-secondary" onclick="clearPosBarcodeInput()" style="padding: 10px 14px; color: #f87171; border-color: rgba(239,68,68,0.3); font-size: 12.5px; font-weight: 700;" title="Giriş Alanını Temizle">
+                ✕ Sil
+              </button>
+              <button type="button" class="btn-primary" onclick="submitPosBarcodeInput()" style="padding: 10px 18px; font-size: 13px; font-weight: 700;">
+                ➕ Ekle
+              </button>
+            </div>
+
+            <!-- 4. TOTAL FİYAT (ARKA PLANI DÜZ KOYU, BÜYÜK KIRMIZI DİJİTAL YAZIYLA) -->
+            <div style="background: #070d1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+              <div style="font-size: 12px; color: #94a3b8; font-weight: 900; letter-spacing: 0.5px;">TOTAL FİYAT</div>
+              <div id="pos-cart-grand-total" style="font-size: 36px; font-weight: 900; color: #ef4444; font-family: monospace;">
+                0,00 TL
+              </div>
+            </div>
+
+            <!-- 5. SEPET TABLOSU: ÜRÜN ADI | MİKTAR | BİRİM ADI | BİRİM FİYAT | ÜRÜN TUTARI -->
+            <div style="flex: 1; background: #070d1e; border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; overflow-y: auto; padding: 0; min-height: 180px;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px;">
+                <thead>
+                  <tr style="background: #0f172a; color: #94a3b8; font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.12); position: sticky; top: 0; z-index: 10;">
+                    <th style="padding: 9px 10px; border-right: 1px solid rgba(255,255,255,0.08);">Ürün Adı</th>
+                    <th style="padding: 9px 8px; text-align: center; width: 105px; border-right: 1px solid rgba(255,255,255,0.08);">Miktar</th>
+                    <th style="padding: 9px 8px; text-align: center; width: 85px; border-right: 1px solid rgba(255,255,255,0.08);">Birim Adı</th>
+                    <th style="padding: 9px 8px; text-align: right; width: 95px; border-right: 1px solid rgba(255,255,255,0.08);">Birim Fiyat</th>
+                    <th style="padding: 9px 8px; text-align: right; width: 105px; border-right: 1px solid rgba(255,255,255,0.08);">Ürün Tutarı</th>
+                    <th style="padding: 9px 6px; text-align: center; width: 45px;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="pos-cart-tbody">
+                  <!-- JS dinamik dolduracak -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- 6. TABLONUN ALTINDA 4'LÜ DETAYLI ÖZET ŞERİDİ (ÇEŞİT | TOPLAM ADET | TOPLAM KG | TOPLAM TL) -->
+            <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 7px 12px; display: grid; grid-template-columns: 1fr 1fr 1fr 1.1fr; gap: 6px; align-items: center; font-size: 11.5px;">
+              <div style="color: #94a3b8;">
+                📦 Çeşit: <strong id="pos-summary-variety" style="color: #38bdf8; font-size: 13px; font-weight: 800;">0</strong> Kalem
+              </div>
+              <div style="color: #94a3b8; text-align: center;">
+                🔢 Toplam Adet: <strong id="pos-summary-qty" style="color: #60a5fa; font-size: 13px; font-weight: 800;">0</strong>
+              </div>
+              <div style="color: #94a3b8; text-align: center;">
+                ⚖️ Toplam Tartım: <strong id="pos-summary-kg" style="color: #34d399; font-size: 13px; font-weight: 800;">0,00 Kg</strong>
+              </div>
+              <div style="color: #94a3b8; text-align: right;">
+                💰 Toplam: <strong id="pos-summary-total" style="color: #ef4444; font-size: 14.5px; font-weight: 900; font-family: monospace;">0,00 TL</strong>
+              </div>
+            </div>
+
+          </div>

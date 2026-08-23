@@ -1,0 +1,67 @@
+<!-- =========================================================
+     MODAL: MOBİL REYON HIZLI ÜRÜN TANIMLA
+     ========================================================= -->
+<div id="modal-mobile-quick-product" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; align-items: center; justify-content: center; padding: 14px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 2px solid #f59e0b; border-radius: 14px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; padding: 18px; box-sizing: border-box; box-shadow: 0 0 35px rgba(245,158,11,0.35);">
+    
+    <!-- Başlık -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 14px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">⚡</span>
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 900; color: #f59e0b;">Hızlı Ürün Tanımla</h3>
+          <small style="color: #94a3b8; font-size: 11px;">Reyondan anında yeni ürün kaydet</small>
+        </div>
+      </div>
+      <button onclick="closeMobileQuickProductModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+    </div>
+
+    <!-- Form -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 3px;">BARKOD</label>
+        <input type="text" id="mob-quick-barcode" placeholder="Barkod okutun veya yazın..." style="width: 100%; padding: 10px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-family: monospace; font-size: 14px; font-weight: 700; box-sizing: border-box;">
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 3px;">ÜRÜN ADI</label>
+        <input type="text" id="mob-quick-title" placeholder="Örn: Çaykur Rize Çay 1000g" style="width: 100%; padding: 10px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; box-sizing: border-box;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #10b981; margin-bottom: 3px;">SATIŞ FİYATI (TL)</label>
+          <input type="number" step="0.01" id="mob-quick-price" placeholder="0.00" style="width: 100%; padding: 10px; background: #070d1e; border: 1.5px solid #10b981; border-radius: 8px; color: #10b981; font-family: monospace; font-size: 15px; font-weight: 900; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 3px;">ALIŞ FİYATI (TL)</label>
+          <input type="number" step="0.01" id="mob-quick-buying-price" placeholder="0.00" style="width: 100%; padding: 10px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #cbd5e1; font-family: monospace; font-size: 14px; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 3px;">BİRİM</label>
+        <select id="mob-quick-unit" style="width: 100%; padding: 10px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box;">
+          <option value="Adet" selected>Adet</option>
+          <option value="Kg">Kg (Manav / Tartım)</option>
+          <option value="Paket">Paket</option>
+          <option value="Koli">Koli</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Butonlar -->
+    <div style="display: flex; gap: 8px; margin-top: 16px;">
+      <button type="button" onclick="closeMobileQuickProductModal()" style="flex: 1; padding: 10px; background: #334155; border: none; border-radius: 8px; color: #cbd5e1; font-weight: 700; font-size: 13px; cursor: pointer;">
+        İptal
+      </button>
+      <button type="button" onclick="submitMobileQuickProduct(false)" style="flex: 1.2; padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: #fff; font-weight: 700; font-size: 12.5px; cursor: pointer;">
+        Kaydet
+      </button>
+      <button type="button" onclick="submitMobileQuickProduct(true)" style="flex: 1.5; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 8px; color: #000; font-weight: 900; font-size: 12.5px; cursor: pointer;">
+        ⚡ Kaydet & Listeye At
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div id="modal-new-expense" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.85); backdrop-filter: blur(6px); z-index: 99999999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; width: 520px; max-width: 95vw; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.85);">
+    
+    <!-- Modal Başlık -->
+    <div style="padding: 14px 20px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">💸</span>
+        <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #f87171;">Yeni Gider Kaydı Ekle</h3>
+      </div>
+      <button onclick="closeNewExpenseModal()" class="btn-secondary" style="padding: 4px 10px; font-weight: 800; font-size: 13px;">✕</button>
+    </div>
+
+    <!-- Modal Formu -->
+    <form id="form-new-expense" onsubmit="submitSaveExpenseForm(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+      
+      <div class="form-row" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Gider Kategorisi *</label>
+          <select id="modal-exp-category" required class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="Dükkan Kirası">🏢 Dükkan Kirası</option>
+            <option value="Personel Maaşı & Avans">👥 Personel Maaşı & Avans</option>
+            <option value="Elektrik, Su & Faturalar">💡 Elektrik, Su & Faturalar</option>
+            <option value="Toptancı / Mal Alımı">🚚 Toptancı / Mal Alımı</option>
+            <option value="Temizlik & Sarf Malzeme">🧹 Temizlik & Sarf Malzeme</option>
+            <option value="Vergi, Muhasebe & Diğer" selected>🧾 Vergi, Muhasebe & Diğer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Gider Tutarı (TL) *</label>
+          <input type="number" id="modal-exp-amount" step="0.5" min="1" required placeholder="0.00" style="width: 100%; padding: 8px 10px; font-size: 14px; font-weight: 900; font-family: monospace; background: rgba(15,23,42,0.8); border: 1px solid rgba(239,68,68,0.4); border-radius: 6px; color: #f87171; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Gider Açıklaması / Başlık *</label>
+        <input type="text" id="modal-exp-title" required placeholder="Örn: Ağustos ayı dükkan kirası veya Toptan su faturası..." style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Ödeme Şekli</label>
+          <select id="modal-exp-payment-method" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="Kasa Nakit" selected>💵 Kasa Nakit</option>
+            <option value="Banka Havale / EFT">🏦 Banka Havale / EFT</option>
+            <option value="Kredi Kartı">💳 Kredi Kartı</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Ödeme Yapılan Kişi / Kurum</label>
+          <input type="text" id="modal-exp-recipient" placeholder="Örn: Mülk Sahibi, Tedaş, Toptancı..." style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Gider Tarihi</label>
+          <input type="date" id="modal-exp-date" style="width: 100%; padding: 7px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Ek Notlar</label>
+          <input type="text" id="modal-exp-notes" placeholder="İsteğe bağlı ek açıklama..." style="width: 100%; padding: 7px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px;">
+        <button type="button" onclick="closeNewExpenseModal()" class="btn-secondary" style="padding: 8px 16px; font-size: 12px; font-weight: 700;">İptal</button>
+        <button type="submit" class="btn-primary" style="padding: 8px 22px; font-size: 12px; font-weight: 800; background: #dc2626;">💾 Gideri Kaydet</button>
+      </div>
+
+    </form>
+  </div>
+</div>

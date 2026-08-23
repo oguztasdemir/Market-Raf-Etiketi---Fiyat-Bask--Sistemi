@@ -2,13 +2,15 @@
 """
 Ürün Kataloğu, Ürün Arama, CRUD ve Kara Liste API Rotaları
 """
+import os
 import datetime
-from flask import Blueprint, jsonify, request
-from backend.ayarlar import PRODUCTS_FILE, BLACKLIST_FILE, CUSTOM_BARCODES_FILE
+from flask import Blueprint, jsonify, request, send_file
+from werkzeug.utils import secure_filename
+from backend.ayarlar import PRODUCTS_FILE, BLACKLIST_FILE, CUSTOM_BARCODES_FILE, SISTEM_EXCELI_DIR, PRODUCT_ACTIVITIES_FILE, SALES_DIR
 from backend.araclar.depolama_araclari import load_json, save_json
-from backend.araclar.metin_duzenleyici import clean_barcode, clean_product_title, format_price_display, get_online_or_system_date, get_online_or_system_datetime
+from backend.araclar.metin_duzenleyici import clean_barcode, clean_product_title, format_price_display, get_online_or_system_datetime
 from backend.yedekleme.yedekleme_servisi import create_products_backup
-from backend.katalog.excel_katalog_servisi import clear_diff_cache
+from backend.katalog.excel_katalog_servisi import analyze_excel_diff, get_latest_excel_path, clear_diff_cache
 from backend.raporlama.raporlama_servisi import log_price_change, log_printed_batch
 
 catalog_bp = Blueprint('catalog_bp', __name__)
@@ -533,5 +535,217 @@ def api_delete_custom_barcode():
         "message": "Özel barkod silindi.",
         "custom_barcodes": items[:6]
     })
+
+
+# =========================================================
+# KATALOG GÜNCELLEME & EXCEL / CSV SENKRONİZASYON ROTALARI
+# =========================================================
+
+@catalog_bp.route("/api/catalog/sync-status", methods=["GET"])
+def api_catalog_sync_status():
+    """En son yüklenen Excel/CSV stok dosyasının fark analizini döner."""
+    latest_file = get_latest_excel_path()
+    if not latest_file:
+        return jsonify({"status": "no_file", "message": "Henüz yüklenmiş Excel/CSV dosyası bulunmuyor."})
+
+    res = analyze_excel_diff(latest_file)
+    return jsonify(res)
+
+
+@catalog_bp.route("/api/catalog/upload-excel", methods=["POST"])
+def api_catalog_upload_excel():
+    """Yeni Excel veya CSV stok listesi yükler ve anında analiz eder."""
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "message": "Yüklenecek dosya seçilmedi."}), 400
+
+    file = request.files['file']
+    if not file or not file.filename:
+        return jsonify({"status": "error", "message": "Geçersiz dosya."}), 400
+
+    filename = file.filename
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ['.xlsx', '.xls', '.csv']:
+        return jsonify({"status": "error", "message": "Sadece .xlsx, .xls veya .csv dosyaları desteklenir."}), 400
+
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    safe_name = f"stok_{now_str}{ext}"
+    dest_path = os.path.join(SISTEM_EXCELI_DIR, safe_name)
+
+    os.makedirs(SISTEM_EXCELI_DIR, exist_ok=True)
+    file.save(dest_path)
+    clear_diff_cache()
+
+    res = analyze_excel_diff(dest_path)
+    return jsonify(res)
+
+
+@catalog_bp.route("/api/catalog/excel-history", methods=["GET"])
+def api_catalog_excel_history():
+    """Yüklenen geçmiş Excel ve CSV dosyalarının arşiv listesini döner."""
+    if not os.path.exists(SISTEM_EXCELI_DIR):
+        return jsonify({"status": "success", "history": []})
+
+    files = [
+        f for f in os.listdir(SISTEM_EXCELI_DIR)
+        if f.lower().endswith(('.xlsx', '.xls', '.csv'))
+    ]
+
+    history = []
+    latest_path = get_latest_excel_path()
+    latest_name = os.path.basename(latest_path) if latest_path else None
+
+    for fname in sorted(files, reverse=True):
+        fpath = os.path.join(SISTEM_EXCELI_DIR, fname)
+        mtime = os.path.getmtime(fpath)
+        dt_str = datetime.datetime.fromtimestamp(mtime).strftime("%d %b %Y %H:%M")
+        size_kb = f"{os.path.getsize(fpath) / 1024:.1f} KB"
+
+        stats = {}
+        try:
+            diff_res = analyze_excel_diff(fpath)
+            stats = diff_res.get("stats", {})
+        except Exception:
+            pass
+
+        history.append({
+            "filename": fname,
+            "date": dt_str,
+            "size": size_kb,
+            "timestamp": mtime,
+            "is_latest": (fname == latest_name),
+            "stats": stats
+        })
+
+    history.sort(key=lambda x: x["timestamp"], reverse=True)
+    return jsonify({"status": "success", "history": history})
+
+
+@catalog_bp.route("/api/catalog/excel-detail/<path:filename>", methods=["GET"])
+def api_catalog_excel_detail(filename):
+    """Arşivdeki belirli bir Excel dosyasının detaylı fark analizini döner."""
+    safe_name = os.path.basename(filename)
+    fpath = os.path.join(SISTEM_EXCELI_DIR, safe_name)
+    if not os.path.exists(fpath):
+        return jsonify({"status": "error", "message": "Dosya bulunamadı."}), 404
+
+    res = analyze_excel_diff(fpath)
+    return jsonify(res)
+
+
+@catalog_bp.route("/api/catalog/excel-download/<path:filename>", methods=["GET"])
+def api_catalog_excel_download(filename):
+    """Arşivdeki Excel dosyasını indirmek üzere sunar."""
+    safe_name = os.path.basename(filename)
+    fpath = os.path.join(SISTEM_EXCELI_DIR, safe_name)
+    if not os.path.exists(fpath):
+        return jsonify({"status": "error", "message": "Dosya bulunamadı."}), 404
+
+    return send_file(fpath, as_attachment=True, download_name=safe_name)
+
+
+@catalog_bp.route("/api/catalog/excel-delete", methods=["POST"])
+def api_catalog_excel_delete():
+    """Arşivden belirtilen Excel dosyasını siler."""
+    req_data = request.json or {}
+    filename = req_data.get("filename")
+    if not filename:
+        return jsonify({"status": "error", "message": "Dosya adı belirtilmedi."}), 400
+
+    safe_name = os.path.basename(filename)
+    fpath = os.path.join(SISTEM_EXCELI_DIR, safe_name)
+    if not os.path.exists(fpath):
+        return jsonify({"status": "error", "message": "Dosya bulunamadı."}), 404
+
+    try:
+        os.remove(fpath)
+        clear_diff_cache()
+        return jsonify({"status": "success", "message": f"'{safe_name}' başarıyla silindi."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Silme hatası: {str(e)}"}), 500
+
+
+def log_product_activity(barcode, activity_type, title, details="", actor="Kasa / Sistem", meta=None):
+    """Ürünle ilgili tüm geçmiş faaliyetleri (fiyat, etiket basımı, satış, stok) kaydeder."""
+    clean_bc = clean_barcode(barcode)
+    if not clean_bc:
+        return
+    
+    activities_db = load_json(PRODUCT_ACTIVITIES_FILE, {})
+    if clean_bc not in activities_db:
+        activities_db[clean_bc] = []
+    
+    now_str = datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    entry = {
+        "id": f"act_{int(datetime.datetime.now().timestamp() * 1000)}",
+        "timestamp": now_str,
+        "type": activity_type,  # 'price', 'print', 'sale', 'stock', 'info'
+        "title": title,
+        "details": details,
+        "actor": actor,
+        "meta": meta or {}
+    }
+    
+    activities_db[clean_bc].insert(0, entry)
+    if len(activities_db[clean_bc]) > 100:
+        activities_db[clean_bc] = activities_db[clean_bc][:100]
+        
+    save_json(PRODUCT_ACTIVITIES_FILE, activities_db)
+
+
+@catalog_bp.route("/api/products/<path:barcode>/activities", methods=["GET"])
+def api_get_product_activities(barcode):
+    """Belirtilen ürünün tüm geçmiş faaliyet günlüğünü döner."""
+    clean_bc = clean_barcode(barcode)
+    if not clean_bc:
+        return jsonify({"status": "error", "message": "Geçersiz barkod."}), 400
+
+    activities_db = load_json(PRODUCT_ACTIVITIES_FILE, {})
+    activities = list(activities_db.get(clean_bc, []))
+
+    # Otomatik olarak data/sales/ klasöründeki geçmiş fiş satışlarını da tara
+    try:
+        if os.path.exists(SALES_DIR):
+            for fname in sorted(os.listdir(SALES_DIR), reverse=True)[:15]:
+                if fname.endswith(".json"):
+                    fpath = os.path.join(SALES_DIR, fname)
+                    receipts = load_json(fpath, [])
+                    for r in receipts:
+                        for item in r.get("items", []):
+                            if clean_barcode(item.get("barcode")) == clean_bc:
+                                activities.append({
+                                    "id": f"sale_{r.get('receipt_no', '')}",
+                                    "timestamp": r.get("datetime") or r.get("time", ""),
+                                    "type": "sale",
+                                    "title": f"Kasa Satışı ({item.get('quantity', 1)} Adet)",
+                                    "details": f"Fiş #{r.get('receipt_no', '')} | Ödeme: {r.get('payment_type', 'Nakit').upper()} | Tutar: {item.get('total', item.get('price', ''))}",
+                                    "actor": r.get("cashier", "Kasiyer"),
+                                    "meta": {"receipt_no": r.get("receipt_no"), "quantity": item.get("quantity")}
+                                })
+    except Exception as e:
+        print("Geçmiş satış tarama hatası:", e)
+
+    # Tarihe göre sırala
+    return jsonify({
+        "status": "success",
+        "barcode": clean_bc,
+        "count": len(activities),
+        "activities": activities
+    })
+
+
+@catalog_bp.route("/api/products/<path:barcode>/activities", methods=["POST"])
+def api_add_product_activity(barcode):
+    """Ürüne özel manuel not veya işlem kaydı ekler."""
+    clean_bc = clean_barcode(barcode)
+    req_data = request.json or {}
+    act_type = req_data.get("type", "info")
+    title = req_data.get("title", "İşlem Kaydı")
+    details = req_data.get("details", "")
+    actor = req_data.get("actor", "Kullanıcı")
+
+    log_product_activity(clean_bc, act_type, title, details, actor)
+    return jsonify({"status": "success", "message": "Faaliyet kaydı başarıyla eklendi."})
+
+
 
 

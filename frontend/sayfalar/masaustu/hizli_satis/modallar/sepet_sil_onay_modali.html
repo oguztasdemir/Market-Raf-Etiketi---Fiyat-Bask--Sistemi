@@ -1,0 +1,26 @@
+<div id="modal-pos-clear-confirm" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 400px; max-width: 90%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+      
+      <h3 style="color: #f87171; font-size: 15px; font-weight: 700; margin: 0 0 8px 0;">
+        Sepet Temizlensin mi?
+      </h3>
+      
+      <p style="color: #94a3b8; font-size: 13px; margin: 0 0 16px 0;">
+        Kasaya eklenmiş olan tüm ürünler temizlenecektir. Devam etmek istiyor musunuz?
+      </p>
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button type="button" onclick="closePosClearConfirmModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">
+          İptal (Esc)
+        </button>
+        <button type="button" onclick="executeClearPosCart()" style="padding: 8px 18px; font-size: 13px; font-weight: 600; background: #dc2626; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
+          Evet, Temizle (Enter)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: BARKOD HATALI (SESLİ & MERKEZ GÖRSEL UYARI MODALI)
+       ========================================================= -->

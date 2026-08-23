@@ -1,0 +1,61 @@
+<div id="modal-manav-product" class="modal-backdrop" style="display: none; z-index: 9998;">
+    <div class="modal-card" style="max-width: 480px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🥬</span>
+          <h3 id="manav-modal-title" style="margin: 0; font-size: 15px; color: var(--text-main);">Yeni Manav Ürünü Ekle</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeManavModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 10px;">
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">PLU Tuş No</label>
+            <input type="number" id="inp-manav-plu" value="1" min="1" max="9999" style="font-size: 16px; font-weight: 900; color: #38bdf8; text-align: center;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Barkod Numarası</label>
+            <input type="text" id="inp-manav-barcode" placeholder="Örn: 2700001" style="font-family: monospace; font-weight: 700;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Ürün Adı (Terazide Görünecek İsim)</label>
+          <input type="text" id="inp-manav-title" placeholder="Örn: DOMATES SALKIM" style="font-weight: 700; text-transform: uppercase;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 90px 110px; gap: 8px;">
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Satış Fiyatı (TL)</label>
+            <input type="text" id="inp-manav-price" placeholder="Örn: 45,00 TL" style="font-size: 16px; font-weight: 900; color: #38bdf8;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Birim</label>
+            <select id="inp-manav-unit" class="custom-select" style="font-weight: 700;">
+              <option value="Kg" selected>Kg</option>
+              <option value="Adet">Adet</option>
+              <option value="Demet">Demet</option>
+              <option value="Pk">Pk</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: #fbbf24;">KDV (%)</label>
+            <input type="number" id="inp-manav-kdv" placeholder="1" value="1" min="0" max="100" class="custom-select" style="font-weight: 700; color: #fbbf24; width: 100%; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Menşei</label>
+          <input type="text" id="inp-manav-origin" value="TÜRKİYE" style="font-weight: 600;">
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn-secondary" onclick="closeManavModal()">İptal</button>
+        <button type="button" class="btn-primary" onclick="submitManavProductModal()" style="font-weight: 800;">💾 Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERAZİ BAĞLANTI & AYARLAR MODALI -->

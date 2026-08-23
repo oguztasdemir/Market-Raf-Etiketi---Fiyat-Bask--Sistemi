@@ -1,0 +1,97 @@
+<!-- =========================================================
+     MODAL: ÖDEME ALMA & TAHSİLAT MODALI
+     ========================================================= -->
+<div id="modal-pos-payment" class="modal-backdrop" style="position: fixed; inset: 0; background: rgba(4, 8, 16, 0.88); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 99999999;">
+  <div style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; width: 500px; max-width: 95%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+    
+    <!-- Başlık -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">💳</span>
+        <div>
+          <h3 style="color: #f8fafc; font-size: 16px; font-weight: 800; margin: 0;">Ödeme Alma & Tahsilat</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">Tamamı veya parçalı olarak tahsil edebilirsiniz</small>
+        </div>
+      </div>
+      <button type="button" onclick="closePosPaymentModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+    </div>
+
+    <!-- 3'lü Tutar Kutucukları (Toplam | Ödenen | Kalan) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 8px;">
+      <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; text-align: center;">
+        <div style="font-size: 10.5px; color: #94a3b8; font-weight: 700;">TOPLAM TUTAR</div>
+        <div id="pos-pay-grand-total" style="font-size: 16px; font-weight: 900; color: #f8fafc; font-family: monospace; margin-top: 2px;">0,00 TL</div>
+      </div>
+      <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 8px 10px; text-align: center;">
+        <div style="font-size: 10.5px; color: #34d399; font-weight: 700;">ALINAN ÖDEME</div>
+        <div id="pos-pay-paid-amount" style="font-size: 16px; font-weight: 900; color: #10b981; font-family: monospace; margin-top: 2px;">0,00 TL</div>
+      </div>
+      <div style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); border-radius: 8px; padding: 8px 10px; text-align: center;">
+        <div style="font-size: 10.5px; color: #f87171; font-weight: 800;">KALAN BAKİYE</div>
+        <div id="pos-pay-remaining-amount" style="font-size: 19px; font-weight: 900; color: #ef4444; font-family: monospace; margin-top: 2px;">0,00 TL</div>
+      </div>
+    </div>
+
+    <!-- 1. HIZLI SEÇENEK: TAMAMI KART / TAMAMI NAKİT BUTONLARI -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button type="button" onclick="payFullPosAmount('Kredi Kartı')" id="btn-pay-full-card" style="padding: 12px 10px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; border: none; border-radius: 8px; font-weight: 900; font-size: 12.5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 4px 12px rgba(59,130,246,0.3);">
+        <span>💳 TAMAMI KART</span>
+        <small id="btn-pay-full-card-sub" style="font-size: 11px; opacity: 0.95; font-family: monospace;">(0,00 TL)</small>
+      </button>
+      <button type="button" onclick="payFullPosAmount('Nakit')" id="btn-pay-full-cash" style="padding: 12px 10px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; border-radius: 8px; font-weight: 900; font-size: 12.5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+        <span>💵 TAMAMI NAKİT</span>
+        <small id="btn-pay-full-cash-sub" style="font-size: 11px; opacity: 0.95; font-family: monospace;">(0,00 TL)</small>
+      </button>
+    </div>
+
+    <!-- 2. PARÇALI ÖDEME BÖLÜMÜ -->
+    <div style="background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="color: #cbd5e1; font-size: 12px;">✂️ Parçalı Ödeme Gir (Bakiyeden Düş):</strong>
+        <span style="font-size: 11px; color: #64748b;">Örn: 50 TL Kart, kalanı Nakit</span>
+      </div>
+
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <input type="number" id="pos-pay-partial-input" placeholder="Tutar (Örn: 50)" step="any" onkeydown="handlePartialPaymentKey(event)" style="flex: 1; padding: 9px 12px; font-size: 15px; font-weight: 800; font-family: monospace; background: #070d1e; border: 1.5px solid #38bdf8; border-radius: 6px; color: #fff; outline: none; text-align: right;">
+        
+        <button type="button" onclick="addPartialPosPayment('Kredi Kartı')" style="padding: 9px 12px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap;">
+          💳 Kart Olarak Düş
+        </button>
+        <button type="button" onclick="addPartialPosPayment('Nakit')" style="padding: 9px 12px; background: #059669; color: #fff; border: none; border-radius: 6px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap;">
+          💵 Nakit Olarak Düş
+        </button>
+      </div>
+
+      <!-- Hızlı Tutar Tuşları -->
+      <div style="display: flex; gap: 6px;">
+        <button type="button" onclick="setPartialInputAmount(10)" class="btn-secondary" style="flex: 1; padding: 4px 0; font-size: 11px; font-weight: 800;">10 TL</button>
+        <button type="button" onclick="setPartialInputAmount(20)" class="btn-secondary" style="flex: 1; padding: 4px 0; font-size: 11px; font-weight: 800;">20 TL</button>
+        <button type="button" onclick="setPartialInputAmount(50)" class="btn-secondary" style="flex: 1; padding: 4px 0; font-size: 11px; font-weight: 800;">50 TL</button>
+        <button type="button" onclick="setPartialInputAmount(100)" class="btn-secondary" style="flex: 1; padding: 4px 0; font-size: 11px; font-weight: 800;">100 TL</button>
+        <button type="button" onclick="setPartialInputAmount(200)" class="btn-secondary" style="flex: 1; padding: 4px 0; font-size: 11px; font-weight: 800;">200 TL</button>
+      </div>
+    </div>
+
+    <!-- 3. ALINAN PARÇALI ÖDEMELER LİSTESİ -->
+    <div id="pos-pay-splits-container" style="display: none; background: #070d1e; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px; max-height: 95px; overflow-y: auto;">
+      <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Alınan Parçalı Ödemeler:</div>
+      <div id="pos-pay-splits-list" style="display: flex; flex-direction: column; gap: 4px;"></div>
+    </div>
+
+    <!-- Alt Eylem Butonları -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; margin-top: 4px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <input type="checkbox" id="pos-pay-print-receipt-chk" checked style="width: 16px; height: 16px; accent-color: #38bdf8; cursor: pointer;">
+        <label for="pos-pay-print-receipt-chk" style="font-size: 12px; color: #cbd5e1; cursor: pointer; user-select: none;">Fiş Yazdır</label>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" onclick="closePosPaymentModal()" class="btn-secondary" style="padding: 8px 14px; font-size: 12.5px;">Vazgeç (ESC)</button>
+        <button type="button" id="btn-pos-finalize-split-sale" onclick="finalizeSplitPosSale()" class="btn-primary" style="padding: 8px 18px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669);" disabled>
+          ✔ Satışı Tamamla
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div id="modal-catalog-batch-brand" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 480px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🏷️</span>
+          <div>
+            <h3 style="margin: 0; font-size: 15px; color: var(--text-main);">Toplu Firma / Marka Değiştir</h3>
+            <span id="batch-brand-selected-badge" style="font-size: 11.5px; color: #38bdf8;">0 Ürün Seçildi</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeBatchBrandModal()">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Yeni Marka / Firma Adı</label>
+          <input type="text" id="batch-new-brand-inp" placeholder="Örn: ÜLKER, SÜTAŞ, ETİ..." style="font-weight: 700; text-transform: uppercase;">
+        </div>
+        <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">
+          💡 Seçtiğiniz tüm ürünlerin markası yukarıda girdiğiniz ad ile değiştirilecektir.
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn-secondary" onclick="closeBatchBrandModal()">✕ İptal</button>
+        <button type="button" class="btn-primary" onclick="submitBatchBrandUpdate()">💾 Markaları Güncelle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANLI YAZDIRMA & DURDURMA / İPTAL KONTROL PANELİ MODALI -->

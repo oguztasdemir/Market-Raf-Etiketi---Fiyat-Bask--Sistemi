@@ -1,0 +1,111 @@
+<div id="modal-weekly-heatmap" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.9); backdrop-filter: blur(8px); z-index: 99999999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1px solid rgba(245,158,11,0.4); border-radius: 12px; width: 1040px; max-width: 96vw; height: 680px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.9);">
+    
+    <!-- Modal Üst Başlık & Kontroller -->
+    <div style="padding: 12px 20px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px;">🔥</span>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 900; color: #fbbf24;">Haftalık Yoğunluk & Zirve Saat Isı Haritası (Heatmap)</h3>
+            <span id="heatmap-period-badge" style="font-size: 11px; background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 2px 7px; border-radius: 4px; font-weight: 800;">Ağustos 2026</span>
+          </div>
+          <small style="color: #94a3b8; font-size: 11px;">7 gün x 24 saatlik müşteri & kasa yoğunluğu analizi ve vardiya önerileri</small>
+        </div>
+      </div>
+      <button onclick="closeWeeklyHeatmapModal()" class="btn-secondary" style="padding: 4px 10px; font-weight: 800; font-size: 13px;">✕</button>
+    </div>
+
+    <!-- 3 Özet KPI Kartı & Canlı Hücre İpucu Paneli -->
+    <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 1.6fr; gap: 10px; padding: 10px 20px; background: rgba(15,23,42,0.6); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;">
+      
+      <!-- Kart 1: En Yoğun Gün -->
+      <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">🌟</span>
+        <div>
+          <div style="font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">HAFTANIN EN YOĞUN GÜNÜ</div>
+          <div id="heatmap-kpi-busiest-day" style="font-size: 13.5px; font-weight: 900; color: #38bdf8;">-</div>
+        </div>
+      </div>
+
+      <!-- Kart 2: Zirve Saat Dilimi -->
+      <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">🔥</span>
+        <div>
+          <div style="font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">ZİRVE SATIŞ SAAT DİLİMİ</div>
+          <div id="heatmap-kpi-peak-hour" style="font-size: 13.5px; font-weight: 900; color: #fbbf24;">-</div>
+        </div>
+      </div>
+
+      <!-- Kart 3: Canlı Hücre İpucu Kartı -->
+      <div id="heatmap-hover-info-box" style="background: #090d16; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">🎯</span>
+          <div>
+            <div id="heatmap-hover-day-time" style="font-size: 11.5px; font-weight: 800; color: #f8fafc;">Detay için haritadan bir kutucuğa gelin</div>
+            <small id="heatmap-hover-details" style="font-size: 10.5px; color: #94a3b8;">7 Gün x 24 Saatlik dağılım</small>
+          </div>
+        </div>
+        <span id="heatmap-hover-badge" style="display: none; font-size: 10.5px; font-weight: 900; padding: 2px 7px; border-radius: 4px;">-%</span>
+      </div>
+
+    </div>
+
+    <!-- Isı Haritası Matrisi Gövdesi -->
+    <div style="padding: 14px 20px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;">
+      
+      <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 16px; overflow-x: auto;">
+        
+        <!-- Isı Haritası Izgarası (Grid) -->
+        <div id="heatmap-grid-table-container" style="min-width: 820px;">
+          <!-- JS 7 Gün x 24 Saat Izgarasını Oluşturacak -->
+        </div>
+
+      </div>
+
+      <!-- Renk Skalası & Personel Takviye İpuçları -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 10px 16px; font-size: 11px;">
+        
+        <!-- Renk Göstergeleri -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #94a3b8; font-weight: 700;">Yoğunluk Seviyesi:</span>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 14px; height: 14px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px;"></div>
+            <span style="color: #64748b;">Yok</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 14px; height: 14px; background: rgba(56,189,248,0.25); border-radius: 3px;"></div>
+            <span style="color: #38bdf8;">Düşük</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 14px; height: 14px; background: rgba(16,185,129,0.5); border-radius: 3px;"></div>
+            <span style="color: #34d399;">Orta</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 14px; height: 14px; background: rgba(245,158,11,0.75); border-radius: 3px;"></div>
+            <span style="color: #fbbf24;">Yüksek</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 14px; height: 14px; background: #ef4444; border-radius: 3px; box-shadow: 0 0 6px #ef4444;"></div>
+            <span style="color: #f87171; font-weight: 800;">🔥 Zirve</span>
+          </div>
+        </div>
+
+        <!-- Akıllı Öneri Notu -->
+        <div id="heatmap-staffing-note" style="color: #cbd5e1; font-size: 11px;">
+          💡 <em>Zirve saatlerde ek kasa açılması önerilir.</em>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Alt Kapat & Eylemler -->
+    <div style="padding: 10px 20px; background: #0b1329; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; align-items: center;">
+      <button onclick="closeWeeklyHeatmapModal()" class="btn-primary" style="padding: 7px 20px; font-weight: 800; font-size: 12px;">
+        Kapat
+      </button>
+    </div>
+
+  </div>
+</div>

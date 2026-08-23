@@ -1,0 +1,19 @@
+<div id="modal-app-confirm" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 8, 16, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 999999;">
+    <div class="modal-card" style="max-width: 440px; width: 92%; border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.85); background: #0c121e; border-radius: 14px; padding: 20px;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="app-confirm-title" style="font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--text-main); margin: 0;">
+          <span id="app-confirm-icon">⚠️</span> <span id="app-confirm-title-text">Onay Gerekiyor</span>
+        </h3>
+        <button class="modal-close-btn" onclick="_resolveAppConfirm(false)" style="background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 0 10px 0;">
+        <p id="app-confirm-msg" style="font-size: 13px; color: #cbd5e1; line-height: 1.5; margin: 0; white-space: pre-line;"></p>
+      </div>
+      <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button id="app-confirm-btn-cancel" class="btn-secondary" onclick="_resolveAppConfirm(false)" style="font-size: 12px; padding: 6px 14px; border-radius: 6px; cursor: pointer;">Vazgeç</button>
+        <button id="app-confirm-btn-ok" class="btn-primary" onclick="_resolveAppConfirm(true)" style="font-size: 12px; padding: 6px 16px; font-weight: 700; border-radius: 6px; cursor: pointer;">Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UYGULAMA İÇİ ŞIK METİN GİRİŞİ (PROMPT) MODALI -->

@@ -1,0 +1,179 @@
+<div id="modal-day-detail-popup" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.88); backdrop-filter: blur(8px); z-index: 99999999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+        <div style="background: #0f172a; border: 1px solid rgba(56,189,248,0.4); border-radius: 12px; width: 960px; max-width: 95vw; height: 650px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 45px rgba(0,0,0,0.8);">
+          
+          <!-- Modal Başlık & Trend Rozetleri -->
+          <div style="padding: 12px 20px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">📅</span>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h3 id="modal-day-title" style="margin: 0; font-size: 15px; font-weight: 900; color: #38bdf8;">23.08.2026 Günlük Rapor Detayı</h3>
+                  <!-- Trend Rozetleri -->
+                  <div id="modal-day-trend-container" style="display: flex; gap: 6px;"></div>
+                </div>
+                <small style="color: #94a3b8; font-size: 11px;">Günün tüm kasa fişleri, reyon ciro payları, kasiyer mutabakatı ve saatlik grafiği</small>
+              </div>
+            </div>
+            <button onclick="closeDayDetailModal()" class="btn-secondary" style="padding: 4px 10px; font-weight: 800; font-size: 13px;">✕</button>
+          </div>
+
+          <!-- Modal 5 Mini Kart -->
+          <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 10px 18px; background: rgba(15,23,42,0.6); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;">
+            <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 7px 10px;">
+              <div style="font-size: 10px; color: #94a3b8; font-weight: 700;">GÜNLÜK CİRO</div>
+              <div id="modal-day-kpi-sales" style="font-size: 14px; font-weight: 900; color: #10b981; font-family: monospace;">0,00 TL</div>
+            </div>
+            <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; padding: 7px 10px;">
+              <div style="font-size: 10px; color: #94a3b8; font-weight: 700;">FİŞ ADEDİ</div>
+              <div id="modal-day-kpi-receipts" style="font-size: 14px; font-weight: 900; color: #38bdf8;">0 Fiş</div>
+            </div>
+            <div style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25); border-radius: 8px; padding: 7px 10px;">
+              <div style="font-size: 10px; color: #94a3b8; font-weight: 700;">SATILAN ADET</div>
+              <div id="modal-day-kpi-items" style="font-size: 14px; font-weight: 900; color: #c084fc;">0 Adet</div>
+            </div>
+            <div style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25); border-radius: 8px; padding: 7px 10px;">
+              <div style="font-size: 10px; color: #94a3b8; font-weight: 700;">TERAZİ TARTIM</div>
+              <div id="modal-day-kpi-terazi" style="font-size: 14px; font-weight: 900; color: #22d3ee; font-family: monospace;">0,00 Kg</div>
+            </div>
+            <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 7px 10px;">
+              <div style="font-size: 10px; color: #94a3b8; font-weight: 700;">FİYAT & BASKI</div>
+              <div id="modal-day-kpi-activity" style="font-size: 14px; font-weight: 900; color: #fbbf24;">0 Değişim</div>
+            </div>
+          </div>
+
+          <!-- Modal 6 Sekmeli Gezinti Çubuğu -->
+          <div style="padding: 6px 18px 0 18px; display: flex; gap: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); overflow-x: auto; flex-shrink: 0;">
+            <button id="modal-tab-btn-products" class="btn-primary" onclick="switchModalSubTab('products')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 800; border-radius: 6px 6px 0 0; background: #0284c7; white-space: nowrap;">
+              🏆 En Çok Satanlar
+            </button>
+            <button id="modal-tab-btn-hourly" class="btn-secondary" onclick="switchModalSubTab('hourly')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-radius: 6px 6px 0 0; background: transparent; border: none; color: #94a3b8; white-space: nowrap;">
+              📊 24 Saat Dağılımı
+            </button>
+            <button id="modal-tab-btn-categories" class="btn-secondary" onclick="switchModalSubTab('categories')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-radius: 6px 6px 0 0; background: transparent; border: none; color: #94a3b8; white-space: nowrap;">
+              🛒 Reyon Dağılımı
+            </button>
+            <button id="modal-tab-btn-cashiers" class="btn-secondary" onclick="switchModalSubTab('cashiers')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-radius: 6px 6px 0 0; background: transparent; border: none; color: #94a3b8; white-space: nowrap;">
+              👥 Kasiyer Mutabakatı
+            </button>
+            <button id="modal-tab-btn-receipts" class="btn-secondary" onclick="switchModalSubTab('receipts')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-radius: 6px 6px 0 0; background: transparent; border: none; color: #94a3b8; white-space: nowrap;">
+              🧾 Satış Fişleri
+            </button>
+            <button id="modal-tab-btn-prices" class="btn-secondary" onclick="switchModalSubTab('prices')" style="padding: 6px 11px; font-size: 11.5px; font-weight: 700; border-radius: 6px 6px 0 0; background: transparent; border: none; color: #94a3b8; white-space: nowrap;">
+              ✏️ Fiyat Güncellemeleri
+            </button>
+          </div>
+
+          <!-- Modal Gövde İçerikleri (Sabit Yükseklik ve Kaydırılabilir Alan) -->
+          <div style="padding: 14px 18px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0;">
+            
+            <!-- Sekme 1: Çok Satanlar -->
+            <div id="modal-tab-pane-products" style="display: flex; flex-direction: column; gap: 8px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 11px; text-transform: uppercase;">
+                    <th style="padding: 6px 8px; width: 45px; text-align: center;">Sıra</th>
+                    <th style="padding: 6px 8px;">Ürün Adı</th>
+                    <th style="padding: 6px 8px; text-align: center;">Miktar</th>
+                    <th style="padding: 6px 8px; text-align: right;">Toplam Tutar</th>
+                  </tr>
+                </thead>
+                <tbody id="modal-day-top-products-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Sekme 2: 24 Saatlik Satış & Ciro Dağılımı (Bar Grafik ve Detay) -->
+            <div id="modal-tab-pane-hourly" style="display: none; flex-direction: column; gap: 12px; flex: 1;">
+              
+              <!-- En Yoğun Saat Bilgi Bannerı -->
+              <div id="modal-day-peak-hour-banner" style="background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(16,185,129,0.15)); border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 22px;">🔥</span>
+                  <div>
+                    <strong style="color: #fbbf24; font-size: 13px; display: block;">Günün En Yoğun Satış Saati: <span id="modal-peak-hour-label" style="color: #ffffff;">-</span></strong>
+                    <small id="modal-peak-hour-sub" style="color: #cbd5e1; font-size: 11px;">Toplam Ciro: - • Fiş: - Adet</small>
+                  </div>
+                </div>
+                <span id="modal-peak-hour-share" style="background: #f59e0b; color: #000; font-weight: 900; font-size: 11.5px; padding: 3px 8px; border-radius: 4px;">%0 Ciro Payı</span>
+              </div>
+
+              <!-- 24 Saatlik Görsel Bar Dağılım Çizelgesi -->
+              <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 11.5px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">📊 24 Saatlik Satış Yoğunluğu Bar Grafiği (00:00 - 23:00)</span>
+                  <!-- Canlı Hover İpucu Kartı -->
+                  <div id="modal-hourly-hover-card" style="font-size: 11px; color: #fbbf24; font-weight: 700; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+                    Detay için bir saatin üzerine gelin
+                  </div>
+                </div>
+
+                <!-- 24 Saat Bar Kutusu -->
+                <div id="modal-hourly-bars-container" style="display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 6px 0 2px 0; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%;">
+                  <!-- JS 24 bar sütununu dolduracak -->
+                </div>
+              </div>
+
+              <!-- Saatlik Satış Tablosu -->
+              <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; overflow: hidden; flex: 1;">
+                <div style="max-height: 180px; overflow-y: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <thead style="position: sticky; top: 0; background: #0b1329; z-index: 5;">
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 10.5px; text-transform: uppercase;">
+                        <th style="padding: 7px 10px; text-align: left;">Saat Aralığı</th>
+                        <th style="padding: 7px 10px; text-align: right;">Ciro (TL)</th>
+                        <th style="padding: 7px 10px; text-align: center;">Fiş / Satış Sayısı</th>
+                        <th style="padding: 7px 10px; text-align: center;">Satılan Ürün</th>
+                        <th style="padding: 7px 10px; text-align: right;">Günlük Pay (%)</th>
+                        <th style="padding: 7px 10px; text-align: left; width: 22%;">Yoğunluk Barı</th>
+                      </tr>
+                    </thead>
+                    <tbody id="modal-day-hourly-tbody">
+                      <!-- JS Tarafından doldurulacak -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Sekme 3: Reyon & Kategori Dağılımı -->
+            <div id="modal-tab-pane-categories" style="display: none; flex-direction: column; gap: 12px;">
+              <div id="modal-day-categories-container"></div>
+            </div>
+
+            <!-- Sekme 4: Kasiyer & Kasa Mutabakatı -->
+            <div id="modal-tab-pane-cashiers" style="display: none; flex-direction: column; gap: 12px;">
+              <div id="modal-day-cashiers-container"></div>
+            </div>
+
+            <!-- Sekme 5: Kasa Fişleri -->
+            <div id="modal-tab-pane-receipts" style="display: none; flex-direction: column; gap: 6px;">
+              <div id="modal-day-receipts-list"></div>
+            </div>
+
+            <!-- Sekme 6: Fiyat Değişiklikleri -->
+            <div id="modal-tab-pane-prices" style="display: none; flex-direction: column; gap: 6px;">
+              <div id="modal-day-prices-list"></div>
+            </div>
+          </div>
+
+          <!-- Modal Alt Butonlar -->
+          <div style="padding: 10px 18px; background: #0b1329; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" onclick="exportCurrentDayReportToExcel()" class="btn-secondary" style="padding: 7px 14px; font-weight: 800; font-size: 11.5px; background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                📊 Excel (.csv) İndir
+              </button>
+              <button type="button" onclick="openSummaryZReportModal()" class="btn-primary" style="padding: 7px 16px; font-weight: 800; font-size: 11.5px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                📜 Özet Z Raporu
+              </button>
+            </div>
+            <button onclick="closeDayDetailModal()" class="btn-secondary" style="padding: 6px 18px; font-weight: 800;">
+              Kapat
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =========================================================
+           SEKME 4: AYARLAR
+           ========================================================= -->

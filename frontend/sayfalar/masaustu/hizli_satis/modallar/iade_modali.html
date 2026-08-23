@@ -1,0 +1,45 @@
+<div id="modal-pos-return" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 440px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+      
+      <!-- Başlık & Kapat Butonu -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Ürün İade / Geri Alma [F9]</h3>
+          <small style="color: #94a3b8; font-size: 12px;">İade tutarı sepete eksi bakiye olarak yansıtılır</small>
+        </div>
+        <button onclick="closePosReturnModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
+      </div>
+
+      <!-- Form Alanları -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">İade Barkodu veya Ürün Adı</label>
+          <input type="text" id="pos-return-barcode" placeholder="Barkod okutun veya ürün adı..." style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; outline: none; box-sizing: border-box;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div>
+            <label style="display: block; font-size: 11px; font-weight: 600; color: #f87171; text-transform: uppercase; margin-bottom: 4px;">İade Tutarı (TL)</label>
+            <input type="number" step="0.01" id="pos-return-amount" placeholder="0.00" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f87171; font-size: 14px; font-weight: 700; outline: none; box-sizing: border-box;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Miktar</label>
+            <input type="number" step="1" id="pos-return-qty" value="1" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 14px; outline: none; box-sizing: border-box;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Alt Butonlar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 12px; margin-top: 14px;">
+        <button type="button" onclick="closePosReturnModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">İptal (Esc)</button>
+        <button type="button" onclick="submitPosReturnExecute()" style="padding: 8px 18px; font-size: 13px; font-weight: 700; background: #dc2626; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
+          İadeyi Sepete Ekle (Enter)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: KASİYER DEĞİŞTİR / GİRİŞ YAP
+       ========================================================= -->

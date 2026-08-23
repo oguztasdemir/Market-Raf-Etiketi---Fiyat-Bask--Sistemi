@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request
 from backend.raporlama.raporlama_servisi import (
     get_monthly_calendar_report,
     get_detailed_day_report,
+    get_weekly_heatmap_report,
     log_price_change,
     log_printed_batch
 )
@@ -19,6 +20,14 @@ def api_get_monthly_calendar():
     year = request.args.get("year", type=int)
     month = request.args.get("month", type=int)
     res = get_monthly_calendar_report(year, month)
+    return jsonify(res)
+
+@report_bp.route("/api/reports/heatmap", methods=["GET"])
+def api_get_weekly_heatmap():
+    """Haftalık 7 gün x 24 saat yoğunluk ısı haritasını döner."""
+    year = request.args.get("year", type=int)
+    month = request.args.get("month", type=int)
+    res = get_weekly_heatmap_report(year, month)
     return jsonify(res)
 
 @report_bp.route("/api/reports/day_detail", methods=["GET"])

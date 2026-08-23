@@ -28,8 +28,10 @@ SCALE_EXPORT_DIR = os.path.join(DATA_DIR, 'scale_export')
 CASHIERS_FILE = os.path.join(DATA_DIR, 'cashiers.json')
 CUSTOMERS_FILE = os.path.join(DATA_DIR, 'customers.json')
 SALES_DIR = os.path.join(DATA_DIR, 'sales')
+EXPENSES_FILE = os.path.join(DATA_DIR, 'expenses.json')
 QUICK_BUTTONS_FILE = os.path.join(DATA_DIR, 'quick_buttons.json')
 CUSTOM_BARCODES_FILE = os.path.join(DATA_DIR, 'custom_barcodes.json')
+PRODUCT_ACTIVITIES_FILE = os.path.join(DATA_DIR, 'product_activities.json')
 SCALE_TOOLS_DIR = os.path.join(BASE_DIR, 'backend', 'terazi', 'motor')
 
 # Gerekli klasörlerin varlığını garantiye al

@@ -1,0 +1,222 @@
+<div id="tab-settings" class="tab-content" style="padding: 16px; box-sizing: border-box; overflow-y: auto; max-height: calc(100vh - 65px);">
+  
+  <!-- ÜST BAŞLIK VE HIZLI KAYIT BUTONLARI -->
+  <div style="display: flex; justify-content: space-between; align-items: center; background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 20px; margin-bottom: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+        ⚙️
+      </div>
+      <div>
+        <h2 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Market, POS, Kasiyer & Sistem Ayarları</h2>
+        <small style="color: #94a3b8; font-size: 11.5px;">Mağaza kimliği, POS komisyon oranları, kasiyer kadrosu ve termal donanım yapılandırması</small>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button type="button" class="btn-secondary" onclick="loadMarketSettings()" style="padding: 8px 16px; font-weight: 700; font-size: 12px;">
+        ↺ Ayarları Yenile
+      </button>
+      <button type="button" class="btn-primary" onclick="saveMarketSettings()" style="padding: 8px 22px; font-weight: 800; font-size: 12.5px; background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 12px rgba(2,132,199,0.3);">
+        💾 Tüm Ayarları Kaydet
+      </button>
+    </div>
+  </div>
+
+  <!-- AYARLAR GRID DÜZENİ (4 ANA KART) -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+
+    <!-- 1. KART: MARKET & ŞUBE BİLGİLERİ -->
+    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+        <span style="font-size: 18px;">🏪</span>
+        <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #38bdf8;">Market & Şube Genel Bilgileri</h3>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Market / Ticari Ünvan</label>
+          <input type="text" id="settings-market-name" placeholder="Örn: YARENLER SÜPERMARKET" style="width: 100%; padding: 8px 10px; font-size: 12.5px; font-weight: 700; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Şube / Kasa Tanımı</label>
+          <input type="text" id="settings-branch-name" placeholder="Örn: Merkez Şube - Kasa 1" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">İletişim Telefonu</label>
+          <input type="text" id="settings-phone" placeholder="0555 000 00 00" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Vergi Dairesi & No</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="settings-tax-office" placeholder="V. Dairesi" style="width: 50%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+            <input type="text" id="settings-tax-no" placeholder="V. No" style="width: 50%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Market Adresi</label>
+        <input type="text" id="settings-address" placeholder="Merkez Mah. Atatürk Cad. No:12/A" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+      </div>
+
+      <div class="form-group">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Fiş Altı Teşekkür / Bilgi Notu</label>
+        <textarea id="settings-receipt-footer-note" rows="2" placeholder="Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box; resize: vertical;"></textarea>
+      </div>
+    </div>
+
+    <!-- 2. KART: POS CİHAZI & KOMİSYON AYARLARI -->
+    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+        <span style="font-size: 18px;">💳</span>
+        <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #fbbf24;">POS Cihazı, Kasa & Komisyon Ayarları</h3>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Banka POS Komisyon Oranı (%)</label>
+          <div style="position: relative;">
+            <input type="number" id="settings-pos-commission-rate" step="0.05" min="0" max="15" value="1.85" style="width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 900; font-family: monospace; background: rgba(15,23,42,0.8); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px; color: #fbbf24; box-sizing: border-box;">
+            <span style="position: absolute; right: 10px; top: 8px; color: #94a3b8; font-size: 12px; font-weight: 800;">%</span>
+          </div>
+          <small style="color: #64748b; font-size: 10.5px; margin-top: 2px; display: block;">Kartlı satışlarda banka kesintisi hesabı için kullanılır.</small>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Komisyon Yansıtma Tercihi</label>
+          <select id="settings-pos-commission-mode" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="included" selected>🏢 İşletme Karşılar (Fiyata Dahil)</option>
+            <option value="extra">🧾 Fişte Bilgilendirme Göster</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Varsayılan Kasa Ödeme Türü</label>
+          <select id="settings-default-payment-type" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="Nakit" selected>💵 Nakit</option>
+            <option value="Kredi Kartı">💳 Kredi Kartı</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Kasa Fiş Yazdırma Modu</label>
+          <select id="settings-receipt-print-mode" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="ask" selected>❓ Satış Sonrası Sor (Önerilen)</option>
+            <option value="auto">🖨️ Her Satışta Otomatik Yazdır</option>
+            <option value="none">⚡ Fişsiz Hızlı Satış (İsteğe Bağlı)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Termal Fiş Kağıt Genişliği</label>
+        <select id="settings-receipt-paper-width" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+          <option value="80mm" selected>📄 80 mm (Geniş Standart Termal Fiş)</option>
+          <option value="58mm">📄 58 mm (Kompakt Kasa Fişi)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 3. KART: KASİYER & PERSONEL YÖNETİMİ -->
+    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">👥</span>
+          <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #34d399;">Kasiyer & Personel Kadrosu</h3>
+        </div>
+        <span id="cashier-count-badge" style="font-size: 11px; background: rgba(16,185,129,0.15); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">0 Kasiyer</span>
+      </div>
+
+      <!-- Kasiyer Listesi Tablosu -->
+      <div style="max-height: 180px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; background: #090d16;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 10.5px; text-transform: uppercase;">
+              <th style="padding: 8px 10px;">Kasiyer Adı</th>
+              <th style="padding: 8px 10px;">Kasa Kodu</th>
+              <th style="padding: 8px 10px;">Yetki</th>
+              <th style="padding: 8px 10px; text-align: center;">Durum</th>
+              <th style="padding: 8px 10px; text-align: right;">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="settings-cashiers-table-body">
+            <!-- JS Dinamik Dolduracak -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Yeni Kasiyer Ekleme Alt Formu -->
+      <div style="background: rgba(15,23,42,0.6); border: 1px dashed rgba(52,211,153,0.3); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 11px; font-weight: 800; color: #34d399;">➕ Yeni Kasiyer / Personel Tanımla</div>
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto; gap: 8px; align-items: center;">
+          <input type="text" id="new-cashier-name" placeholder="Adı Soyadı..." style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
+          <input type="text" id="new-cashier-id" placeholder="Kasa Kodu (örn: kasa3)" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
+          <input type="password" id="new-cashier-pin" placeholder="PIN / Şifre" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
+          <select id="new-cashier-role" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff;">
+            <option value="cashier" selected>Kasiyer</option>
+            <option value="supervisor">Kasa Şefi</option>
+            <option value="admin">Müdür</option>
+          </select>
+          <button type="button" class="btn-primary" onclick="submitAddNewCashier()" style="padding: 6px 12px; font-size: 11px; font-weight: 800; background: #059669; white-space: nowrap;">
+            Ekle
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. KART: TERMAL ETİKET DONANIM & OFSET KALİBRASYONU -->
+    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
+        <span style="font-size: 18px;">🖨️</span>
+        <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #e2e8f0;">Termal Etiket Yazıcı & Ofset Kalibrasyonu</h3>
+      </div>
+
+      <div class="form-group">
+        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Varsayılan Termal Etiket Yazıcısı</label>
+        <select id="settings-printer-select" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+          <option value="Termal Etiket Yazici">Termal Etiket Yazici (Varsayılan)</option>
+        </select>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Varsayılan Etiket Boyutu</label>
+          <select id="settings-size-select" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="60x40" selected>60 x 40 mm (Kompakt Raf)</option>
+            <option value="76x40">76 x 40 mm (Standart Market Rafı)</option>
+            <option value="85x45">85 x 45 mm (Büyük Boy)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Kağıt Besleme Yönü</label>
+          <select id="settings-orient-select" class="custom-select" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="POR" selected>🔄 90° Yatay (Termal Rulo - Önerilen)</option>
+            <option value="PON">↕️ 0° Düz</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Termal Kontrast (~SD)</label>
+          <input type="number" id="settings-darkness" value="22" min="10" max="30" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">X Ofset (Piksel / Dot)</label>
+          <input type="number" id="settings-x-offset" value="0" step="5" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Y Ofset (Piksel / Dot)</label>
+          <input type="number" id="settings-y-offset" value="0" step="5" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

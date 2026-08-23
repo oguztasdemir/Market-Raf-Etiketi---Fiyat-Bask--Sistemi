@@ -1,0 +1,36 @@
+<!-- SAĞ: 3 SÜTUNLU ADET MANAV & BARKODSUZ ÜRÜNLER + SAĞDA KATEGORİ SEÇİCİLER -->
+<div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 95px; gap: 8px; height: 100%; box-sizing: border-box; overflow: hidden;">
+  
+  <!-- SOL BÖLÜM: 3 SÜTUNLU ALFABETİK ÜRÜN KARTLARI -->
+  <div style="display: flex; flex-direction: column; gap: 6px; height: 100%; overflow: hidden;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <strong id="pos-quick-cat-heading" style="color: #38bdf8; font-size: 12px; font-weight: 900; letter-spacing: 0.5px;">MANAV ADET (A-Z)</strong>
+      <span id="pos-quick-items-count" style="font-size: 11px; color: #64748b; font-weight: 700;">10 Ürün</span>
+    </div>
+
+    <!-- 2 Sütunlu Ürün Gridi (Daha Geniş ve Rahat Okunabilir) -->
+    <div id="pos-quick-3col-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: minmax(54px, max-content); gap: 8px; overflow-y: auto; flex: 1; padding-right: 2px; align-content: start;">
+      <!-- JS dinamik dolduracak -->
+    </div>
+
+  </div>
+
+  <!-- SAĞ BÖLÜM: DİKDÖRTGEN KATEGORİ TUŞLARI -->
+  <div style="display: flex; flex-direction: column; gap: 6px; border-left: 1px solid rgba(255,255,255,0.08); padding-left: 8px; width: 105px;">
+    <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; text-align: center; margin-bottom: 2px;">
+      KATEGORİ
+    </div>
+
+    <!-- MANAV ADET BUTONU -->
+    <button id="btn-cat-manav-adet" type="button" onclick="selectPosQuickCategory('manav_adet')" style="padding: 12px 4px; background: #0284c7; border: 2px solid #38bdf8; border-radius: 8px; color: #ffffff; font-size: 11px; font-weight: 800; cursor: pointer; text-align: center; width: 100%; transition: all 0.15s; box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+      MANAV ADET
+    </button>
+
+    <!-- BARKODSUZ BUTONU -->
+    <button id="btn-cat-barkodsuz" type="button" onclick="selectPosQuickCategory('barkodsuz')" style="padding: 12px 4px; background: #0f1c38; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 8px; color: #cbd5e1; font-size: 11px; font-weight: 800; cursor: pointer; text-align: center; width: 100%; transition: all 0.15s;">
+      BARKODSUZ
+    </button>
+  </div>
+
+</div>

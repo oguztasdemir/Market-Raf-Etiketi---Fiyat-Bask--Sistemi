@@ -2,11 +2,8 @@
 """
 Termal Etiket Yazıcı Servisi (TSPL, ESC/POS, Windows GDI, Yazıcı Kuyruğu & Barkod Doğrulama)
 """
-import io
-import os
 import platform
-from PIL import Image, ImageDraw, ImageFont
-from backend.ayarlar import FONTS_DIR, PRODUCTS_FILE
+from backend.ayarlar import PRODUCTS_FILE
 from backend.araclar.depolama_araclari import load_json, save_json
 from backend.araclar.metin_duzenleyici import clean_barcode, format_price_display
 

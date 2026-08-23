@@ -1,7 +1,5 @@
-import json
 import textwrap
 import datetime
-import urllib.request
 
 MONTHS_TR = {
     1: 'Oca', 2: 'Sub', 3: 'Mar', 4: 'Nis', 5: 'May', 6: 'Haz',

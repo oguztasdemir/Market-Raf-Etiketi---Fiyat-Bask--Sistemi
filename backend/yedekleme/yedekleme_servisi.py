@@ -6,7 +6,6 @@ import os
 import shutil
 import datetime
 from backend.ayarlar import BACKUPS_DIR, PRODUCTS_FILE
-from backend.araclar.depolama_araclari import load_json, save_json
 
 def create_products_backup(reason: str = "Otomatik Güvenlik Yedeği") -> str:
     """Mevcut products.json dosyasının zaman damgalı güvenli yedeğini alır."""

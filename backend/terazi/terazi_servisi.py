@@ -4,15 +4,13 @@ Manav & Barkodlu Terazi (DIGI / TERAOKA vb.) İletişim ve PLU Yönetim Servisi
 """
 import os
 import re
-import csv
 import time
 import socket
 import datetime
 import binascii
 import subprocess
-from backend.ayarlar import MANAV_PRODUCTS_FILE, SCALE_SETTINGS_FILE, PRODUCTS_FILE, SISTEM_EXCELI_DIR, SCALE_TOOLS_DIR
+from backend.ayarlar import MANAV_PRODUCTS_FILE, SCALE_SETTINGS_FILE, SCALE_TOOLS_DIR
 from backend.araclar.depolama_araclari import load_json, save_json
-from backend.araclar.metin_duzenleyici import format_price_display, parse_price_val
 
 DEFAULT_SCALE_SETTINGS = {
     "ip": "192.168.1.61",
@@ -569,6 +567,7 @@ def generate_digi_sm100_dat(products: list) -> bytes:
 def send_plu_to_scale(product: dict, ip=None, port=None) -> dict:
     """
     Tek bir PLU ürününü Native DIGI Protokolüyle (Oturum Açma -> Veri -> Commit) teraziye aktarır.
+    Adet/Demet ürünleri teraziden muaf tutulur.
     """
     cfg = get_scale_settings()
     target_ip = ip or cfg.get("ip", "192.168.1.61")
@@ -578,7 +577,16 @@ def send_plu_to_scale(product: dict, ip=None, port=None) -> dict:
     title = product.get("title", "")
     price = product.get("price", "0,00 TL")
     barcode = product.get("barcode", f"27{plu:05d}")
+    unit = str(product.get("unit", "Kg")).strip()
     dept = int(cfg.get("dept_code", 1))
+
+    if unit in ["Adet", "Demet", "Paket", "Pk"]:
+        return {
+            "status": "info",
+            "message": f"PLU {plu} ({title}) Adet/Demet ürünüdür; teraziye aktarılmaz, kasada adetli işlem görür.",
+            "plu": plu,
+            "product": product
+        }
 
     packets = format_teraoka_plu_packets(plu, title, price, barcode, dept)
 
@@ -642,6 +650,7 @@ def stream_all_plus_to_scale(ip=None, port=None):
     """
     Tüm manav ürünlerini DIGI SM-100 terazisine aktarırken adım adım
     canlı ilerleme, yüzde ve detaylı hata olayları (generator) üretir.
+    Adet/Demet ürünleri teraziden muaf tutularak doğrudan kasada kalır.
     """
     products = get_manav_products()
     if not products:
@@ -651,7 +660,16 @@ def stream_all_plus_to_scale(ip=None, port=None):
         }
         return
 
-    total = len(products)
+    # Adet / Demet ürünleri teraziden muaf tutulur
+    kg_products = [p for p in products if p.get("unit", "Kg") not in ["Adet", "Demet", "Paket", "Pk"]]
+    if not kg_products:
+        yield {
+            "type": "error",
+            "message": "Teraziye aktarılacak tartım/Kg ürünü bulunamadı."
+        }
+        return
+
+    total = len(kg_products)
     cfg = get_scale_settings()
     target_ip = ip or cfg.get("ip", "192.168.1.61")
     target_port = int(port or cfg.get("port", 2061))
@@ -662,7 +680,7 @@ def stream_all_plus_to_scale(ip=None, port=None):
         "current": 0,
         "total": total,
         "percent": 0,
-        "message": f"DIGI SM-100 ({target_ip}:{target_port}) bağlantısı kuruluyor..."
+        "message": f"DIGI SM-100 ({target_ip}:{target_port}) bağlantısı kuruluyor... ({total} Tartım/Kg ürünü teraziye aktarılıyor)"
     }
 
     # 2. Fiziksel Bağlantı Denetimi
@@ -696,7 +714,7 @@ def stream_all_plus_to_scale(ip=None, port=None):
         raw_str = raw.decode("ascii", errors="ignore")
         BLOCK_SIZE = 176
         total_blocks = len(raw_str) // BLOCK_SIZE
-        prod_map = {int(p.get("plu", 0)): p for p in products if p.get("plu")}
+        prod_map = {int(p.get("plu", 0)): p for p in kg_products if p.get("plu")}
         new_blocks = []
 
         for i in range(total_blocks):
@@ -726,8 +744,8 @@ def stream_all_plus_to_scale(ip=None, port=None):
         with open(os.path.join(tools_dir, "SENDPLU.DAT"), "wb") as f:
             f.write(updated_raw)
 
-        # 4. Ürünleri Tek Tek Canlı İlerleme Olarak Akıt
-        for idx, p in enumerate(products):
+        # 4. Sadece Tartım/Kg Ürünlerini Canlı İlerleme Olarak Akıt
+        for idx, p in enumerate(kg_products):
             plu = int(p.get("plu", 1))
             title = str(p.get("title", ""))
             price = str(p.get("price", "0,00 TL"))
@@ -769,11 +787,11 @@ def stream_all_plus_to_scale(ip=None, port=None):
         # 5. DIGI Motoruyla Teraziye Yaz (WR 37)
         wr_res = subprocess.run([exe_path, "WR", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=10)
         
-        result_str = ""
-        result_file = os.path.join(tools_dir, "result")
-        if os.path.exists(result_file):
-            with open(result_file, "r") as rf:
-                result_str = rf.read().strip()
+        # Adet ürünleri de güncelle
+        for p in products:
+            if p.get("unit") in ["Adet", "Demet", "Paket", "Pk"]:
+                p["sync_status"] = "adet_muaf"
+                p["last_synced_at"] = now_str
 
         save_all_manav_products(products)
         export_scale_files(products)
@@ -787,7 +805,7 @@ def stream_all_plus_to_scale(ip=None, port=None):
             "fail_count": fail_count,
             "changed_count": len(changed_items),
             "changed_items": changed_items,
-            "message": f"Tüm fiyatlar DIGI SM-100 terazisine başarıyla aktarıldı!"
+            "message": f"{total} Tartım ürünü DIGI SM-100 terazisine aktarıldı (Adet ürünler muaf tutuldu)."
         }
     except Exception as e:
         yield {
@@ -797,11 +815,16 @@ def stream_all_plus_to_scale(ip=None, port=None):
 
 def send_all_plus_to_scale(ip=None, port=None) -> dict:
     """
-    Tüm manav ürünlerini DIGI motoruyla teraziye aktarır.
+    Tüm tartım/kg manav ürünlerini DIGI motoruyla teraziye aktarır.
+    Adet/Demet ürünleri teraziden muaf tutulur.
     """
     products = get_manav_products()
     if not products:
         return {"status": "error", "message": "Gönderilecek manav ürünü bulunamadı."}
+
+    kg_products = [p for p in products if p.get("unit", "Kg") not in ["Adet", "Demet", "Paket", "Pk"]]
+    if not kg_products:
+        return {"status": "error", "message": "Teraziye aktarılacak tartım/Kg ürünü bulunamadı."}
 
     cfg = get_scale_settings()
     target_ip = ip or cfg.get("ip", "192.168.1.61")
@@ -824,7 +847,7 @@ def send_all_plus_to_scale(ip=None, port=None) -> dict:
         raw_str = raw.decode("ascii", errors="ignore")
         BLOCK_SIZE = 176
         total_blocks = len(raw_str) // BLOCK_SIZE
-        prod_map = {int(p.get("plu", 0)): p for p in products if p.get("plu")}
+        prod_map = {int(p.get("plu", 0)): p for p in kg_products if p.get("plu")}
         new_blocks = []
 
         for i in range(total_blocks):
@@ -1023,80 +1046,4 @@ def read_prices_from_scale_hardware(ip=None, port=None) -> dict:
         "scale_online": True,
         "raw_bytes_len": len(received_bytes),
         "items": raw_items
-    }
-
-def fetch_prices_from_scale_and_system() -> dict:
-    """
-    Teraziden CANLI veri okuma ve karşılaştırma servisi.
-    Sadece fiziksel teraziden dönen gerçek veriyi işler (CSV veya Excel kullanmaz).
-    """
-    scale_read_res = read_prices_from_scale_hardware()
-    manav_prods = get_manav_products()
-    scale_items = scale_read_res.get("items", [])
-    scale_online = scale_read_res.get("scale_online", False)
-
-    if not scale_online:
-        return {
-            "status": "error",
-            "message": scale_read_res.get("message", "Terazi çevrimdışı."),
-            "scale_online": False,
-            "total": len(manav_prods),
-            "updated_count": 0,
-            "diff_count": 0,
-            "diff_items": [],
-            "products": manav_prods
-        }
-
-    # Teraziden dönen PLU haritası
-    scale_map_by_plu = {item["plu"]: item for item in scale_items}
-
-    updated_count = 0
-    diff_count = 0
-    diff_items = []
-
-    for mp in manav_prods:
-        plu_no = int(mp.get("plu", 0))
-        
-        # Eğer bu PLU teraziden canlı olarak geldiyse, terazideki gerçek fiyatı yaz
-        if plu_no in scale_map_by_plu:
-            scale_item = scale_map_by_plu[plu_no]
-            mp["scale_price"] = scale_item.get("price")
-            updated_count += 1
-
-        scale_price = mp.get("scale_price") or "-"
-        system_price = mp.get("price") or "-"
-
-        # Terazideki fiyat ile sistem fiyatı farkı kontrolü
-        curr_price_cents = _parse_price_to_cents(system_price)
-        scale_price_cents = _parse_price_to_cents(scale_price)
-
-        if scale_price == "-" or curr_price_cents != scale_price_cents:
-            mp["sync_status"] = "diff"
-            diff_count += 1
-            diff_items.append({
-                "plu": mp.get("plu"),
-                "title": mp.get("title"),
-                "barcode": mp.get("barcode"),
-                "system_price": system_price,
-                "scale_price": scale_price
-            })
-        else:
-            mp["sync_status"] = "synced"
-
-    save_all_manav_products(manav_prods)
-
-    if scale_items:
-        msg = f"Teraziden {len(scale_items)} adet ürünün güncel fiyatı okundu. {diff_count} üründe fiyat farkı tespit edildi."
-    else:
-        msg = f"Teraziye bağlanıldı ({scale_read_res.get('raw_bytes_len', 0)} bayt yanıt alındı). Mevcut sistem ürünleri kontrol edildi."
-
-    return {
-        "status": "success",
-        "message": msg,
-        "scale_online": scale_online,
-        "total": len(manav_prods),
-        "updated_count": updated_count,
-        "diff_count": diff_count,
-        "diff_items": diff_items,
-        "products": manav_prods
     }

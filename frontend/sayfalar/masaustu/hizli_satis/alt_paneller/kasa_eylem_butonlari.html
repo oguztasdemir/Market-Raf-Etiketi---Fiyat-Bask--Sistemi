@@ -1,0 +1,67 @@
+<!-- KASA ALT EYLEM BUTONLARI (TEKTE ÖDEME AL & FİŞ İPTAL ENTEGRASYONU) -->
+<div class="pos-actions-bar">
+  
+  <!-- 1. HIZLI ÜRÜN -->
+  <button id="btn-pos-action-quick-prod" type="button" class="pos-action-btn pos-btn-amber" onclick="openPosQuickProductModal()" title="Hızlı Ürün Tanımla ve Sepete Ekle [F6 / Insert]">
+    <div class="pos-action-icon">⚡</div>
+    <div class="pos-action-text">HIZLI ÜRÜN</div>
+    <div class="pos-action-badge">[F6]</div>
+  </button>
+
+  <!-- 2. MOBİL -->
+  <button id="btn-pos-action-mobile" type="button" class="pos-action-btn pos-btn-sky" onclick="openPosMobileQrModal()" title="Mobil Terminal QR Kodu Aç [F1]">
+    <div class="pos-action-icon">📱</div>
+    <div class="pos-action-text">MOBİL</div>
+    <div class="pos-action-badge">[F1]</div>
+  </button>
+
+  <!-- 3. FİYAT GÖR -->
+  <button id="btn-pos-action-price-check" type="button" class="pos-action-btn pos-btn-indigo" onclick="openPosPriceCheckModal()" title="Büyük Ekranda Ürün Fiyatı Gör [F2]">
+    <div class="pos-action-icon">🔍</div>
+    <div class="pos-action-text">FİYAT GÖR</div>
+    <div class="pos-action-badge">[F2]</div>
+  </button>
+
+  <!-- 4. FİŞ İPTAL (F3) -->
+  <button id="btn-pos-action-clear" type="button" class="pos-action-btn pos-btn-rose" onclick="confirmClearPosCart()" title="Fişi İptal Et / Satış Sepetini Sıfırla [F3]">
+    <div class="pos-action-icon">🗑️</div>
+    <div class="pos-action-text">FİŞ İPTAL</div>
+    <div class="pos-action-badge">[F3]</div>
+  </button>
+
+  <!-- 5. ÖDEME AL (F4 - NAKİT VE KART TEKTE AL) -->
+  <button id="btn-pos-action-pay" type="button" class="pos-action-btn pos-btn-emerald" onclick="openPosPaymentModal()" title="Ödemeyi Tekte Al (Nakit / Kart Seçenekleri) [F4]">
+    <div class="pos-action-icon">💳</div>
+    <div class="pos-action-text">ÖDEME AL</div>
+    <div class="pos-action-badge">[F4]</div>
+  </button>
+
+  <!-- 6. ÇEKMECE -->
+  <button id="btn-pos-action-drawer" type="button" class="pos-action-btn pos-btn-slate" onclick="openCashDrawerAction()" title="Para Çekmecesini Aç [F7]">
+    <div class="pos-action-icon">🗄️</div>
+    <div class="pos-action-text">ÇEKMECE</div>
+    <div class="pos-action-badge">[F7]</div>
+  </button>
+
+  <!-- 7. ESKİ SATIŞ -->
+  <button id="btn-pos-action-recent" type="button" class="pos-action-btn pos-btn-purple" onclick="openPosRecentSalesModal()" title="Bekleyen Fişler ve Günün Satışları [F8]">
+    <div class="pos-action-icon">📜</div>
+    <div class="pos-action-text">ESKİ SATIŞ</div>
+    <div class="pos-action-badge">[F8]</div>
+  </button>
+
+  <!-- 8. İADE -->
+  <button id="btn-pos-action-return" type="button" class="pos-action-btn pos-btn-crimson" onclick="openPosReturnModal()" title="Ürün İadesi Al / Sepete Eksi Tutar Ekle [F9]">
+    <div class="pos-action-icon">↩️</div>
+    <div class="pos-action-text">İADE</div>
+    <div class="pos-action-badge">[F9]</div>
+  </button>
+
+  <!-- 9. İKRAM -->
+  <button id="btn-pos-action-gift" type="button" class="pos-action-btn pos-btn-pink" onclick="applyPosGiftDiscount()" title="Sepete %100 İkram / İndirim Uygula [F10]">
+    <div class="pos-action-icon">🎁</div>
+    <div class="pos-action-text">İKRAM</div>
+    <div class="pos-action-badge">[F10]</div>
+  </button>
+
+</div>

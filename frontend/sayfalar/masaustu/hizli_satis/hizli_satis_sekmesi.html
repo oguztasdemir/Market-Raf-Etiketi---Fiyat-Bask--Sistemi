@@ -1,0 +1,21 @@
+<!-- =========================================================
+     SEKME 1: HIZLI SATIŞ (POS TAM EKRAN KASA TERMİNALİ)
+     ========================================================= -->
+<div id="tab-pos" class="tab-content">
+  
+  <!-- 1. EN ÜST DOKUNMATİK NUMPAD TUŞLARI -->
+  {% include 'masaustu/hizli_satis/numpad.html' %}
+
+  <!-- 2. ORTA KISIM: SOL SEPET TABLOSU + SAĞ DOKUNMATİK GRİD -->
+  <div style="display: grid; grid-template-columns: 1fr 440px; gap: 10px; flex: 1; min-height: 0;">
+    {% include 'masaustu/hizli_satis/sepet_tablosu.html' %}
+    {% include 'masaustu/hizli_satis/sag_panel.html' %}
+  </div>
+
+  <!-- 3. KASA 10'LU ALT EYLEM BUTONLARI -->
+  {% include 'masaustu/hizli_satis/alt_paneller/kasa_eylem_butonlari.html' %}
+
+  <!-- 4. EN ALT İNCE DURUM & BİLGİ PANELİ -->
+  {% include 'masaustu/hizli_satis/alt_paneller/alt_durum_cubugu.html' %}
+
+</div>

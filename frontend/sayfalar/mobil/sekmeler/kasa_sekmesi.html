@@ -1,0 +1,59 @@
+<!-- =========================================================
+     SEKME: MOBİL KASA (POS MOBİL SATIŞ VE TAHSİLAT)
+     ========================================================= -->
+<main class="container" id="section-pos" style="display: none;">
+
+  <!-- 1. KAMERA İLE SERİ SATIŞ VE MANUEL BARKOD BARI -->
+  <div class="scan-actions-grid" style="margin-bottom: 10px;">
+    <button class="btn-action-camera" onclick="openFullscreenCameraForPos()" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; box-shadow: 0 4px 15px rgba(16,185,129,0.3);">
+      <span style="font-size: 20px;">📷</span>
+      <span>Kamera ile Sepete Oku</span>
+    </button>
+    <button class="btn-action-gallery" onclick="clearMobilePosCart()" style="background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); color: #f87171;">
+      <span style="font-size: 20px;">🗑️</span>
+      <span>Sepeti Temizle</span>
+    </button>
+  </div>
+
+  <!-- Manuel Barkod / Miktar Girişi -->
+  <div class="manual-barcode-bar" style="margin-bottom: 12px;">
+    <input type="text" id="inp-mob-pos-barcode" placeholder="Barkod veya [Miktar*Barkod] yazın..." onkeydown="if(event.key==='Enter') submitMobilePosBarcode(this.value)">
+    <button onclick="submitMobilePosBarcode(document.getElementById('inp-mob-pos-barcode').value)" style="background: #10b981;">Ekle</button>
+  </div>
+
+  <!-- 2. CANLI SEPET TOPLAM KARTI -->
+  <div style="background: linear-gradient(135deg, #07101f, #0f1c38); border: 2px solid #10b981; border-radius: 14px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 25px rgba(16,185,129,0.2); margin-bottom: 14px;">
+    <div>
+      <div style="font-size: 11px; font-weight: 800; color: #34d399; text-transform: uppercase; letter-spacing: 0.5px;">ÖDENECEK TUTAR</div>
+      <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+        <span id="mob-pos-item-count">0</span> Kalem • <span id="mob-pos-qty-count">0</span> Adet
+      </div>
+    </div>
+    <div id="mob-pos-grand-total" style="font-size: 32px; font-weight: 900; color: #10b981; font-family: monospace; text-shadow: 0 0 12px rgba(16,185,129,0.45);">
+      0,00 TL
+    </div>
+  </div>
+
+  <!-- 3. MOBİL SEPET ÜRÜN LİSTESİ -->
+  <div id="mob-pos-cart-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; min-height: 180px;">
+    <!-- JS Dinamik Ürün Kartlarını Dolduracak -->
+  </div>
+
+  <!-- 4. HIZLI ÖDEME BUTONLARI (NAKİT / KART) -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: sticky; bottom: 12px; background: rgba(3,7,18,0.95); backdrop-filter: blur(10px); padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);">
+    
+    <!-- 💵 NAKİT SATIŞ -->
+    <button type="button" onclick="checkoutMobilePosSale('Nakit')" style="padding: 15px 10px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 12px; color: #ffffff; font-size: 15px; font-weight: 900; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 6px 20px rgba(16,185,129,0.35);">
+      <span style="font-size: 22px;">💵</span>
+      <span>NAKİT SATIŞ</span>
+    </button>
+
+    <!-- 💳 KREDİ KARTI -->
+    <button type="button" onclick="checkoutMobilePosSale('Kredi Kartı')" style="padding: 15px 10px; background: linear-gradient(135deg, #0284c7, #0369a1); border: none; border-radius: 12px; color: #ffffff; font-size: 15px; font-weight: 900; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 6px 20px rgba(2,132,199,0.35);">
+      <span style="font-size: 22px;">💳</span>
+      <span>KART SATIŞ</span>
+    </button>
+
+  </div>
+
+</main>

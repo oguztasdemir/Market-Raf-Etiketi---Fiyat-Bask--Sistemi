@@ -1,0 +1,110 @@
+<div id="tab-design" class="tab-content">
+        <div class="design-studio-layout">
+          
+          <!-- SOL SÜTUN: Kayıtlı Şablonlar Listesi -->
+          <div class="card studio-sidebar">
+            <div class="card-header-flex">
+              <h2 class="card-title">📋 Etiket Modelleri</h2>
+              <button class="btn-sm btn-primary" onclick="createNewTemplate()">+ Yeni Model</button>
+            </div>
+            <div id="template-list" class="template-card-list"></div>
+          </div>
+
+          <!-- SAĞ SÜTUN: BİRLEŞİK İNTERAKTİF TASARIM SAHNESİ -->
+          <div class="panel-right studio-main">
+            
+            <!-- ÜST TASARIM ARAÇ ÇUBUĞU (TOOLBAR) -->
+            <div class="studio-toolbar">
+              <!-- Sol Araçlar -->
+              <div class="tool-group">
+                <button class="tool-btn" onclick="addTextToCanvas()" title="Yeni Metin Ekle">
+                  <span>📝</span> Metin
+                </button>
+                <button class="tool-btn" onclick="addLineToCanvas()" title="Çizgi Ekle">
+                  <span>➖</span> Çizgi
+                </button>
+                <button class="tool-btn" onclick="addBoxToCanvas()" title="Kare / Kutu Ekle">
+                  <span>⬜</span> Kare
+                </button>
+                <label class="tool-btn" title="Görsel / Logo Yükle">
+                  <span>🖼️</span> Görsel
+                  <input type="file" id="inp-image-upload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                </label>
+                <button class="tool-btn tool-btn-danger" id="btn-delete-selected-el" onclick="deleteSelectedElement()" title="Seçili Öğeyi Sil" style="display: none;">
+                  <span>🗑️</span> Sil
+                </button>
+              </div>
+
+              <!-- Orta Model Bilgisi -->
+              <div class="tool-group-mid">
+                <span id="editor-preview-name" class="badge-design" style="font-size:12px;">🔒 Standart Model</span>
+              </div>
+
+              <!-- Sağ Aksiyonlar -->
+              <div class="tool-group-actions">
+                <button class="btn-sm btn-secondary" id="btn-rename-template" onclick="openRenameModal()" title="Model Adını Değiştir" style="display: none;">✏️ Adı Değiştir</button>
+                <button class="btn-sm btn-danger" id="btn-delete-template" onclick="deleteCurrentTemplate()" title="Bu Modeli Sil" style="display: none;">🗑️ Sil</button>
+                <button class="btn-sm btn-secondary" id="btn-set-default" onclick="setCurrentTemplateAsDefault()">⭐️ Varsayılan Yap</button>
+                <button class="btn-sm btn-primary" onclick="saveTemplateFromEditor()">💾 Şablonu Kaydet</button>
+                
+                <div class="zoom-actions" style="margin-left: 6px;">
+                  <button onclick="adjustEditorScale(0.9)">-</button>
+                  <span id="zoom-text-editor">100%</span>
+                  <button onclick="adjustEditorScale(1.1)">+</button>
+                  <button onclick="resetEditorScale()">Sıfırla</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CANLI ETKİLEŞİMLİ TUVAL (CANVAS) -->
+            <div class="printable-wrapper studio-canvas-area" onclick="onCanvasBackgroundClick(event)">
+              <div id="editor-shelf-label" class="market-label size-76x40 studio-canvas" onclick="event.stopPropagation()">
+                
+                <!-- 1. Üst Bölüm (Doğrudan Çift Tıklanıp Düzenlenebilir) -->
+                <div class="ml-top-row">
+                  <div class="ml-title-area full-width" id="editor-title-area">
+                    <div class="ml-title-line1 editable-text" id="editor-lbl-title-1" contenteditable="true" spellcheck="false">ULK 398-6 PİKO PORTAKAL</div>
+                    <div class="ml-title-line2 editable-text" id="editor-lbl-title-2" contenteditable="true" spellcheck="false">PİR PAT KAP</div>
+                  </div>
+                  <div class="ml-top-right-box" id="editor-lbl-top-right-box" style="display: none;"></div>
+                </div>
+
+                <!-- 2. Orta Bölüm -->
+                <div class="ml-mid-row">
+                  <div class="ml-brand-col editable-text" id="editor-lbl-brand" contenteditable="true" spellcheck="false">YARENLER</div>
+                  <div class="ml-legal-col">
+                    <div>Üretim Yeri: <strong class="editable-text" id="editor-lbl-origin" contenteditable="true" spellcheck="false">TÜRKİYE</strong></div>
+                    <div>Fiyatlarımıza Kdv Dahildir.</div>
+                    <div>Fiyat Değiştirme Tarihi: <span id="editor-lbl-date">19 Ağu 2026</span></div>
+                  </div>
+                </div>
+
+                <!-- 3. Alt Bölüm -->
+                <div class="ml-bottom-row">
+                  <div class="ml-barcode-col">
+                    <svg id="editor-barcode-svg"></svg>
+                  </div>
+                  <div class="ml-divider-col">
+                    <span>Satış</span>
+                    <span>Fiyatı</span>
+                  </div>
+                  <div class="ml-price-col">
+                    <span class="price-val editable-text" id="editor-lbl-price" contenteditable="true" spellcheck="false">10,00 ₺</span>
+                  </div>
+                </div>
+
+                <!-- Kullanıcının Eklediği Dinamik Katmanlar (Text, Çizgi, Kutu, Logo) -->
+                <div id="editor-custom-layers"></div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- =========================================================
+           SEKME 3: ÜRÜN KATALOĞU (STOK & FİRMA LİSTESİ)
+           ========================================================= -->

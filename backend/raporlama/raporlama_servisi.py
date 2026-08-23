@@ -6,9 +6,9 @@ import os
 import re
 import calendar
 import datetime
-from backend.ayarlar import DATA_DIR, PRODUCTS_FILE, SALES_DIR
+from backend.ayarlar import DATA_DIR, SALES_DIR
 from backend.araclar.depolama_araclari import load_json, save_json
-from backend.araclar.metin_duzenleyici import get_online_or_system_date, format_price_display, parse_price_val
+from backend.araclar.metin_duzenleyici import get_online_or_system_date, format_price_display
 
 REPORTS_FILE = os.path.join(DATA_DIR, "daily_reports.json")
 
@@ -60,6 +60,45 @@ def is_kg_item(title: str, unit: str = "Adet", is_scale_item: bool = False, barc
         if not any(k in t for k in ["ADET", "DMT", "DEMET", "TANE", "PK", "PAKET"]):
             return True
     return False
+
+def detect_product_category(title: str = "", is_scale: bool = False, unit: str = "Adet", barcode: str = "") -> str:
+    """Ürünün reyon / ürün grubunu akıllıca tespit eder."""
+    if is_kg_item(title, unit, is_scale, barcode) or str(barcode).startswith("PLU_"):
+        return "Manav & Terazi"
+        
+    t_clean = str(title or "").lower()
+    
+    # 1. Temel Gıda & Şarküteri
+    gida_kw = [
+        "süt", "peynir", "yoğurt", "un", "şeker", "yağ", "zeytin", "ekmek", "makarna", "pirinç",
+        "et", "tavuk", "balık", "salça", "helva", "sucuk", "sosis", "salam", "yumurta", "tereyağ",
+        "kaşar", "bulgur", "nohut", "mercimek", "fasulye", "makarna", "erişte", "tuz", "baharat",
+        "bal", "reçel", "çorba", "konserve", "ton", "tost", "böreklik", "yufka", "lor", "kaymak"
+    ]
+    if any(k in t_clean for k in gida_kw):
+        return "Temel Gıda & Şarküteri"
+        
+    # 2. İçecek & Atıştırmalık
+    snack_kw = [
+        "su", "kola", "coca", "pepsi", "fanta", "sprite", "gazoz", "meyve suyu", "çay", "kahve",
+        "bisküvi", "çikolata", "gofret", "kek", "cips", "fındık", "fıstık", "çekirdek", "sakız",
+        "enerji", "maden suyu", "soda", "ayran", "şalgam", "limonata", "ice tea", "lipton", "eti",
+        "ülker", "haribo", "dondurma", "şekerleme", "bonbon"
+    ]
+    if any(k in t_clean for k in snack_kw):
+        return "İçecek & Atıştırmalık"
+        
+    # 3. Temizlik & Kozmetik
+    clean_kw = [
+        "deterjan", "yumuşatıcı", "sabun", "şampuan", "peçete", "havlu", "diş", "kolonya",
+        "çamaşır", "bulaşık", "temizleyici", "çöp", "bez", "jilet", "pamuk", "ped", "ıslak mendil",
+        "kireç", "parlatıcı", "tuz ruhu", "çamaşır suyu", "ace", "domestos", "fairy", "prıl", "pril",
+        "ariel", "omo", "yumoş", "vernel", "pantene", "elidor", "colgate", "sensodyne"
+    ]
+    if any(k in t_clean for k in clean_kw):
+        return "Temizlik & Kozmetik"
+        
+    return "Genel & Diğer"
 
 def _get_today_key() -> str:
     """Gün anahtarını döner (Örn: 2026-08-22)."""
@@ -162,10 +201,6 @@ def log_printed_batch(items: list, source: str = "PC"):
         "items": items
     })
     save_json(REPORTS_FILE, reports)
-
-def log_printed_item(barcode: str, title: str, price: str, count: int = 1, source: str = "PC"):
-    """Basılan tekli etiket bilgisini günlük rapora işler."""
-    log_printed_batch([{"barcode": barcode, "title": title, "price": price, "copies": count}], source=source)
 
 def get_monthly_calendar_report(year: int = None, month: int = None) -> dict:
     """
@@ -425,39 +460,224 @@ def get_detailed_day_report(date_str: str = None) -> dict:
     card_total = 0.0
     day_sold_adet = 0.0
     day_sold_kg = 0.0
-    cashier_totals = {}
-    hourly_distribution = {f"{h:02d}:00": 0.0 for h in range(8, 24)}
+    cashier_dict = {}
+    
+    # Kategori / Reyon Ciro Dağılım Havuzu
+    category_map = {
+        "Manav & Terazi": {"name": "Manav & Terazi", "revenue": 0.0, "items_count": 0.0, "color": "#10b981", "icon": "🥦"},
+        "Temel Gıda & Şarküteri": {"name": "Temel Gıda & Şarküteri", "revenue": 0.0, "items_count": 0.0, "color": "#38bdf8", "icon": "🥛"},
+        "İçecek & Atıştırmalık": {"name": "İçecek & Atıştırmalık", "revenue": 0.0, "items_count": 0.0, "color": "#f59e0b", "icon": "🍫"},
+        "Temizlik & Kozmetik": {"name": "Temizlik & Kozmetik", "revenue": 0.0, "items_count": 0.0, "color": "#c084fc", "icon": "🧼"},
+        "Genel & Diğer": {"name": "Genel & Diğer", "revenue": 0.0, "items_count": 0.0, "color": "#94a3b8", "icon": "📦"}
+    }
+    
+    # 24 Saatlik Detaylı Satış ve Ciro Havuzu
+    hourly_data = {}
+    for h in range(0, 24):
+        h_start = f"{h:02d}:00"
+        h_end = f"{(h+1)%24:02d}:00"
+        hourly_data[h_start] = {
+            "hour": h_start,
+            "hour_num": h,
+            "hour_label": f"{h_start} - {h_end}",
+            "revenue": 0.0,
+            "receipt_count": 0,
+            "items_sold": 0.0,
+            "sold_adet": 0.0,
+            "sold_kg": 0.0,
+            "cash": 0.0,
+            "card": 0.0
+        }
 
     for s in sales:
         amt = float(s.get("total_amount", 0.0))
         total_amount += amt
         ptype = s.get("payment_type", "Nakit")
-        if "kart" in ptype.lower():
+        is_card = "kart" in ptype.lower()
+        if is_card:
             card_total += amt
         else:
             cash_total += amt
 
+        # Kasiyer bazlı detaylı toplama
+        c_name = s.get("cashier", "Kasiyer") or "Kasiyer"
+        if c_name not in cashier_dict:
+            cashier_dict[c_name] = {
+                "cashier": c_name,
+                "receipt_count": 0,
+                "items_sold": 0.0,
+                "cash": 0.0,
+                "card": 0.0,
+                "total": 0.0
+            }
+        cashier_dict[c_name]["receipt_count"] += 1
+        cashier_dict[c_name]["total"] += amt
+        if is_card:
+            cashier_dict[c_name]["card"] += amt
+        else:
+            cashier_dict[c_name]["cash"] += amt
+
+        # Satış Saati Tespiti
+        t_str = str(s.get("time") or s.get("datetime") or "12:00:00")
+        try:
+            time_part = t_str.split(" ")[-1] if " " in t_str else t_str
+            h_int = int(time_part.split(":")[0].strip())
+            h_key = f"{h_int:02d}:00"
+        except Exception:
+            h_key = "12:00"
+
+        if h_key in hourly_data:
+            hourly_data[h_key]["revenue"] += amt
+            hourly_data[h_key]["receipt_count"] += 1
+            if is_card:
+                hourly_data[h_key]["card"] += amt
+            else:
+                hourly_data[h_key]["cash"] += amt
+
         for item in s.get("items", []):
             t = item.get("title", "Ürün")
             q = float(item.get("quantity", 1))
+            tot_price = float(item.get("total_price", 0.0))
             unit_val = item.get("unit", "Adet")
             scale_flag = item.get("is_scale_item", False)
             bc = item.get("barcode", "")
             is_kg = is_kg_item(t, unit_val, scale_flag, bc)
+            
+            # Kategori Tespit ve Ekleme
+            cat = detect_product_category(t, scale_flag, unit_val, bc)
+            if cat in category_map:
+                category_map[cat]["revenue"] += tot_price
+                category_map[cat]["items_count"] += q
+
             if is_kg:
                 day_sold_kg += q
+                if h_key in hourly_data:
+                    hourly_data[h_key]["sold_kg"] += q
             else:
                 day_sold_adet += q
+                if h_key in hourly_data:
+                    hourly_data[h_key]["sold_adet"] += q
+            
+            if h_key in hourly_data:
+                hourly_data[h_key]["items_sold"] += q
+            
+            cashier_dict[c_name]["items_sold"] += q
 
-        # Kasiyer bazlı toplam
-        c_name = s.get("cashier", "Kasiyer")
-        cashier_totals[c_name] = cashier_totals.get(c_name, 0.0) + amt
+    # Kasiyer Performans Listesi
+    cashier_performance = []
+    for c_name, c_data in cashier_dict.items():
+        c_tot = round(c_data["total"], 2)
+        c_pct = round((c_tot / total_amount * 100), 1) if total_amount > 0 else 0.0
+        cashier_performance.append({
+            "cashier": c_name,
+            "receipt_count": c_data["receipt_count"],
+            "items_sold": round(c_data["items_sold"], 1),
+            "cash": round(c_data["cash"], 2),
+            "cash_str": format_price_display(c_data["cash"]),
+            "card": round(c_data["card"], 2),
+            "card_str": format_price_display(c_data["card"]),
+            "total": c_tot,
+            "total_str": format_price_display(c_tot),
+            "percentage": c_pct
+        })
+    cashier_performance.sort(key=lambda x: x["total"], reverse=True)
 
-        # Saatlik dağılım
-        t_str = s.get("time", "12:00:00")
-        hour_key = f"{t_str.split(':')[0]}:00"
-        if hour_key in hourly_distribution:
-            hourly_distribution[hour_key] += amt
+    # Kategori / Reyon Ciro Dağılım Listesi
+    category_breakdown = []
+    for cat_key, cat_data in category_map.items():
+        c_rev = round(cat_data["revenue"], 2)
+        c_pct = round((c_rev / total_amount * 100), 1) if total_amount > 0 else 0.0
+        if c_rev > 0 or total_amount == 0:
+            category_breakdown.append({
+                "category": cat_key,
+                "icon": cat_data["icon"],
+                "color": cat_data["color"],
+                "revenue": c_rev,
+                "revenue_str": format_price_display(c_rev),
+                "items_count": round(cat_data["items_count"], 1),
+                "percentage": c_pct
+            })
+    category_breakdown.sort(key=lambda x: x["revenue"], reverse=True)
+
+    # Dün ve Geçen Hafta Karşılaştırmaları (Trend Analizi)
+    yesterday_comparison = None
+    last_week_comparison = None
+    try:
+        curr_dt = datetime.datetime.strptime(d_str, "%Y-%m-%d").date()
+        yesterday_str = (curr_dt - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        last_week_str = (curr_dt - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+        
+        yest_file = os.path.join(SALES_DIR, f"{yesterday_str}.json")
+        yest_sales = load_json(yest_file, []) if os.path.exists(yest_file) else []
+        yest_total = sum(float(s.get("total_amount", 0.0)) for s in yest_sales)
+        
+        if yest_total > 0:
+            diff_y = total_amount - yest_total
+            pct_y = round((diff_y / yest_total) * 100, 1)
+            yesterday_comparison = {
+                "date": yesterday_str,
+                "total": round(yest_total, 2),
+                "total_str": format_price_display(yest_total),
+                "diff_amount": round(diff_y, 2),
+                "diff_amount_str": format_price_display(abs(diff_y)),
+                "diff_percent": pct_y,
+                "is_positive": diff_y >= 0
+            }
+
+        lw_file = os.path.join(SALES_DIR, f"{last_week_str}.json")
+        lw_sales = load_json(lw_file, []) if os.path.exists(lw_file) else []
+        lw_total = sum(float(s.get("total_amount", 0.0)) for s in lw_sales)
+        
+        if lw_total > 0:
+            diff_lw = total_amount - lw_total
+            pct_lw = round((diff_lw / lw_total) * 100, 1)
+            last_week_comparison = {
+                "date": last_week_str,
+                "total": round(lw_total, 2),
+                "total_str": format_price_display(lw_total),
+                "diff_amount": round(diff_lw, 2),
+                "diff_amount_str": format_price_display(abs(diff_lw)),
+                "diff_percent": pct_lw,
+                "is_positive": diff_lw >= 0
+            }
+    except Exception:
+        pass
+
+    # Saatlik Detay Listesini Oluştur ve En Yoğun Saati Bul
+    hourly_breakdown = []
+    max_rev = 0.0
+    peak_hour_entry = None
+
+    for h in range(0, 24):
+        h_key = f"{h:02d}:00"
+        h_info = hourly_data[h_key]
+        rev = round(h_info["revenue"], 2)
+        pct = round((rev / total_amount * 100), 1) if total_amount > 0 else 0.0
+        
+        entry = {
+            "hour": h_info["hour"],
+            "hour_num": h_info["hour_num"],
+            "hour_label": h_info["hour_label"],
+            "revenue": rev,
+            "revenue_str": format_price_display(rev),
+            "receipt_count": h_info["receipt_count"],
+            "items_sold": round(h_info["items_sold"], 1),
+            "sold_adet": round(h_info["sold_adet"], 1),
+            "sold_kg": round(h_info["sold_kg"], 2),
+            "cash": round(h_info["cash"], 2),
+            "cash_str": format_price_display(h_info["cash"]),
+            "card": round(h_info["card"], 2),
+            "card_str": format_price_display(h_info["card"]),
+            "percentage": pct,
+            "is_peak": False
+        }
+        if rev > max_rev:
+            max_rev = rev
+            peak_hour_entry = entry
+        hourly_breakdown.append(entry)
+
+    if peak_hour_entry and max_rev > 0:
+        peak_hour_entry["is_peak"] = True
 
     # Günlük ürün bazlı satış sıralaması (Çoktan aza - Yardımcı kalemler hariç)
     day_product_counter = {}
@@ -537,15 +757,173 @@ def get_detailed_day_report(date_str: str = None) -> dict:
         "new_products_count": new_products_count,
         "total_printed_labels": total_printed_labels,
         "day_top_products": day_top_products,
-        "cashier_performance": [
-            {"cashier": k, "total": round(v, 2), "total_str": format_price_display(v)}
-            for k, v in cashier_totals.items()
-        ],
+        "cashier_performance": cashier_performance,
+        "category_breakdown": category_breakdown,
+        "yesterday_comparison": yesterday_comparison,
+        "last_week_comparison": last_week_comparison,
+        "hourly_breakdown": hourly_breakdown,
+        "peak_hour": peak_hour_entry,
         "hourly_sales": [
-            {"hour": h, "amount": round(val, 2), "amount_str": format_price_display(val)}
-            for h, val in hourly_distribution.items() if val > 0
+            {"hour": h["hour"], "amount": h["revenue"], "amount_str": h["revenue_str"], "receipt_count": h["receipt_count"]}
+            for h in hourly_breakdown if h["revenue"] > 0
         ],
         "sales_list": list(reversed(sales)),
         "price_changes": price_changes,
         "printed_items": printed_items
+    }
+
+def get_weekly_heatmap_report(year: int = None, month: int = None) -> dict:
+    """
+    Haftanın 7 günü (Pazartesi-Pazar) ve 24 saati için satış yoğunluğu ısı haritası (Heatmap) üretir.
+    """
+    today_dt = datetime.datetime.now().date()
+    y = year or today_dt.year
+    m = month or today_dt.month
+    
+    num_days = calendar.monthrange(y, m)[1]
+    
+    day_names = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
+    day_short_names = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+
+    # 7 x 24 Matris Yapısı
+    matrix = {}
+    day_totals = {d: {"weekday": d, "day_name": day_names[d], "short_name": day_short_names[d], "revenue": 0.0, "receipt_count": 0} for d in range(7)}
+    hour_totals = {h: {"hour": h, "hour_label": f"{h:02d}:00", "revenue": 0.0, "receipt_count": 0} for h in range(24)}
+
+    for d in range(7):
+        matrix[d] = {}
+        for h in range(24):
+            matrix[d][h] = {
+                "weekday": d,
+                "day_name": day_names[d],
+                "short_name": day_short_names[d],
+                "hour": h,
+                "hour_str": f"{h:02d}:00",
+                "hour_range": f"{h:02d}:00 - {(h+1)%24:02d}:00",
+                "revenue": 0.0,
+                "receipt_count": 0,
+                "items_sold": 0.0
+            }
+
+    total_heatmap_rev = 0.0
+    total_heatmap_receipts = 0
+    
+    for day in range(1, num_days + 1):
+        day_date = datetime.date(y, m, day)
+        date_str = day_date.strftime("%Y-%m-%d")
+        w_day = day_date.weekday() # 0: Pazartesi .. 6: Pazar
+        
+        sale_file = os.path.join(SALES_DIR, f"{date_str}.json")
+        if not os.path.exists(sale_file):
+            continue
+            
+        sales = load_json(sale_file, [])
+        for s in sales:
+            amt = float(s.get("total_amount", 0.0))
+            total_heatmap_rev += amt
+            total_heatmap_receipts += 1
+            
+            day_totals[w_day]["revenue"] += amt
+            day_totals[w_day]["receipt_count"] += 1
+            
+            t_str = str(s.get("time") or s.get("datetime") or "12:00:00")
+            try:
+                time_part = t_str.split(" ")[-1] if " " in t_str else t_str
+                h_int = int(time_part.split(":")[0].strip())
+                h_int = max(0, min(23, h_int))
+            except Exception:
+                h_int = 12
+                
+            hour_totals[h_int]["revenue"] += amt
+            hour_totals[h_int]["receipt_count"] += 1
+            
+            matrix[w_day][h_int]["revenue"] += amt
+            matrix[w_day][h_int]["receipt_count"] += 1
+            
+            for item in s.get("items", []):
+                matrix[w_day][h_int]["items_sold"] += float(item.get("quantity", 1))
+
+    # Maksimum yoğunluğu tespit et
+    max_cell_rev = max((matrix[d][h]["revenue"] for d in range(7) for h in range(24)), default=0.0)
+    
+    flat_cells = []
+    peak_cell = None
+    max_score = 0.0
+
+    for d in range(7):
+        for h in range(24):
+            cell = matrix[d][h]
+            rev = round(cell["revenue"], 2)
+            rcpt = cell["receipt_count"]
+            cell["revenue"] = rev
+            cell["revenue_str"] = format_price_display(rev)
+            
+            # Yoğunluk Skoru (0 - 100)
+            score = (rev / max_cell_rev * 100) if max_cell_rev > 0 else 0.0
+            cell["intensity_score"] = round(score, 1)
+            
+            # Renk Seviyesi (0: Yok, 1: Düşük, 2: Orta, 3: Yüksek, 4: Zirve)
+            if score == 0 or rev == 0:
+                level = 0
+            elif score < 25:
+                level = 1
+            elif score < 55:
+                level = 2
+            elif score < 80:
+                level = 3
+            else:
+                level = 4
+            cell["level"] = level
+            
+            if score > max_score and rev > 0:
+                max_score = score
+                peak_cell = cell
+                
+            flat_cells.append(cell)
+
+    # Formatlanan Gün Toplamları
+    for dt in day_totals.values():
+        dt["revenue_str"] = format_price_display(round(dt["revenue"], 2))
+
+    # Formatlanan Saat Toplamları
+    for ht in hour_totals.values():
+        ht["revenue_str"] = format_price_display(round(ht["revenue"], 2))
+
+    # En Yoğun Gün
+    busiest_day = max(day_totals.values(), key=lambda x: x["revenue"], default=None)
+
+    # En Yoğun Saat Dilimi
+    peak_hour = max(hour_totals.values(), key=lambda x: x["revenue"], default=None)
+
+    # Önerilen Kasa / Personel Takviye Saatleri
+    staffing_alerts = []
+    for cell in sorted(flat_cells, key=lambda x: x["intensity_score"], reverse=True):
+        if cell["intensity_score"] >= 40 and len(staffing_alerts) < 4:
+            staffing_alerts.append({
+                "day_name": cell["day_name"],
+                "hour_range": cell["hour_range"],
+                "revenue_str": cell["revenue_str"],
+                "receipt_count": cell["receipt_count"],
+                "intensity_score": cell["intensity_score"]
+            })
+
+    tr_months = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+    m_name = tr_months[m] if 1 <= m <= 12 else str(m)
+
+    return {
+        "status": "success",
+        "year": y,
+        "month": m,
+        "month_name": m_name,
+        "total_revenue": round(total_heatmap_rev, 2),
+        "total_revenue_str": format_price_display(total_heatmap_rev),
+        "total_receipts": total_heatmap_receipts,
+        "matrix": matrix,
+        "flat_cells": flat_cells,
+        "day_totals": list(day_totals.values()),
+        "hour_totals": list(hour_totals.values()),
+        "busiest_day": busiest_day,
+        "peak_hour": peak_hour,
+        "peak_cell": peak_cell,
+        "staffing_alerts": staffing_alerts
     }

@@ -1,0 +1,50 @@
+<div id="modal-scale-settings" class="modal-backdrop" style="display: none; z-index: 9998;">
+    <div class="modal-card" style="max-width: 480px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">⚙️</span>
+          <h3 style="margin: 0; font-size: 15px; color: var(--text-main);">Terazi Bağlantı & Donanım Ayarları</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeScaleSettingsModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px; font-size: 12px; color: #38bdf8;">
+          💡 <strong>Tespit Edilen Terazi:</strong> DIGI / TERAOKA Ethernet Barkodlu Terazi (`192.168.1.61:2061`).
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 100px; gap: 10px;">
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Terazi IP Adresi</label>
+            <input type="text" id="inp-scale-ip" value="192.168.1.61" style="font-family: monospace; font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Port</label>
+            <input type="number" id="inp-scale-port" value="2061" style="font-family: monospace; font-weight: 700;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Departman Kodu (Dept)</label>
+          <input type="number" id="inp-scale-dept" value="1" min="1" max="99" style="font-weight: 700;">
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Terazi Modeli / Açıklama</label>
+          <input type="text" id="inp-scale-model" value="DIGI / TERAOKA (SM-100 / SM-300 / SM-5100)" style="font-weight: 600;">
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn-secondary" onclick="testScaleConnectionAction()" style="border-color: #38bdf8; color: #38bdf8;">🧪 Bağlantıyı Test Et</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" onclick="closeScaleSettingsModal()">Kapat</button>
+          <button type="button" class="btn-primary" onclick="submitScaleSettingsModal()" style="font-weight: 800;">💾 Ayarları Kaydet</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: TERAZİ İŞLEM ONAY POP-UP MODALI (ENTER & ESC)
+       ========================================================= -->

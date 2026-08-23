@@ -1,0 +1,20 @@
+<div id="modal-rename-template" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Model Adını Değiştir</h3>
+        <button class="modal-close-btn" onclick="closeRenameModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Yeni Model Adı</label>
+          <input type="text" id="modal-inp-rename-name" placeholder="Yeni model adı..." onkeydown="if(event.key==='Enter') submitRenameModal()">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeRenameModal()">İptal</button>
+        <button class="btn-primary" onclick="submitRenameModal()">✓ Değişikliği Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GEÇMİŞ EXCEL DOSYALARI ARŞİV MODALI -->

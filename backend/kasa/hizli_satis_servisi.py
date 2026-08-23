@@ -3,10 +3,9 @@
 Hızlı Satış (POS), Sepet & Kasa Satış Motoru
 """
 import os
-import re
 import time
 import datetime
-from backend.ayarlar import PRODUCTS_FILE, MANAV_PRODUCTS_FILE, SALES_DIR, CUSTOMERS_FILE
+from backend.ayarlar import PRODUCTS_FILE, MANAV_PRODUCTS_FILE, SALES_DIR
 from backend.araclar.depolama_araclari import load_json, save_json
 from backend.araclar.metin_duzenleyici import parse_price_val, format_price_display
 from backend.kasa.kasiyer_servisi import get_active_cashier
@@ -401,7 +400,15 @@ def get_dashboard_summary() -> dict:
     active_c = get_active_cashier()
 
     lifetime_sales = int(settings.get("lifetime_sales_count", 0)) + monthly_count
-    lifetime_sales_str = f"{lifetime_sales:,}".replace(",", ".")
+    
+    # A000.000.001 Formatı (1 milyarda B'ye döner)
+    limit = 999_999_999
+    c_val = max(1, lifetime_sales)
+    letter_index = (c_val - 1) // limit
+    letter = chr(65 + (letter_index % 26))
+    num = ((c_val - 1) % limit) + 1
+    num_str = f"{num:09d}"
+    lifetime_sales_str = f"{letter}{num_str[0:3]}.{num_str[3:6]}.{num_str[6:9]}"
 
     return {
         "market_name": market_name,

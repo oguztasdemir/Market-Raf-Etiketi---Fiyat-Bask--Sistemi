@@ -1,0 +1,21 @@
+<div id="modal-excel-history" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 650px; width: 95%;">
+      <div class="modal-header">
+        <h3>📜 Geçmiş Sistem Dosyaları Arşivi (Excel & CSV)</h3>
+        <button class="modal-close-btn" onclick="closeExcelHistoryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #38bdf8; margin-bottom: 12px;">
+          💡 <strong>Bilgi:</strong> Sistemdeki fiyat güncellemeleri ve toplu baskı her zaman <strong>en son yüklenen aktif dosya (.xlsx / .csv)</strong> üzerinden yapılır. Geçmiş dosyalar geriye dönük inceleme amacıyla saklanır.
+        </div>
+        <div id="excel-history-list" style="max-height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- JS dolduracak -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeExcelHistoryModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GEÇMİŞ EXCEL DETAY İNCELEME (READ-ONLY) MODALI -->

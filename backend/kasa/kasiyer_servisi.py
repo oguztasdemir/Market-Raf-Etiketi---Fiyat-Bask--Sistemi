@@ -2,7 +2,6 @@
 """
 Kasiyer, Vardiya & Yetki Yönetim Servisi
 """
-import os
 import time
 import datetime
 from backend.ayarlar import CASHIERS_FILE

@@ -1,0 +1,144 @@
+<div id="tab-sync" class="tab-content">
+        <div class="sync-container">
+          
+          <!-- Kompakt Kontrol & İstatistik Şeridi -->
+          <!-- ÜST KONTROL ŞERİDİ (Dosya, Yedekleme ve Arama) -->
+          <div class="sync-top-control-bar">
+            
+            <!-- Sol Grup: Excel / CSV Dosyası & Geçmiş -->
+            <div class="sync-left-tools" id="sync-dropzone">
+              <input type="file" id="sync-file-input" accept=".xlsx, .xls, .csv" style="display:none;" onchange="onExcelFileSelected(event)">
+              <button class="btn-sm btn-primary" onclick="document.getElementById('sync-file-input').click()">
+                📂 Excel / CSV Yükle
+              </button>
+              <div class="sync-file-pill" title="Yüklü Sistem Stok Dosyası (.xlsx / .csv)" onclick="openExcelHistoryModal()" style="cursor: pointer;">
+                <span class="file-icon">📄</span>
+                <span id="sync-current-filename">stok_2026-08-19_16-00-00.xlsx</span>
+                <small id="sync-current-filetime"></small>
+              </div>
+              <button class="btn-sm btn-secondary" onclick="openExcelHistoryModal()" title="Geçmiş Dosyalar Arşivi">
+                📜 Geçmiş
+              </button>
+              <button class="btn-sm btn-secondary" onclick="loadSyncStatus(true)" title="Dosyayı Yeniden Tara">
+                🔄 Yenile
+              </button>
+            </div>
+
+            <!-- Sağ Grup: Sıralama, Arama, Yedekler, Geri Al -->
+            <div class="sync-right-tools" style="display: flex; align-items: center; gap: 8px;">
+              <select id="sync-quick-sort" class="form-control" style="background:#090d16; border:1px solid var(--border-color); color:#38bdf8; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;" onchange="onSyncQuickSortChange(this.value)" title="Ürünleri A-Z, Fiyat veya Barkoda Göre Sırala">
+                <option value="">↕️ Sıralama: Varsayılan</option>
+                <option value="title_asc">🔤 Ürün Adı (A ➔ Z)</option>
+                <option value="title_desc">🔤 Ürün Adı (Z ➔ A)</option>
+                <option value="brand_asc">🏢 Firma / Marka (A ➔ Z)</option>
+                <option value="price_asc">💰 Fiyat (En Düşük)</option>
+                <option value="price_desc">💰 Fiyat (En Yüksek)</option>
+                <option value="barcode_asc">🔢 Barkod (0 ➔ 9)</option>
+              </select>
+              <button class="btn-sm btn-secondary btn-rollback" onclick="rollbackLatestBackup()" title="Yazıcı hatası durumunda son işlemi geri alır">
+                ↺ Geri Al
+              </button>
+              <button class="btn-sm btn-secondary" onclick="switchTab('tab-backups')" title="Tüm Veritabanı Yedeklerini İncele">
+                💾 Yedekler
+              </button>
+              <div class="sync-search-box">
+                <input type="text" id="sync-search-inp" placeholder="Barkod veya ürün adı ara..." oninput="onSyncSearchInput(this.value)">
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ALT FİLTRE ŞERİDİ (En Solda Sekmeler & En Sağda Tüm Fiyatları Güncelle) -->
+          <div class="sync-filter-strip" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            
+            <div class="sync-tab-pills" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <button class="sync-pill-btn btn-all-products" id="pill-all" onclick="filterSyncTab('all')">
+                📦 Tüm Ürünler (<span id="pill-count-all">0</span>)
+              </button>
+              <button class="sync-pill-btn active" id="pill-changed" onclick="filterSyncTab('changed')">
+                ⚠️ Fiyatı Değişenler (<span id="pill-count-changed">0</span>)
+              </button>
+              <button class="sync-pill-btn" id="pill-new" onclick="filterSyncTab('new')">
+                ✨ Yeni Ürünler (<span id="pill-count-new">0</span>)
+              </button>
+              <button class="sync-pill-btn" id="pill-matched" onclick="filterSyncTab('matched')">
+                ✅ Fiyatı Aynı Olanlar (<span id="pill-count-matched">0</span>)
+              </button>
+              <button class="sync-pill-btn" id="pill-blacklisted" onclick="filterSyncTab('blacklisted')">
+                🚫 Kara Liste (<span id="pill-count-blacklisted">0</span>)
+              </button>
+            </div>
+
+            <button class="btn-sm btn-sync-all-apply" id="btn-sync-apply-all-top" onclick="applyAllChangedPricesFromSync()" title="Dosyadaki tüm fiyat değişikliklerini kataloğa uygular (Henüz basılmayanlar '⚠️ Güncel Değil' olur)" style="flex-shrink: 0; padding: 6px 14px; font-weight: 800;">
+              ⚡ Tüm Fiyatları Kataloğa Güncelle (<span id="top-btn-changed-count">0</span>)
+            </button>
+
+          </div>
+
+          <!-- Toplu İşlem Çubuğu (Batch Bar - Sadece Veri Güncelleme) -->
+          <div id="sync-batch-bar" class="sync-batch-bar" style="display:none;">
+            <div class="batch-left">
+              <span class="batch-count" id="sync-batch-count">0 ürün seçildi</span>
+            </div>
+            <div class="batch-right">
+              <button class="btn-batch-action btn-batch-apply" onclick="submitSyncBatchApply()">
+                💾 Seçilenleri Kataloğa Güncelle & Aktar
+              </button>
+              <button class="btn-batch-action btn-batch-blacklist" onclick="submitSyncBatchBlacklist()">
+                🚫 Kara Listeye Ekle
+              </button>
+              <button class="btn-batch-clear" onclick="clearSyncSelection()">
+                ✕ Temizle
+              </button>
+            </div>
+          </div>
+
+          <!-- Senkronizasyon & Karşılaştırma Tablosu -->
+          <div class="sync-table-wrapper" id="sync-scroll-container">
+            <table class="catalog-table sync-table">
+              <thead id="sync-thead">
+                <tr id="sync-thead-tr">
+                  <th class="td-select-col" onclick="toggleSelectAllSyncCustom(event)" title="Tümünü Seç / Temizle">
+                    <div class="custom-select-square" id="sync-select-all-box"></div>
+                  </th>
+                  <th class="sortable-th" onclick="sortSyncColumn('barcode')" style="width: 12%; min-width: 110px;">
+                    Barkod <span class="sort-icon" id="sync-sort-ico-barcode">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-brand" onclick="sortSyncColumn('brand')" style="width: 14%; min-width: 120px; display: none;">
+                    🏷️ Marka <span class="sort-icon" id="sync-sort-ico-brand">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-excel-title" onclick="sortSyncColumn('excel_title')" style="width: 25%; min-width: 160px;">
+                    Sistem Adı (Excel) <span class="sort-icon" id="sync-sort-ico-excel_title">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-current-title" onclick="sortSyncColumn('current_title')" style="width: 28%; min-width: 180px;">
+                    Etiket Adı (Mevcut) <span class="sort-icon" id="sync-sort-ico-current_title">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-current-price" onclick="sortSyncColumn('current_price')" style="width: 10%; min-width: 80px; text-align: right;">
+                    Raf Fiyatı <span class="sort-icon" id="sync-sort-ico-current_price">↕</span>
+                  </th>
+                  <th class="sortable-th" id="sync-th-excel-price" onclick="sortSyncColumn('excel_price')" style="width: 10%; min-width: 85px; text-align: right;">
+                    Sistem Fiyatı <span class="sort-icon" id="sync-sort-ico-excel_price">↕</span>
+                  </th>
+                  <th class="sortable-th" onclick="sortSyncColumn('status')" style="width: 8%; min-width: 85px; text-align: center;">
+                    Durum <span class="sort-icon" id="sync-sort-ico-status">↕</span>
+                  </th>
+                  <th style="width: 7%; min-width: 70px; text-align: center;">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="sync-tbody">
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    ⏳ Sistem verisi yükleniyor...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- =========================================================
+           SEKME: MANAV & BARKODLU TERAZİ YÖNETİMİ (PLU)
+           ========================================================= -->

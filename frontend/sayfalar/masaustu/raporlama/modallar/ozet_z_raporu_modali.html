@@ -1,0 +1,108 @@
+<div id="modal-summary-z-report" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.9); backdrop-filter: blur(8px); z-index: 9999999999; justify-content: center; align-items: center; padding: 16px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1px solid rgba(16,185,129,0.4); border-radius: 12px; width: 440px; max-width: 95vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.9);">
+    
+    <!-- Modal Üst Başlık -->
+    <div style="padding: 12px 18px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">📜</span>
+        <div>
+          <h3 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #34d399;">Gün Sonu Özet Z Raporu</h3>
+          <small style="color: #94a3b8; font-size: 11px;">Kasa kapanış ve ciro mutabakat özeti</small>
+        </div>
+      </div>
+      <button onclick="closeSummaryZReportModal()" class="btn-secondary" style="padding: 3px 8px; font-weight: 800; font-size: 13px;">✕</button>
+    </div>
+
+    <!-- Z Raporu Termal / Kağıt Fiş Görünümü -->
+    <div style="padding: 16px; overflow-y: auto; flex: 1;">
+      <div id="z-report-printable-area" style="background: #090d16; border: 1px dashed rgba(16,185,129,0.4); border-radius: 8px; padding: 16px 18px; font-family: 'Courier New', Courier, monospace; color: #f8fafc; font-size: 12px; line-height: 1.5; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);">
+        
+        <!-- Fiş Başlığı -->
+        <div style="text-align: center; border-bottom: 1px dashed #334155; padding-bottom: 8px; margin-bottom: 10px;">
+          <strong style="font-size: 15px; letter-spacing: 1px; color: #34d399; display: block;">MARKET OTOMASYON</strong>
+          <span style="font-size: 12px; font-weight: bold; color: #cbd5e1;">GÜN SONU Z RAPORU (ÖZET)</span>
+        </div>
+
+        <!-- Tarih & Meta Bilgileri -->
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">
+          <span>TARİH : <strong id="z-rep-date" style="color: #f8fafc;">-</strong></span>
+          <span>SAAT: <strong id="z-rep-time" style="color: #f8fafc;">-</strong></span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; border-bottom: 1px dashed #334155; padding-bottom: 8px; margin-bottom: 10px;">
+          <span>RAPOR NO: <strong id="z-rep-no" style="color: #38bdf8;">-</strong></span>
+          <span>DURUM: <strong style="color: #10b981;">MUTABIK</strong></span>
+        </div>
+
+        <!-- Finansal Ciro Dağılımı -->
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">💵 NAKİT SATIŞ</span>
+            <strong id="z-rep-cash" style="font-size: 12.5px; color: #34d399;">0,00 TL</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #cbd5e1;">💳 KREDİ KARTI / POS</span>
+            <strong id="z-rep-card" style="font-size: 12.5px; color: #38bdf8;">0,00 TL</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px dashed #334155; border-bottom: 1px dashed #334155; padding: 6px 0; margin-top: 2px;">
+            <strong style="color: #fbbf24; font-size: 13px;">💰 TOPLAM CİRO</strong>
+            <strong id="z-rep-total" style="color: #fbbf24; font-size: 15px; font-weight: 900;">0,00 TL</strong>
+          </div>
+        </div>
+
+        <!-- Satış Hacmi & Miktar İstatistikleri -->
+        <div style="display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: #cbd5e1; margin-bottom: 10px; border-bottom: 1px dashed #334155; padding-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">TOPLAM FİŞ SAYISI:</span>
+            <strong id="z-rep-receipts" style="color: #f8fafc;">0 Fiş</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">SATILAN ADET ÜRÜN:</span>
+            <strong id="z-rep-sold-adet" style="color: #c084fc;">0 Adet</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">TARTILAN TERAZİ (KG):</span>
+            <strong id="z-rep-sold-kg" style="color: #22d3ee;">0,00 Kg</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">ORTALAMA SEPET TUTARI:</span>
+            <strong id="z-rep-avg-basket" style="color: #38bdf8;">0,00 TL</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">EN YOĞUN SATIŞ SAATİ:</span>
+            <strong id="z-rep-peak-hour" style="color: #fbbf24;">-</strong>
+          </div>
+        </div>
+
+        <!-- Kasa Durumu -->
+        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; font-weight: bold; color: #94a3b8;">KASADA BULUNMASI GEREKEN NAKİT:</span>
+          <strong id="z-rep-cash-box" style="font-size: 13.5px; color: #34d399;">0,00 TL</strong>
+        </div>
+
+        <!-- İmza Alanı -->
+        <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: #94a3b8; border-top: 1px dashed #334155; padding-top: 12px; margin-top: 8px;">
+          <div style="text-align: center;">
+            <span>KASİYER</span>
+            <div style="margin-top: 18px; border-top: 1px solid #475569; width: 90px;"></div>
+          </div>
+          <div style="text-align: center;">
+            <span>MAĞAZA YETKİLİSİ</span>
+            <div style="margin-top: 18px; border-top: 1px solid #475569; width: 100px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Alt Eylemler -->
+    <div style="padding: 10px 18px; background: #0b1329; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+      <button type="button" onclick="printSummaryZReportSlip()" class="btn-primary" style="padding: 7px 16px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; display: flex; align-items: center; gap: 6px;">
+        🖨️ Z Raporu Yazdır
+      </button>
+      <button type="button" onclick="closeSummaryZReportModal()" class="btn-secondary" style="padding: 7px 16px; font-weight: 800; font-size: 12px;">
+        Kapat
+      </button>
+    </div>
+
+  </div>
+</div>

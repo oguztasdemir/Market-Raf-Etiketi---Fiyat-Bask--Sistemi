@@ -1,0 +1,127 @@
+<div id="modal-excel-detail" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 800px; width: 95%;">
+      <div class="modal-header">
+        <div>
+          <h3 id="excel-detail-title">🔍 Excel Arşiv Detayı</h3>
+          <small id="excel-detail-subtitle" style="color: var(--text-muted); font-size: 11.5px;"></small>
+        </div>
+        <button class="modal-close-btn" onclick="closeExcelDetailModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 12px; font-size: 11.5px; color: #fbbf24; margin-bottom: 12px;">
+          🔒 <strong>Arşiv İnceleme Modu (Salt Okunur):</strong> Bu dosya geçmişe aittir. Üzerinde değişiklik yapılamaz, sadece stok ve fiyat durumu incelenebilir.
+        </div>
+        <div class="sync-stat-chips" style="justify-content: flex-start; margin-bottom: 12px;">
+          <div class="stat-chip">Toplam: <strong id="detail-stat-total">0</strong></div>
+          <div class="stat-chip chip-changed">Fiyat Farkı: <strong id="detail-stat-changed">0</strong></div>
+          <div class="stat-chip chip-new">Yeni Ürün: <strong id="detail-stat-new">0</strong></div>
+          <div class="stat-chip chip-matched">Uyumlu: <strong id="detail-stat-matched">0</strong></div>
+          <div class="stat-chip chip-black">Kara Liste: <strong id="detail-stat-black">0</strong></div>
+        </div>
+        <div style="max-height: 320px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+          <table class="catalog-table" style="width: 100%; table-layout: fixed;">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Barkod</th>
+                <th style="width: 45%;">Ürün Adı</th>
+                <th style="width: 30%; text-align: right;">Excel Fiyatı</th>
+              </tr>
+            </thead>
+            <tbody id="detail-tbody">
+              <!-- JS dolduracak -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeExcelDetailModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERİTABANI YEDEKLERİ & GERİ YÜKLEME MODALI -->
+  <div id="modal-backups" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 680px; width: 95%;">
+      <div class="modal-header">
+        <h3>💾 Veritabanı Yedekleri & Geri Yükleme</h3>
+        <button class="modal-close-btn" onclick="closeBackupListModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #fbbf24; margin-bottom: 12px;">
+          ⚠️ <strong>Yazıcı veya Kağıt Hatası Güvenliği:</strong> Toplu etiket basımı sırasında kağıt biterse veya yazıcı bağlantısı kesilirse, fiyatları güncelleme öncesindeki orijinal haline döndürmek için ilgili yedeğin yanındaki <strong>"↺ Bu Yedeğe Geri Dön"</strong> butonuna basın.
+        </div>
+        <div id="backup-list-container" style="max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+          <!-- JS dolduracak -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeBackupListModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KATALOG ÜRÜN DETAY MODALI -->
+  <div id="modal-sync-product-detail" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 540px; width: 95%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">📦</span>
+          <div>
+            <h3 id="sync-detail-title" style="margin: 0; font-size: 15px; color: var(--text-main);">Ürün Detayı</h3>
+            <span id="sync-detail-barcode" class="barcode-text" style="font-size: 12px; color: #38bdf8;"></span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeSyncProductDetailModal()">✕</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- Fiyat Karşılaştırma Kutuları -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px;">🏷️ MEVCUT RAF FİYATI</div>
+            <div id="sync-detail-current-price" style="font-size: 18px; font-weight: 900; color: #94a3b8;">-</div>
+          </div>
+          <div style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.4); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 10.5px; color: #38bdf8; font-weight: 700; margin-bottom: 2px;">💻 SİSTEM (EXCEL) FİYATI</div>
+            <div id="sync-detail-excel-price" style="font-size: 18px; font-weight: 900; color: #38bdf8;">-</div>
+          </div>
+        </div>
+
+        <!-- Detay Bilgi Listesi -->
+        <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+            <span style="color: var(--text-muted);">Sistem Adı (Excel):</span>
+            <strong id="sync-detail-excel-title" style="color: var(--text-main);">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+            <span style="color: var(--text-muted);">Etiket Adı (Mevcut):</span>
+            <strong id="sync-detail-current-title" style="color: var(--text-main);">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+            <span style="color: var(--text-muted);">Marka:</span>
+            <span id="sync-detail-brand" style="color: #e2e8f0; font-weight: 600;">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;">
+            <span style="color: var(--text-muted);">Durum:</span>
+            <span id="sync-detail-status">-</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button id="sync-detail-btn-blacklist" class="btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.4); font-size: 11.5px;">
+          🚫 Kara Liste
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button id="sync-detail-btn-design" class="btn-secondary" style="font-size: 11.5px;">
+            🎨 Tasarımcıda Aç
+          </button>
+          <button id="sync-detail-btn-print" class="btn-primary" style="font-size: 11.5px;">
+            🖨️ 1 Adet Yazdır
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KATALOG ÜRÜN DETAY MODALI (DETAY & DÜZENLEME) -->

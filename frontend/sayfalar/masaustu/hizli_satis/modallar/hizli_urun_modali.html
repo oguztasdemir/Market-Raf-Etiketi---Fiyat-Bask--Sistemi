@@ -1,0 +1,93 @@
+<!-- =========================================================
+     MODAL: HIZLI ÜRÜN TANIMLA / DÜZENLE (DÜZENLENMİŞ SIRA VE AKILLI MARKA)
+     ========================================================= -->
+<div id="modal-pos-quick-product-manage" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
+  <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 540px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px;">
+      <div>
+        <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Hızlı Ürün Tanımla / Düzenle</h3>
+        <small style="color: #94a3b8; font-size: 12px;">Barkod okutarak veya yazarak anında kayıt oluşturun veya güncelleyin</small>
+      </div>
+      <button onclick="closePosQuickProductModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;" title="Kapat">&times;</button>
+    </div>
+
+    <!-- Durum Bilgisi -->
+    <div id="pos-quick-prod-status-badge" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 7px 12px; margin-bottom: 14px; font-size: 12px; font-weight: 500; color: #94a3b8; text-align: center;">
+      Barkod okutun veya yazın (Kayıtlı ise bilgileri gelir)
+    </div>
+
+    <!-- Form Alanları -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      
+      <!-- 1. BARKOD GİRİŞİ (Zorunlu) -->
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">
+          Barkod Numarası <span style="color: #ef4444; font-size: 13px; font-weight: 900;">*</span>
+        </label>
+        <input type="text" id="quick-prod-barcode" placeholder="Barkodu okutun veya yazın..." oninput="onQuickProdBarcodeChange(this.value); validateQuickProdInputs();" onkeydown="onQuickProdBarcodeKey(event)" style="width: 100%; padding: 10px 12px; background: #0f172a; border: 1.5px solid #334155; border-radius: 6px; color: #f8fafc; font-family: monospace; font-size: 14px; font-weight: 700; outline: none; box-sizing: border-box;">
+      </div>
+
+      <!-- 2. ÜRÜN ADI (Zorunlu) -->
+      <div>
+        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">
+          Ürün Adı / Tanımı <span style="color: #ef4444; font-size: 13px; font-weight: 900;">*</span>
+        </label>
+        <input type="text" id="quick-prod-title" placeholder="Örn: Çaykur Rize Çay 1000g" oninput="onQuickProdTitleChange(this.value); validateQuickProdInputs();" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1.5px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; font-weight: 500; outline: none; box-sizing: border-box;">
+      </div>
+
+      <!-- 3. FİRMA / MARKA (Ürün Adının Hemen Altında) -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Firma / Marka</label>
+          <span style="font-size: 10.5px; color: #64748b;">(Otomatik algılanır, dilerseniz değiştirebilirsiniz)</span>
+        </div>
+        <input type="text" id="quick-prod-brand" placeholder="Örn: Çaykur" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #38bdf8; font-weight: 600; font-size: 13px; outline: none; box-sizing: border-box;">
+      </div>
+
+      <!-- 4. FİYATLAR & KÂR MARJI (3 SÜTUN) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Alış Fiyatı (TL)</label>
+          <input type="number" step="0.01" id="quick-prod-buying-price" placeholder="0.00" oninput="recalcQuickProdMargin(); validateQuickProdInputs();" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #cbd5e1; font-size: 13px; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 4px;">
+            Satış Fiyatı (TL) <span style="color: #ef4444; font-size: 13px; font-weight: 900;">*</span>
+          </label>
+          <input type="number" step="0.01" id="quick-prod-sale-price" placeholder="0.00" oninput="recalcQuickProdMargin(); validateQuickProdInputs();" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 6px; color: #38bdf8; font-weight: 700; font-size: 14px; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Kâr Marjı (%)</label>
+          <input type="text" id="quick-prod-margin" readonly value="%0" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fbbf24; font-weight: 600; font-size: 13px; text-align: center; outline: none; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <!-- 5. KDV & STOK (2 SÜTUN) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #fbbf24; text-transform: uppercase; margin-bottom: 4px;">KDV (%)</label>
+          <input type="number" id="quick-prod-kdv" placeholder="10" value="10" min="0" max="100" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fbbf24; font-size: 13px; font-weight: 700; outline: none; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Stok</label>
+          <input type="number" id="quick-prod-stock" placeholder="0" value="0" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #cbd5e1; font-size: 13px; outline: none; box-sizing: border-box;">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alt Eylem Butonları -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 14px; margin-top: 16px; gap: 8px;">
+      <button type="button" onclick="closePosQuickProductModal()" style="padding: 9px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">
+        İptal (Esc)
+      </button>
+      
+      <button type="button" id="btn-save-quick-prod" onclick="submitQuickProductSave(true)" style="padding: 9px 24px; font-size: 13px; font-weight: 800; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; opacity: 0.5; pointer-events: none;" title="Kaydet ve Sepete Ekle">
+        Kaydet (Enter)
+      </button>
+    </div>
+
+  </div>
+</div>

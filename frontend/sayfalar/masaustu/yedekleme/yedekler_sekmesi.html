@@ -1,0 +1,58 @@
+<div id="tab-backups" class="tab-content">
+        <div class="backups-container">
+          
+          <!-- Üst Bilgi ve Kontrol Başlığı -->
+          <div class="backups-header-card">
+            <div class="backups-header-left">
+              <div class="backups-icon-badge">💾</div>
+              <div>
+                <h2>Veritabanı & Fiyat Yedekleri</h2>
+                <p>Tüm ürünlerinizin, fiyatlarınızın ve etiket ayarlarınızın otomatik ve manuel güvenlik yedekleri.</p>
+              </div>
+            </div>
+            <div class="backups-header-actions">
+              <button class="btn-primary" onclick="createManualBackup()" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>➕</span> Yeni Güvenli Yedek Al
+              </button>
+              <button class="btn-secondary btn-rollback" onclick="rollbackLatestBackup()" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>↺</span> Son Yedeğe Geri Dön
+              </button>
+              <button class="btn-secondary" onclick="deleteAllBackups()" style="display:inline-flex; align-items:center; gap:6px; color:#ef4444; border-color:rgba(239,68,68,0.4);" title="Tüm yedekleri kalıcı olarak sil">
+                <span>🗑️</span> Tüm Yedekleri Sil
+              </button>
+              <button class="btn-secondary" onclick="loadBackupsList(true)" style="display:inline-flex; align-items:center; gap:6px;">
+                <span>🔄</span> Yenile
+              </button>
+            </div>
+          </div>
+
+          <!-- Yedek Listesi Tablosu -->
+          <div class="card backups-table-card">
+            <div class="backups-table-wrapper">
+              <table class="catalog-table backups-table">
+                <thead>
+                  <tr>
+                    <th style="width: 18%; min-width: 160px;">Tarih / Saat</th>
+                    <th style="width: 32%; min-width: 220px;">Yedekleme Açıklaması / Sebebi</th>
+                    <th style="width: 26%; min-width: 200px;">Dosya Adı</th>
+                    <th style="width: 10%; min-width: 80px; text-align: right;">Boyut</th>
+                    <th style="width: 14%; min-width: 150px; text-align: center;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="backups-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
+                      ⏳ Yedekler listeleniyor...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =========================================================
+           SEKME 4: QR BAĞLANTISI & BAĞLI CİHAZLAR DONANIM MERKEZİ
+           ========================================================= -->

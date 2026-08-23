@@ -1,0 +1,42 @@
+<div id="modal-scale-confirm" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 9999999;">
+    <div style="max-width: 440px; width: 92%; background: #1e293b; border: 1px solid #334155; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; padding: 0; margin: auto;">
+      
+      <!-- Modal Üst Başlık -->
+      <div style="background: #1e293b; padding: 14px 18px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="scale-confirm-icon" style="font-size: 18px;">⚖️</span>
+          <div>
+            <h3 id="scale-confirm-title" style="margin: 0; font-size: 14.5px; font-weight: 700; color: #f8fafc;">Teraziden Veri Al</h3>
+            <span id="scale-confirm-subtitle" style="font-size: 11.5px; color: #94a3b8;">Terazi Senkronizasyon Onayı</span>
+          </div>
+        </div>
+        <button onclick="closeScaleConfirmModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; padding: 2px 6px;" title="Kapat">&times;</button>
+      </div>
+
+      <!-- Modal Gövdesi -->
+      <div style="padding: 18px;">
+        <p id="scale-confirm-message" style="margin: 0; font-size: 13.5px; line-height: 1.5; color: #e2e8f0; font-weight: 500;">
+          Terazideki güncel ürünleri ve fiyatları sisteme çekmek istediğinize emin misiniz?
+        </p>
+
+        <div style="font-size: 11.5px; color: #94a3b8; background: #0f172a; border: 1px solid #334155; padding: 8px 10px; border-radius: 6px; margin-top: 14px;">
+          Onaylamak için <b>Enter</b>, vazgeçmek için <b>Esc</b> tuşuna basabilirsiniz.
+        </div>
+
+        <!-- Butonlar -->
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+          <button type="button" id="btn-scale-confirm-no" onclick="closeScaleConfirmModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">
+            İptal (Esc)
+          </button>
+          <button type="button" id="btn-scale-confirm-yes" style="padding: 8px 18px; font-size: 13px; font-weight: 700; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
+            Evet, Devam Et (Enter)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: TERAZİ FİYAT AKTARIM İLERLEME (PROCESS BAR) MODALI
+       ========================================================= -->

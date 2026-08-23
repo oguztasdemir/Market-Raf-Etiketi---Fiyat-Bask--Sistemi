@@ -1,0 +1,130 @@
+<!-- =========================================================
+     MODAL: ÖDEME AL & TAHSİLAT (1-2-3-4 SEÇENEKLERİ VE TERMAL FİŞ ÖNİZLEME)
+     ========================================================= -->
+<div id="modal-pos-receipt-confirm" class="modal-backdrop" style="position: fixed; inset: 0; background: rgba(5, 10, 20, 0.85); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 99999999; padding: 20px; box-sizing: border-box;">
+  <div style="background: #111827; border: 1px solid #374151; border-radius: 12px; width: 780px; max-width: 98%; height: 520px; max-height: 92vh; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; box-sizing: border-box;">
+    
+    <!-- Başlık Çubuğu (Sabit) -->
+    <div style="background: #1f2937; padding: 12px 20px; border-bottom: 1px solid #374151; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px; color: #10b981;">💳💵</span>
+        <span style="font-size: 15px; font-weight: 700; color: #f3f4f6; letter-spacing: 0.3px;">Ödeme Tahsilatı & Bilgi Fişi</span>
+      </div>
+      <button type="button" onclick="closePosPaymentModal()" style="background: transparent; border: none; color: #9ca3af; font-size: 18px; cursor: pointer; line-height: 1;">✕</button>
+    </div>
+
+    <!-- 2 Sütunlu Gövde (Sol Ödeme Seçenekleri 1-2-3-4, Sağ Termal Fiş Önizlemesi) -->
+    <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; padding: 18px; box-sizing: border-box; flex: 1; min-height: 0; overflow: hidden;">
+      
+      <!-- SOL SÜTUN: 1-2-3-4 Ödeme Seçenekleri -->
+      <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+        
+        <!-- Tutar & Para Üstü Özeti -->
+        <div style="background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; flex-shrink: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 12px; color: #9ca3af; font-weight: 600;">TOPLAM TUTAR</span>
+            <span id="pos-receipt-confirm-total" style="font-size: 28px; font-weight: 800; color: #10b981; font-family: monospace;">0,00 TL</span>
+          </div>
+          
+          <div id="pos-receipt-confirm-change-row" style="display: none; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+            <span style="color: #9ca3af;">Alınan / Para Üstü:</span>
+            <span id="pos-receipt-confirm-change-text" style="color: #f59e0b; font-family: monospace; font-weight: 700; font-size: 13px;">-</span>
+          </div>
+        </div>
+
+        <!-- 4 ÖDEME SEÇENEĞİ BUTONLARI (1, 2, 3, 4 KISAYOLLARI) -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin: 8px 0;">
+          
+          <!-- 1. NAKİT ÖDEME (FİŞSİZ) -->
+          <button type="button" onclick="executeQuickPayment('Nakit', false)" style="padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #f8fafc; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #059669; color: #fff; border-radius: 4px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px;">1</span>
+              <span>💵 Nakit Ödeme (Fişsiz)</span>
+            </div>
+            <span style="color: #64748b; font-size: 11px;">[1 Tuşu]</span>
+          </button>
+
+          <!-- 2. KART ÖDEME (FİŞSİZ) -->
+          <button type="button" onclick="executeQuickPayment('Kredi Kartı', false)" style="padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #f8fafc; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #0284c7; color: #fff; border-radius: 4px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px;">2</span>
+              <span>💳 Kart Ödeme (Fişsiz)</span>
+            </div>
+            <span style="color: #64748b; font-size: 11px;">[2 Tuşu]</span>
+          </button>
+
+          <!-- 3. NAKİT ÖDEME + BİLGİ FİŞİ -->
+          <button type="button" onclick="executeQuickPayment('Nakit', true)" style="padding: 10px 14px; background: rgba(5,150,105,0.15); border: 1.5px solid #059669; border-radius: 8px; color: #34d399; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #059669; color: #fff; border-radius: 4px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px;">3</span>
+              <span>💵 Nakit Ödeme + 🖨️ Bilgi Fişi</span>
+            </div>
+            <span style="color: #6ee7b7; font-size: 11px;">[3 Tuşu]</span>
+          </button>
+
+          <!-- 4. KART ÖDEME + BİLGİ FİŞİ -->
+          <button type="button" onclick="executeQuickPayment('Kredi Kartı', true)" style="padding: 10px 14px; background: rgba(2,132,199,0.15); border: 1.5px solid #0284c7; border-radius: 8px; color: #38bdf8; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #0284c7; color: #fff; border-radius: 4px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px;">4</span>
+              <span>💳 Kart Ödeme + 🖨️ Bilgi Fişi</span>
+            </div>
+            <span style="color: #7dd3fc; font-size: 11px;">[4 Tuşu]</span>
+          </button>
+
+        </div>
+
+        <!-- İPTAL / KAPAT (ESC) -->
+        <button type="button" onclick="closePosPaymentModal()" style="padding: 9px 14px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: #9ca3af; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>✕ Vazgeç / İptal (Esc)</span>
+        </button>
+
+      </div>
+
+      <!-- SAĞ SÜTUN: Termal Bilgi Fişi (İçi Bağımsız Scroll Edilebilir) -->
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; font-family: 'Courier New', Courier, monospace; color: #0f172a; font-size: 11px; line-height: 1.35; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden;">
+        
+        <!-- Fiş Üst Sabit Alan -->
+        <div style="flex-shrink: 0;">
+          <div style="text-align: center; border-bottom: 1px dashed #94a3b8; padding-bottom: 6px; margin-bottom: 6px;">
+            <div style="font-weight: 900; font-size: 12.5px; letter-spacing: 0.5px;">YARENLER MARKET</div>
+            <div style="font-size: 9.5px; color: #475569;">BİLGİ VE SATIŞ FİŞİ</div>
+            <div style="font-size: 9.5px; color: #64748b; margin-top: 2px;">Merkez Şube - Kasa 1</div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 10px; color: #334155; margin-bottom: 4px;">
+            <span id="pos-preview-receipt-date">23.08.2026 15:23</span>
+            <span id="pos-preview-receipt-no">FİŞ: #0001</span>
+          </div>
+
+          <div style="border-top: 1px dashed #94a3b8; margin: 4px 0;"></div>
+        </div>
+
+        <!-- Fiş İçerik Ürün Listesi (ÇOK ÜRÜN OLURSA SADECE BURASI AŞAĞI KAYAR) -->
+        <div id="pos-preview-receipt-items" style="flex: 1; min-height: 80px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; display: flex; flex-direction: column; gap: 3px;">
+          <!-- Dinamik doldurulur -->
+        </div>
+
+        <!-- Fiş Alt Sabit Alan -->
+        <div style="flex-shrink: 0; border-top: 1px dashed #94a3b8; padding-top: 6px; margin-top: 4px;">
+          <div style="display: flex; justify-content: space-between; font-weight: 900; font-size: 13px;">
+            <span>TOPLAM:</span>
+            <span id="pos-preview-receipt-total">0,00 TL</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: #475569; margin-top: 2px;">
+            <span>Kasiyer:</span>
+            <span>KASA 1 - ADMİN</span>
+          </div>
+
+          <div style="text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 6px; margin-top: 6px; font-size: 9px; color: #64748b; line-height: 1.25;">
+            <div>Mali Değeri Yoktur • Bilgi Amaçlıdır</div>
+            <div>Teşekkür Ederiz</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<!-- EN ALT İNCE DURUM & BİLGİ PANELİ (TAM GENİŞLİKTE 7 SÜTUNLU YAYILIM) -->
+<div class="pos-footer-status-bar">
+  
+  <!-- 1. ŞUBE (MERKEZ) -->
+  <button id="btn-pos-footer-branch" type="button" class="pos-footer-item pos-footer-btn" onclick="showBranchInfo()" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc;" title="Şube Bilgisi">
+    <span>🏢</span> MERKEZ
+  </button>
+
+  <!-- 2. KASA NO (KASA 1) -->
+  <button id="btn-pos-footer-terminal" type="button" class="pos-footer-item pos-footer-btn" onclick="showTerminalInfo()" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8;" title="Terminal / Kasa No">
+    <span>💻</span> KASA 1
+  </button>
+
+  <!-- 3. KASİYER (ADMİN) -->
+  <button id="btn-pos-footer-admin" type="button" class="pos-footer-item pos-footer-btn" onclick="openCashierSwitchModal()" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(52,211,153,0.35); color: #34d399;" title="Kasiyer Değiştir / Giriş">
+    <span>👤</span> ADMİN
+  </button>
+
+  <!-- 4. CANLI TARİH -->
+  <div id="pos-footer-date" class="pos-footer-item" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); font-family: monospace; color: #f8fafc;" title="Tarih">
+    23.08.2026
+  </div>
+
+  <!-- 5. CANLI SAAT -->
+  <div id="pos-footer-time" class="pos-footer-item" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); font-family: monospace; color: #fbbf24; font-weight: 900;" title="Saat">
+    11:00:00
+  </div>
+
+  <!-- 6. ONLİNE DURUMU -->
+  <button id="btn-pos-footer-online" type="button" class="pos-footer-item pos-footer-btn" onclick="checkOnlineServerStatus()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); color: #34d399;" title="Canlı Bağlantı Durumu">
+    <span>🟢</span> ONLINE
+  </button>
+
+  <!-- 7. ANA MENÜ -->
+  <button id="btn-pos-footer-home" type="button" class="pos-footer-item pos-footer-btn" onclick="exitPosToHome()" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24;" title="Ana Menüye Dön [ESC]">
+    <span>🏠</span> ANA MENÜ
+  </button>
+
+</div>

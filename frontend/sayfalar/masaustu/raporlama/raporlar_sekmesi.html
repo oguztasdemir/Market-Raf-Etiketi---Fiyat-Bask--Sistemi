@@ -1,0 +1,123 @@
+<div id="tab-reports" class="tab-content" style="height: calc(100vh - 80px); overflow-y: auto; padding: 4px 10px 14px 10px; box-sizing: border-box; flex-direction: column; gap: 12px;">
+
+        <!-- 1. ÜST AY SEÇİM & DÖNEM DURUM ÇUBUĞU -->
+        <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); flex-shrink: 0;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">📅</span>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 id="report-cal-month-title" style="margin: 0; font-size: 18px; font-weight: 900; color: #f8fafc;">Ağustos 2026</h2>
+                <span id="month-status-badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 4px;">
+                  🟡 Devam Eden Ay
+                </span>
+              </div>
+              <small id="month-period-title" style="color: #94a3b8; font-size: 11.5px; font-weight: 600; display: block; margin-top: 2px;">
+                Ağustos 2026 Ayı Performansı (Ayın 22'sine Kadarki Durum)
+              </small>
+            </div>
+          </div>
+
+          <!-- Ay Geçiş Butonları -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn-secondary" onclick="navigateCalendarMonth(-1)" style="padding: 7px 14px; font-size: 12px; font-weight: 700;">
+              ◀ Önceki Ay
+            </button>
+            <button class="btn-primary" onclick="goToCurrentMonth()" style="padding: 7px 16px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1);">
+              📅 Bu Ay / Bugün
+            </button>
+            <button class="btn-secondary" onclick="navigateCalendarMonth(1)" style="padding: 7px 14px; font-size: 12px; font-weight: 700;">
+              Sonraki Ay ▶
+            </button>
+            <button class="btn-secondary" onclick="initReportsPanel()" style="padding: 7px 12px; font-size: 12px; font-weight: 700;" title="Yenile">
+              🔄
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. O AYIN GENEL PERFORMANSI / KPI KARTLARI (5 AYRI KART) -->
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex-shrink: 0;">
+          <!-- Kart 1: Aylık Toplam Ciro -->
+          <div style="background: #0b1329; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px 14px; border-left: 4px solid #10b981;">
+            <div style="font-size: 10.5px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">💰 Aylık Toplam Ciro</div>
+            <div id="cal-kpi-total-sales" style="font-size: 20px; font-weight: 900; color: #10b981; font-family: monospace; margin: 3px 0;">0,00 TL</div>
+            <div id="cal-kpi-payment-breakdown" style="font-size: 10.5px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nakit: 0,00 TL • Kart: 0,00 TL</div>
+          </div>
+
+          <!-- Kart 2: Toplam Fiş & Sepet Ortalaması -->
+          <div style="background: #0b1329; border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 12px 14px; border-left: 4px solid #38bdf8;">
+            <div style="font-size: 10.5px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">🧾 Toplam Kasa Fişi</div>
+            <div id="cal-kpi-receipts" style="font-size: 20px; font-weight: 900; color: #38bdf8; font-family: monospace; margin: 3px 0;">0 Fiş</div>
+            <div id="cal-kpi-avg-basket" style="font-size: 10.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ortalama Sepet: 0,00 TL</div>
+          </div>
+
+          <!-- Kart 3: Satılan Adet Ürünler -->
+          <div style="background: #0b1329; border: 1px solid rgba(168,85,247,0.3); border-radius: 10px; padding: 12px 14px; border-left: 4px solid #a855f7;">
+            <div style="font-size: 10.5px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">📦 Satılan Adet Ürün</div>
+            <div id="cal-kpi-items" style="font-size: 20px; font-weight: 900; color: #c084fc; font-family: monospace; margin: 3px 0;">0 Adet</div>
+            <div id="cal-kpi-top-item" style="font-size: 10.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">En Çok Satan: -</div>
+          </div>
+
+          <!-- Kart 4: Satılan Toplam Terazi Ürünü (Ayrı Panel) -->
+          <div style="background: #0b1329; border: 1px solid rgba(6,182,212,0.3); border-radius: 10px; padding: 12px 14px; border-left: 4px solid #06b6d4;">
+            <div style="font-size: 10.5px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">⚖️ Satılan Terazi Ürünü</div>
+            <div id="cal-kpi-terazi-weight" style="font-size: 20px; font-weight: 900; color: #22d3ee; font-family: monospace; margin: 3px 0;">0,00 Kg</div>
+            <div style="font-size: 10.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Terazide Tartılan Toplam Ağırlık</div>
+          </div>
+
+          <!-- Kart 5: Aylık Fiyat & Etiket Faaliyeti -->
+          <div style="background: #0b1329; border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 12px 14px; border-left: 4px solid #f59e0b;">
+            <div style="font-size: 10.5px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">✏️ Fiyat & Etiket Faaliyeti</div>
+            <div id="cal-kpi-price-activity" style="font-size: 18px; font-weight: 900; color: #fbbf24; font-family: monospace; margin: 3px 0;">0 Değişim • 0 Etiket</div>
+            <div style="font-size: 10.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Reyon ve PC kütüğü</div>
+          </div>
+        </div>
+
+        <!-- 3. AYIN GÜN GÜN DÜZENLİ LİSTESİ (TABLO) -->
+        <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 10px;">
+          
+          <!-- Tablo Üst Kontroller & Arama -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: #f8fafc; font-size: 14px; font-weight: 800;">📋 Ayın Günlük Satış ve Faaliyet Dökümü</strong>
+              <span id="monthly-days-table-count" style="font-size: 11px; background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 2px 7px; border-radius: 4px; font-weight: 700;">0 Gün</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="text" id="report-days-search-inp" placeholder="🔍 Gün veya Tarih Filtrele (Örn: 22, Cuma)..." oninput="filterReportDaysTable(this.value)" style="width: 220px; padding: 6px 12px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+              <button type="button" onclick="exportMonthlyReportToExcel()" class="btn-secondary" style="padding: 6px 12px; font-size: 11.5px; font-weight: 700; background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: #38bdf8; display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                📊 Aylık Excel
+              </button>
+              <button type="button" onclick="openWeeklyHeatmapModal()" class="btn-primary" style="padding: 6px 13px; font-size: 11.5px; font-weight: 800; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; display: flex; align-items: center; gap: 5px; white-space: nowrap; box-shadow: 0 2px 8px rgba(245,158,11,0.25);">
+                🔥 Haftalık Isı Haritası
+              </button>
+            </div>
+          </div>
+
+          <!-- Günlük Liste Tablosu -->
+          <div style="flex: 1; overflow-y: auto; max-height: calc(100vh - 310px);">
+            <table id="report-days-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px;">
+              <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 11px; text-transform: uppercase; position: sticky; top: 0; background: #0b1329; z-index: 10;">
+                  <th style="padding: 10px 12px;">Tarih / Gün</th>
+                  <th style="padding: 10px 12px; text-align: right;">Günlük Ciro</th>
+                  <th style="padding: 10px 12px; text-align: center;">Fiş Adedi</th>
+                  <th style="padding: 10px 12px; text-align: center;">Satılan Ürün</th>
+                  <th style="padding: 10px 12px;">Günün En Çok Satanı</th>
+                  <th style="padding: 10px 12px; text-align: center;">Fiyat Değişimi</th>
+                  <th style="padding: 10px 12px; text-align: center;">Basılan Etiket</th>
+                  <th style="padding: 10px 12px; text-align: right;">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="monthly-days-table-body">
+                <!-- JS Dinamik Dolduracak -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- =========================================================
+           MODAL: SEÇİLEN GÜNÜN DETAYLI ANALİZ POPUP PENCERESİ
+           ========================================================= -->

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Market Raf Etiketi, Kasa (POS) & Barkod Sistemi - Ana Başlatıcı (main.py)
-
+Canlı Güncelleme: 16:18
 Bu tek dosya hem Masaüstü GUI penceresini açar, hem de yerel ağdaki mobil
 cihazların ve diğer bilgisayarların (Web / Mobil Terminal) bağlanabilmesi için
 Flask sunucusunu (0.0.0.0:5000) arka planda kesintisiz çalıştırır.
@@ -9,7 +9,6 @@ Flask sunucusunu (0.0.0.0:5000) arka planda kesintisiz çalıştırır.
 import os
 import sys
 import time
-import signal
 import threading
 import logging
 from flask import Flask, render_template, send_from_directory, request
@@ -27,7 +26,7 @@ if sys.platform.startswith('win'):
 # Proje dizinini Python yoluna ekle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from backend.ayarlar import BASE_DIR, STATIC_DIR, TEMPLATES_DIR
+from backend.ayarlar import STATIC_DIR, TEMPLATES_DIR
 from backend.araclar.excel_dosya_izleyici import get_local_ip, ensure_ssl_certs, free_port, start_code_watcher
 from backend.katalog.excel_katalog_servisi import clear_diff_cache
 
@@ -39,6 +38,7 @@ from backend.yazdirma.yazdirma_rotalari import print_bp
 from backend.raporlama.rapor_rotalari import report_bp
 from backend.terazi.terazi_rotalari import scale_bp
 from backend.kasa.hizli_satis_rotalari import pos_bp
+from backend.muhasebe.muhasebe_rotalari import accounting_bp
 
 # Ham Werkzeug HTTP erişim loglarını sustur
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -58,6 +58,7 @@ app.register_blueprint(print_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(scale_bp)
 app.register_blueprint(pos_bp)
+app.register_blueprint(accounting_bp)
 
 def get_device_label(ip):
     """İstemci IP adresini anlaşılır cihaz ismine dönüştürür."""
@@ -124,19 +125,20 @@ def log_user_action_and_headers(response):
 
 @app.route("/")
 def index():
-    return render_template("index.html", cache_bust=int(time.time()))
+    return render_template("masaustu/index.html", cache_bust=int(time.time()))
 
 @app.route("/mobile")
 def mobile_terminal():
-    return render_template("mobile.html", cache_bust=int(time.time()))
+    return render_template("mobil/mobile.html", cache_bust=int(time.time()))
 
 @app.route("/frontend/<path:filename>")
 @app.route("/static/<path:filename>")
 def serve_static(filename):
     res = send_from_directory(STATIC_DIR, filename)
-    res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+    res.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0, post-check=0, pre-check=0"
     res.headers["Pragma"] = "no-cache"
-    res.headers["Expires"] = "0"
+    res.headers["Expires"] = "-1"
+    res.headers["Surrogate-Control"] = "no-store"
     return res
 
 def start_backend_server(port=5000):

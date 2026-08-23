@@ -1,0 +1,54 @@
+[
+  {
+    "id": "exp-20260801-001",
+    "date": "2026-08-01",
+    "time": "10:30",
+    "category": "Dükkan Kirası",
+    "category_code": "rent",
+    "title": "Ağustos Ayı Dükkan Kirası",
+    "amount": 15000.0,
+    "payment_method": "Banka Havale / EFT",
+    "recipient": "Mülk Sahibi",
+    "notes": "Ağustos ayı kira bedeli ödendi.",
+    "created_at": "2026-08-01 10:30"
+  },
+  {
+    "id": "exp-20260805-002",
+    "date": "2026-08-05",
+    "time": "14:15",
+    "category": "Personel Maaşı & Avans",
+    "category_code": "salary",
+    "title": "Kasiyer & Personel Haftalık Avansı",
+    "amount": 6500.0,
+    "payment_method": "Kasa Nakit",
+    "recipient": "Kasa 1 & Kasa 2 Personeli",
+    "notes": "Personel avans ödemesi",
+    "created_at": "2026-08-05 14:15"
+  },
+  {
+    "id": "exp-20260810-003",
+    "date": "2026-08-10",
+    "time": "11:00",
+    "category": "Elektrik, Su & Faturalar",
+    "category_code": "utilities",
+    "title": "EnerjiSA Elektrik Faturası",
+    "amount": 2850.0,
+    "payment_method": "Kredi Kartı",
+    "recipient": "EnerjiSA",
+    "notes": "Soğutucu dolaplar ve aydınlatma elektrik faturası",
+    "created_at": "2026-08-10 11:00"
+  },
+  {
+    "id": "exp-20260815-004",
+    "date": "2026-08-15",
+    "time": "09:45",
+    "category": "Toptancı / Mal Alımı",
+    "category_code": "supplier",
+    "title": "Toptan Meşrubat & Su İkmal Faturası",
+    "amount": 4200.0,
+    "payment_method": "Banka Havale / EFT",
+    "recipient": "Öz Anadolu Gıda Dağıtım",
+    "notes": "Haftalık içecek sevkiyatı faturası",
+    "created_at": "2026-08-15 09:45"
+  }
+]

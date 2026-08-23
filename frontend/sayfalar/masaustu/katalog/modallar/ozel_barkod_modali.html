@@ -1,0 +1,45 @@
+<div id="modal-custom-barcodes-manage" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 999999; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 500px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+      
+      <!-- Başlık & Kapat Butonu -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Özel Barkod Yönetimi</h3>
+          <small style="color: #94a3b8; font-size: 12px;">En fazla 6 adet özel kısayol barkodu tanımlayabilirsiniz</small>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span id="custom-barcodes-count-badge" style="background: #0f172a; border: 1px solid #334155; border-radius: 4px; padding: 2px 8px; font-size: 11.5px; font-weight: 600; color: #cbd5e1;">0 / 6</span>
+          <button onclick="closeCustomBarcodesManageModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
+        </div>
+      </div>
+
+      <!-- Mevcut Özel Barkodlar Listesi -->
+      <div id="custom-barcodes-manage-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; margin-bottom: 14px; padding-right: 4px;">
+        <!-- JS ile dinamik doldurulur -->
+      </div>
+
+      <!-- Yeni Özel Barkod Ekleme Formu -->
+      <div id="custom-barcodes-add-form" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px; margin-bottom: 14px;">
+        <div style="font-size: 11.5px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px;">
+          Yeni Özel Barkod Ekle
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center;">
+          <input type="text" id="new-cb-name" placeholder="Başlık (Örn: REYON-A)" style="padding: 7px 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
+          <input type="text" id="new-cb-code" placeholder="Kod (Örn: OZEL01)" style="padding: 7px 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #38bdf8; font-family: monospace; font-size: 12px; font-weight: 600; outline: none; box-sizing: border-box;">
+          <button type="button" onclick="submitAddNewCustomBarcode()" style="padding: 7px 14px; font-size: 12px; font-weight: 600; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap;">
+            Ekle
+          </button>
+        </div>
+      </div>
+
+      <!-- Alt Kapat Butonu -->
+      <div style="display: flex; justify-content: flex-end; border-top: 1px solid #334155; padding-top: 12px;">
+        <button type="button" onclick="closeCustomBarcodesManageModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">Kapat (Esc)</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL: FİYAT GÖR (BÜYÜK EKRAN FİYAT SORGULAMA)
+       ========================================================= -->

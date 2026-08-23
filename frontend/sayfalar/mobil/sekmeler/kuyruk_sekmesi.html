@@ -1,0 +1,24 @@
+<main class="container queue-container" id="section-queue">
+    <div class="queue-header-row">
+      <span class="queue-title">📋 Basılacak Ürün Listesi</span>
+      <span id="queue-total-count" style="font-size:12px; color:var(--text-muted);">0 ürün</span>
+    </div>
+
+    <div id="queue-empty-state" class="empty-state-card" style="display: flex;">
+      <div class="empty-icon">🛒</div>
+      <div class="empty-title">Basım Listesi Boş</div>
+      <div class="empty-desc">Henüz listeye ürün eklemediniz. "Barkod Okut" sekmesinden ürünleri okutup listeye ekleyebilirsiniz.</div>
+    </div>
+
+    <div id="queue-items-list" class="queue-items-list"></div>
+
+    <div class="fixed-bottom-bar">
+      <button class="btn-batch-print-mobile" onclick="submitQueueBatchPrint()">
+        <span>🖨️</span>
+        <span id="btn-batch-print-text">Toplu Yazdır (0)</span>
+      </button>
+      <button class="btn-clear-queue" onclick="clearQueueWithConfirm()">
+        🗑️ Temizle
+      </button>
+    </div>
+  </main>

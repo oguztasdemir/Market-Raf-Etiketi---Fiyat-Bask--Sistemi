@@ -1,0 +1,30 @@
+<div id="modal-cashier-switch" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 400px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+      
+      <!-- Başlık & Kapat Butonu -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Kasiyer Değiştir / Giriş</h3>
+          <small style="color: #94a3b8; font-size: 12px;">Aktif satış yapan kasiyeri belirleyin</small>
+        </div>
+        <button onclick="closeCashierSwitchModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
+      </div>
+
+      <!-- Kasiyer Seçimi & PIN -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Kasiyer Seçin</label>
+          <select id="cashier-select-dropdown" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; outline: none; box-sizing: border-box;">
+            <option value="kasa1">Kasa 1 (Kasiyer 1)</option>
+            <option value="kasa2">Kasa 2 (Kasiyer 2)</option>
+            <option value="admin" selected>Yönetici (Admin)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Kasiyer PIN Kodu (Opsiyonel)</label>
+          <input type="password" id="cashier-pin-input" placeholder="PIN girin (varsayılan: boş)" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; outline: none; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <!-- Alt Butonlar -->

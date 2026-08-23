@@ -1,0 +1,18 @@
+<!-- =========================================================
+     MODAL: MOBİL YAZDIRMA İLERLEME POP-UP
+     ========================================================= -->
+<div id="modal-mobile-print-progress" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #131b2e; border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: 100%; max-width: 380px; text-align: center; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+    
+    <h3 id="mob-print-title" style="font-size: 16px; color: #38bdf8; margin: 0;">🖨️ Yazdırılıyor...</h3>
+    
+    <div style="background: #090d16; border: 1px solid var(--border); border-radius: 8px; padding: 3px; overflow: hidden;">
+      <div id="mob-print-bar" style="background: linear-gradient(90deg, #0284c7, #38bdf8); height: 12px; border-radius: 5px; width: 0%; transition: width 0.2s ease;"></div>
+    </div>
+
+    <div id="mob-print-status" style="font-size: 13px; color: #94a3b8; font-weight: 600;">
+      Etiketler yazıcıya gönderiliyor...
+    </div>
+
+  </div>
+</div>
