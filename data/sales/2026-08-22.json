@@ -1,0 +1,29 @@
+[
+  {
+    "receipt_no": "FIS-20260822-9752",
+    "date": "2026-08-22",
+    "time": "14:55:52",
+    "timestamp": "2026-08-22T14:55:52.009741",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Perakende Müşteri",
+    "payment_type": "Nakit",
+    "total_amount": 5.0,
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 5.0,
+    "items": [
+      {
+        "id": "cart_1787399751059_3tlc",
+        "is_scale_item": false,
+        "plu": null,
+        "barcode": "1",
+        "title": "1TL (Terazi / Barkodsuz) #1",
+        "unit": "Adet",
+        "quantity": 5,
+        "unit_price": 1,
+        "total_price": 5
+      }
+    ]
+  }
+]

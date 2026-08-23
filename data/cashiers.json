@@ -1,0 +1,26 @@
+[
+  {
+    "id": "kasa1",
+    "name": "Kasa 1 (Kasiyer 1)",
+    "pin": "",
+    "role": "cashier",
+    "active": true,
+    "created_at": "2026-08-22 10:00"
+  },
+  {
+    "id": "admin",
+    "name": "Yönetici (Admin)",
+    "pin": "",
+    "role": "admin",
+    "active": true,
+    "created_at": "2026-08-22 10:00"
+  },
+  {
+    "id": "kasa2",
+    "name": "Kasa 2 (Kasiyer 2)",
+    "pin": "",
+    "role": "cashier",
+    "active": true,
+    "created_at": "2026-08-22 10:00"
+  }
+]
