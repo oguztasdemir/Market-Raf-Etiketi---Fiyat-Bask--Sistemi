@@ -7,7 +7,7 @@ import re
 import csv
 import datetime
 import openpyxl
-from backend.ayarlar import SISTEM_EXCELI_DIR, PRODUCTS_FILE, BLACKLIST_FILE
+from backend.ayarlar import SISTEM_EXCELI_DIR, PRODUCTS_FILE
 from backend.araclar.depolama_araclari import load_json
 from backend.araclar.metin_duzenleyici import (
     clean_product_title, clean_barcode, parse_price_val, 
@@ -141,17 +141,13 @@ def analyze_excel_diff(excel_path: str) -> dict:
 
     mtime = os.path.getmtime(excel_path)
     prod_mtime = os.path.getmtime(PRODUCTS_FILE) if os.path.exists(PRODUCTS_FILE) else 0
-    black_mtime = os.path.getmtime(BLACKLIST_FILE) if os.path.exists(BLACKLIST_FILE) else 0
-    cache_key = (excel_path, mtime, prod_mtime, black_mtime)
+    cache_key = (excel_path, mtime, prod_mtime)
 
     if cache_key in _DIFF_CACHE:
         return _DIFF_CACHE[cache_key]
 
     products = load_json(PRODUCTS_FILE, [])
-    blacklist = load_json(BLACKLIST_FILE, [])
-
     prod_map = {clean_barcode(p.get('barcode', '')): p for p in products if p.get('barcode')}
-    black_map = {clean_barcode(b.get('barcode', '')): b for b in blacklist if b.get('barcode')}
 
     def normalize_for_title_matching(s):
         if not s: return ''
@@ -168,13 +164,6 @@ def analyze_excel_diff(excel_path: str) -> dict:
         if nt and nt not in prod_title_map and not p.get('barcode'):
             prod_title_map[nt] = p
 
-    black_title_map = {}
-    for b in blacklist:
-        t = b.get('title') or ''
-        nt = normalize_for_title_matching(t)
-        if nt and nt not in black_title_map:
-            black_title_map[nt] = b
-
     try:
         raw_items = read_stock_rows_from_file(excel_path)
     except Exception as e:
@@ -183,7 +172,6 @@ def analyze_excel_diff(excel_path: str) -> dict:
     changed_prices = []
     new_products = []
     matched_products = []
-    blacklisted_items = []
     seen_keys = set()
 
     for item in raw_items:
@@ -205,28 +193,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
             continue
         seen_keys.add(item_key)
 
-        # 1. Kara Liste Kontrolü (Barkod -> Stok Kodu -> Başlık)
-        matched_black = None
-        if barkod and barkod in black_map:
-            matched_black = black_map[barkod]
-        elif stok_kodu and stok_kodu in black_map:
-            matched_black = black_map[stok_kodu]
-        elif (not barkod and not stok_kodu) and norm_title and norm_title in black_title_map:
-            matched_black = black_title_map[norm_title]
-
-        if matched_black:
-            resolved_code = clean_barcode(matched_black.get('barcode')) or lookup_code
-            blacklisted_items.append({
-                "barcode": resolved_code,
-                "excel_title": excel_title_val,
-                "current_title": matched_black.get("title", title),
-                "current_price": "-",
-                "excel_price": price_str,
-                "reason": matched_black.get("reason", "Kara Liste")
-            })
-            continue
-
-        # 2. Mevcut Ürün Kontrolü & Fiyat Farkı (Barkod -> Stok Kodu -> Barkodsuz Başlık)
+        # 1. Mevcut Ürün Kontrolü & Fiyat Farkı (Barkod -> Stok Kodu -> Barkodsuz Başlık)
         matched_prod = None
         if barkod and barkod in prod_map:
             matched_prod = prod_map[barkod]
@@ -264,7 +231,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
                     "status": "matched"
                 })
         else:
-            # 3. Yeni Ürün (Bizim sistemimizde henüz mevcut değil)
+            # 2. Yeni Ürün (Bizim sistemimizde henüz mevcut değil)
             if price_str and price_str != "0,00 TL":
                 det_brand = detect_brand_from_title(excel_title_val, products)
                 new_products.append({
@@ -292,13 +259,11 @@ def analyze_excel_diff(excel_path: str) -> dict:
             "total_excel_rows": len(seen_keys),
             "changed_count": len(changed_prices),
             "new_count": len(new_products),
-            "matched_count": len(matched_products),
-            "blacklisted_count": len(blacklisted_items)
+            "matched_count": len(matched_products)
         },
         "changed_prices": changed_prices,
         "new_products": new_products,
-        "matched_products": matched_products,
-        "blacklisted_items": blacklisted_items
+        "matched_products": matched_products
     }
 
     _DIFF_CACHE[cache_key] = result

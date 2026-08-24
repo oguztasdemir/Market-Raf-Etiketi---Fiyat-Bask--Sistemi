@@ -6,76 +6,69 @@ Bu doküman, sistemin veri saklama yapılarını (JSON) ve backend API rotaları
 
 ## 🗃️ 1. JSON VERİ YAPILARI (DATA SCHEMAS)
 
-### 1. `data/products.json` (Ürün Kataloğu)
+### 1. `data/urunler/urunler.json` (Ürün Kataloğu)
 ```json
 [
   {
-    "id": "12345",
     "barcode": "8690504000100",
     "title": "ÇAYKUR RİZE TURİST ÇAY 1000 GR",
-    "price": "195.00 TL",
-    "price_raw": 195.0,
+    "price": "195,00 TL",
     "unit": "Adet",
-    "vat": 10,
     "stock": 45,
-    "company": "ÇAYKUR",
-    "updated_at": "2026-08-23 14:20:00"
+    "brand": "ÇAYKUR",
+    "updated_at": "23 Ağu 2026 14:20"
   }
 ]
 ```
 
-### 2. `data/sales/YYYY-MM-DD.json` (Günlük Kasa Satış Fişleri)
+### 2. `data/satis_ve_kasa/satislar/YYYY/MM/YYYY-MM-DD.json` (Günlük Kasa Satış Fişleri)
 ```json
 [
   {
-    "receipt_no": "FIS-20260823-7826",
-    "date": "2026-08-23",
-    "time": "12:37:06",
-    "cashier": "Kasa 1 (Kasiyer 1)",
-    "customer": "Perakende Müşteri",
+    "receipt_no": "FIS-20260823-1001",
+    "time": "14:35:10",
+    "cashier": "Yönetici (Admin)",
     "payment_type": "Nakit",
-    "total_amount": 240.0,
-    "total_vat": 21.82,
-    "received_cash": 240.0,
-    "change_amount": 0.0,
-    "item_count": 1,
+    "total_amount": 195.0,
+    "received_cash": 200.0,
+    "change_amount": 5.0,
     "items": [
       {
-        "barcode": "8690000000000",
-        "title": "ANANAS ADET",
-        "unit": "Adet",
-        "quantity": 1.0,
-        "unit_price": 240.0,
-        "total_price": 240.0,
-        "is_scale_item": false
+        "barcode": "8690504000100",
+        "title": "ÇAYKUR RİZE TURİST ÇAY 1000 GR",
+        "quantity": 1,
+        "price": "195,00 TL",
+        "total": "195,00 TL"
       }
     ]
   }
 ]
 ```
 
-### 3. `data/daily_reports.json` (Günlük Faaliyet ve Değişim Kütüğü)
+### 3. `data/sistem_ve_ayarlar/kasiyerler.json` (Kasiyer Kadrosu)
+```json
+[
+  {
+    "id": "kasa1",
+    "name": "Ahmet Yılmaz",
+    "pin": "1234",
+    "role": "admin",
+    "active": true,
+    "created_at": "2026-08-23 10:00"
+  }
+]
+```
+
+### 4. `data/sistem_ve_ayarlar/ayarlar.json` (Market & Donanım Ayarları)
 ```json
 {
-  "2026-08-23": {
-    "date_key": "2026-08-23",
-    "display_date": "23 Ağu 2026, Pazar",
-    "stats": {
-      "total_price_changes": 4,
-      "total_printed_barcodes": 166
-    },
-    "price_changes": [
-      {
-        "barcode": "8690515125163",
-        "title": "BY.KENT 375 GR ŞEKER",
-        "old_price": "85,00 TL",
-        "new_price": "95,00 TL",
-        "time": "11:15",
-        "source": "PC"
-      }
-    ],
-    "printed_items": []
-  }
+  "market_name": "YARENLER MARKET",
+  "branch_name": "Merkez Şube - Kasa 1",
+  "phone": "0555 123 45 67",
+  "pos_commission_rate": 1.85,
+  "default_payment_type": "Nakit",
+  "receipt_print_mode": "ask",
+  "receipt_paper_width": "80mm"
 }
 ```
 
@@ -84,7 +77,7 @@ Bu doküman, sistemin veri saklama yapılarını (JSON) ve backend API rotaları
 ## 🌐 2. BACKEND API ROTALARI REFERANSI
 
 ### 🔹 Hızlı Kasa (POS) Rotaları:
-* **`POST /api/pos/checkout`**: Satışı tamamlar, fişi `data/sales/YYYY-MM-DD.json` dosyasına yazar.
+* **`POST /api/pos/checkout`**: Satışı tamamlar, fişi `data/satis_ve_kasa/satislar/YYYY/MM/YYYY-MM-DD.json` dosyasına yazar.
 * **`GET /api/pos/price-check?barcode=...`**: Fiyat Gör ekranı için anlık ürün ve fiyat sorgular.
 * **`GET /api/pos/summary`**: Günün anlık toplam ciro, fiş adedi ve son satış listesini döner.
 

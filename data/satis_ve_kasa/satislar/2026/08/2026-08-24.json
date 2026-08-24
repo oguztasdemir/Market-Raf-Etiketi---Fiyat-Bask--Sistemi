@@ -1,0 +1,2630 @@
+[
+  {
+    "receipt_no": "FIS-20260824-9870",
+    "date": "2026-08-24",
+    "time": "00:17:50",
+    "timestamp": "2026-08-24T00:17:50.794774",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-9870",
+    "date": "2026-08-24",
+    "time": "00:17:50",
+    "timestamp": "2026-08-24T00:17:50.803254",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-9886",
+    "date": "2026-08-24",
+    "time": "00:18:06",
+    "timestamp": "2026-08-24T00:18:06.335020",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-9886",
+    "date": "2026-08-24",
+    "time": "00:18:06",
+    "timestamp": "2026-08-24T00:18:06.357682",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-00221541",
+    "date": "2026-08-24",
+    "time": "00:22:15",
+    "timestamp": "2026-08-24T00:22:15.033510",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-00221520",
+    "date": "2026-08-24",
+    "time": "00:22:15",
+    "timestamp": "2026-08-24T00:22:15.039601",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-00223315",
+    "date": "2026-08-24",
+    "time": "00:22:33",
+    "timestamp": "2026-08-24T00:22:33.829550",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Tester 8",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Concurrent Item 8",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002256-76490",
+    "date": "2026-08-24",
+    "time": "00:22:56",
+    "timestamp": "2026-08-24T00:22:56.622704",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Tester 8",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Concurrent Item 8",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002303-80418",
+    "date": "2026-08-24",
+    "time": "00:23:03",
+    "timestamp": "2026-08-24T00:23:03.161880",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002303-80419",
+    "date": "2026-08-24",
+    "time": "00:23:03",
+    "timestamp": "2026-08-24T00:23:03.171608",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002818-98125",
+    "date": "2026-08-24",
+    "time": "00:28:18",
+    "timestamp": "2026-08-24T00:28:18.368280",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Tester 9",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Concurrent Item 9",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002827-04282",
+    "date": "2026-08-24",
+    "time": "00:28:27",
+    "timestamp": "2026-08-24T00:28:27.541056",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-002827-04283",
+    "date": "2026-08-24",
+    "time": "00:28:27",
+    "timestamp": "2026-08-24T00:28:27.585539",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-003544-41237",
+    "date": "2026-08-24",
+    "time": "00:35:44",
+    "timestamp": "2026-08-24T00:35:44.278990",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-003544-41242",
+    "date": "2026-08-24",
+    "time": "00:35:44",
+    "timestamp": "2026-08-24T00:35:44.414055",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-003606-63326",
+    "date": "2026-08-24",
+    "time": "00:36:06",
+    "timestamp": "2026-08-24T00:36:06.224615",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-003606-63327",
+    "date": "2026-08-24",
+    "time": "00:36:06",
+    "timestamp": "2026-08-24T00:36:06.341071",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-003606-63331",
+    "date": "2026-08-24",
+    "time": "00:36:06",
+    "timestamp": "2026-08-24T00:36:06.343776",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004315-94932",
+    "date": "2026-08-24",
+    "time": "00:43:15",
+    "timestamp": "2026-08-24T00:43:15.836243",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004315-94934",
+    "date": "2026-08-24",
+    "time": "00:43:15",
+    "timestamp": "2026-08-24T00:43:15.939198",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 1",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 1",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004315-94937",
+    "date": "2026-08-24",
+    "time": "00:43:15",
+    "timestamp": "2026-08-24T00:43:15.940608",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004610-69893",
+    "date": "2026-08-24",
+    "time": "00:46:10",
+    "timestamp": "2026-08-24T00:46:10.720078",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004610-69897",
+    "date": "2026-08-24",
+    "time": "00:46:10",
+    "timestamp": "2026-08-24T00:46:10.834498",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004710-30162",
+    "date": "2026-08-24",
+    "time": "00:47:10",
+    "timestamp": "2026-08-24T00:47:10.949561",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004711-30166",
+    "date": "2026-08-24",
+    "time": "00:47:11",
+    "timestamp": "2026-08-24T00:47:11.044314",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004715-34587",
+    "date": "2026-08-24",
+    "time": "00:47:15",
+    "timestamp": "2026-08-24T00:47:15.208652",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Musteri",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 125.0
+    },
+    "total_amount": 125.0,
+    "total_vat": 11.36,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 113.64,
+        "kdv_tutari": 11.36,
+        "toplam": 125.0
+      }
+    },
+    "received_cash": 200.0,
+    "change_amount": 75.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item",
+        "total_price": 125.0,
+        "unit": "Adet",
+        "unit_price": 125.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004715-34588",
+    "date": "2026-08-24",
+    "time": "00:47:15",
+    "timestamp": "2026-08-24T00:47:15.246836",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Test Kart",
+    "payment_type": "Kredi Kartı",
+    "payment_breakdown": {
+      "Kredi Kartı": 50.0
+    },
+    "total_amount": 50.0,
+    "total_vat": 4.55,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 45.45,
+        "kdv_tutari": 4.55,
+        "toplam": 50.0
+      }
+    },
+    "received_cash": 0.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Test Item 2",
+        "total_price": 50.0,
+        "unit": "Adet",
+        "unit_price": 50.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-004720-40640",
+    "date": "2026-08-24",
+    "time": "00:47:20",
+    "timestamp": "2026-08-24T00:47:20.768830",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "Concurrent Item 4",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005011-10365",
+    "date": "2026-08-24",
+    "time": "00:50:11",
+    "timestamp": "2026-08-24T00:50:11.459473",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005011-10368",
+    "date": "2026-08-24",
+    "time": "00:50:11",
+    "timestamp": "2026-08-24T00:50:11.672608",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 2",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 2",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005011-10369",
+    "date": "2026-08-24",
+    "time": "00:50:11",
+    "timestamp": "2026-08-24T00:50:11.673546",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005433-72252",
+    "date": "2026-08-24",
+    "time": "00:54:33",
+    "timestamp": "2026-08-24T00:54:33.379710",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005433-72253",
+    "date": "2026-08-24",
+    "time": "00:54:33",
+    "timestamp": "2026-08-24T00:54:33.599911",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005433-72257",
+    "date": "2026-08-24",
+    "time": "00:54:33",
+    "timestamp": "2026-08-24T00:54:33.604777",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005547-46693",
+    "date": "2026-08-24",
+    "time": "00:55:47",
+    "timestamp": "2026-08-24T00:55:47.555657",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005547-46698",
+    "date": "2026-08-24",
+    "time": "00:55:47",
+    "timestamp": "2026-08-24T00:55:47.750719",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005943-82109",
+    "date": "2026-08-24",
+    "time": "00:59:43",
+    "timestamp": "2026-08-24T00:59:43.308118",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-005943-82112",
+    "date": "2026-08-24",
+    "time": "00:59:43",
+    "timestamp": "2026-08-24T00:59:43.492574",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 2",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 2",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-010231-50223",
+    "date": "2026-08-24",
+    "time": "01:02:31",
+    "timestamp": "2026-08-24T01:02:31.381771",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-010231-50227",
+    "date": "2026-08-24",
+    "time": "01:02:31",
+    "timestamp": "2026-08-24T01:02:31.567348",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-010937-76687",
+    "date": "2026-08-24",
+    "time": "01:09:37",
+    "timestamp": "2026-08-24T01:09:37.863039",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-010938-76688",
+    "date": "2026-08-24",
+    "time": "01:09:38",
+    "timestamp": "2026-08-24T01:09:38.054692",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-010938-76692",
+    "date": "2026-08-24",
+    "time": "01:09:38",
+    "timestamp": "2026-08-24T01:09:38.058419",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011113-71958",
+    "date": "2026-08-24",
+    "time": "01:11:13",
+    "timestamp": "2026-08-24T01:11:13.268627",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011113-71961",
+    "date": "2026-08-24",
+    "time": "01:11:13",
+    "timestamp": "2026-08-24T01:11:13.451616",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 2",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 2",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011244-62856",
+    "date": "2026-08-24",
+    "time": "01:12:44",
+    "timestamp": "2026-08-24T01:12:44.034156",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011244-62857",
+    "date": "2026-08-24",
+    "time": "01:12:44",
+    "timestamp": "2026-08-24T01:12:44.226705",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011244-62861",
+    "date": "2026-08-24",
+    "time": "01:12:44",
+    "timestamp": "2026-08-24T01:12:44.230950",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011347-26179",
+    "date": "2026-08-24",
+    "time": "01:13:47",
+    "timestamp": "2026-08-24T01:13:47.371788",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011347-26180",
+    "date": "2026-08-24",
+    "time": "01:13:47",
+    "timestamp": "2026-08-24T01:13:47.580548",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011347-26184",
+    "date": "2026-08-24",
+    "time": "01:13:47",
+    "timestamp": "2026-08-24T01:13:47.584588",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011430-69505",
+    "date": "2026-08-24",
+    "time": "01:14:30",
+    "timestamp": "2026-08-24T01:14:30.605155",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011430-69509",
+    "date": "2026-08-24",
+    "time": "01:14:30",
+    "timestamp": "2026-08-24T01:14:30.782957",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011708-27724",
+    "date": "2026-08-24",
+    "time": "01:17:08",
+    "timestamp": "2026-08-24T01:17:08.883626",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011709-27726",
+    "date": "2026-08-24",
+    "time": "01:17:09",
+    "timestamp": "2026-08-24T01:17:09.088646",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 1",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 1",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011709-27728",
+    "date": "2026-08-24",
+    "time": "01:17:09",
+    "timestamp": "2026-08-24T01:17:09.091290",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011827-06327",
+    "date": "2026-08-24",
+    "time": "01:18:27",
+    "timestamp": "2026-08-24T01:18:27.420462",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011827-06331",
+    "date": "2026-08-24",
+    "time": "01:18:27",
+    "timestamp": "2026-08-24T01:18:27.600410",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011934-73481",
+    "date": "2026-08-24",
+    "time": "01:19:34",
+    "timestamp": "2026-08-24T01:19:34.621942",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011934-73482",
+    "date": "2026-08-24",
+    "time": "01:19:34",
+    "timestamp": "2026-08-24T01:19:34.792744",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-011934-73486",
+    "date": "2026-08-24",
+    "time": "01:19:34",
+    "timestamp": "2026-08-24T01:19:34.797232",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012044-43782",
+    "date": "2026-08-24",
+    "time": "01:20:44",
+    "timestamp": "2026-08-24T01:20:44.898939",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012045-43786",
+    "date": "2026-08-24",
+    "time": "01:20:45",
+    "timestamp": "2026-08-24T01:20:45.068298",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 3",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 3",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012045-43787",
+    "date": "2026-08-24",
+    "time": "01:20:45",
+    "timestamp": "2026-08-24T01:20:45.070523",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012138-97697",
+    "date": "2026-08-24",
+    "time": "01:21:38",
+    "timestamp": "2026-08-24T01:21:38.854357",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012139-97702",
+    "date": "2026-08-24",
+    "time": "01:21:39",
+    "timestamp": "2026-08-24T01:21:39.046129",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012723-41936",
+    "date": "2026-08-24",
+    "time": "01:27:23",
+    "timestamp": "2026-08-24T01:27:23.162604",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-012723-41941",
+    "date": "2026-08-24",
+    "time": "01:27:23",
+    "timestamp": "2026-08-24T01:27:23.354297",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-013122-80798",
+    "date": "2026-08-24",
+    "time": "01:31:22",
+    "timestamp": "2026-08-24T01:31:22.036684",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-013122-80801",
+    "date": "2026-08-24",
+    "time": "01:31:22",
+    "timestamp": "2026-08-24T01:31:22.211246",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 2",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 2",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-013332-11399",
+    "date": "2026-08-24",
+    "time": "01:33:32",
+    "timestamp": "2026-08-24T01:33:32.611031",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Test Robotu",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 10.0
+    },
+    "total_amount": 10.0,
+    "total_vat": 0.91,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 9.09,
+        "kdv_tutari": 0.91,
+        "toplam": 10.0
+      }
+    },
+    "received_cash": 10.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 2.0,
+    "items": [
+      {
+        "barcode": "8690511104926",
+        "quantity": 2,
+        "title": "ABC ELDE YIKAMA LAVANTA TAZELIGI 600 GR",
+        "total_price": 10.0,
+        "unit": "Adet",
+        "unit_price": 10.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-013332-11400",
+    "date": "2026-08-24",
+    "time": "01:33:32",
+    "timestamp": "2026-08-24T01:33:32.815034",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 0",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 0",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  },
+  {
+    "receipt_no": "FIS-20260824-013332-11404",
+    "date": "2026-08-24",
+    "time": "01:33:32",
+    "timestamp": "2026-08-24T01:33:32.819679",
+    "cashier": "Kasa 1 (Kasiyer 1)",
+    "customer": "CI Tester 4",
+    "payment_type": "Nakit",
+    "payment_breakdown": {
+      "Nakit": 5.0
+    },
+    "total_amount": 5.0,
+    "total_vat": 0.45,
+    "vat_breakdown": {
+      "10": {
+        "kdv_rate": 10,
+        "matrah": 4.55,
+        "kdv_tutari": 0.45,
+        "toplam": 5.0
+      }
+    },
+    "received_cash": 5.0,
+    "change_amount": 0.0,
+    "item_count": 1,
+    "total_quantity": 1.0,
+    "items": [
+      {
+        "barcode": "8690515125163",
+        "quantity": 1,
+        "title": "CI Concurrency 4",
+        "total_price": 5.0,
+        "unit": "Adet",
+        "unit_price": 5.0
+      }
+    ]
+  }
+]

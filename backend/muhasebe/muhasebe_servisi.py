@@ -7,7 +7,7 @@ import time
 import calendar
 import datetime
 from backend.ayarlar import SALES_DIR, EXPENSES_FILE
-from backend.araclar.depolama_araclari import load_json, save_json
+from backend.araclar.depolama_araclari import load_json, save_json, get_sales_for_date
 
 CATEGORY_METADATA = {
     "Dükkan Kirası": {"icon": "🏢", "color": "#f59e0b", "code": "rent"},
@@ -37,27 +37,24 @@ def get_accounting_overview(year: int = None, month: int = None) -> dict:
     num_days = calendar.monthrange(y, m)[1]
     month_prefix = f"{y:04d}-{m:02d}"
 
-    # 1. Satış Gelirlerini Hesapla
+    # 1. Satış Gelirlerini Hesapla (Yıl/Ay hiyerarşisi)
     total_sales_income = 0.0
     cash_income = 0.0
     card_income = 0.0
     total_receipts = 0
 
-    if os.path.exists(SALES_DIR):
-        for day in range(1, num_days + 1):
-            date_str = f"{month_prefix}-{day:02d}"
-            fpath = os.path.join(SALES_DIR, f"{date_str}.json")
-            if os.path.exists(fpath):
-                sales = load_json(fpath, [])
-                for s in sales:
-                    amt = float(s.get("total_amount", 0.0))
-                    ptype = str(s.get("payment_type", "Nakit")).lower()
-                    total_sales_income += amt
-                    total_receipts += 1
-                    if "kart" in ptype or "kredi" in ptype:
-                        card_income += amt
-                    else:
-                        cash_income += amt
+    for day in range(1, num_days + 1):
+        date_str = f"{month_prefix}-{day:02d}"
+        sales = get_sales_for_date(date_str)
+        for s in sales:
+            amt = float(s.get("total_amount", 0.0))
+            ptype = str(s.get("payment_type", "Nakit")).lower()
+            total_sales_income += amt
+            total_receipts += 1
+            if "kart" in ptype or "kredi" in ptype:
+                card_income += amt
+            else:
+                cash_income += amt
 
     # 2. Giderleri Hesapla
     all_expenses = load_json(EXPENSES_FILE, [])

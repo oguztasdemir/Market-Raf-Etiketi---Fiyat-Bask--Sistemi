@@ -740,76 +740,9 @@ async function printFromDetailModal() {
   }
 }
 
-async function blacklistFromDetailModal() {
-  if (!currentDetailProduct) return;
-  const prod = currentDetailProduct;
-  const confirmMsg = `"${prod.title}" ürününü kara listeye eklemek istiyor musunuz?\n(Bu ürün sistemde engellenecek ve etiket basılmayacaktır)`;
-  const ok = await showCustomConfirm(confirmMsg, "Kara Listeye Ekle", "Kara Listeye Ekle", "Vazgeç", "🚫");
-  if (!ok) return;
-
-  try {
-    const res = await fetch(`${API_BASE}/api/blacklist/add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        barcode: prod.barcode,
-        title: prod.title,
-        reason: "Kullanıcı Katalogdan Ekledi"
-      })
-    });
-    const data = await res.json();
-    if (data.status === 'success') {
-      const bcSet = new Set([prod.barcode]);
-      allCatalogProducts = allCatalogProducts.filter(p => !bcSet.has(p.barcode));
-      populateBrandFilterOptions();
-      onCatalogFilterChange();
-      closeCatalogProductDetailModal();
-      showToast(`🚫 '${prod.title}' kara listeye eklendi.`, "success");
-    } else {
-      showToast(`Hata: ${data.message}`, "error");
-    }
-  } catch (err) {
-    showToast(`Bağlantı hatası: ${err.message}`, "error");
-  }
-}
-
-async function submitBatchBlacklist() {
-  if (selectedBarcodes.size === 0) {
-    showToast("Lütfen önce tablodan kara listeye eklenecek ürünleri seçin.", "warning");
-    return;
-  }
-
-  const count = selectedBarcodes.size;
-  const confirmMsg = `Seçilen ${count} adet ürünü kara listeye eklemek istiyor musunuz?\n(Bu ürünler kara listeye kaydedilecek ve aktif katalogdan kaldırılacaktır)`;
-  const ok = await showCustomConfirm(confirmMsg, "Toplu Kara Liste", "Kara Listeye Ekle", "Vazgeç", "🚫");
-  if (!ok) return;
-
-  const targetBarcodes = Array.from(selectedBarcodes);
-  try {
-    const res = await fetch(`${API_BASE}/api/blacklist/batch-add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        barcodes: targetBarcodes,
-        reason: "Kullanıcı Toplu Seçimle Ekledi",
-        delete_from_catalog: true
-      })
-    });
-    const data = await res.json();
-    if (data.status === 'success') {
-      const bcSet = new Set(targetBarcodes);
-      allCatalogProducts = allCatalogProducts.filter(p => !bcSet.has(p.barcode));
-      clearCatalogSelection();
-      populateBrandFilterOptions();
-      onCatalogFilterChange();
-      showToast(`🚫 ${count} ürün başarıyla kara listeye eklendi.`, "success");
-    } else {
-      showToast(`Hata: ${data.message}`, "error");
-    }
-  } catch (err) {
-    showToast(`Bağlantı hatası: ${err.message}`, "error");
-  }
-}
+// ---------------------------------------------------------
+// Toplu Fiyat ve Marka Güncelleme İşlemleri
+// ---------------------------------------------------------
 
 async function submitCatalogProductDetail() {
   if (!currentDetailProduct) return;
@@ -1711,9 +1644,7 @@ window.openCatalogProductDetailModal = openCatalogProductDetailModal;
 window.closeCatalogProductDetailModal = closeCatalogProductDetailModal;
 window.copyDetailBarcode = copyDetailBarcode;
 window.printFromDetailModal = printFromDetailModal;
-window.blacklistFromDetailModal = blacklistFromDetailModal;
 window.submitCatalogProductDetail = submitCatalogProductDetail;
-window.submitBatchBlacklist = submitBatchBlacklist;
 window.openQuickPriceEdit = openQuickPriceEdit;
 window.openQuickTitleEdit = openQuickTitleEdit;
 window.openQuickBrandEdit = openQuickBrandEdit;

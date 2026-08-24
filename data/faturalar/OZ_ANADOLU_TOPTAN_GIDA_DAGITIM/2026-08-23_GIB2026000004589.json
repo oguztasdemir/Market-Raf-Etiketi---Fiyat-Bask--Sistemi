@@ -1,0 +1,71 @@
+{
+  "invoice_no": "GIB2026000004589",
+  "supplier_name": "ÖZ ANADOLU TOPTAN GIDA DAĞITIM A.Ş.",
+  "supplier_vkn": "9876543210",
+  "company_folder": "OZ_ANADOLU_TOPTAN_GIDA_DAGITIM",
+  "date": "2026-08-23",
+  "grand_total": 2750.0,
+  "grand_total_str": "2.750,00 TL",
+  "subtotal": 2500.0,
+  "tax_total": 0.0,
+  "discount_total": 0.0,
+  "item_count": 1,
+  "items": [
+    {
+      "barcode": "8690515125163",
+      "catalog_barcode": "8690515125163",
+      "catalog_id": null,
+      "catalog_title": "KENT ASSORTMENT KARIŞIK ŞEKER 375 GR",
+      "current_sale_price": 0.0,
+      "current_sale_price_str": "0,00 TL",
+      "current_stock": 191.0,
+      "discount_rate": 0.0,
+      "is_cost_higher_than_sale": false,
+      "is_low_margin": true,
+      "item_no": 1,
+      "line_total": 2750.0,
+      "line_total_str": "2.750,00 TL",
+      "list_price": 125.0,
+      "list_price_str": "125,00 TL",
+      "match_type": "BARCODE",
+      "matched": true,
+      "net_unit_cost": 137.5,
+      "net_unit_cost_str": "137,50 TL",
+      "new_stock": 211.0,
+      "profit_margin_pct": 0.0,
+      "quantity": 20.0,
+      "tax_rate": 10,
+      "title": "BY.KENT 375 GR ASSORTMENT KAR.ŞEKER",
+      "unit": "Adet"
+    }
+  ],
+  "validation": {
+    "badge_bg": "rgba(16,185,129,0.15)",
+    "badge_color": "#34d399",
+    "calculated_discount_total": 0.0,
+    "calculated_grand_total": 2750.0,
+    "calculated_grand_total_str": "2.750,00 TL",
+    "calculated_subtotal": 2500.0,
+    "calculated_tax_total": 250.0,
+    "difference": 0.0,
+    "difference_str": "0,00 TL",
+    "header_grand_total": 2750.0,
+    "header_grand_total_str": "2.750,00 TL",
+    "is_valid": true,
+    "line_validations": [
+      {
+        "calculated_line_total": 2750.0,
+        "declared_line_total": 2750.0,
+        "is_line_consistent": true,
+        "item_no": 1,
+        "title": "BY.KENT 375 GR ASSORTMENT KAR.ŞEKER"
+      }
+    ],
+    "status_code": "VALID",
+    "status_text": "Matematiksel Sağlama Başarılı (%100 Tutarlı)"
+  },
+  "saved_file_name": "2026-08-23_GIB2026000004589.xml",
+  "file_url": "/api/invoice/file/OZ_ANADOLU_TOPTAN_GIDA_DAGITIM/2026-08-23_GIB2026000004589.xml",
+  "format": "XML/UBL-TR",
+  "committed_at": "2026-08-24 00:47:25"
+}

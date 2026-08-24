@@ -1,0 +1,88 @@
+<!-- =========================================================
+     TOPLU FİYAT GÜNCELLEME VE ZAM MOTORU MODALI
+     ========================================================= -->
+<div id="modal-batch-price-update" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+  <div class="modal-card" style="background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 25px 60px rgba(0,0,0,0.9); overflow: hidden; color: #f8fafc;">
+    
+    <!-- Modal Başlık -->
+    <div style="background: linear-gradient(135deg, #0369a1, #0f766e); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px;">⚡</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px;">Toplu Fiyat Güncelleme & Zam Motoru</h3>
+          <span style="font-size: 11.5px; color: #bae6fd; opacity: 0.9;">Seçili marka veya kategoriye tek tıkla toplu fiyat ayarlaması</span>
+        </div>
+      </div>
+      <button type="button" onclick="closeBatchPriceModal()" style="background: rgba(255,255,255,0.15); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: 800;">✕</button>
+    </div>
+
+    <!-- Modal Form İçeriği -->
+    <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Marka / Firma Seçimi -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">1. Hedef Marka / Firma:</label>
+        <select id="batch-price-brand" style="width: 100%; background: #1e293b; border: 1px solid #475569; color: #f8fafc; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 700;">
+          <option value="TÜMÜ">🏢 TÜM MARKALAR (Tüm Katalog)</option>
+          <!-- JS dinamik olarak 266 markayı buraya dolduracak -->
+        </select>
+      </div>
+
+      <!-- Kategori / Ön Ek Filtresi -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">2. Kategori Ön Eki (Opsiyonel):</label>
+        <select id="batch-price-cat-prefix" style="width: 100%; background: #1e293b; border: 1px solid #475569; color: #f8fafc; padding: 9px 12px; border-radius: 8px; font-size: 13px; font-weight: 700;">
+          <option value="TÜMÜ">📦 TÜM KATEGORİLER</option>
+          <option value="SODA">🍾 SODALAR (SODA ...)</option>
+          <option value="SU">💧 SULAR (SU ...)</option>
+          <option value="EKMEK">🍞 EKMEKLER (EKMEK ...)</option>
+          <option value="YUMURTA">🥚 YUMURTALAR (YUMURTA ...)</option>
+        </select>
+      </div>
+
+      <!-- Zam Türü ve Değerleri -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: rgba(30,41,59,0.5); padding: 14px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1);">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 800; color: #38bdf8; margin-bottom: 6px;">Yüzde (%) Zam:</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="batch-price-percent" placeholder="Örn: 15" step="0.5" style="width: 100%; background: #0f172a; border: 1px solid #38bdf8; color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 14px; font-weight: 800; text-align: center;">
+            <span style="font-weight: 900; color: #38bdf8;">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 800; color: #4ade80; margin-bottom: 6px;">Sabit (TL) Artış:</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="batch-price-flat" placeholder="Örn: 5.00" step="0.25" style="width: 100%; background: #0f172a; border: 1px solid #4ade80; color: #fff; padding: 8px 10px; border-radius: 6px; font-size: 14px; font-weight: 800; text-align: center;">
+            <span style="font-weight: 900; color: #4ade80;">TL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Akıllı Yuvarlama Seçeneği -->
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 6px;">3. Fiyat Yuvarlama Kuralı:</label>
+        <select id="batch-price-round" style="width: 100%; background: #1e293b; border: 1px solid #475569; color: #f8fafc; padding: 8px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 700;">
+          <option value="0.50">🔹 En Yakın 50 Kuruşa Yuvarla (örn: 24.50 TL / 25.00 TL) [Önerilen]</option>
+          <option value="1.00">🔸 En Yakın 1.00 Tam TL'ye Yuvarla (örn: 25.00 TL)</option>
+          <option value="0.25">▫️ En Yakın 25 Kuruşa Yuvarla (örn: 24.25 TL / 24.75 TL)</option>
+          <option value="0.0">❌ Yuvarlama Yapma (Kuruş Kuruş Hesapla)</option>
+        </select>
+      </div>
+
+      <!-- Bilgilendirme Notu -->
+      <div style="background: rgba(2,132,199,0.1); border-left: 3px solid #0284c7; padding: 8px 12px; border-radius: 4px; font-size: 11px; color: #93c5fd;">
+        ℹ️ Fiyat güncellemesi anında kataloğa işlenecek, otomatik güvenlik yedeği alınacak ve tüm güncellenen ürünler <strong>"Bugün Fiyatı Değişenler"</strong> etiket baskı kuyruğuna aktarılacaktır.
+      </div>
+    </div>
+
+    <!-- Modal Alt Butonlar -->
+    <div style="background: #090e1a; padding: 14px 20px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+      <button type="button" onclick="closeBatchPriceModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; padding: 8px 16px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">İptal</button>
+      <button type="button" id="btn-execute-batch-price" onclick="executeBatchPriceUpdate()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(2,132,199,0.4); display: flex; align-items: center; gap: 6px;">
+        <span>⚡ Fiyatları Güncelle ve Kuyruğa Al</span>
+      </button>
+    </div>
+
+  </div>
+</div>

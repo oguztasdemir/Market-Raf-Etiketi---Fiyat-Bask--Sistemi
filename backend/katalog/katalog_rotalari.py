@@ -6,8 +6,8 @@ import os
 import datetime
 from flask import Blueprint, jsonify, request, send_file
 from werkzeug.utils import secure_filename
-from backend.ayarlar import PRODUCTS_FILE, BLACKLIST_FILE, CUSTOM_BARCODES_FILE, SISTEM_EXCELI_DIR, PRODUCT_ACTIVITIES_FILE, SALES_DIR
-from backend.araclar.depolama_araclari import load_json, save_json
+from backend.ayarlar import PRODUCTS_FILE, CUSTOM_BARCODES_FILE, SISTEM_EXCELI_DIR, PRODUCT_ACTIVITIES_FILE, SALES_DIR
+from backend.araclar.depolama_araclari import load_json, save_json, list_all_sales_files
 from backend.araclar.metin_duzenleyici import clean_barcode, clean_product_title, format_price_display, get_online_or_system_datetime
 from backend.yedekleme.yedekleme_servisi import create_products_backup
 from backend.katalog.excel_katalog_servisi import analyze_excel_diff, get_latest_excel_path, clear_diff_cache
@@ -242,110 +242,6 @@ def api_catalog_sync_batch():
         "updated_count": updated_count
     })
 
-@catalog_bp.route("/api/blacklist", methods=["GET"])
-def api_get_blacklist():
-    """Kara listedeki ürünleri döner."""
-    blacklist = load_json(BLACKLIST_FILE, [])
-    return jsonify({"status": "success", "blacklist": blacklist})
-
-@catalog_bp.route("/api/blacklist/add", methods=["POST"])
-def api_add_blacklist():
-    """Ürünü kara listeye ekler."""
-    data = request.json or {}
-    barcode = clean_barcode(data.get("barcode"))
-    title = clean_product_title(data.get("title") or "KARA LİSTE")
-    reason = data.get("reason", "Kullanıcı Tarafından Engellendi")
-
-    if not barcode and not title:
-        return jsonify({"status": "error", "message": "Barkod veya başlık gereklidir."}), 400
-
-    blacklist = load_json(BLACKLIST_FILE, [])
-    if any(clean_barcode(b.get("barcode")) == barcode for b in blacklist if barcode):
-        return jsonify({"status": "success", "message": "Ürün zaten kara listede."})
-
-    blacklist.append({
-        "barcode": barcode,
-        "title": title,
-        "reason": reason
-    })
-    save_json(BLACKLIST_FILE, blacklist)
-    clear_diff_cache()
-
-    return jsonify({"status": "success", "message": "Ürün kara listeye eklendi."})
-
-@catalog_bp.route("/api/blacklist/batch-add", methods=["POST"])
-def api_batch_add_blacklist():
-    """Seçilen ürünleri topluca kara listeye ekler ve isteğe bağlı katalogdan kaldırır."""
-    data = request.json or {}
-    items = data.get("items", [])
-    barcodes = data.get("barcodes", [])
-    reason = data.get("reason", "Kullanıcı Tarafından Engellendi")
-    delete_from_catalog = data.get("delete_from_catalog", True)
-
-    blacklist = load_json(BLACKLIST_FILE, [])
-    existing_bcs = {clean_barcode(b.get("barcode", "")) for b in blacklist if b.get("barcode")}
-    
-    products = load_json(PRODUCTS_FILE, [])
-    prod_map = {clean_barcode(p.get("barcode", "")): p for p in products if p.get("barcode")}
-
-    added_count = 0
-    target_barcodes = set()
-
-    if items:
-        for it in items:
-            bc = clean_barcode(it.get("barcode", ""))
-            if bc and bc not in existing_bcs:
-                blacklist.append({
-                    "barcode": bc,
-                    "title": clean_product_title(it.get("title") or "KARA LİSTE"),
-                    "reason": reason
-                })
-                existing_bcs.add(bc)
-                target_barcodes.add(bc)
-                added_count += 1
-    elif barcodes:
-        for bc_raw in barcodes:
-            bc = clean_barcode(bc_raw)
-            if bc and bc not in existing_bcs:
-                p_title = prod_map.get(bc, {}).get("title", "KARA LİSTE")
-                blacklist.append({
-                    "barcode": bc,
-                    "title": clean_product_title(p_title),
-                    "reason": reason
-                })
-                existing_bcs.add(bc)
-                target_barcodes.add(bc)
-                added_count += 1
-
-    if added_count > 0:
-        save_json(BLACKLIST_FILE, blacklist)
-
-        if delete_from_catalog:
-            products = [p for p in products if clean_barcode(p.get("barcode", "")) not in target_barcodes]
-            save_json(PRODUCTS_FILE, products)
-
-        create_products_backup(f"Toplu Kara Listeye Eklendi ({added_count} Ürün)")
-        clear_diff_cache()
-
-    return jsonify({
-        "status": "success",
-        "message": f"{added_count} ürün kara listeye eklendi.",
-        "added_count": added_count
-    })
-
-@catalog_bp.route("/api/blacklist/remove", methods=["POST"])
-def api_remove_blacklist():
-    """Ürünü kara listeden çıkarır."""
-    data = request.json or {}
-    barcode = clean_barcode(data.get("barcode"))
-    blacklist = load_json(BLACKLIST_FILE, [])
-    new_bl = [b for b in blacklist if clean_barcode(b.get("barcode")) != barcode]
-
-    save_json(BLACKLIST_FILE, new_bl)
-    clear_diff_cache()
-
-    return jsonify({"status": "success", "message": "Ürün kara listeden çıkarıldı."})
-
 @catalog_bp.route("/api/catalog/sync-label-price", methods=["POST"])
 def api_sync_single_label_price():
     """Tek bir ürünün etiket fiyatını güncel fiyatıyla eşitler."""
@@ -552,6 +448,81 @@ def api_catalog_sync_status():
     return jsonify(res)
 
 
+@catalog_bp.route("/api/catalog/apply-sync", methods=["POST"])
+def api_catalog_apply_sync():
+    """Excel/CSV fark analizinden seçilen veya tüm ürünleri kataloğa aktarır/günceller."""
+    req_data = request.json or {}
+    items = req_data.get("items", [])
+    action = req_data.get("action", "all")
+
+    if not items:
+        return jsonify({"status": "error", "message": "Aktarılacak ürün bulunamadı."}), 400
+
+    products = load_json(PRODUCTS_FILE, [])
+    prod_map = {clean_barcode(p.get("barcode", "")): p for p in products if p.get("barcode")}
+
+    applied_count = 0
+    now_datetime = get_online_or_system_datetime()
+
+    for it in items:
+        bc = clean_barcode(it.get("barcode", ""))
+        excel_price = it.get("excel_price") or it.get("price")
+        excel_title = it.get("excel_title") or it.get("title")
+        brand = it.get("brand") or "DİĞER"
+
+        if not bc:
+            continue
+
+        if bc in prod_map:
+            # Fiyat Güncelleme
+            old_p = prod_map[bc].get("price", "")
+            if excel_price:
+                formatted_p = format_price_display(excel_price)
+                prod_map[bc]["price"] = formatted_p
+                prod_map[bc]["date"] = now_datetime
+                prod_map[bc]["updated_at"] = now_datetime
+                if old_p != formatted_p:
+                    log_price_change(bc, prod_map[bc].get("title", "Ürün"), old_p, formatted_p, source="Excel Senkronizasyon")
+                applied_count += 1
+        else:
+            # Yeni Ürün Ekleme
+            if excel_price and excel_price != "0,00 TL":
+                formatted_p = format_price_display(excel_price)
+                new_prod = {
+                    "barcode": bc,
+                    "title": clean_product_title(excel_title or "YENİ ÜRÜN"),
+                    "title1": clean_product_title(excel_title or "YENİ ÜRÜN"),
+                    "title2": "",
+                    "brand": brand,
+                    "price": formatted_p,
+                    "label_price": "",  # Henüz raf etiketi basılmadı rozeti için boş
+                    "stock": 100,
+                    "origin": "TÜRKİYE",
+                    "unit": "Adet",
+                    "date": now_datetime,
+                    "updated_at": now_datetime
+                }
+                products.append(new_prod)
+                prod_map[bc] = new_prod
+                log_price_change(bc, new_prod["title"], "-", formatted_p, source="Excel Yeni Ürün")
+                applied_count += 1
+
+    if applied_count > 0:
+        create_products_backup(f"Excel Senkronizasyon ({applied_count} Ürün)")
+        save_json(PRODUCTS_FILE, products)
+        clear_diff_cache()
+
+    latest_file = get_latest_excel_path()
+    latest_diff = analyze_excel_diff(latest_file) if latest_file else {}
+
+    return jsonify({
+        "status": "success",
+        "message": f"{applied_count} ürün başarıyla güncellendi.",
+        "applied_count": applied_count,
+        "latest_sync_data": latest_diff
+    })
+
+
 @catalog_bp.route("/api/catalog/upload-excel", methods=["POST"])
 def api_catalog_upload_excel():
     """Yeni Excel veya CSV stok listesi yükler ve anında analiz eder."""
@@ -702,25 +673,22 @@ def api_get_product_activities(barcode):
     activities_db = load_json(PRODUCT_ACTIVITIES_FILE, {})
     activities = list(activities_db.get(clean_bc, []))
 
-    # Otomatik olarak data/sales/ klasöründeki geçmiş fiş satışlarını da tara
+    # Otomatik olarak data/satislar/ klasöründeki geçmiş fiş satışlarını da tara (Yıl/Ay hiyerarşisi)
     try:
-        if os.path.exists(SALES_DIR):
-            for fname in sorted(os.listdir(SALES_DIR), reverse=True)[:15]:
-                if fname.endswith(".json"):
-                    fpath = os.path.join(SALES_DIR, fname)
-                    receipts = load_json(fpath, [])
-                    for r in receipts:
-                        for item in r.get("items", []):
-                            if clean_barcode(item.get("barcode")) == clean_bc:
-                                activities.append({
-                                    "id": f"sale_{r.get('receipt_no', '')}",
-                                    "timestamp": r.get("datetime") or r.get("time", ""),
-                                    "type": "sale",
-                                    "title": f"Kasa Satışı ({item.get('quantity', 1)} Adet)",
-                                    "details": f"Fiş #{r.get('receipt_no', '')} | Ödeme: {r.get('payment_type', 'Nakit').upper()} | Tutar: {item.get('total', item.get('price', ''))}",
-                                    "actor": r.get("cashier", "Kasiyer"),
-                                    "meta": {"receipt_no": r.get("receipt_no"), "quantity": item.get("quantity")}
-                                })
+        for fpath in list_all_sales_files()[:15]:
+            receipts = load_json(fpath, [])
+            for r in receipts:
+                for item in r.get("items", []):
+                    if clean_barcode(item.get("barcode")) == clean_bc:
+                        activities.append({
+                            "id": f"sale_{r.get('receipt_no', '')}",
+                            "timestamp": r.get("datetime") or r.get("time", ""),
+                            "type": "sale",
+                            "title": f"Kasa Satışı ({item.get('quantity', 1)} Adet)",
+                            "details": f"Fiş #{r.get('receipt_no', '')} | Ödeme: {r.get('payment_type', 'Nakit').upper()} | Tutar: {item.get('total', item.get('price', ''))}",
+                            "actor": r.get("cashier", "Kasiyer"),
+                            "meta": {"receipt_no": r.get("receipt_no"), "quantity": item.get("quantity")}
+                        })
     except Exception as e:
         print("Geçmiş satış tarama hatası:", e)
 
@@ -745,6 +713,163 @@ def api_add_product_activity(barcode):
 
     log_product_activity(clean_bc, act_type, title, details, actor)
     return jsonify({"status": "success", "message": "Faaliyet kaydı başarıyla eklendi."})
+
+
+@catalog_bp.route("/api/catalog/batch_price_update", methods=["POST"])
+def api_batch_price_update():
+    """
+    Seçilen marka veya kategoriye göre toplu zam / fiyat güncellemesi uygular.
+    Parametreler:
+      - brand: Filtrelenecek marka (örn: 'BEYPAZARI', 'SÜTAŞ', 'TÜMÜ')
+      - category_prefix: Başlık ön eki (örn: 'SODA', 'SÜT', 'TÜMÜ')
+      - percent: Yüzde artış (örn: 15.0 -> +%15)
+      - flat_amount: Sabit TL artış (örn: 5.0 -> +5 TL)
+      - round_to: Yuvarlama (0.25, 0.50, 1.00 veya 0.0)
+    """
+    req_data = request.json or {}
+    brand_filter = (req_data.get("brand") or "").strip().upper()
+    cat_filter = (req_data.get("category_prefix") or "").strip().upper()
+    percent = float(req_data.get("percent") or 0.0)
+    flat_amount = float(req_data.get("flat_amount") or 0.0)
+    round_to = float(req_data.get("round_to") or 0.0)
+    actor = req_data.get("actor", "Yönetici")
+
+    if percent == 0.0 and flat_amount == 0.0:
+        return jsonify({"status": "error", "message": "Lütfen geçerli bir yüzde veya sabit artış tutarı girin."}), 400
+
+    products = load_json(PRODUCTS_FILE, [])
+    updated_products = []
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    # Yedek al
+    create_products_backup("Toplu Zam Öncesi Otomatik Yedek")
+
+    for p in products:
+        p_brand = (p.get("brand") or "").upper()
+        p_title = (p.get("title") or "").upper()
+
+        match = True
+        if brand_filter and brand_filter != "TÜMÜ" and p_brand != brand_filter:
+            match = False
+        if cat_filter and cat_filter != "TÜMÜ" and not p_title.startswith(cat_filter):
+            match = False
+
+        if match:
+            old_price_str = p.get("price", "0,00 TL")
+            try:
+                clean_old = old_price_str.replace("TL", "").replace(".", "").replace(",", ".").strip()
+                old_val = float(clean_old)
+            except Exception:
+                continue
+
+            if old_val <= 0:
+                continue
+
+            # Yeni fiyat hesabı
+            new_val = old_val
+            if percent != 0.0:
+                new_val += new_val * (percent / 100.0)
+            if flat_amount != 0.0:
+                new_val += flat_amount
+
+            # Yuvarlama
+            if round_to > 0:
+                new_val = round(new_val / round_to) * round_to
+
+            new_val = max(0.25, round(new_val, 2))
+            new_price_str = f"{new_val:,.2f} TL".replace(",", "X").replace(".", ",").replace("X", ".")
+
+            if old_price_str != new_price_str:
+                p["price"] = new_price_str
+                p["old_price"] = old_price_str
+                p["price_updated_at"] = now_str
+                p["price_updated_date"] = today_date
+                updated_products.append({
+                    "barcode": p.get("barcode"),
+                    "title": p.get("title"),
+                    "old_price": old_price_str,
+                    "new_price": new_price_str
+                })
+                log_product_activity(
+                    p.get("barcode"),
+                    "price",
+                    f"Toplu Fiyat Güncellemesi ({'+%' + str(percent) if percent else ''}{'+' + str(flat_amount) + 'TL' if flat_amount else ''})",
+                    f"{old_price_str} ➔ {new_price_str}",
+                    actor
+                )
+
+    if updated_products:
+        save_json(PRODUCTS_FILE, products)
+
+    return jsonify({
+        "status": "success",
+        "message": f"{len(updated_products)} adet ürünün fiyatı başarıyla güncellendi.",
+        "updated_count": len(updated_products),
+        "updated_products": updated_products[:50]  # İlk 50 örnek
+    })
+
+
+@catalog_bp.route("/api/catalog/price_changed_today", methods=["GET"])
+def api_get_price_changed_today():
+    """Bugün veya seçilen tarihte fiyatı değişen ürünleri etiket baskı kuyruğu olarak döner."""
+    target_date = request.args.get("date") or datetime.datetime.now().strftime("%Y-%m-%d")
+    products = load_json(PRODUCTS_FILE, [])
+    
+    queue = []
+    for p in products:
+        if p.get("price_updated_date") == target_date or p.get("price_updated_at", "").startswith(target_date):
+            queue.append({
+                "barcode": p.get("barcode"),
+                "title": p.get("title") or p.get("title1"),
+                "brand": p.get("brand"),
+                "price": p.get("price"),
+                "old_price": p.get("old_price"),
+                "price_updated_at": p.get("price_updated_at")
+            })
+
+    return jsonify({
+        "status": "success",
+        "date": target_date,
+        "count": len(queue),
+        "products": queue
+    })
+
+
+@catalog_bp.route("/api/catalog/low_stock_alerts", methods=["GET"])
+def api_get_low_stock_alerts():
+    """Belirlenen kritik stok limitinin altındaki ürünleri listeler."""
+    try:
+        threshold = int(request.args.get("threshold", 5))
+    except Exception:
+        threshold = 5
+
+    products = load_json(PRODUCTS_FILE, [])
+    low_stock = []
+
+    for p in products:
+        try:
+            stock = int(p.get("stock") or 0)
+        except Exception:
+            stock = 0
+
+        # Sadece stok takibi yapılan ve stoğu threshold altında olanlar
+        if 0 <= stock <= threshold and p.get("stock") is not None:
+            low_stock.append({
+                "barcode": p.get("barcode"),
+                "title": p.get("title") or p.get("title1"),
+                "brand": p.get("brand"),
+                "price": p.get("price"),
+                "stock": stock,
+                "unit": p.get("unit", "Adet")
+            })
+
+    return jsonify({
+        "status": "success",
+        "threshold": threshold,
+        "count": len(low_stock),
+        "products": low_stock
+    })
 
 
 

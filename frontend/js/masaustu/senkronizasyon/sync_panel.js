@@ -157,14 +157,12 @@ function updateSyncStatsBadges() {
   const pillChanged = document.getElementById('pill-count-changed');
   const pillNew = document.getElementById('pill-count-new');
   const pillMatched = document.getElementById('pill-count-matched');
-  const pillBlack = document.getElementById('pill-count-blacklisted');
   const pillAll = document.getElementById('pill-count-all');
   const topBtnCount = document.getElementById('top-btn-changed-count');
 
   if (pillChanged) pillChanged.innerText = (stats.changed_count || 0).toLocaleString('tr-TR');
   if (pillNew) pillNew.innerText = (stats.new_count || 0).toLocaleString('tr-TR');
   if (pillMatched) pillMatched.innerText = (stats.matched_count || 0).toLocaleString('tr-TR');
-  if (pillBlack) pillBlack.innerText = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
   if (pillAll) pillAll.innerText = (stats.total_excel_rows || 0).toLocaleString('tr-TR');
   
   updateSyncApplyButtonLabel();
@@ -221,8 +219,7 @@ function filterSyncTab(filterName, updateStorage = true) {
     'changed': 'pill-changed',
     'new': 'pill-new',
     'all': 'pill-all',
-    'matched': 'pill-matched',
-    'blacklisted': 'pill-blacklisted'
+    'matched': 'pill-matched'
   };
   const activePill = document.getElementById(pillMap[filterName] || 'pill-changed');
   if (activePill) activePill.classList.add('active');
@@ -324,14 +321,11 @@ function renderSyncTable(reset = true) {
       rawList = currentSyncData.new_products || [];
     } else if (activeSyncFilter === 'matched') {
       rawList = currentSyncData.matched_products || [];
-    } else if (activeSyncFilter === 'blacklisted') {
-      rawList = currentSyncData.blacklisted_items || [];
     } else {
       rawList = [
         ...(currentSyncData.changed_prices || []),
         ...(currentSyncData.new_products || []),
-        ...(currentSyncData.matched_products || []),
-        ...(currentSyncData.blacklisted_items || [])
+        ...(currentSyncData.matched_products || [])
       ];
     }
 
@@ -389,12 +383,8 @@ function renderSyncTable(reset = true) {
     // Durum rozeti
     let statusBadge = "";
     let actionBtn = "";
-    const isBlack = activeSyncFilter === 'blacklisted' || item.status === 'blacklisted' || item.reason;
 
-    if (isBlack) {
-      statusBadge = `<span class="badge-sync-status blacklisted">🚫 Kara Liste</span>`;
-      actionBtn = `<span style="color: var(--text-muted); font-size:11px; font-weight:600;">Engellendi</span>`;
-    } else if (item.status === 'changed') {
+    if (item.status === 'changed') {
       const isUp = (item.diff_amount || 0) > 0;
       const diffBadge = `<span class="price-diff-badge ${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${item.diff_amount} TL (${item.diff_percent}%)</span>`;
       statusBadge = `<span class="badge-sync-status changed">⚠️ Fiyat Değişti</span>${diffBadge}`;

@@ -327,35 +327,6 @@ async function submitSyncBatchPrint() {
   });
 }
 
-
-async function submitSyncBatchBlacklist() {
-  if (selectedSyncBarcodes.size === 0) {
-    showToast("Lütfen kara listeye eklenecek ürünleri seçin.", "warning");
-    return;
-  }
-
-  let count = 0;
-  for (const bc of selectedSyncBarcodes) {
-    const item = filteredSyncItems.find(x => x.barcode === bc);
-    const title = item ? (item.excel_title || item.current_title) : "KARA LİSTE";
-    try {
-      await fetch(`${API_BASE}/api/blacklist/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ barcode: bc, title: title })
-      });
-      count++;
-    } catch (e) {
-      console.error("Blacklist add error:", e);
-    }
-  }
-
-  showToast(`🚫 ${count} ürün kara listeye eklendi.`, "success");
-  clearSyncSelection();
-  await loadSyncStatus();
-}
-
-
 function openSyncProductDetailModal(barcode) {
   const item = filteredSyncItems.find(p => p.barcode === barcode) || allCatalogProducts.find(p => p.barcode === barcode);
   if (!item) return;
@@ -378,34 +349,31 @@ function openSyncProductDetailModal(barcode) {
     statusText = `⚠️ Fiyat Farkı: ${item.excel_price} (Eski: ${item.current_price})`;
   } else if (item.status === 'new') {
     statusText = "✨ Yeni Ürün";
-  } else if (item.status === 'blacklisted') {
-    statusText = "🚫 Kara Liste";
   }
   document.getElementById('sync-detail-status').innerText = statusText;
 
   // Buton Aksiyonları
-  document.getElementById('sync-detail-btn-blacklist').onclick = async () => {
-    await submitSingleBlacklist(item.barcode, item.excel_title || item.current_title);
-    closeSyncProductDetailModal();
-  };
+  const btnDesign = document.getElementById('sync-detail-btn-design');
+  if (btnDesign) {
+    btnDesign.onclick = () => {
+      closeSyncProductDetailModal();
+      loadProductToDesigner(item.barcode);
+    };
+  }
 
-  document.getElementById('sync-detail-btn-design').onclick = () => {
-    closeSyncProductDetailModal();
-    loadProductToDesigner(item.barcode);
-  };
-
-  document.getElementById('sync-detail-btn-print').onclick = () => {
-    closeSyncProductDetailModal();
-    printProductFromCatalog(item.barcode);
-  };
+  const btnPrint = document.getElementById('sync-detail-btn-print');
+  if (btnPrint) {
+    btnPrint.onclick = () => {
+      closeSyncProductDetailModal();
+      printProductFromCatalog(item.barcode);
+    };
+  }
 }
-
 
 function closeSyncProductDetailModal() {
   const modal = document.getElementById('modal-sync-product-detail');
   if (modal) modal.style.display = 'none';
 }
-
 
 function loadProductToDesigner(barcode) {
   const item = (filteredSyncItems && filteredSyncItems.find(p => p.barcode === barcode)) 
@@ -436,26 +404,6 @@ function loadProductToDesigner(barcode) {
   showToast(`🎨 '${fullTitle}' etiket tasarım stüdyosuna aktarıldı.`, "info");
 }
 
-
-async function submitSingleBlacklist(barcode, title) {
-  try {
-    const res = await fetch(`${API_BASE}/api/blacklist/add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ barcode: barcode, title: title || "KARA LİSTE" })
-    });
-    const result = await res.json();
-    if (result.status === 'success') {
-      showToast("🚫 Ürün kara listeye eklendi.", "success");
-      await loadSyncStatus();
-    } else {
-      showToast(`❌ ${result.message}`, "error");
-    }
-  } catch (e) {
-    showToast(`❌ Bağlantı hatası: ${e.message}`, "error");
-  }
-}
-
 // Window Global İhracı
 window.applyAllChangedPricesFromSync = applyAllChangedPricesFromSync;
 window.executeSyncApply = executeSyncApply;
@@ -463,10 +411,8 @@ window.cancelSyncApply = cancelSyncApply;
 window.closeSyncProgressModal = closeSyncProgressModal;
 window.submitSyncBatchApply = submitSyncBatchApply;
 window.submitSyncBatchPrint = submitSyncBatchPrint;
-window.submitSyncBatchBlacklist = submitSyncBatchBlacklist;
 window.openSyncProductDetailModal = openSyncProductDetailModal;
 window.closeSyncProductDetailModal = closeSyncProductDetailModal;
 window.loadProductToDesigner = loadProductToDesigner;
-window.submitSingleBlacklist = submitSingleBlacklist;
 window.syncSingleItemPriceOnly = syncSingleItemPriceOnly;
 window.syncSingleItemNewOnly = syncSingleItemNewOnly;

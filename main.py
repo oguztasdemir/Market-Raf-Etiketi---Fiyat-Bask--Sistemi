@@ -39,6 +39,8 @@ from backend.raporlama.rapor_rotalari import report_bp
 from backend.terazi.terazi_rotalari import scale_bp
 from backend.kasa.hizli_satis_rotalari import pos_bp
 from backend.muhasebe.muhasebe_rotalari import accounting_bp
+from backend.fatura.fatura_rotalari import invoice_bp
+from backend.musteri.musteri_rotalari import customer_bp
 
 # Ham Werkzeug HTTP erişim loglarını sustur
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -59,6 +61,8 @@ app.register_blueprint(report_bp)
 app.register_blueprint(scale_bp)
 app.register_blueprint(pos_bp)
 app.register_blueprint(accounting_bp)
+app.register_blueprint(invoice_bp)
+app.register_blueprint(customer_bp)
 
 def get_device_label(ip):
     """İstemci IP adresini anlaşılır cihaz ismine dönüştürür."""
@@ -105,6 +109,10 @@ def log_user_action_and_headers(response):
             action_msg = "Manav Ürün / Fiyat Listesini Güncelledi"
         elif path == "/api/pos/checkout":
             action_msg = "Hızlı Kasa (POS) Satışını Tamamladı"
+        elif path == "/api/invoice/commit":
+            action_msg = "Fatura Girişini Onayladı ve Kataloğa İşledi"
+        elif path.startswith("/api/accounting/expense"):
+            action_msg = "Muhasebe Gider Kaydı Ekledi/Güncelledi"
         elif path.startswith("/api/print"):
             action_msg = "Barkod / Raf Etiketi Baskısı Gönderdi"
         elif path.startswith("/api/sync"):
@@ -122,6 +130,34 @@ def log_user_action_and_headers(response):
         pass
 
     return response
+
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(Exception)
+def handle_global_exception(e):
+    """Beklenmedik tüm istisnaları yakalar, loglar ve sunucunun çökmesini engeller."""
+    from flask import jsonify
+    if isinstance(e, HTTPException):
+        if e.code == 404:
+            if request.path.startswith("/api/"):
+                return jsonify({"status": "error", "message": "Bulunamadı"}), 404
+            return render_template("masaustu/index.html", cache_bust=int(time.time())), 404
+        return jsonify({"status": "error", "message": e.description}), e.code
+
+    err_str = str(e)
+    print(f"[UYARI] İstisna yakalandı ve izole edildi ({request.path}): {err_str}")
+    if request.path.startswith("/api/"):
+        return jsonify({
+            "status": "error",
+            "message": "İşlem sırasında geçici bir hata oluştu ancak sistem güvenle kurtarıldı.",
+            "error": err_str,
+            "recovered": True
+        }), 500
+    return render_template("masaustu/index.html", cache_bust=int(time.time()))
+
+@app.route("/favicon.ico")
+def favicon():
+    return ('', 204)
 
 @app.route("/")
 def index():

@@ -83,10 +83,10 @@ def ensure_ssl_certs(local_ip: str):
         return None, None
 
 def free_port(port=5000):
-    """Portta asılı kalan eski işlemleri temizler."""
+    """Portta asılı kalan eski Python işlemlerini temizler."""
     try:
-        cmd = f'powershell -Command "Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object {{ if ($_ -ne $PID) {{ Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }} }}"'
-        subprocess.run(cmd, shell=True, capture_output=True)
+        cmd = f'powershell -Command "Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object {{ $p = Get-Process -Id $_ -ErrorAction SilentlyContinue; if ($p -and $p.Id -ne $PID -and $p.ProcessName -like \'*python*\') {{ Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }} }}"'
+        subprocess.run(cmd, shell=True, capture_output=True, timeout=5)
     except Exception:
         pass
 
@@ -140,10 +140,14 @@ def start_code_watcher(on_change_callback=None):
                             print("=" * 65 + "\n")
                             if on_change_callback:
                                 on_change_callback()
-                            if fname.endswith('.py') and 'scratch' not in fname and '__pycache__' not in fname:
+                            main_script = os.path.abspath(sys.argv[0])
+                            if (fname.endswith('.py') and 
+                                'scratch' not in fname and 
+                                '__pycache__' not in fname and 
+                                'main.py' in main_script and 
+                                not os.environ.get('NO_RELOAD')):
                                 print(f"⚡ [PYTHON YENİDEN BAŞLATILIYOR] '{fname}' güncellendi, sunucu anında yeniden başlatılıyor...")
                                 time.sleep(0.3)
-                                main_script = os.path.abspath(sys.argv[0])
                                 quoted_args = [f'"{sys.executable}"', f'"{main_script}"'] + [f'"{a}"' if ' ' in a else a for a in sys.argv[1:]]
                                 os.execv(sys.executable, quoted_args)
                     else:

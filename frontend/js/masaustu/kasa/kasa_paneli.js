@@ -1688,8 +1688,150 @@ function openPosPaymentModal() {
   openPosReceiptConfirmModal('Nakit', receivedCash, changeAmt);
 }
 
+let posPartialPaymentsList = [];
+
+function payFullPosAmount(paymentType) {
+  const grandTotal = getPosCartGrandTotal();
+  closePosPaymentModal();
+  directPosCheckout(paymentType, grandTotal, 0, false);
+}
+
+function handlePartialPaymentKey(event) {
+  if (event.key === 'Enter') {
+    addPartialPosPayment('Nakit');
+  }
+}
+
+function setPartialInputAmount(amount) {
+  const inp = document.getElementById('pos-pay-partial-input');
+  if (inp) {
+    inp.value = amount;
+    inp.focus();
+  }
+}
+
+function addPartialPosPayment(type) {
+  const inp = document.getElementById('pos-pay-partial-input');
+  const amount = parseFloat(inp?.value || 0);
+  if (isNaN(amount) || amount <= 0) {
+    if (typeof showToast === 'function') showToast('⚠️ Lütfen geçerli bir ödeme tutarı girin.', 'warning');
+    return;
+  }
+  const grandTotal = getPosCartGrandTotal();
+  const alreadyPaid = posPartialPaymentsList.reduce((sum, p) => sum + p.amount, 0);
+  const remaining = grandTotal - alreadyPaid;
+
+  if (amount > remaining) {
+    if (typeof showToast === 'function') showToast(`⚠️ Girilen tutar kalan bakiyeden (${remaining.toFixed(2)} TL) fazla olamaz.`, 'warning');
+    return;
+  }
+
+  posPartialPaymentsList.push({ type: type, amount: amount });
+  if (inp) inp.value = '';
+  updatePosPaymentModalView();
+
+  const newPaid = posPartialPaymentsList.reduce((sum, p) => sum + p.amount, 0);
+  if (newPaid >= grandTotal - 0.01) {
+    finalizeSplitPosSale();
+  }
+}
+
+function updatePosPaymentModalView() {
+  const grandTotal = getPosCartGrandTotal();
+  const paid = posPartialPaymentsList.reduce((sum, p) => sum + p.amount, 0);
+  const remaining = Math.max(0, grandTotal - paid);
+
+  const gtEl = document.getElementById('pos-pay-grand-total');
+  const pdEl = document.getElementById('pos-pay-paid-amount');
+  const remEl = document.getElementById('pos-pay-remaining-amount');
+  const cardSub = document.getElementById('btn-pay-full-card-sub');
+  const cashSub = document.getElementById('btn-pay-full-cash-sub');
+
+  if (gtEl) gtEl.innerText = `${grandTotal.toFixed(2).replace('.', ',')} TL`;
+  if (pdEl) pdEl.innerText = `${paid.toFixed(2).replace('.', ',')} TL`;
+  if (remEl) remEl.innerText = `${remaining.toFixed(2).replace('.', ',')} TL`;
+  if (cardSub) cardSub.innerText = `(${remaining.toFixed(2).replace('.', ',')} TL)`;
+  if (cashSub) cashSub.innerText = `(${remaining.toFixed(2).replace('.', ',')} TL)`;
+}
+
+function finalizeSplitPosSale() {
+  const grandTotal = getPosCartGrandTotal();
+  const paid = posPartialPaymentsList.reduce((sum, p) => sum + p.amount, 0);
+  if (paid < grandTotal - 0.01) {
+    if (typeof showToast === 'function') showToast('⚠️ Ödeme tamamlanmadı, lütfen kalan bakiyeyi tahsil edin.', 'warning');
+    return;
+  }
+  const paymentSummary = posPartialPaymentsList.map(p => `${p.type}: ${p.amount.toFixed(2)} TL`).join(' + ');
+  closePosPaymentModal();
+  directPosCheckout(`Parçalı (${paymentSummary})`, grandTotal, 0, false);
+  posPartialPaymentsList = [];
+}
+
+function closePosClearConfirmModal() {
+  const m = document.getElementById('modal-pos-clear-confirm');
+  if (m) m.style.display = 'none';
+}
+
+function executeClearPosCart() {
+  closePosClearConfirmModal();
+  clearPosCart();
+  if (typeof showToast === 'function') showToast('🗑️ Sepet ve ekran temizlendi.', 'info');
+}
+
+function cancelPosExitModal() {
+  const m = document.getElementById('modal-pos-exit-confirm');
+  if (m) m.style.display = 'none';
+}
+
+function forceClosePosApp() {
+  const m = document.getElementById('modal-pos-exit-confirm');
+  if (m) m.style.display = 'none';
+  if (typeof switchTab === 'function') {
+    switchTab('tab-home');
+  }
+}
+
+function openAddQuickButtonModal() {
+  const m = document.getElementById('modal-add-quick-btn');
+  if (m) m.style.display = 'flex';
+}
+
+function closeAddQuickButtonModal() {
+  const m = document.getElementById('modal-add-quick-btn');
+  if (m) m.style.display = 'none';
+}
+
+async function submitNewQuickButton() {
+  const title = (document.getElementById('quick-btn-title-inp')?.value || '').trim();
+  const code = (document.getElementById('quick-btn-code-inp')?.value || '').trim();
+
+  if (!title || !code) {
+    if (typeof showToast === 'function') showToast('⚠️ Lütfen ürün ismi ve kodunu girin.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/custom_barcodes/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: title, code: code })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      closeAddQuickButtonModal();
+      if (typeof showToast === 'function') showToast('⚡ Hızlı buton başarıyla eklendi!', 'success');
+      loadCustomBarcodes();
+    } else {
+      if (typeof showToast === 'function') showToast(data.message || 'Eklenemedi.', 'warning');
+    }
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Hızlı buton kaydedilirken hata oluştu.', 'error');
+  }
+}
+
 function closePosPaymentModal() {
   hidePosModal('modal-pos-receipt-confirm');
+  hidePosModal('modal-pos-payment');
   const inp = document.getElementById('pos-barcode-input');
   if (inp) {
     inp.focus();
@@ -1928,6 +2070,178 @@ function openQuickProductFromNotFoundAlert() {
   }, 30);
 }
 
+// F7 - KASA ÇEKMECESİ AÇ
+function openCashDrawerAction() {
+  if (typeof showSystemToast === 'function') {
+    showSystemToast('Kasa çekmecesi tetiklendi [F7]', 'info');
+  }
+}
+
+// F8 - ESKİ SATIŞLAR & BEKLEYEN FİŞLER
+function openPosRecentSalesModal() {
+  showPosModal('modal-parked-receipts');
+  renderParkedReceiptsList();
+  fetchRecentSalesList();
+}
+
+function closeParkedReceiptsModal() {
+  hidePosModal('modal-parked-receipts');
+}
+
+function clearAllParkedReceipts() {
+  posState.parkedCarts = [];
+  renderParkedReceiptsList();
+  if (typeof showSystemToast === 'function') {
+    showSystemToast('Tüm bekleyen fişler temizlendi.', 'info');
+  }
+}
+
+function renderParkedReceiptsList() {
+  const container = document.getElementById('parked-receipts-list');
+  if (!container) return;
+  if (!posState.parkedCarts || posState.parkedCarts.length === 0) {
+    container.innerHTML = '<div style="color: #64748b; font-size: 12px; padding: 6px;">Bekleyen fiş bulunmuyor.</div>';
+    return;
+  }
+  container.innerHTML = posState.parkedCarts.map((p, idx) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:6px 10px; border-radius:6px; border:1px solid #334155;">
+      <div>
+        <strong style="color:#f8fafc; font-size:12px;">Fiş #${idx + 1} (${p.time})</strong>
+        <span style="color:#94a3b8; font-size:11px; margin-left:6px;">${p.items.length} Kalem - ${p.total_amount_str || p.total_amount + ' TL'}</span>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="recallParkedReceipt(${idx}); closeParkedReceiptsModal();" style="background:#0284c7; color:#fff; border:none; border-radius:4px; padding:3px 8px; font-size:11px; cursor:pointer;">Geri Yükle</button>
+        <button onclick="deleteParkedReceipt(${idx}); renderParkedReceiptsList();" style="background:#dc2626; color:#fff; border:none; border-radius:4px; padding:3px 6px; font-size:11px; cursor:pointer;">&times;</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function fetchRecentSalesList() {
+  const container = document.getElementById('recent-pos-sales-list');
+  if (!container) return;
+  fetch('/api/reports/calendar?year=' + new Date().getFullYear() + '&month=' + (new Date().getMonth() + 1))
+    .then(r => r.json())
+    .then(data => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayDay = (data.days || []).find(d => d.date === todayStr);
+      if (!todayDay || !todayDay.receipts || todayDay.receipts.length === 0) {
+        container.innerHTML = '<div style="color: #64748b; font-size: 12px; padding: 6px;">Bugün tamamlanan satış yok.</div>';
+        return;
+      }
+      container.innerHTML = todayDay.receipts.slice(-6).reverse().map(r => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#0f172a; padding:6px 10px; border-radius:6px; border:1px solid #334155;">
+          <div>
+            <strong style="color:#38bdf8; font-size:12px;">${r.receipt_no}</strong>
+            <span style="color:#94a3b8; font-size:11px; margin-left:6px;">${r.time} - ${r.payment_type}</span>
+          </div>
+          <strong style="color:#4ade80; font-size:12px;">${(r.total_amount || 0).toFixed(2).replace('.', ',')} TL</strong>
+        </div>
+      `).join('');
+    })
+    .catch(() => {
+      container.innerHTML = '<div style="color: #64748b; font-size: 12px; padding: 6px;">Satış geçmişi yüklenemedi.</div>';
+    });
+}
+
+// F9 - ÜRÜN İADE / GERİ ALMA
+function openPosReturnModal() {
+  showPosModal('modal-pos-return');
+  const bcInput = document.getElementById('pos-return-barcode');
+  const amtInput = document.getElementById('pos-return-amount');
+  const qtyInput = document.getElementById('pos-return-qty');
+  if (bcInput) { bcInput.value = ''; bcInput.focus(); }
+  if (amtInput) amtInput.value = '';
+  if (qtyInput) qtyInput.value = '1';
+}
+
+function closePosReturnModal() {
+  hidePosModal('modal-pos-return');
+  const inp = document.getElementById('pos-barcode-input');
+  if (inp) inp.focus();
+}
+
+function submitPosReturnExecute() {
+  const bcInput = document.getElementById('pos-return-barcode');
+  const amtInput = document.getElementById('pos-return-amount');
+  const qtyInput = document.getElementById('pos-return-qty');
+  const barcode = (bcInput ? bcInput.value : '').trim();
+  const amount = parseFloat(amtInput ? amtInput.value : 0);
+  const qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 1;
+
+  if (!amount || amount <= 0) {
+    if (typeof showSystemToast === 'function') showSystemToast('Lütfen geçerli bir iade tutarı girin.', 'warning');
+    return;
+  }
+
+  const returnItem = {
+    id: 'ret_' + Date.now(),
+    barcode: barcode || 'IADE',
+    title: '↩️ İADE: ' + (barcode || 'Ürün İadesi'),
+    unit: 'Adet',
+    quantity: qty,
+    unit_price: -amount,
+    total_price: -(amount * qty),
+    unit_price_str: `-${amount.toFixed(2).replace('.', ',')} TL`,
+    total_price_str: `-${(amount * qty).toFixed(2).replace('.', ',')} TL`,
+    is_return: true,
+    is_scale_item: false
+  };
+
+  posState.cart.push(returnItem);
+  closePosReturnModal();
+  renderPosCart();
+  if (typeof showSystemToast === 'function') {
+    showSystemToast(`İade sepete eklendi (-${(amount * qty).toFixed(2)} TL)`, 'info');
+  }
+}
+
+// F10 - İSKONTO / İKRAM
+function applyPosGiftDiscount() {
+  if (posState.cart.length === 0) {
+    if (typeof showSystemToast === 'function') showSystemToast('Sepette ürün yok.', 'warning');
+    return;
+  }
+  const discountInput = prompt('İskonto / İkram Tutarı Girin (TL veya %5 gibi yüzde):', '10');
+  if (!discountInput) return;
+
+  const currentTotal = posState.cart.reduce((sum, itm) => sum + (itm.total_price || 0), 0);
+  let discountAmount = 0;
+
+  if (discountInput.includes('%')) {
+    const pct = parseFloat(discountInput.replace('%', ''));
+    if (!isNaN(pct) && pct > 0) {
+      discountAmount = roundPrice((currentTotal * pct) / 100);
+    }
+  } else {
+    const val = parseFloat(discountInput.replace(',', '.'));
+    if (!isNaN(val) && val > 0) {
+      discountAmount = roundPrice(val);
+    }
+  }
+
+  if (discountAmount > 0 && discountAmount < currentTotal) {
+    posState.cart.push({
+      id: 'disc_' + Date.now(),
+      barcode: 'ISKONTO',
+      title: `🎁 İSKONTO / İKRAM [${discountInput}]`,
+      unit: 'Adet',
+      quantity: 1,
+      unit_price: -discountAmount,
+      total_price: -discountAmount,
+      unit_price_str: `-${discountAmount.toFixed(2).replace('.', ',')} TL`,
+      total_price_str: `-${discountAmount.toFixed(2).replace('.', ',')} TL`,
+      is_discount: true
+    });
+    renderPosCart();
+    if (typeof showSystemToast === 'function') {
+      showSystemToast(`İskonto uygulandı: -${discountAmount.toFixed(2)} TL`, 'success');
+    }
+  } else {
+    if (typeof showSystemToast === 'function') showSystemToast('Geçersiz indirim tutarı.', 'warning');
+  }
+}
+
 // =========================================================
 // 9. 10'LU BUTON BAĞLANTILARI VE KLAVYE KISAYOLLARI
 // =========================================================
@@ -2163,6 +2477,19 @@ window.checkOnlineServerStatus = checkOnlineServerStatus;
 window.validateQuickProdInputs = validateQuickProdInputs;
 window.onQuickProdTitleChange = onQuickProdTitleChange;
 window.autoDetectBrandFromTitle = autoDetectBrandFromTitle;
+window.payFullPosAmount = payFullPosAmount;
+window.handlePartialPaymentKey = handlePartialPaymentKey;
+window.setPartialInputAmount = setPartialInputAmount;
+window.addPartialPosPayment = addPartialPosPayment;
+window.updatePosPaymentModalView = updatePosPaymentModalView;
+window.finalizeSplitPosSale = finalizeSplitPosSale;
+window.closePosClearConfirmModal = closePosClearConfirmModal;
+window.executeClearPosCart = executeClearPosCart;
+window.cancelPosExitModal = cancelPosExitModal;
+window.forceClosePosApp = forceClosePosApp;
+window.openAddQuickButtonModal = openAddQuickButtonModal;
+window.closeAddQuickButtonModal = closeAddQuickButtonModal;
+window.submitNewQuickButton = submitNewQuickButton;
 window.triggerBarcodeNotFoundAlert = triggerBarcodeNotFoundAlert;
 window.closeBarcodeNotFoundAlert = closeBarcodeNotFoundAlert;
 window.openQuickProductFromNotFoundAlert = openQuickProductFromNotFoundAlert;

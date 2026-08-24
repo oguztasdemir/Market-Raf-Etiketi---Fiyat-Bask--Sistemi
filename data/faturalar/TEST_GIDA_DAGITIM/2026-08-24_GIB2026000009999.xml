@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+    <ID>GIB2026000009999</ID>
+    <IssueDate>2026-08-24</IssueDate>
+    <AccountingSupplierParty>
+        <Party><PartyName><Name>TEST GIDA DAGITIM A.S.</Name></PartyName></Party>
+    </AccountingSupplierParty>
+    <LegalMonetaryTotal>
+        <LineExtensionAmount currencyID="TRY">1000.00</LineExtensionAmount>
+        <TaxInclusiveAmount currencyID="TRY">1100.00</TaxInclusiveAmount>
+        <PayableAmount currencyID="TRY">1100.00</PayableAmount>
+    </LegalMonetaryTotal>
+    <InvoiceLine>
+        <ID>1</ID>
+        <InvoicedQuantity unitCode="C62">10</InvoicedQuantity>
+        <Item>
+            <Name>KENT 375 GR SEKER</Name>
+            <SellersItemIdentification><ID>8690515125163</ID></SellersItemIdentification>
+        </Item>
+        <Price><PriceAmount currencyID="TRY">100.00</PriceAmount></Price>
+        <TaxTotal><TaxSubtotal><Percent>10</Percent></TaxSubtotal></TaxTotal>
+    </InvoiceLine>
+</Invoice>

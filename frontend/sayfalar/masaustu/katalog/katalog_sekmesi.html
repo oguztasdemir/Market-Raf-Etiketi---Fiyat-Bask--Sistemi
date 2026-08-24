@@ -66,6 +66,19 @@
               <button type="button" class="btn-secondary" onclick="openCustomBarcodesManageModal()" style="display: flex; align-items: center; gap: 4px; padding: 5px 9px; font-weight: 800; font-size: 11.5px; border-color: rgba(99,102,241,0.5); color: #a5b4fc; background: rgba(99,102,241,0.12); border-radius: 6px; white-space: nowrap;" title="Özel Barkodları Yönet (Maksimum 6 Adet)">
                 🏷️ Özel Barkodlar (Maks 6)
               </button>
+
+              <!-- ⚡ TOPLU ZAM MOTORU BUTONU -->
+              <button type="button" onclick="openBatchPriceModal()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #ffffff; padding: 5px 11px; font-weight: 900; font-size: 11.5px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; box-shadow: 0 2px 8px rgba(2,132,199,0.3);" title="Marka veya Kategoriye Toplu Fiyat Güncelle & Zam Yap">
+                <span>⚡</span>
+                <span>Toplu Zam</span>
+              </button>
+
+              <!-- 🖨️ BUGÜN DEĞİŞENLERİ BAS BUTONU & SAYAÇ -->
+              <button type="button" onclick="printPriceChangedQueue()" style="background: rgba(16,185,129,0.15); border: 1.5px solid #10b981; color: #34d399; padding: 5px 11px; font-weight: 900; font-size: 11.5px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap;" title="Bugün Fiyatı Değişen Ürünlerin Etiketini Topluca Yazdır">
+                <span>🖨️</span>
+                <span>Değişenleri Bas</span>
+                <span id="price-changed-count-badge" style="background: #10b981; color: #000; font-size: 10px; font-weight: 900; padding: 1px 5px; border-radius: 10px; display: none;">0</span>
+              </button>
             </div>
 
             <!-- Sağ: İstatistik Rozeti ve Tema Değiştirici -->
@@ -90,9 +103,6 @@
               </button>
               <button type="button" id="btn-batch-brand" class="btn-batch-action btn-batch-brand-btn" onclick="openBatchBrandModal()" title="Seçili ürünlerin markalarını topluca değiştir">
                 🏷️ Toplu Firma
-              </button>
-              <button type="button" id="btn-batch-blacklist" class="btn-batch-action btn-batch-blacklist-btn" onclick="submitBatchBlacklist()" title="Seçili ürünleri kara listeye ekle ve engelle">
-                🚫 Kara Listeye Ekle
               </button>
               <div class="batch-copies-box">
                 <label for="batch-copies-inp">Her birinden:</label>

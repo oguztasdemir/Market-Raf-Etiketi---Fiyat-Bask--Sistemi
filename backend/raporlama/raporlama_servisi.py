@@ -6,11 +6,9 @@ import os
 import re
 import calendar
 import datetime
-from backend.ayarlar import DATA_DIR, SALES_DIR
-from backend.araclar.depolama_araclari import load_json, save_json
+from backend.ayarlar import DATA_DIR, SALES_DIR, REPORTS_FILE
+from backend.araclar.depolama_araclari import load_json, save_json, get_sales_for_date, list_all_sales_files
 from backend.araclar.metin_duzenleyici import get_online_or_system_date, format_price_display
-
-REPORTS_FILE = os.path.join(DATA_DIR, "daily_reports.json")
 
 MONTH_NAMES_TR = [
     "", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -239,9 +237,8 @@ def get_monthly_calendar_report(year: int = None, month: int = None) -> dict:
         date_str = day_date.strftime("%Y-%m-%d")
         weekday = day_date.weekday()  # 0: Pazartesi, 6: Pazar
 
-        # Günlük satışları oku
-        sale_file = os.path.join(SALES_DIR, f"{date_str}.json")
-        daily_sales = load_json(sale_file, []) if os.path.exists(sale_file) else []
+        # Günlük satışları oku (Yıl/Ay hiyerarşisi)
+        daily_sales = get_sales_for_date(date_str)
 
         day_sales_total = 0.0
         day_receipts = len(daily_sales)
@@ -451,9 +448,8 @@ def get_detailed_day_report(date_str: str = None) -> dict:
     """
     d_str = date_str or _get_today_key()
 
-    # Satışlar
-    sale_file = os.path.join(SALES_DIR, f"{d_str}.json")
-    sales = load_json(sale_file, []) if os.path.exists(sale_file) else []
+    # Satışlar (Yıl/Ay hiyerarşisi)
+    sales = get_sales_for_date(d_str)
 
     total_amount = 0.0
     cash_total = 0.0
@@ -607,8 +603,7 @@ def get_detailed_day_report(date_str: str = None) -> dict:
         yesterday_str = (curr_dt - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
         last_week_str = (curr_dt - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
         
-        yest_file = os.path.join(SALES_DIR, f"{yesterday_str}.json")
-        yest_sales = load_json(yest_file, []) if os.path.exists(yest_file) else []
+        yest_sales = get_sales_for_date(yesterday_str)
         yest_total = sum(float(s.get("total_amount", 0.0)) for s in yest_sales)
         
         if yest_total > 0:
@@ -624,8 +619,7 @@ def get_detailed_day_report(date_str: str = None) -> dict:
                 "is_positive": diff_y >= 0
             }
 
-        lw_file = os.path.join(SALES_DIR, f"{last_week_str}.json")
-        lw_sales = load_json(lw_file, []) if os.path.exists(lw_file) else []
+        lw_sales = get_sales_for_date(last_week_str)
         lw_total = sum(float(s.get("total_amount", 0.0)) for s in lw_sales)
         
         if lw_total > 0:
@@ -813,11 +807,9 @@ def get_weekly_heatmap_report(year: int = None, month: int = None) -> dict:
         date_str = day_date.strftime("%Y-%m-%d")
         w_day = day_date.weekday() # 0: Pazartesi .. 6: Pazar
         
-        sale_file = os.path.join(SALES_DIR, f"{date_str}.json")
-        if not os.path.exists(sale_file):
+        sales = get_sales_for_date(date_str)
+        if not sales:
             continue
-            
-        sales = load_json(sale_file, [])
         for s in sales:
             amt = float(s.get("total_amount", 0.0))
             total_heatmap_rev += amt

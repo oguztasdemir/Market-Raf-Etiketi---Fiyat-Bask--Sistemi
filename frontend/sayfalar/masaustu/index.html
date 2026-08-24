@@ -15,7 +15,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <link rel="stylesheet" href="/frontend/stiller/masaustu/style.css?v={{ cache_bust }}">
-  <link rel="stylesheet" href="/frontend/stiller/style.css?v={{ cache_bust }}">
   <style>
     @keyframes textBlinkOnly {
       0%, 100% { opacity: 1; }
@@ -92,6 +91,12 @@
       <!-- SEKME: MARKET BİLGİLERİ & MUHASEBE -->
       {% include 'masaustu/muhasebe/muhasebe_sekmesi.html' %}
 
+      <!-- SEKME: MÜŞTERİ VERESİYE & CARİ DEFTERİ -->
+      {% include 'masaustu/musteriler/musteri_sekmesi.html' %}
+
+      <!-- SEKME: FATURA OKUMA & ÜRÜN EŞLEME -->
+      {% include 'masaustu/fatura/fatura_sekmesi.html' %}
+
     </main>
   </div>
 
@@ -110,15 +115,17 @@
   {% include 'masaustu/hizli_satis/modallar/barkod_bulunamadi_modali.html' %}
   {% include 'masaustu/hizli_satis/modallar/fis_yazdir_onay_modali.html' %}
 
-  <!-- KATALOG, MANAV, RAPOR, MUHASEBE & ORTAK MODALLAR -->
+  <!-- KATALOG, MANAV, RAPOR, MUHASEBE, FATURA & ORTAK MODALLAR -->
   {% include 'masaustu/katalog/modallar/urun_detay_modali.html' %}
   {% include 'masaustu/katalog/modallar/urun_faaliyet_gecmisi_modali.html' %}
   {% include 'masaustu/katalog/modallar/ozel_barkod_modali.html' %}
+  {% include 'masaustu/katalog/modallar/toplu_zam_modali.html' %}
   {% include 'masaustu/raporlama/modallar/gun_detay_modali.html' %}
   {% include 'masaustu/raporlama/modallar/fis_detay_modali.html' %}
   {% include 'masaustu/raporlama/modallar/ozet_z_raporu_modali.html' %}
   {% include 'masaustu/raporlama/modallar/haftalik_isi_haritasi_modali.html' %}
   {% include 'masaustu/muhasebe/modallar/yeni_gider_modali.html' %}
+  {% include 'masaustu/fatura/modallar/fatura_gorsel_onizleme_modali.html' %}
   {% include 'masaustu/manav_terazi/modallar/terazi_onay_modali.html' %}
   {% include 'masaustu/manav_terazi/modallar/terazi_ilerleme_modali.html' %}
   {% include 'masaustu/ortak_modallar/onay_diyalogu.html' %}
@@ -128,18 +135,21 @@
   <!-- =========================================================
        MODÜLER JAVASCRIPT BİLEŞENLERİ
        ========================================================= -->
-  <script src="/frontend/js/masaustu/cekirdek/cekirdek_sistem.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/senkronizasyon/sync_panel.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/senkronizasyon/sync_actions.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/yazdirma/yazdirma_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/tasarim/etiket_tasarim_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/katalog/katalog_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/yazdirma/toplu_yazdirma_modali.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/yedekleme/yedekler_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/raporlama/raporlar_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/muhasebe/muhasebe_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/terazi/manav_terazi_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/kasa/kasa_paneli.js?v=20260823_1758"></script>
-  <script src="/frontend/js/masaustu/app.js?v=20260823_1758"></script>
+  <script src="/frontend/js/masaustu/cekirdek/cekirdek_sistem.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/senkronizasyon/sync_panel.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/senkronizasyon/sync_actions.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/yazdirma/yazdirma_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/tasarim/etiket_tasarim_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/katalog/katalog_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/sayfalar/masaustu/katalog/toplu_zam.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/sayfalar/masaustu/musteriler/musteri_yonetimi.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/yazdirma/toplu_yazdirma_modali.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/yedekleme/yedekler_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/raporlama/raporlar_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/muhasebe/muhasebe_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/fatura/fatura_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/terazi/manav_terazi_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/kasa/kasa_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/app.js?v={{ cache_bust }}"></script>
 </body>
 </html>

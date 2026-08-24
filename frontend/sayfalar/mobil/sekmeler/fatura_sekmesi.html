@@ -1,0 +1,53 @@
+<div id="tab-invoice" class="mobile-tab-pane" style="padding: 14px; display: none; flex-direction: column; gap: 14px; box-sizing: border-box; height: calc(100vh - 120px); overflow-y: auto;">
+
+  <!-- Üst Başlık -->
+  <div style="background: #0b1329; border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 24px;">🧾</span>
+    <div>
+      <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc;">Mobil Fatura Yükleme</h3>
+      <small style="color: #94a3b8; font-size: 11px;">Çekilen fatura anında masaüstü sisteme aktarılır</small>
+    </div>
+  </div>
+
+  <!-- Fotoğraf Çek & Dosya Seç Butonları -->
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    
+    <!-- 1. Kamerayı Açıp Fotoğraf Çek -->
+    <label style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-radius: 12px; padding: 18px 14px; text-align: center; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(245,158,11,0.35);">
+      📷 Kamerayla Fatura Fotoğrafı Çek
+      <input type="file" accept="image/*" capture="environment" id="mob-invoice-camera-input" onchange="handleMobileInvoiceUpload(event)" style="display: none;">
+    </label>
+
+    <!-- 2. Galeriden / Dosyalardan Seç (PDF veya Fotoğraf) -->
+    <label style="background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #f8fafc; border-radius: 12px; padding: 14px; text-align: center; font-weight: 700; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      📁 Galeriden veya Dosyalardan Seç (PDF / Resim / XML)
+      <input type="file" accept=".xml,.pdf,.jpg,.jpeg,.png,.webp" id="mob-invoice-file-input" onchange="handleMobileInvoiceUpload(event)" style="display: none;">
+    </label>
+
+  </div>
+
+  <!-- Son Yüklenen Fatura Durum Kartı -->
+  <div id="mob-inv-result-card" style="display: none; background: #0b1329; border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <strong style="color: #34d399; font-size: 13px;">✓ Fatura Sisteme İşlendi</strong>
+      <span id="mob-inv-format-tag" style="font-size: 10px; background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-weight: 700;">OCR</span>
+    </div>
+    <div id="mob-inv-supplier-text" style="font-size: 14px; font-weight: 800; color: #f8fafc;">-</div>
+    <div style="font-size: 11px; color: #94a3b8; margin: 3px 0;">
+      Fatura No: <strong id="mob-inv-no-text" style="color: #38bdf8;">-</strong>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; margin-top: 8px;">
+      <span style="font-size: 11px; color: #94a3b8;">Toplam Tutar:</span>
+      <strong id="mob-inv-total-text" style="font-size: 16px; color: #34d399; font-family: monospace;">0,00 TL</strong>
+    </div>
+  </div>
+
+  <!-- İpuçları Kartı -->
+  <div style="background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: #94a3b8; font-size: 11.5px; line-height: 1.5;">
+    <strong style="color: #cbd5e1; display: block; margin-bottom: 4px;">💡 Fotoğraf Çekerken İpuçları:</strong>
+    • Faturayı düz bir masaya koyun ve dik açıyla çekin.<br>
+    • Fatura üzerindeki toplam tutar ve ürün satırlarının net görünmesini sağlayın.<br>
+    • Yüklenen fatura bilgisayardaki <strong>Fatura Yönetimi</strong> ekranında anında görüntülenecektir.
+  </div>
+
+</div>

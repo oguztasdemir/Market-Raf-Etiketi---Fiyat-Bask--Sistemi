@@ -1,15 +1,23 @@
-# -*- coding: utf-8 -*-
-"""
-Hızlı Satış (POS), Sepet & Kasa Satış Motoru
-"""
 import os
 import time
 import datetime
+import threading
 from backend.ayarlar import PRODUCTS_FILE, MANAV_PRODUCTS_FILE, SALES_DIR
-from backend.araclar.depolama_araclari import load_json, save_json
+from backend.araclar.depolama_araclari import load_json, save_json, get_sales_for_date, save_sales_for_date, list_all_sales_files
 from backend.araclar.metin_duzenleyici import parse_price_val, format_price_display
 from backend.kasa.kasiyer_servisi import get_active_cashier
 from backend.terazi.terazi_servisi import test_scale_connection
+
+_RECEIPT_SEQ_LOCK = threading.Lock()
+_RECEIPT_SEQ = int(time.time() * 1000) % 100000
+
+def get_next_receipt_no(now: datetime.datetime) -> str:
+    """Çoklu iş parçacıklarında çakışmayan, sıralı ve benzersiz fiş no üretir."""
+    global _RECEIPT_SEQ
+    with _RECEIPT_SEQ_LOCK:
+        _RECEIPT_SEQ += 1
+        seq_num = _RECEIPT_SEQ % 100000
+    return f"FIS-{now.strftime('%Y%m%d')}-{now.strftime('%H%M%S')}-{seq_num:05d}"
 
 def parse_scale_barcode(barcode: str) -> dict:
     """
@@ -195,6 +203,7 @@ def search_products_for_pos_autocomplete(query: str, limit: int = 10) -> list:
         return t.translate(tr_map)
 
     q_norm = normalize(q)
+    tokens = [t for t in q_norm.split() if t]
     results = []
     seen_keys = set()
 
@@ -213,6 +222,8 @@ def search_products_for_pos_autocomplete(query: str, limit: int = 10) -> list:
             score = 100
         elif f" {q_norm}" in f" {title_norm}":
             score = 80
+        elif len(tokens) > 1 and all(tok in title_norm or tok in bc or (plu and tok == plu) for tok in tokens):
+            score = 70
         elif q_norm in title_norm or (bc and q_norm in bc) or (plu and q_norm == plu):
             score = 50
 
@@ -244,13 +255,16 @@ def search_products_for_pos_autocomplete(query: str, limit: int = 10) -> list:
         title_norm = normalize(title)
         bc = str(p.get("barcode", "")).strip()
         brand = str(p.get("brand", "")).strip()
+        brand_norm = normalize(brand)
 
         score = 0
         if title_norm.startswith(q_norm):
             score = 95
         elif f" {q_norm}" in f" {title_norm}":
             score = 75
-        elif q_norm in title_norm or (bc and q_norm in bc) or (brand and q_norm in normalize(brand)):
+        elif len(tokens) > 1 and all(tok in title_norm or tok in bc or tok in brand_norm for tok in tokens):
+            score = 65
+        elif q_norm in title_norm or (bc and q_norm in bc) or (brand_norm and q_norm in brand_norm):
             score = 40
 
         if score > 0:
@@ -303,7 +317,7 @@ def process_pos_checkout(sale_data: dict) -> dict:
     now = datetime.datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H:%M:%S")
-    receipt_no = f"FIS-{now.strftime('%Y%m%d')}-{int(time.time()) % 10000:04d}"
+    receipt_no = get_next_receipt_no(now)
 
     vat_breakdown = {}
     total_vat = 0.0
@@ -340,11 +354,32 @@ def process_pos_checkout(sale_data: dict) -> dict:
         "items": items
     }
 
-    # Günlük satış dosyasına ekle
-    daily_file = os.path.join(SALES_DIR, f"{date_str}.json")
-    daily_sales = load_json(daily_file, [])
+    # Günlük satış dosyasına ekle (Yıl/Ay hiyerarşisi)
+    daily_sales = get_sales_for_date(date_str)
     daily_sales.append(sale_record)
-    save_json(daily_file, daily_sales)
+    save_sales_for_date(date_str, daily_sales)
+
+    # Otomatik Stok Düşümü (Katalog ürünleri)
+    try:
+        from backend.araclar.depolama_araclari import _STORAGE_LOCK
+        with _STORAGE_LOCK:
+            products = load_json(PRODUCTS_FILE, [])
+            prod_dict = {str(p.get("barcode", "")).strip(): p for p in products if p.get("barcode")}
+            stock_updated = False
+            for itm in items:
+                bc = str(itm.get("barcode", "")).strip()
+                qty = float(itm.get("quantity", 1.0))
+                if bc in prod_dict:
+                    current_stock = float(prod_dict[bc].get("stock", 100))
+                    if itm.get("is_return"):
+                        prod_dict[bc]["stock"] = round(current_stock + abs(qty), 2)
+                    else:
+                        prod_dict[bc]["stock"] = round(current_stock - qty, 2)
+                    stock_updated = True
+            if stock_updated:
+                save_json(PRODUCTS_FILE, products)
+    except Exception as e:
+        print(f"[UYARI] Satış sonrası stok düşürme hatası: {e}")
 
     return {
         "status": "success",
@@ -367,30 +402,28 @@ def get_dashboard_summary() -> dict:
     monthly_total = 0.0
     monthly_count = 0
 
-    # Satış dosyalarını tara
-    if os.path.exists(SALES_DIR):
-        for f in os.listdir(SALES_DIR):
-            if f.endswith(".json"):
-                f_path = os.path.join(SALES_DIR, f)
-                sales = load_json(f_path, [])
-                if f.startswith(today_str):
-                    for s in sales:
-                        daily_total += float(s.get("total_amount", 0.0))
-                        daily_count += 1
-                        daily_items_sold += float(s.get("total_quantity", 0))
+    # Satış dosyalarını tara (Tüm Yıl/Ay klasörleri)
+    for f_path in list_all_sales_files():
+        fname = os.path.basename(f_path)
+        sales = load_json(f_path, [])
+        if fname.startswith(today_str):
+            for s in sales:
+                daily_total += float(s.get("total_amount", 0.0))
+                daily_count += 1
+                daily_items_sold += float(s.get("total_quantity", 0))
 
-                if f.startswith(month_prefix):
-                    for s in sales:
-                        monthly_total += float(s.get("total_amount", 0.0))
-                        monthly_count += 1
+        if fname.startswith(month_prefix):
+            for s in sales:
+                monthly_total += float(s.get("total_amount", 0.0))
+                monthly_count += 1
 
     # Toplam kayıtlı ürün sayısı
     prods = load_json(PRODUCTS_FILE, [])
     manav_prods = load_json(MANAV_PRODUCTS_FILE, [])
     total_products = len(prods) + len(manav_prods)
 
-    # Terazi canlı bağlantı durumu
-    scale_conn = test_scale_connection()
+    # Terazi canlı bağlantı durumu (Hızlı 0.4s soket testi)
+    scale_conn = test_scale_connection(timeout_sec=0.4)
 
     # Mağaza ayarları
     from backend.ayarlar import SETTINGS_FILE

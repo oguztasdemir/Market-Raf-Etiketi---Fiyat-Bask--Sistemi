@@ -9,8 +9,11 @@ import socket
 import datetime
 import binascii
 import subprocess
+import threading
 from backend.ayarlar import MANAV_PRODUCTS_FILE, SCALE_SETTINGS_FILE, SCALE_TOOLS_DIR
 from backend.araclar.depolama_araclari import load_json, save_json
+
+_SCALE_MUTEX = threading.Lock()
 
 DEFAULT_SCALE_SETTINGS = {
     "ip": "192.168.1.61",
@@ -127,18 +130,19 @@ def fetch_prices_from_scale(ip=None) -> dict:
         }
 
     try:
-        # 1. Teraziden tüm hafızayı oku (RD 37)
-        res = subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=8)
-        
-        f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
-        if not os.path.exists(f37_path):
-            return {
-                "status": "error",
-                "message": f"Terazi yanıt vermedi veya veri dosyası ({f37_path}) oluşturulamadı."
-            }
+        # 1. Teraziden tüm hafızayı oku (RD 37) - Mutex korumalı
+        with _SCALE_MUTEX:
+            res = subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=8)
+            
+            f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
+            if not os.path.exists(f37_path):
+                return {
+                    "status": "error",
+                    "message": f"Terazi yanıt vermedi veya veri dosyası ({f37_path}) oluşturulamadı."
+                }
 
-        with open(f37_path, "rb") as f:
-            raw = f.read().decode("ascii", errors="ignore")
+            with open(f37_path, "rb") as f:
+                raw = f.read().decode("ascii", errors="ignore")
 
         BLOCK_SIZE = 176
         total_blocks = len(raw) // BLOCK_SIZE
@@ -392,16 +396,17 @@ def stream_fetch_prices_from_scale(ip=None):
             "message": f"Teraziden veri okuma hatası: {str(e)}"
         }
 
-def test_scale_connection(ip=None, port=None) -> dict:
+def test_scale_connection(ip=None, port=None, timeout_sec=None) -> dict:
     """Teraziye TCP socket üzerinden bağlantı testi yapar."""
     cfg = get_scale_settings()
     target_ip = ip or cfg.get("ip", "192.168.1.61")
     target_port = int(port or cfg.get("port", 2061))
+    timeout = timeout_sec if timeout_sec is not None else cfg.get("timeout_sec", 1.0)
 
     t0 = time.time()
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(cfg.get("timeout_sec", 2.5))
+        s.settimeout(timeout)
         res = s.connect_ex((target_ip, target_port))
         s.close()
         elapsed_ms = round((time.time() - t0) * 1000, 1)

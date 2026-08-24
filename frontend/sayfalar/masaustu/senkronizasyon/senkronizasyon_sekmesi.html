@@ -64,9 +64,6 @@
               <button class="sync-pill-btn" id="pill-matched" onclick="filterSyncTab('matched')">
                 ✅ Fiyatı Aynı Olanlar (<span id="pill-count-matched">0</span>)
               </button>
-              <button class="sync-pill-btn" id="pill-blacklisted" onclick="filterSyncTab('blacklisted')">
-                🚫 Kara Liste (<span id="pill-count-blacklisted">0</span>)
-              </button>
             </div>
 
             <button class="btn-sm btn-sync-all-apply" id="btn-sync-apply-all-top" onclick="applyAllChangedPricesFromSync()" title="Dosyadaki tüm fiyat değişikliklerini kataloğa uygular (Henüz basılmayanlar '⚠️ Güncel Değil' olur)" style="flex-shrink: 0; padding: 6px 14px; font-weight: 800;">
@@ -83,9 +80,6 @@
             <div class="batch-right">
               <button class="btn-batch-action btn-batch-apply" onclick="submitSyncBatchApply()">
                 💾 Seçilenleri Kataloğa Güncelle & Aktar
-              </button>
-              <button class="btn-batch-action btn-batch-blacklist" onclick="submitSyncBatchBlacklist()">
-                🚫 Kara Listeye Ekle
               </button>
               <button class="btn-batch-clear" onclick="clearSyncSelection()">
                 ✕ Temizle

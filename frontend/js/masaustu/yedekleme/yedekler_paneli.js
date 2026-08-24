@@ -324,7 +324,6 @@ async function openExcelHistoryModal() {
         const changedCount = (stats.changed_count || 0).toLocaleString('tr-TR');
         const newCount = (stats.new_count || 0).toLocaleString('tr-TR');
         const matchedCount = (stats.matched_count || 0).toLocaleString('tr-TR');
-        const blackCount = (stats.blacklisted_count || 0).toLocaleString('tr-TR');
 
         row.innerHTML = `
           <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
@@ -337,8 +336,7 @@ async function openExcelHistoryModal() {
               📦 Toplam <b>${totalRows}</b> ürün &bull; 
               ⚠️ Fiyatı Farklı: <b style="color:#f59e0b;">${changedCount}</b> &bull; 
               ✨ Yeni: <b style="color:#38bdf8;">${newCount}</b> &bull; 
-              ✅ Aynı: <b style="color:#10b981;">${matchedCount}</b> &bull; 
-              🚫 Kara Liste: <b style="color:#ef4444;">${blackCount}</b>
+              ✅ Aynı: <b style="color:#10b981;">${matchedCount}</b>
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
@@ -417,13 +415,13 @@ async function openExcelDetailModal(filename) {
       document.getElementById('detail-stat-changed').innerText = data.stats.changed_count || 0;
       document.getElementById('detail-stat-new').innerText = data.stats.new_count || 0;
       document.getElementById('detail-stat-matched').innerText = data.stats.matched_count || 0;
-      document.getElementById('detail-stat-black').innerText = data.stats.blacklisted_count || 0;
+      const elBlack = document.getElementById('detail-stat-black');
+      if (elBlack) elBlack.innerText = 0;
 
       const allItems = [
         ...(data.changed_prices || []),
         ...(data.new_products || []),
-        ...(data.matched_products || []),
-        ...(data.blacklisted_items || [])
+        ...(data.matched_products || [])
       ];
 
       tbody.innerHTML = '';

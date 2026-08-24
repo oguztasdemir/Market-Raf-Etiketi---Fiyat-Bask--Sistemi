@@ -1,16 +1,24 @@
-<nav class="mobile-nav-tabs">
-  <button class="nav-tab-btn active" id="tab-btn-scan" onclick="switchMobileTab('scan')">
-    📷 Fiyat Gör
+<nav class="mobile-nav-tabs" style="display: flex; background: #0b1329; border-top: 1px solid rgba(255,255,255,0.08); padding: 4px 6px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; justify-content: space-around;">
+  <button class="nav-tab-btn active" id="tab-btn-hub" onclick="switchMobileTab('hub')" style="display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; padding: 6px 8px;">
+    <span style="font-size: 16px;">🏠</span>
+    <span>Ana Menü</span>
   </button>
-  <button class="nav-tab-btn" id="tab-btn-pos" onclick="switchMobileTab('pos')">
-    🛒 Mobil Kasa
+  <button class="nav-tab-btn" id="tab-btn-invoice" onclick="switchMobileTab('invoice')" style="display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; padding: 6px 8px;">
+    <span style="font-size: 16px;">🧾</span>
+    <span>Fatura</span>
+  </button>
+  <button class="nav-tab-btn" id="tab-btn-scan" onclick="switchMobileTab('scan')" style="display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; padding: 6px 8px;">
+    <span style="font-size: 16px;">🏷️</span>
+    <span>Fiyat Gör</span>
+  </button>
+  <button class="nav-tab-btn" id="tab-btn-pos" onclick="switchMobileTab('pos')" style="display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; padding: 6px 8px; position: relative;">
+    <span style="font-size: 16px;">🛒</span>
+    <span>Kasa</span>
     <span class="queue-badge" id="badge-mob-cart-count" style="display: none; background: #10b981;">0</span>
   </button>
-  <button class="nav-tab-btn" id="tab-btn-quick" onclick="openMobileQuickProductModal()">
-    ⚡ Hızlı Ürün
-  </button>
-  <button class="nav-tab-btn" id="tab-btn-queue" onclick="switchMobileTab('queue')">
-    📋 Basım Listesi
+  <button class="nav-tab-btn" id="tab-btn-queue" onclick="switchMobileTab('queue')" style="display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; padding: 6px 8px; position: relative;">
+    <span style="font-size: 16px;">📋</span>
+    <span>Etiket</span>
     <span class="queue-badge" id="badge-queue-count">0</span>
   </button>
 </nav>

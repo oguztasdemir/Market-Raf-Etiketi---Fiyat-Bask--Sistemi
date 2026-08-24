@@ -6,7 +6,7 @@ import time
 import math
 import base64
 from flask import Blueprint, jsonify, request
-from backend.ayarlar import DRAFT_CACHE_FILE, SETTINGS_FILE
+from backend.ayarlar import DRAFT_CACHE_FILE, SETTINGS_FILE, CASHIERS_FILE
 from backend.araclar.depolama_araclari import load_json, save_json
 from backend.araclar.metin_duzenleyici import get_online_or_system_date
 from backend.araclar.excel_dosya_izleyici import get_local_ip

@@ -1,0 +1,27 @@
+<div id="modal-invoice-preview" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.88); backdrop-filter: blur(8px); z-index: 99999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; width: 850px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.9);">
+    
+    <!-- Modal Başlık -->
+    <div style="padding: 12px 18px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">🖼️</span>
+        <div>
+          <h3 id="inv-preview-title" style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc;">Fatura Belgesi / Görseli</h3>
+          <small id="inv-preview-subtitle" style="color: #94a3b8; font-size: 11px; font-family: monospace;">-</small>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a id="inv-preview-download-btn" href="#" target="_blank" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+          ⬇️ İndir
+        </a>
+        <button onclick="closeInvoicePreviewModal()" class="btn-secondary" style="padding: 4px 10px; font-weight: 800; font-size: 13px;">✕</button>
+      </div>
+    </div>
+
+    <!-- Modal İçerik / Belge Görüntüleyici -->
+    <div id="inv-preview-body" style="flex: 1; padding: 14px; background: #060a12; display: flex; justify-content: center; align-items: center; overflow: auto;">
+      <!-- JS Dinamik Görüntüleyici Dolduracak (img veya iframe veya text) -->
+    </div>
+
+  </div>
+</div>

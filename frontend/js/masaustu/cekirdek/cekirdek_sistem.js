@@ -263,6 +263,10 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '💼 Market Bilgileri, Kasiyerler & Gelir / Gider Muhasebesi';
     if (subheading) subheading.innerText = 'Dükkan kirası, personel maaşları, faturalar, toptancı ödemeleri ve net kâr analizi';
     if (typeof loadAccountingOverview === 'function') loadAccountingOverview();
+  } else if (tabId === 'tab-invoice') {
+    if (heading) heading.innerText = '🧾 Akıllı Fatura Okuma, Sağlama & Ürün Eşleştirme';
+    if (subheading) subheading.innerText = 'Toptancı faturalarını okuyun, iskonto ve KDV dahil net maliyetleri çıkarın, stokları otomatik güncelleyin';
+    if (typeof loadInvoiceArchiveHistory === 'function') loadInvoiceArchiveHistory();
   }
 }
 
@@ -629,10 +633,12 @@ window.saveSettings = saveSettings;
 function toggleSidebarCollapse() {
   const sidebar = document.getElementById('app-sidebar');
   const icon = document.getElementById('sidebar-toggle-icon');
+  const bottomIcon = document.getElementById('sidebar-bottom-toggle-icon');
   if (!sidebar) return;
 
   const isCollapsed = sidebar.classList.toggle('collapsed');
   if (icon) icon.innerText = isCollapsed ? '▶' : '◀';
+  if (bottomIcon) bottomIcon.innerText = isCollapsed ? '▶' : '◀';
 
   localStorage.setItem('sidebar_collapsed', isCollapsed ? '1' : '0');
 }
@@ -641,9 +647,11 @@ function initSidebarState() {
   const isCollapsed = localStorage.getItem('sidebar_collapsed') === '1';
   const sidebar = document.getElementById('app-sidebar');
   const icon = document.getElementById('sidebar-toggle-icon');
+  const bottomIcon = document.getElementById('sidebar-bottom-toggle-icon');
   if (sidebar && isCollapsed) {
     sidebar.classList.add('collapsed');
     if (icon) icon.innerText = '▶';
+    if (bottomIcon) bottomIcon.innerText = '▶';
   }
 }
 

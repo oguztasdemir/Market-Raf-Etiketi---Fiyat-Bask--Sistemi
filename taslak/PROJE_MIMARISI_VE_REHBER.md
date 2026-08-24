@@ -75,15 +75,46 @@ c:\Users\User\Desktop\Etiket Çıkarıcı\
 │       ├── css/masaustu/style.css        # Premium Dark Tema Stilleri (Glassmorphism)
 │       └── sesler/                       # Barkod okuma ve hata ses efektleri
 │
-├── data/                                 # Canlı Veri Dosyaları (JSON Tabanlı Veritabanı)
-│   ├── products.json                     # 4.800+ Güncel Ürün Kataloğu
-│   ├── custom_barcodes.json              # Tanımlanan Özel / Ek Barkodlar
-│   ├── scale_products.json               # Manav & Terazi PLU Ürün Listesi
-│   ├── daily_reports.json                # Fiyat değişiklikleri ve baskı geçmişi kütüğü
-│   ├── sales/                            # Günlük Satış Fişleri Havuzu
-│   │   ├── 2026-08-22.json
-│   │   └── 2026-08-23.json               # Fiş kalemleri, tutar, KDV, ödeme tipi
-│   └── backups/                          # Otomatik ve Manuel Alınan Yedekler
+├── data/                                 # 💾 KALICI VERİTABANI (6 DERLİ TOPLU ÇEKİRDEK KLASÖR)
+│   ├── urunler/                          # 📦 Ürün Kataloğu & Manav Veritabanı
+│   │   ├── urunler.json                  # Ana market ürün kataloğu (4.800+ Ürün)
+│   │   ├── manav_urunleri.json           # Manav ve terazi PLU ürünleri
+│   │   ├── ozel_barkodlar.json           # Tanımlı özel / dahili barkodlar
+│   │   └── urun_faaliyetleri.json        # Fiyat ve etiket hareket geçmişi
+│   │
+│   ├── satis_ve_kasa/                    # 🛒 Kasa Satışları, Fişler & Faaliyet Raporları
+│   │   ├── satislar/                     # Yıl / Ay Hiyerarşik Satış Fişleri (YYYY/MM/YYYY-MM-DD.json)
+│   │   │   └── 2026/
+│   │   │       └── 08/
+│   │   │           └── 2026-08-23.json
+│   │   ├── gunluk_raporlar.json          # Günlük ciro, fiş adedi ve faaliyet kütüğü
+│   │   └── hizli_butonlar.json           # Kasa ekranındaki hızlı butonlar
+│   │
+│   ├── faturalar/                        # 🧾 Şirket Şirket Gruplanmış Fatura & Görsel Arşivi (29 Şirket, 214+ Belge)
+│   │   ├── Ada_Mumessillik_Gida/         # Fatura görselleri (.jpeg / .png / .pdf)
+│   │   ├── Akgun_Gida/
+│   │   ├── Dogu_Grup_Gida/
+│   │   ├── OZ_ANADOLU_TOPTAN_GIDA_DAGITIM/
+│   │   └── portal_ici_faturalar/
+│   │
+│   ├── sistem_ve_ayarlar/                # ⚙️ Mağaza Profili, Kasiyerler, Giderler, Terazi, Excel, SSL
+│   │   ├── ayarlar.json                  # Market adı, POS komisyonu ve kalibrasyon
+│   │   ├── kasiyerler.json               # Kasiyer personeli ve PIN kodları
+│   │   ├── giderler.json                 # Dükkan kirası, personel maaşı ve faturalar
+│   │   ├── terazi_ayarlari.json          # DIGI SM-100 terazi yapılandırması
+│   │   ├── musteriler.json               # Kayıtlı cari/veresiye müşteriler
+│   │   ├── terazi_aktarim/               # Teraziye gönderilen aktarım dosyaları (PLU.CSV/DAT/TXT)
+│   │   ├── sistem_exceli/                # Yüklenen ERP/Muhasebe Excel tabloları
+│   │   └── sertifikalar/                 # Mobil HTTPS SSL sertifikaları (cert.pem, key.pem)
+│   │
+│   ├── sablonlar/                        # 🎨 Etiket Tasarım Şablonları & Taslak Önbelleği
+│   │   ├── sablonlar.json                # Termal etiket ZPL şablonları
+│   │   └── taslak_onbellegi.json         # Tasarımcı canlı çalışma önbelleği
+│   │
+│   └── yedekler/                         # 💾 Kategorize Edilmiş Sistem Yedekleri
+│       ├── urunler/                      # Ürün kataloğu yedekleri (urunler_yedek_*.json + .meta)
+│       ├── faturalar/                    # Fatura görsel ve veri arşiv zip yedekleri (faturalar_yedek_*.zip)
+│       └── sistem/                       # Sistem dönüm noktası ve geçiş yedekleri (.json)
 │
 └── taslak/                               # Sistem Taslağı, Rehberler ve Dokümantasyon
     ├── PROJE_MIMARISI_VE_REHBER.md       # Bu Ana Mimari Belgesi
@@ -138,7 +169,17 @@ c:\Users\User\Desktop\Etiket Çıkarıcı\
   * **📊 Gelir / Gider Kütüğü & Excel:** Tüm finansal hareketleri filtreler ve tek tıkla Excel (.csv) formatında indirir.
   * **🏪 Market & Kasiyer Kadrosu:** Market ticari ünvanı, şube adı, telefon, vergi dairesi/no, POS komisyon oranı ve kasiyer ekleme/düzenleme işlemlerini tek panelden yürütür.
 
-### 6. ⚙️ Donanım & Etiket Yazıcı Ayarları Modülü
+### 6. 🧾 Akıllı Fatura Okuma, Matematiksel Sağlama & Şirket Arşivi Modülü
+* **Kullanıcı Ne Yapıyor:**
+  * **📥 Çoklu Format Girişi:** PC'den veya mobilden e-Fatura XML (UBL-TR), e-Arşiv PDF veya kamera/tarayıcı fotoğraflarını yükler.
+  * **📁 Şirket Alt Klasör Ayrımı & Tarih İsimlendirme:** Yüklenen fatura görselleri/dosyaları `data/invoices/<ŞİRKET_ADI>/<YYYY-MM-DD>_<FATURA_NO>.<ext>` şeklinde otomatik şirket alt klasörlerine arşivlenir.
+  * **📷 Kağıt Kusuru & Gölge Önleme:** Buruşmuş kağıt, parlama ve gölgeleri filtreleyen OCR ön işlemesi ile metinleri ve sayıları net ayrıştırır.
+  * **🧮 Matematiksel Çapraz Sağlama:** Kalemlerin tek tek toplamları ile faturanın genel toplamını kuruşu kuruşuna denetler, uyuşmazlık ve yuvarlama farklarını anında yakalar.
+  * **📦 Akıllı Katalog Eşleştirme:** Faturadaki ürünleri barkod ve ada göre mevcut stoklarla eşleştirir. `Mevcut Stok ➔ Yeni Stok` hesabı yapar; bulunamayan yeni ürünler için tek tıkla yeni kart açar.
+  * **🖼️ Fatura Görselini Önizleme:** Şirket filtreli arşiv tablosundan tek tıkla orijinal fatura belgesini veya fotoğrafını tam ekran görüntüler.
+  * **✅ Otomatik Entegrasyon:** Onaylandığında ürün stoklarını artırır, faturayı muhasebeye toptancı gideri olarak yazar ve etiket basımı için sıraya atar.
+
+### 7. ⚙️ Donanım & Etiket Yazıcı Ayarları Modülü
 * **Kullanıcı Ne Yapıyor:**
   * Termal etiket yazıcı seçimi, etiket ölçüleri (60x40, 76x40, 85x45), besleme yönü ve X/Y ofset kalibrasyonunu ayarlar.
 

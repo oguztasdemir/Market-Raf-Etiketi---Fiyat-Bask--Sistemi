@@ -18,6 +18,9 @@ let isScanningLive = false;
 
     function playBeepSound() {
       try {
+        if (navigator.vibrate) {
+          navigator.vibrate(90);
+        }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -1331,10 +1334,97 @@ let isScanningLive = false;
 
     function showToast(msg, type) {
       const toast = document.getElementById('toast');
+      if (!toast) return;
       toast.className = `toast-box toast-${type}`;
       toast.innerText = msg;
       toast.style.display = "block";
       setTimeout(() => {
         toast.style.display = "none";
       }, 3500);
+    }
+
+    // =========================================================================
+    // MOBİL SEKME VE MOD GEÇİŞ YÖNETİCİSİ (HUB, FATURA, TARAYICI, KASA, KUYRUK)
+    // =========================================================================
+    function switchMobileTab(tabId) {
+      const allTabs = ['hub', 'invoice', 'scan', 'pos', 'queue'];
+      
+      allTabs.forEach(t => {
+        const pane = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        
+        if (pane) {
+          if (t === tabId) {
+            pane.style.display = 'flex';
+            pane.classList.add('active');
+          } else {
+            pane.style.display = 'none';
+            pane.classList.remove('active');
+          }
+        }
+        
+        if (btn) {
+          if (t === tabId) {
+            btn.classList.add('active');
+            btn.style.color = '#38bdf8';
+          } else {
+            btn.classList.remove('active');
+            btn.style.color = '#94a3b8';
+          }
+        }
+      });
+
+      // Kamera Yönetimi: Sadece 'scan' sekmesindeyken kamera aktif olsun
+      if (tabId === 'scan') {
+        if (!isScanningLive && typeof startContinuousScanner === 'function') {
+          startContinuousScanner();
+        }
+      } else {
+        if (isScanningLive && typeof stopContinuousScanner === 'function') {
+          stopContinuousScanner();
+        }
+      }
+    }
+
+    // =========================================================================
+    // MOBİL FATURA YÜKLEME VE KAMERA İŞLEME
+    // =========================================================================
+    async function handleMobileInvoiceUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      showToast(`⏳ ${file.name} yükleniyor ve ayrıştırılıyor...`, 'info');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/invoice/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.status === 'success' && data.invoice) {
+          playBeepSound();
+          const inv = data.invoice;
+          showToast(`✓ Fatura yüklendi! (${inv.supplier_name})`, 'success');
+
+          const card = document.getElementById('mob-inv-result-card');
+          const supEl = document.getElementById('mob-inv-supplier-text');
+          const noEl = document.getElementById('mob-inv-no-text');
+          const totEl = document.getElementById('mob-inv-total-text');
+          const tagEl = document.getElementById('mob-inv-format-tag');
+
+          if (card) card.style.display = 'block';
+          if (supEl) supEl.innerText = inv.supplier_name || 'Toptancı';
+          if (noEl) noEl.innerText = inv.invoice_no || '-';
+          if (totEl) totEl.innerText = inv.grand_total_str || `${inv.grand_total || 0} TL`;
+          if (tagEl) tagEl.innerText = inv.format || 'OCR';
+        } else {
+          showToast(data.message || 'Fatura ayrıştırma hatası!', 'error');
+        }
+      } catch (err) {
+        showToast('Fatura sunucuya yüklenirken hata oluştu.', 'error');
+      }
     }
