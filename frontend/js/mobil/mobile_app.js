@@ -41,6 +41,7 @@ let isScanningLive = false;
       updateQueueUI();
       loadMobilePosCart();
       updateMobilePosUI();
+      initMobileEmployeeAuth();
     });
 
     let zxingReader = null;
@@ -92,6 +93,63 @@ let isScanningLive = false;
       return false;
     }
 
+    let isGlareModeActive = true;
+    let currentZoomLevel = 1.0;
+
+    // 🛡️ PARLAMA & YUVARLAK YÜZEY FİLTRESİ AÇ / KAPA
+    function toggleGlareMode() {
+      isGlareModeActive = !isGlareModeActive;
+      const btn = document.getElementById('btn-fs-glare');
+      const txt = document.getElementById('txt-fs-glare');
+      if (btn && txt) {
+        if (isGlareModeActive) {
+          btn.classList.add('active');
+          txt.textContent = 'Parlama & Eğri: AÇIK';
+        } else {
+          btn.classList.remove('active');
+          txt.textContent = 'Parlama & Eğri: KAPALI';
+        }
+      }
+    }
+
+    // 🔍 KAMERA ZOOM KONTROLÜ (Parlama ve Bükük Yüzeylerde Netleme Sağlar)
+    async function setCameraZoom(zoomVal) {
+      currentZoomLevel = zoomVal;
+      
+      // UI Butonlarını Güncelle
+      document.querySelectorAll('.fs-btn-zoom').forEach(b => b.classList.remove('active'));
+      const activeBtnId = zoomVal === 1.0 ? 'btn-zoom-1x' : (zoomVal === 1.5 ? 'btn-zoom-15x' : (zoomVal === 2.0 ? 'btn-zoom-2x' : 'btn-zoom-3x'));
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const videoElem = document.getElementById('fullscreen-video');
+
+      // 1. Donanım Seviyesi Optik/Dijital Zoom
+      if (activeVideoTrack && typeof activeVideoTrack.applyConstraints === 'function') {
+        try {
+          const caps = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
+          if (caps.zoom) {
+            const minZ = caps.zoom.min || 1.0;
+            const maxZ = caps.zoom.max || 5.0;
+            const targetZ = Math.min(Math.max(zoomVal, minZ), maxZ);
+            await activeVideoTrack.applyConstraints({
+              advanced: [{ zoom: targetZ }]
+            });
+            if (videoElem) videoElem.style.transform = "none";
+            return;
+          }
+        } catch (e) {
+          console.warn("Donanım zoom kısıtlaması uygulanamadı, yazılımsal zoom kullanılıyor:", e);
+        }
+      }
+
+      // 2. Yazılımsal Dijital Zoom (CSS Scale Fallback)
+      if (videoElem) {
+        videoElem.style.transform = zoomVal > 1.0 ? `scale(${zoomVal})` : "none";
+        videoElem.style.transformOrigin = "center center";
+      }
+    }
+
     // 💡 FENER (FLASHLIGHT) AÇ / KAPA
     async function toggleFlashlight() {
       if (!activeVideoTrack) return;
@@ -102,9 +160,17 @@ let isScanningLive = false;
         });
         const btnTorch = document.getElementById('btn-fs-torch');
         if (btnTorch) {
-          btnTorch.style.background = isTorchOn ? "rgba(245, 158, 11, 0.4)" : "rgba(56, 189, 248, 0.25)";
-          btnTorch.style.borderColor = isTorchOn ? "#f59e0b" : "rgba(56, 189, 248, 0.5)";
-          btnTorch.style.color = isTorchOn ? "#fbbf24" : "#38bdf8";
+          if (isTorchOn) {
+            btnTorch.classList.add('active');
+            btnTorch.style.background = "rgba(245, 158, 11, 0.4)";
+            btnTorch.style.borderColor = "#f59e0b";
+            btnTorch.style.color = "#fbbf24";
+          } else {
+            btnTorch.classList.remove('active');
+            btnTorch.style.background = "rgba(30, 41, 59, 0.8)";
+            btnTorch.style.borderColor = "rgba(255, 255, 255, 0.2)";
+            btnTorch.style.color = "#e2e8f0";
+          }
         }
       } catch (e) {
         console.warn("Fener kontrolü desteklenmiyor:", e);
@@ -131,6 +197,7 @@ let isScanningLive = false;
       isScanningLive = true;
       isTorchOn = false;
       if (btnTorch) btnTorch.style.display = 'none';
+      setCameraZoom(1.0);
 
       // 1. ZXING ENTERPRISE BARKOD MOTORU (En Yüksek Okuma Hassasiyeti)
       try {
@@ -253,7 +320,7 @@ let isScanningLive = false;
     const roiCanvas = document.createElement('canvas');
     const roiCtx = roiCanvas.getContext('2d');
 
-    // 🔴 30 FPS CANLI BARKOD ALGILAMA MOTORU (Donanım BarcodeDetector + ZXing Canvas + Sunucu OpenCV Çift Hat)
+    // 🔴 30 FPS CANLI BARKOD ALGILAMA MOTORU (Donanım BarcodeDetector + İstemci Kontrast Filtresi + Sunucu Hibrit Çözücü)
     function startContinuousBarcodeEngine(videoElem) {
       if (frameDetectionInterval) clearInterval(frameDetectionInterval);
 
@@ -281,8 +348,13 @@ let isScanningLive = false;
           try {
             const vw = videoElem.videoWidth || 1280;
             const vh = videoElem.videoHeight || 720;
-            const cropW = Math.floor(vw * 0.85);
-            const cropH = Math.floor(vh * 0.50);
+            
+            // Eğer zoom yapılmışsa merkez alanı kırp
+            const zoomRatio = currentZoomLevel > 1.0 ? currentZoomLevel : 1.0;
+            const baseCropW = Math.floor(vw * 0.85);
+            const baseCropH = Math.floor(vh * 0.55);
+            const cropW = Math.floor(baseCropW / zoomRatio);
+            const cropH = Math.floor(baseCropH / zoomRatio);
             const cropX = Math.floor((vw - cropW) / 2);
             const cropY = Math.floor((vh - cropH) / 2);
 
@@ -290,11 +362,32 @@ let isScanningLive = false;
             roiCanvas.height = 360;
             roiCtx.drawImage(videoElem, cropX, cropY, cropW, cropH, 0, 0, 640, 360);
 
+            // İstemci İçi Ön İşleme (İsteğe bağlı parlama bastırma)
+            if (isGlareModeActive) {
+              const imgData = roiCtx.getImageData(0, 0, 640, 360);
+              const d = imgData.data;
+              for (let i = 0; i < d.length; i += 4) {
+                // Parlaklık hesabı
+                const lum = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+                // Aşırı parlayan beyaz noktaları yumuşat, koyu çubukları belirginleştir
+                if (lum > 225) {
+                  d[i] = 190;
+                  d[i+1] = 190;
+                  d[i+2] = 190;
+                } else if (lum < 110) {
+                  d[i] = Math.max(0, d[i] - 30);
+                  d[i+1] = Math.max(0, d[i+1] - 30);
+                  d[i+2] = Math.max(0, d[i+2] - 30);
+                }
+              }
+              roiCtx.putImageData(imgData, 0, 0);
+            }
+
             const b64 = roiCanvas.toDataURL('image/jpeg', 0.85);
             const res = await fetch('/api/scanner/decode-frame', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: b64 })
+              body: JSON.stringify({ image: b64, glare_mode: isGlareModeActive })
             });
             const data = await res.json();
             if (data.status === 'success' && data.barcode && isScanningLive) {
@@ -308,7 +401,7 @@ let isScanningLive = false;
             isDecodingServerFrame = false;
           }
         }
-      }, 40);
+      }, 35);
     }
 
     function closeFullscreenCamera() {
@@ -332,7 +425,10 @@ let isScanningLive = false;
       isTorchOn = false;
 
       const videoElem = document.getElementById('fullscreen-video');
-      if (videoElem) videoElem.srcObject = null;
+      if (videoElem) {
+        videoElem.srcObject = null;
+        videoElem.style.transform = "none";
+      }
 
       if (html5QrCode && isScanningLive) {
         try {
@@ -509,15 +605,22 @@ let isScanningLive = false;
     }
 
     function formatPriceInput(val) {
-      if (!val) return "";
-      let s = String(val).replace('TL', '').replace('tl', '').replace('₺', '').trim();
-      if (s && !s.includes(',')) {
-        s = s.replace('.', ',');
+      if (val === null || val === undefined) return "";
+      let s = String(val).replace(/TL/gi, '').replace(/₺/g, '').trim();
+      if (!s) return "";
+      s = s.replace(/\s+/g, '');
+      if (s.includes(',') && s.includes('.')) {
+        if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+          s = s.replace(/\./g, '').replace(',', '.');
+        } else {
+          s = s.replace(/,/g, '');
+        }
+      } else if (s.includes(',')) {
+        s = s.replace(',', '.');
       }
-      if (s && !s.endsWith('TL')) {
-        s += " TL";
-      }
-      return s;
+      let num = parseFloat(s);
+      if (isNaN(num)) return String(val).trim() + (String(val).trim().toUpperCase().endsWith('TL') ? '' : ' TL');
+      return num.toFixed(2).replace('.', ',') + ' TL';
     }
 
     function prepareForNextScan() {
@@ -1344,9 +1447,16 @@ let isScanningLive = false;
     }
 
     // =========================================================================
-    // MOBİL SEKME VE MOD GEÇİŞ YÖNETİCİSİ (HUB, FATURA, TARAYICI, KASA, KUYRUK)
+    // MOBİL SEKME VE MOD GEÇİŞ YÖNETİCİSİ (YETKİ KONTROLLÜ)
     // =========================================================================
     function switchMobileTab(tabId) {
+      // Yetki Kontrolü
+      if (!hasMobilePermissionForTab(tabId)) {
+        playBeepSound();
+        showToast("⛔ Bu bölüme erişim yetkiniz bulunmuyor. Yöneticiye danışın.", "warning");
+        return;
+      }
+
       const allTabs = ['hub', 'invoice', 'scan', 'pos', 'queue'];
       
       allTabs.forEach(t => {
@@ -1428,3 +1538,572 @@ let isScanningLive = false;
         showToast('Fatura sunucuya yüklenirken hata oluştu.', 'error');
       }
     }
+
+    // =========================================================================
+    // MOBİL PERSONEL GİRİŞİ, PIN & YETKİLENDİRME MOTORU
+    // =========================================================================
+    let currentMobileEmployee = null;
+    let selectedEmpForPin = null;
+    let mobPinBuffer = "";
+    let mobileEmployeesCache = [];
+
+    const ROLE_DEFAULT_PERMS = {
+      admin: ['invoice_access', 'pos_sale', 'view_catalog', 'print_labels', 'edit_prices', 'view_reports', 'kasap_module', 'manav_scale'],
+      kasiyer: ['pos_sale', 'view_catalog', 'print_labels', 'print_receipts'],
+      manav: ['view_catalog', 'print_labels', 'manav_scale'],
+      kasap: ['view_catalog', 'print_labels', 'kasap_module'],
+      raf_sorumlusu: ['view_catalog', 'print_labels', 'edit_prices']
+    };
+
+    async function initMobileEmployeeAuth() {
+      // 0. İşletme Modu Kontrolü (Tek Kişilik Bakkal / Çalışan Yok Modu İse Şifresiz Doğrudan Aç)
+      try {
+        const modeRes = await fetch('/api/market/operating-mode');
+        const modeData = await modeRes.json();
+        if (modeData.status === 'success' && modeData.operating_mode === 'SOLO') {
+          const soloAdmin = {
+            id: 'admin',
+            name: 'Yönetici (Patron)',
+            role_id: 'admin',
+            role_name: 'İşletme Sahibi (Tam Yetkili)',
+            effective_permissions: ['invoice_access', 'pos_sale', 'view_catalog', 'print_labels', 'edit_prices', 'view_reports', 'kasap_module', 'manav_scale']
+          };
+          currentMobileEmployee = soloAdmin;
+          applyMobileEmployeePermissions(soloAdmin);
+          return;
+        }
+      } catch (e) {
+        console.warn("Operating mode check error:", e);
+      }
+
+      // 1. URL parametresinde kişisel auth_token var mı? (QR Okutma ile Otomatik Bağlantı)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('auth_token') || urlParams.get('token');
+
+      if (urlToken) {
+        try {
+          const res = await fetch(`/api/market/employees/by-token?token=${encodeURIComponent(urlToken)}`);
+          const data = await res.json();
+          if (data.status === 'success' && data.employee) {
+            completeMobileAuth(data.employee);
+            // URL'yi temizle
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          } else {
+            showToast(`⚠️ ${data.message || 'QR Bağlantı Anahtarı Geçersiz!'}`, 'error');
+          }
+        } catch (e) {
+          console.error("Token ile giriş hatası:", e);
+        }
+      }
+
+      // 2. Hafızadaki mevcut aktif personel kontrolü
+      try {
+        const stored = localStorage.getItem('mobile_active_employee');
+        if (stored) {
+          const emp = JSON.parse(stored);
+          if (emp && emp.id) {
+            currentMobileEmployee = emp;
+            applyMobileEmployeePermissions(emp);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 3. Giriş yapılmamışsa modalı aç
+      openMobileAuthModal();
+    }
+
+    async function openMobileAuthModal() {
+      const modal = document.getElementById('modal-mobile-auth');
+      if (modal) modal.style.display = 'flex';
+      mobAuthBackToSelect();
+      await loadMobileEmployeesForAuth();
+    }
+
+    function closeMobileAuthModal() {
+      const modal = document.getElementById('modal-mobile-auth');
+      if (modal) modal.style.display = 'none';
+    }
+
+    async function loadMobileEmployeesForAuth() {
+      const container = document.getElementById('mob-auth-employees-list');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align: center; padding: 20px; color: #64748b; font-size: 12px;">Çalışanlar yükleniyor...</div>';
+
+      try {
+        const res = await fetch('/api/market/employees');
+        const data = await res.json();
+        if (data.status === 'success' && Array.isArray(data.employees)) {
+          mobileEmployeesCache = data.employees.filter(e => e.active !== false);
+          renderMobileEmployeesList(mobileEmployeesCache);
+        } else {
+          container.innerHTML = '<div style="text-align:center; color:#f87171; font-size:12px;">Personel listesi alınamadı.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = '<div style="text-align:center; color:#f87171; font-size:12px;">Sunucuya bağlanılamadı.</div>';
+      }
+    }
+
+    function renderMobileEmployeesList(employees) {
+      const container = document.getElementById('mob-auth-employees-list');
+      if (!container) return;
+
+      if (employees.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#64748b; font-size:12px;">Aktif personel bulunamadı.</div>';
+        return;
+      }
+
+      container.innerHTML = employees.map(emp => {
+        const hasPin = Boolean(emp.pin && String(emp.pin).trim() !== "");
+        return `
+          <div class="mob-emp-row" onclick="selectMobileEmpForLogin('${emp.id}')">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                👤
+              </div>
+              <div>
+                <strong style="color: #f8fafc; font-size: 13.5px; display: block;">${emp.name}</strong>
+                <span style="color: #38bdf8; font-size: 11px; font-weight: 700;">${emp.role_name || 'Personel'}</span>
+              </div>
+            </div>
+            <div>
+              ${hasPin 
+                ? '<span style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">🔒 PIN</span>' 
+                : '<span style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #34d399; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">🔓 Giriş</span>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectMobileEmpForLogin(empId) {
+      const emp = mobileEmployeesCache.find(e => String(e.id) === String(empId));
+      if (!emp) return;
+
+      const hasPin = Boolean(emp.pin && String(emp.pin).trim() !== "");
+      if (hasPin) {
+        selectedEmpForPin = emp;
+        mobPinBuffer = "";
+        const stepSelect = document.getElementById('mob-auth-select-step');
+        const stepPin = document.getElementById('mob-auth-pin-step');
+        const nameEl = document.getElementById('mob-pin-selected-name');
+        const roleEl = document.getElementById('mob-pin-selected-role');
+        const pinInp = document.getElementById('mob-auth-pin-input');
+
+        if (nameEl) nameEl.innerText = emp.name;
+        if (roleEl) roleEl.innerText = emp.role_name || 'Personel';
+        if (pinInp) pinInp.value = "";
+
+        if (stepSelect) stepSelect.style.display = 'none';
+        if (stepPin) stepPin.style.display = 'flex';
+      } else {
+        completeMobileAuth(emp);
+      }
+    }
+
+    function mobAuthBackToSelect() {
+      selectedEmpForPin = null;
+      mobPinBuffer = "";
+      const stepSelect = document.getElementById('mob-auth-select-step');
+      const stepPin = document.getElementById('mob-auth-pin-step');
+      if (stepSelect) stepSelect.style.display = 'flex';
+      if (stepPin) stepPin.style.display = 'none';
+    }
+
+    function mobAuthNumpadPress(digit) {
+      if (mobPinBuffer.length >= 6) return;
+      mobPinBuffer += digit;
+      const pinInp = document.getElementById('mob-auth-pin-input');
+      if (pinInp) pinInp.value = mobPinBuffer;
+
+      // 4 hane girildiyse otomatik doğrula
+      if (selectedEmpForPin && mobPinBuffer.length === String(selectedEmpForPin.pin || '').length) {
+        mobAuthVerifyPin();
+      }
+    }
+
+    function mobAuthNumpadBackspace() {
+      mobPinBuffer = mobPinBuffer.slice(0, -1);
+      const pinInp = document.getElementById('mob-auth-pin-input');
+      if (pinInp) pinInp.value = mobPinBuffer;
+    }
+
+    function mobAuthNumpadClear() {
+      mobPinBuffer = "";
+      const pinInp = document.getElementById('mob-auth-pin-input');
+      if (pinInp) pinInp.value = "";
+    }
+
+    function mobAuthVerifyPin() {
+      if (!selectedEmpForPin) return;
+      const expectedPin = String(selectedEmpForPin.pin || '').trim();
+      if (mobPinBuffer === expectedPin) {
+        completeMobileAuth(selectedEmpForPin);
+      } else {
+        playBeepSound();
+        showToast("❌ Hatalı PIN Kodu! Lütfen tekrar deneyin.", "error");
+        mobAuthNumpadClear();
+      }
+    }
+
+    function completeMobileAuth(emp) {
+      currentMobileEmployee = emp;
+      try {
+        localStorage.setItem('mobile_active_employee', JSON.stringify(emp));
+      } catch (e) {}
+
+      closeMobileAuthModal();
+      applyMobileEmployeePermissions(emp);
+      playBeepSound();
+      showToast(`✅ Hoş geldiniz, ${emp.name}!`, "success");
+    }
+
+    function logoutMobileEmployee() {
+      currentMobileEmployee = null;
+      try {
+        localStorage.removeItem('mobile_active_employee');
+      } catch (e) {}
+      showToast("🚪 Çıkış yapıldı.", "info");
+      openMobileAuthModal();
+    }
+
+    function getMobileEmployeePermissions(emp) {
+      if (!emp) return [];
+      if (emp.role_id === 'admin') return ROLE_DEFAULT_PERMS.admin;
+      if (Array.isArray(emp.permissions) && emp.permissions.length > 0) return emp.permissions;
+      if (Array.isArray(emp.custom_permissions) && emp.custom_permissions.length > 0) return emp.custom_permissions;
+      return ROLE_DEFAULT_PERMS[emp.role_id] || ['view_catalog', 'print_labels'];
+    }
+
+    function hasMobilePermissionForTab(tabId) {
+      if (!currentMobileEmployee) return true; // Giriş modalı devrede
+      const perms = getMobileEmployeePermissions(currentMobileEmployee);
+      if (currentMobileEmployee.role_id === 'admin') return true;
+
+      if (tabId === 'hub') return true;
+      if (tabId === 'invoice') return perms.includes('invoice_access');
+      if (tabId === 'pos') return perms.includes('pos_sale');
+      if (tabId === 'scan') return perms.includes('view_catalog') || perms.includes('print_labels');
+      if (tabId === 'queue') return perms.includes('print_labels');
+      return true;
+    }
+
+    function applyMobileEmployeePermissions(emp) {
+      if (!emp) return;
+      const perms = getMobileEmployeePermissions(emp);
+
+      // Header Güncelleme
+      const headerUserEl = document.getElementById('mob-header-user-name');
+      if (headerUserEl) headerUserEl.innerText = emp.name;
+
+      // Hub Karşılama Güncelleme
+      const hubWelcomeEl = document.getElementById('mob-hub-welcome-emp');
+      if (hubWelcomeEl) hubWelcomeEl.innerText = `👤 ${emp.name} (${emp.role_name || 'Personel'})`;
+
+      // Alt Menü Butonları Yetki Filtresi
+      const btnInvoice = document.getElementById('tab-btn-invoice');
+      const btnPos = document.getElementById('tab-btn-pos');
+      const btnScan = document.getElementById('tab-btn-scan');
+      const btnQueue = document.getElementById('tab-btn-queue');
+
+      if (btnInvoice) btnInvoice.style.display = perms.includes('invoice_access') || emp.role_id === 'admin' ? 'flex' : 'none';
+      if (btnPos) btnPos.style.display = perms.includes('pos_sale') || emp.role_id === 'admin' ? 'flex' : 'none';
+      if (btnScan) btnScan.style.display = perms.includes('view_catalog') || emp.role_id === 'admin' ? 'flex' : 'none';
+      if (btnQueue) btnQueue.style.display = perms.includes('print_labels') || emp.role_id === 'admin' ? 'flex' : 'none';
+
+      // Hub Eylem Kartları Yetki Filtresi
+      const cardInvoice = document.getElementById('mob-card-invoice');
+      const cardPos = document.getElementById('mob-card-pos');
+      const cardScan = document.getElementById('mob-card-scan');
+
+      if (cardInvoice) cardInvoice.style.display = perms.includes('invoice_access') || emp.role_id === 'admin' ? 'flex' : 'none';
+      if (cardPos) cardPos.style.display = perms.includes('pos_sale') || emp.role_id === 'admin' ? 'flex' : 'none';
+      if (cardScan) cardScan.style.display = perms.includes('view_catalog') || emp.role_id === 'admin' ? 'flex' : 'none';
+    }
+
+    function switchMobileTab(tabId) {
+      const cleanId = String(tabId).replace('tab-', '').replace('section-', '');
+      
+      if (!hasMobilePermissionForTab(cleanId)) {
+        showToast('⚠️ Bu bölüme erişim yetkiniz bulunmuyor.', 'warning');
+        return;
+      }
+
+      // Tüm tab panellerini gizle
+      const panes = [
+        { key: 'hub', el: document.getElementById('tab-hub') },
+        { key: 'invoice', el: document.getElementById('tab-invoice') },
+        { key: 'scan', el: document.getElementById('section-scan') || document.getElementById('tab-scan') },
+        { key: 'pos', el: document.getElementById('section-pos') || document.getElementById('tab-pos') },
+        { key: 'queue', el: document.getElementById('section-queue') || document.getElementById('tab-queue') },
+        { key: 'stock-audit', el: document.getElementById('mob-tab-stock-audit') }
+      ];
+
+      panes.forEach(p => {
+        if (p.el) {
+          if (p.key === cleanId) {
+            p.el.style.display = (cleanId === 'scan' || cleanId === 'pos' || cleanId === 'queue') ? 'block' : 'flex';
+            p.el.classList.add('active');
+          } else {
+            p.el.style.display = 'none';
+            p.el.classList.remove('active');
+          }
+        }
+      });
+
+      // Alt menü butonlarını güncelle
+      const btnKeys = ['hub', 'invoice', 'scan', 'pos', 'queue', 'stock-audit'];
+      btnKeys.forEach(k => {
+        const btn = document.getElementById(`tab-btn-${k}`);
+        if (btn) {
+          if (k === cleanId) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      });
+
+      // Sekmeye özel güncellemeler
+      if (cleanId === 'queue') {
+        if (typeof updateQueueUI === 'function') updateQueueUI();
+      } else if (cleanId === 'pos') {
+        if (typeof updateMobilePosUI === 'function') updateMobilePosUI();
+      } else if (cleanId === 'stock-audit') {
+        renderStockAuditUI();
+      }
+    }
+
+    // =========================================================
+    // 📦 REYON STOK SAYIM MOTORU
+    // =========================================================
+    let mobileStockAuditSession = [];
+
+    function renderStockAuditUI() {
+      const listEl = document.getElementById('mob-audit-items-list');
+      const countEl = document.getElementById('mob-audit-item-count');
+      const totalQtyEl = document.getElementById('mob-audit-total-qty');
+      const diffQtyEl = document.getElementById('mob-audit-diff-qty');
+
+      const itemCount = mobileStockAuditSession.length;
+      const totalQty = mobileStockAuditSession.reduce((acc, it) => acc + (parseFloat(it.counted_qty) || 0), 0);
+      const totalDiff = mobileStockAuditSession.reduce((acc, it) => acc + ((parseFloat(it.counted_qty) || 0) - (parseFloat(it.system_stock) || 0)), 0);
+
+      if (countEl) countEl.innerText = itemCount;
+      if (totalQtyEl) totalQtyEl.innerText = totalQty;
+      if (diffQtyEl) {
+        diffQtyEl.innerText = (totalDiff >= 0 ? `+${totalDiff}` : totalDiff);
+        diffQtyEl.style.color = totalDiff === 0 ? '#34d399' : (totalDiff > 0 ? '#38bdf8' : '#f87171');
+      }
+
+      if (!listEl) return;
+      if (itemCount === 0) {
+        listEl.innerHTML = `<div style="text-align: center; color: #64748b; font-size: 12px; padding: 30px 10px;">📷 Kamerayı açarak veya barkod yazarak reyon sayımına başlayın.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = mobileStockAuditSession.map((it, idx) => {
+        const diff = (parseFloat(it.counted_qty) || 0) - (parseFloat(it.system_stock) || 0);
+        const diffColor = diff === 0 ? '#10b981' : (diff > 0 ? '#38bdf8' : '#f87171');
+        const diffSign = diff > 0 ? `+${diff}` : `${diff}`;
+
+        return `
+          <div style="background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1; min-width: 0; padding-right: 8px;">
+              <strong style="color: #fff; font-size: 12px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${it.title}</strong>
+              <div style="font-size: 10.5px; color: #94a3b8; font-family: monospace; display: flex; gap: 8px; margin-top: 2px;">
+                <span>🏷️ ${it.barcode}</span>
+                <span>Sistem: <strong>${it.system_stock}</strong></span>
+                <span style="color: ${diffColor}; font-weight: 800;">Fark: ${diffSign}</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <button onclick="changeAuditQty('${it.barcode}', -1)" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer;">-</button>
+              <span style="font-size: 14px; font-weight: 900; color: #38bdf8; min-width: 28px; text-align: center;">${it.counted_qty}</span>
+              <button onclick="changeAuditQty('${it.barcode}', 1)" style="background: rgba(56,189,248,0.2); border: none; color: #38bdf8; width: 26px; height: 26px; border-radius: 6px; font-weight: 900; cursor: pointer;">+</button>
+              <button onclick="removeAuditItem('${it.barcode}')" style="background: transparent; border: none; color: #f87171; font-size: 12px; padding: 4px; cursor: pointer;">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function onStockAuditBarcodeScanned(barcode) {
+      const cleanBc = String(barcode || '').trim();
+      if (!cleanBc) return;
+
+      playBeepSound();
+
+      const existing = mobileStockAuditSession.find(x => x.barcode === cleanBc);
+      if (existing) {
+        existing.counted_qty += 1;
+        renderStockAuditUI();
+        showToast(`✓ +1 Adet eklendi (${existing.title})`, 'success');
+        return;
+      }
+
+      // Ürün bilgilerini çek
+      try {
+        const res = await fetch(`/api/products/${cleanBc}`);
+        const data = await res.json();
+        let title = `Ürün (${cleanBc})`;
+        let sysStock = 0;
+
+        if (data.status === 'success' && data.product) {
+          title = data.product.title || data.product.title1 || title;
+          sysStock = parseFloat(data.product.stock || 0);
+        }
+
+        mobileStockAuditSession.unshift({
+          barcode: cleanBc,
+          title: title,
+          counted_qty: 1,
+          system_stock: sysStock
+        });
+
+        renderStockAuditUI();
+        showToast(`✓ Sayıma eklendi: ${title}`, 'success');
+      } catch (e) {
+        mobileStockAuditSession.unshift({
+          barcode: cleanBc,
+          title: `Barkod: ${cleanBc}`,
+          counted_qty: 1,
+          system_stock: 0
+        });
+        renderStockAuditUI();
+      }
+    }
+
+    function submitMobAuditBarcode() {
+      const inp = document.getElementById('mob-audit-barcode-input');
+      if (!inp || !inp.value.trim()) return;
+      const bc = inp.value.trim();
+      inp.value = '';
+      onStockAuditBarcodeScanned(bc);
+    }
+
+    function changeAuditQty(barcode, delta) {
+      const item = mobileStockAuditSession.find(x => x.barcode === barcode);
+      if (item) {
+        item.counted_qty = Math.max(0, item.counted_qty + delta);
+        if (item.counted_qty === 0) {
+          removeAuditItem(barcode);
+          return;
+        }
+        renderStockAuditUI();
+      }
+    }
+
+    function removeAuditItem(barcode) {
+      mobileStockAuditSession = mobileStockAuditSession.filter(x => x.barcode !== barcode);
+      renderStockAuditUI();
+    }
+
+    function clearStockAuditSession() {
+      if (mobileStockAuditSession.length === 0) return;
+      const ok = confirm('Sayım listesini sıfırlamak istediğinize emin misiniz?');
+      if (ok) {
+        mobileStockAuditSession = [];
+        renderStockAuditUI();
+        showToast('Sayım listesi temizlendi.', 'info');
+      }
+    }
+
+    async function commitStockAuditToCatalog() {
+      if (mobileStockAuditSession.length === 0) {
+        showToast('⚠️ Sayım listesinde ürün bulunmuyor.', 'warning');
+        return;
+      }
+
+      const ok = confirm(`${mobileStockAuditSession.length} kalem ürünün sayılan miktarları ana kataloğa güncel stok olarak işlensin mi?`);
+      if (!ok) return;
+
+      try {
+        let updatedCount = 0;
+        for (const it of mobileStockAuditSession) {
+          const res = await fetch(`/api/products/${it.barcode}`);
+          const pData = await res.json();
+          if (pData.status === 'success' && pData.product) {
+            const p = pData.product;
+            p.stock = it.counted_qty;
+            await fetch('/api/products', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(p)
+            });
+            updatedCount++;
+          }
+        }
+        showToast(`✅ ${updatedCount} ürünün stoğu başarıyla güncellendi!`, 'success');
+        mobileStockAuditSession = [];
+        renderStockAuditUI();
+      } catch (err) {
+        console.error('Sayım kaydetme hatası:', err);
+        showToast('Sayım kaydedilirken bir hata oluştu.', 'error');
+      }
+    }
+
+    window.submitMobAuditBarcode = submitMobAuditBarcode;
+    window.changeAuditQty = changeAuditQty;
+    window.removeAuditItem = removeAuditItem;
+    window.clearStockAuditSession = clearStockAuditSession;
+    window.commitStockAuditToCatalog = commitStockAuditToCatalog;
+
+    async function handleMobileInvoiceUpload(event) {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('actor', currentMobileEmployee ? currentMobileEmployee.name : 'Mobil Kullanıcı');
+
+      showToast('⏳ Fatura yükleniyor ve işleniyor...', 'info');
+
+      try {
+        const res = await fetch('/api/invoice/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          playBeepSound();
+          showToast('✓ Fatura başarıyla yüklendi ve sisteme aktarıldı!', 'success');
+          
+          const card = document.getElementById('mob-inv-result-card');
+          const supplierEl = document.getElementById('mob-inv-supplier-text');
+          const noEl = document.getElementById('mob-inv-no-text');
+          const totalEl = document.getElementById('mob-inv-total-text');
+          const formatTag = document.getElementById('mob-inv-format-tag');
+
+          if (supplierEl) supplierEl.innerText = data.invoice?.supplier_name || 'Toptancı Faturası';
+          if (noEl) noEl.innerText = data.invoice?.invoice_no || file.name;
+          if (totalEl) totalEl.innerText = (parseFloat(data.invoice?.total_amount || 0)).toLocaleString('tr-TR', { minimumFractionDigits: 2 }) + ' TL';
+          if (formatTag) formatTag.innerText = (data.invoice?.file_type || 'OCR').toUpperCase();
+          if (card) card.style.display = 'block';
+        } else {
+          showToast(data.message || 'Fatura işlenirken bir hata oluştu.', 'error');
+        }
+      } catch (err) {
+        console.error('Mobil fatura yükleme hatası:', err);
+        showToast('Fatura sunucuya yüklenemedi.', 'error');
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    // Window Exportları
+    window.switchMobileTab = switchMobileTab;
+    window.handleMobileInvoiceUpload = handleMobileInvoiceUpload;
+    window.initMobileEmployeeAuth = initMobileEmployeeAuth;
+    window.openMobileAuthModal = openMobileAuthModal;
+    window.closeMobileAuthModal = closeMobileAuthModal;
+    window.selectMobileEmpForLogin = selectMobileEmpForLogin;
+    window.mobAuthBackToSelect = mobAuthBackToSelect;
+    window.mobAuthNumpadPress = mobAuthNumpadPress;
+    window.mobAuthNumpadBackspace = mobAuthNumpadBackspace;
+    window.mobAuthNumpadClear = mobAuthNumpadClear;
+    window.mobAuthVerifyPin = mobAuthVerifyPin;
+    window.logoutMobileEmployee = logoutMobileEmployee;
+

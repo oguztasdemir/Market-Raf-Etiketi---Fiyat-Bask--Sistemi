@@ -41,6 +41,7 @@ from backend.kasa.hizli_satis_rotalari import pos_bp
 from backend.muhasebe.muhasebe_rotalari import accounting_bp
 from backend.fatura.fatura_rotalari import invoice_bp
 from backend.musteri.musteri_rotalari import customer_bp
+from backend.market.market_rotalari import market_bp
 
 # Ham Werkzeug HTTP erişim loglarını sustur
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -63,6 +64,7 @@ app.register_blueprint(pos_bp)
 app.register_blueprint(accounting_bp)
 app.register_blueprint(invoice_bp)
 app.register_blueprint(customer_bp)
+app.register_blueprint(market_bp)
 
 def get_device_label(ip):
     """İstemci IP adresini anlaşılır cihaz ismine dönüştürür."""
@@ -206,7 +208,8 @@ def start_backend_server(port=5000):
             print(f"[HATA] HTTPS Kamera Sunucusu Başlatılamadı: {e}")
 
 def main():
-    """Uygulamayı başlatır: Hem yerel GUI penceresini hem de Web/Mobil sunucusunu açar."""
+    """Web ve Mobil Sunucusunu başlatır ve varsayılan web tarayıcısını açar."""
+    import webbrowser
     port = 5000
     local_ip = get_local_ip()
 
@@ -214,8 +217,8 @@ def main():
     start_code_watcher(on_change_callback=clear_diff_cache)
 
     print("=" * 70)
-    print("[BASLATILDI] Market Raf Etiketi, POS & Barkod Sistemi")
-    print(f"[*] Masaüstü Panel       : http://127.0.0.1:{port}")
+    print("🚀 [WEB MODU] Market Raf Etiketi, POS & Barkod Sistemi Başlatıldı")
+    print(f"[*] Web Yönetim Paneli   : http://127.0.0.1:{port}")
     print(f"[*] Yerel Ağ / Web       : http://{local_ip}:{port}")
     print(f"[*] Mobil HTTP (Normal)  : http://{local_ip}:{port}/mobile")
     print(f"[*] Mobil HTTPS (Kamera) : https://{local_ip}:{port + 1}/mobile")
@@ -225,35 +228,21 @@ def main():
     start_backend_server(port)
     time.sleep(0.6)
 
-    # 2. Masaüstü GUI Penceresini Başlat (Webview)
+    # 2. Ödeal e-Fatura Otomatik Senkronizasyonunu Arka Planda Başlat
     try:
-        import webview
-        window = webview.create_window(
-            title="Market Raf Etiketi & POS Yönetim Sistemi",
-            url=f"http://127.0.0.1:{port}",
-            width=1366,
-            height=768,
-            min_size=(1024, 600),
-            confirm_close=False,
-            text_select=True
-        )
-        webview.start(private_mode=False)
-        print("\n" + "=" * 70)
-        print("[BİLGİ] Masaüstü penceresi kapatıldı.")
-        print(f"[AKTİF] Web & Mobil Sunucusu arka planda kesintisiz çalışmaya devam ediyor:")
-        print(f"[*] Web Panel            : http://{local_ip}:{port}")
-        print(f"[*] Mobil Terminal       : http://{local_ip}:{port}/mobile")
-        print(f"[*] Mobil Kamera (HTTPS) : https://{local_ip}:{port + 1}/mobile")
-        print("=" * 70 + "\n")
+        from backend.fatura.odeal_fatura_servisi import start_odeal_auto_sync_background
+        start_odeal_auto_sync_background(interval_seconds=60)
     except Exception as e:
-        # Eğer webview desteklenmiyorsa veya headless çalıştırılıyorsa standart tarayıcıyı aç
-        import webbrowser
-        try:
-            webbrowser.open(f"http://127.0.0.1:{port}")
-        except Exception:
-            pass
+        print(f"[UYARI] Ödeal otomatik senkronizasyon başlatılamadı: {e}")
 
-    # Masaüstü penceresi kapatılsa dahi sunucunun arka planda kesintisiz çalışmasını sağla
+    # 3. Varsayılan Web Tarayıcısını Aç
+    try:
+        webbrowser.open(f"http://127.0.0.1:{port}")
+    except Exception as e:
+        print(f"[UYARI] Tarayıcı otomatik açılamadı: {e}")
+
+    print("\n[BİLGİ] Sunucu çalışıyor. Durdurmak için CTRL+C tuşlarına basınız.\n")
+
     try:
         while True:
             time.sleep(1)

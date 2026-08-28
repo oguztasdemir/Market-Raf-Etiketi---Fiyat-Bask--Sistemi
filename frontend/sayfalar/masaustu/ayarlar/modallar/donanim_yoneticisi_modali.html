@@ -1,0 +1,186 @@
+<!-- =========================================================
+     MODAL: GELİŞMİŞ DONANIM, YAZICI & TERAZİ YÖNETİCİSİ
+     ========================================================= -->
+<div id="modal-hardware-manager" class="modal-backdrop" style="position: fixed; inset: 0; background: rgba(5, 10, 20, 0.88); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 99999999; padding: 20px; box-sizing: border-box;">
+  <div class="modal-card" style="max-width: 920px; width: 95%; background: #0f172a; border: 1px solid rgba(56,189,248,0.3); border-radius: 14px; box-shadow: 0 25px 60px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column;">
+    
+    <!-- Başlık Çubuğu -->
+    <div class="modal-header" style="background: #1e293b; padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">🖨️</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #f8fafc;">Yazıcı & Terazi Donanım Yöneticisi</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">Sisteme bağlı USB, Wi-Fi/Ağ, Bluetooth yazıcılar ve terazi portları</small>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button type="button" class="btn-secondary" onclick="scanAllHardwareDevices()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+          <span id="scan-hardware-spinner">🔄</span> Cihazları Yeniden Tara
+        </button>
+        <button class="modal-close-btn" onclick="closeHardwareManagerModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 0 6px;">✕</button>
+      </div>
+    </div>
+
+    <!-- Gövde: 3 Donanım Sütunu -->
+    <div class="modal-body" style="padding: 20px 22px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; max-height: calc(85vh - 130px); overflow-y: auto;">
+      
+      <!-- 1. BÖLÜM: RAF & BARKOD ETİKET YAZICISI -->
+      <div style="background: #131d35; border: 1.5px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 18px;">🏷️</span>
+            <strong style="font-size: 13px; color: #38bdf8;">Etiket Yazıcısı</strong>
+          </div>
+          <span id="hw-label-status-badge" style="font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: rgba(16,185,129,0.15); color: #34d399;">
+            🟢 Hazır
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Seçili Etiket Yazıcısı (USB/WiFi/BT)</label>
+          <select id="hw-select-label-printer" class="custom-select" onchange="onLabelPrinterSelected()" style="width: 100%; padding: 8px; font-size: 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff;">
+            <!-- JS Dinamik Dolduracak -->
+          </select>
+        </div>
+
+        <div style="font-size: 11px; color: #64748b; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+          <div><strong>Bağlantı:</strong> <span id="hw-label-conn-type" style="color: #38bdf8;">USB / Spooler</span></div>
+          <div><strong>Sürücü:</strong> <span id="hw-label-driver-name" style="color: #94a3b8;">Generic / Text</span></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label style="font-size: 10.5px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 2px;">Etiket Boyutu</label>
+            <select id="hw-label-paper-size" style="width: 100%; padding: 6px; font-size: 11px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+              <option value="60x40" selected>60x40 mm</option>
+              <option value="76x40">76x40 mm</option>
+              <option value="100x50">100x50 mm</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 10.5px; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 2px;">Koyuluk (Darkness)</label>
+            <input type="number" id="hw-label-darkness" value="22" min="10" max="30" style="width: 100%; padding: 6px; font-size: 11px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="testPrintLabelPrinter()" style="margin-top: auto; padding: 8px 12px; font-size: 11.5px; font-weight: 700; color: #38bdf8; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.1); cursor: pointer; border-radius: 6px;">
+          🖨️ Etiket Test Yazdır
+        </button>
+      </div>
+
+      <!-- 2. BÖLÜM: KASA BİLGİ FİŞİ YAZICISI -->
+      <div style="background: #131d35; border: 1.5px solid rgba(52,211,153,0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 18px;">🧾</span>
+            <strong style="font-size: 13px; color: #34d399;">Bilgi Fişi Yazıcısı</strong>
+          </div>
+          <span id="hw-receipt-status-badge" style="font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: rgba(16,185,129,0.15); color: #34d399;">
+            🟢 Hazır
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Seçili Fiş Yazıcısı (80mm/58mm)</label>
+          <select id="hw-select-receipt-printer" class="custom-select" onchange="onReceiptPrinterSelected()" style="width: 100%; padding: 8px; font-size: 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff;">
+            <!-- JS Dinamik Dolduracak -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Termal Kağıt Formatı</label>
+          <select id="hw-receipt-paper-size" style="width: 100%; padding: 7px; font-size: 11.5px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="80mm" selected>📄 80 mm (Geniş Standart Termal Fiş)</option>
+            <option value="58mm">📄 58 mm (Kompakt Kasa Fişi)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 6px; font-size: 11.5px;">
+          <label style="display: flex; align-items: center; gap: 6px; color: #f8fafc; cursor: pointer;">
+            <input type="checkbox" id="hw-receipt-auto-cut" checked> ✂️ Otomatik Kağıt Kesme (Auto-Cut)
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; color: #f8fafc; cursor: pointer;">
+            <input type="checkbox" id="hw-receipt-open-drawer" checked> 💵 Para Çekmecesini Tetikle (Kick)
+          </label>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="testPrintReceiptPrinter()" style="margin-top: auto; padding: 8px 12px; font-size: 11.5px; font-weight: 700; color: #34d399; border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.1); cursor: pointer; border-radius: 6px;">
+          🧾 Bilgi Fişi Test Yazdır
+        </button>
+      </div>
+
+      <!-- 3. BÖLÜM: ELEKTRONİK TERAZİ & TARTIM -->
+      <div style="background: #131d35; border: 1.5px solid rgba(251,191,36,0.35); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 18px;">⚖️</span>
+            <strong style="font-size: 13px; color: #fbbf24;">Elektronik Terazi</strong>
+          </div>
+          <span id="hw-scale-status-badge" style="font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: rgba(245,158,11,0.15); color: #fbbf24;">
+            🟢 Aktif (27/28)
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Terazi İletişim Türü</label>
+          <select id="hw-scale-type" onchange="onScaleTypeChanged()" style="width: 100%; padding: 8px; font-size: 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff;">
+            <option value="scale_barcode" selected>🏷️ 27/28/29 Barkodlu Reyon Terazisi (Önerilen)</option>
+            <option value="serial_com">🔌 Doğrudan Kasa Terazisi (Seri Port RS232 / USB)</option>
+            <option value="network_ip">🌐 Ağ / IP Terazisi (Ethernet / Wi-Fi)</option>
+          </select>
+        </div>
+
+        <div id="hw-scale-com-row" style="display: none;" class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Seri Port (COM) & Protokol</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <select id="hw-scale-com-port" style="width: 100%; padding: 6px; font-size: 11.5px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+              <option value="COM1">COM1</option>
+              <option value="COM2">COM2</option>
+              <option value="COM3">COM3</option>
+            </select>
+            <select id="hw-scale-protocol" style="width: 100%; padding: 6px; font-size: 11.5px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+              <option value="cas_er_plus" selected>CAS ER Plus</option>
+              <option value="tem_b1">TEM B1</option>
+              <option value="dibal_pos">Dibal POS</option>
+              <option value="digi_sm">Digi SM</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="hw-scale-ip-row" style="display: none;" class="form-group">
+          <label style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; display: block;">Terazi IP Adresi & Port</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="hw-scale-ip" placeholder="192.168.1.50" value="192.168.1.50" style="flex: 2; padding: 6px 8px; font-size: 11.5px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <input type="number" id="hw-scale-port" placeholder="4001" value="4001" style="flex: 1; padding: 6px 8px; font-size: 11.5px; background: #0f172a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+          </div>
+        </div>
+
+        <div style="font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+          <div><strong>Gramaj Çözücü:</strong> <span style="color: #fbbf24;">27 (Gram), 28 (Fiyat), 29</span></div>
+          <div><strong>Manav & Kasap:</strong> <span style="color: #34d399;">Otomatik PLU & Gramaj</span></div>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="testScaleConnection()" style="margin-top: auto; padding: 8px 12px; font-size: 11.5px; font-weight: 700; color: #fbbf24; border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.1); cursor: pointer; border-radius: 6px;">
+          ⚖️ Terazi Bağlantısını Test Et
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div class="modal-footer" style="padding: 14px 22px; background: #1e293b; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+      <span id="hw-manager-last-scan-text" style="font-size: 11.5px; color: #94a3b8;">
+        Son Tarama: Az önce
+      </span>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-secondary" onclick="closeHardwareManagerModal()" style="padding: 8px 16px; font-size: 12px; font-weight: 700;">
+          Kapat
+        </button>
+        <button type="button" class="btn-primary" onclick="saveHardwareDeviceSettings()" style="padding: 8px 22px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 12px rgba(2,132,199,0.35);">
+          💾 Donanım Ayarlarını Kaydet & Uygula
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

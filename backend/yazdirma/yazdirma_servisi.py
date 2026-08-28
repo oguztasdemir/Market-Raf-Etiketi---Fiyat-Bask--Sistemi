@@ -29,13 +29,19 @@ def generate_tspl_command(data: dict, width_mm=76, height_mm=40, x_offset=0, y_o
     lines.append("DIRECTION 1")
     lines.append("CLS")
 
-    title1 = (data.get('title1') or data.get('title') or '').strip().upper()
-    title2 = (data.get('title2') or '').strip().upper()
-    brand = (data.get('brand') or 'YARENLER').strip().upper()
-    origin = (data.get('origin') or 'TURKIYE').strip().upper()
-    date_str = (data.get('date') or '').strip()
+    from backend.yazdirma.zpl_etiket_kodlayici import clean_tr
+
+    title1 = clean_tr((data.get('title1') or data.get('title') or '').strip().upper())
+    title2 = clean_tr((data.get('title2') or '').strip().upper())
+    from backend.araclar.depolama_araclari import load_json
+    from backend.ayarlar import SETTINGS_FILE
+    settings = load_json(SETTINGS_FILE, {})
+    default_market = str(settings.get("market_name", "MARKET")).strip().upper()
+    brand = clean_tr((data.get('brand') or default_market).strip().upper())
+    origin = clean_tr((data.get('origin') or 'TURKIYE').strip().upper())
+    date_str = clean_tr((data.get('date') or '').strip())
     barcode = clean_barcode(data.get('barcode'))
-    price = format_price_display(data.get('price'))
+    price = clean_tr(format_price_display(data.get('price')))
 
     lines.append(f'TEXT {10 + x_offset},{8 + y_offset},"3",0,1,1,"{title1[:35]}"')
     if title2:
@@ -59,7 +65,7 @@ def generate_tspl_command(data: dict, width_mm=76, height_mm=40, x_offset=0, y_o
     lines.append(f"PRINT {copies}")
 
     cmd_str = "\n".join(lines) + "\n"
-    return cmd_str.encode('cp1254', errors='ignore')
+    return cmd_str.encode('ascii', errors='replace')
 
 def send_raw_to_printer(printer_name: str, raw_data: bytes) -> bool:
     """Windows Spooler üzerinden yazıcıya ham veri (RAW byte) gönderir."""

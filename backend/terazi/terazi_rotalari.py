@@ -7,6 +7,8 @@ from flask import Blueprint, jsonify, request, Response
 from backend.terazi.terazi_servisi import (
     get_scale_settings,
     save_scale_settings,
+    get_scales_pool,
+    save_scales_pool,
     get_manav_products,
     save_all_manav_products,
     test_scale_connection,
@@ -18,6 +20,16 @@ from backend.terazi.terazi_servisi import (
 )
 
 scale_bp = Blueprint('scale_bp', __name__)
+
+@scale_bp.route('/api/scale/scales_pool', methods=['GET', 'POST'])
+def scales_pool_endpoint():
+    """Çoklu terazi havuzunu listeler veya günceller."""
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        pool = data.get('scales_list', [])
+        saved = save_scales_pool(pool)
+        return jsonify({"status": "success", "message": "Terazi havuzu güncellendi.", "scales_list": saved})
+    return jsonify({"status": "success", "scales_list": get_scales_pool()})
 
 @scale_bp.route('/api/scale/fetch_prices', methods=['POST', 'GET'])
 def fetch_prices_endpoint():

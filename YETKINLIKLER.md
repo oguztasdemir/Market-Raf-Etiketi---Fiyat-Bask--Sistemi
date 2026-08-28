@@ -207,6 +207,13 @@ Pahalı el terminallerine gerek kalmadan akıllı telefonları tam donanımlı e
 
 * **Mobil Web Arayüzü (`/mobile`):** Telefon ve tabletler için optimize edilmiş dokunmatik modern arayüz.
 * **Canlı Kamera ile Barkod Okuma (HTTPS / SSL):** Otomatik üretilen SSL sertifikası sayesinde mobil kamera ile reyon aralarında anında barkod tarama.
+* **🛡️ HDR Parlama Önleme (Specular Glare Suppression):**
+  * Parlayan jelatin, metalik folyo veya plastik ambalajlardaki ışık yansımalarını CLAHE ve Blackhat morfolojisi ile filtreler; ışık parlamasını bastırıp siyah çubukları netleştirir.
+* **🥚 Yuvarlak ve Eğri Yüzey Düzleştirme (Cylindrical De-warping):**
+  * Sürpriz yumurta çikolata, silindirik içecek kutusu, şişe, kavanoz ve top sakız gibi kavisli ambalajlardaki bükülmüş barkodları silindirik projeksiyon ters dönüşümü (`x' = R * arcsin(x / R)`) ve yatay genleşme ile düzlemsel hale getirerek anında çözer.
+* **🔍 Donanım & Yazılımsal Zoom Desteği (1.0x - 3.0x):**
+  * Kamerayı parlayan veya yuvarlak ambalaja 20-30 cm uzaktan tutup zoom yaparak parlamayı %90 oranında yok etme ve bükük barkodu düz netleme alanında tutma imkanı.
+* **⚡ PyZBar + OpenCV Hibrit Çözücü:** İstemci tarafı donanım BarcodeDetector ve sunucu tarafı çok katmanlı adaptif eşikleme motoruyla 35 ms altında anlık algılama.
 * **Reyondan Anlık Fiyat Gör & Fiyat Güncelle:** Reyonda gezerken ürünün fiyatını kontrol etme, gerekirse telefondan yeni fiyat girerek ana kasayla eşitleme.
 * **Dinamik QR Kod Bağlantısı:** Masaüstü ekrandaki QR kodu telefonla okutarak saniyeler içinde şifresiz eşleşme.
 

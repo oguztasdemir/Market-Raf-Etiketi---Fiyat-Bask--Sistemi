@@ -15,64 +15,69 @@
 
     <!-- Sol Menü Panelleri / Sekmeleri -->
     <nav class="sidebar-nav">
-      <button class="nav-item active" onclick="switchTab('tab-home')" title="Ana Sayfa & Canlı Kasa Özeti">
+      <button class="nav-item active" data-tab="tab-home" data-perm="none" onclick="switchTab('tab-home')" title="Ana Sayfa & Canlı Kasa Özeti">
         <span class="nav-icon">🏠</span>
         <span class="nav-label">Ana Sayfa</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-pos')" title="Hızlı Satış & Barkodlu Kasa (POS)">
+      <button class="nav-item" data-tab="tab-pos" data-perm="perm_pos" onclick="switchTab('tab-pos')" title="Hızlı Satış & Barkodlu Kasa (POS)">
         <span class="nav-icon">🛒</span>
         <span class="nav-label">Hızlı Satış (POS)</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-catalog')" title="Ürün Kataloğu">
+      <button class="nav-item" data-tab="tab-catalog" data-perm="perm_catalog_view" onclick="switchTab('tab-catalog')" title="Ürün Kataloğu">
         <span class="nav-icon">📦</span>
         <span class="nav-label">Ürün Kataloğu</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-manav')" title="Manav & Terazi Fiyat Yönetimi (PLU)">
+      <button class="nav-item" data-tab="tab-manav" data-perm="perm_manav_plu" onclick="switchTab('tab-manav')" title="Manav & Terazi Fiyat Yönetimi (PLU)">
         <span class="nav-icon">🥬</span>
         <span class="nav-label">Manav & Terazi</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-reports')" title="Günlük Faaliyet & Fiyat Raporları">
+      <button class="nav-item" data-tab="tab-reports" data-perm="perm_reports" onclick="switchTab('tab-reports')" title="Günlük Faaliyet & Fiyat Raporları">
         <span class="nav-icon">📈</span>
         <span class="nav-label">Günlük Raporlar</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-design')" title="Etiket Düzenle & Şablonlar">
+      <button class="nav-item" data-tab="tab-design" data-perm="perm_print_labels" onclick="switchTab('tab-design')" title="Etiket Düzenle & Şablonlar">
         <span class="nav-icon">🎨</span>
         <span class="nav-label">Etiket Düzenle</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-backups')" title="Yedekler">
+      <button class="nav-item" data-tab="tab-backups" data-perm="perm_settings" onclick="switchTab('tab-backups')" title="Yedekler">
         <span class="nav-icon">💾</span>
         <span class="nav-label">Yedekler</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-qr')" title="QR Bağlantısı">
+      <button class="nav-item" data-tab="tab-qr" data-perm="perm_print_labels" onclick="switchTab('tab-qr')" title="QR Bağlantısı">
         <span class="nav-icon">📱</span>
         <span class="nav-label">QR Bağlantısı</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-customers')" title="Müşteri Veresiye & Cari Hesap Defteri">
+      <button class="nav-item" data-tab="tab-customers" data-perm="perm_customers" onclick="switchTab('tab-customers')" title="Müşteri Veresiye & Cari Hesap Defteri">
         <span class="nav-icon">📒</span>
         <span class="nav-label">Müşteri & Cari</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-settings')" title="Donanım ve Yazıcı Ayarları">
+      <button class="nav-item" data-tab="tab-settings" data-perm="perm_settings" onclick="switchTab('tab-settings')" title="Donanım ve Yazıcı Ayarları">
         <span class="nav-icon">⚙️</span>
         <span class="nav-label">Ayarlar</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-market-accounting')" title="Market Bilgileri, Kasiyerler ve Gelir / Gider Muhasebesi">
-        <span class="nav-icon">💼</span>
-        <span class="nav-label">Market & Muhasebe</span>
+      <button class="nav-item" data-tab="tab-market" data-perm="perm_settings" onclick="switchTab('tab-market')" title="Market Profili, Çalışanlar & Rol Bazlı İzin Matrisi">
+        <span class="nav-icon">🏢</span>
+        <span class="nav-label">Market & Çalışanlar</span>
       </button>
 
-      <button class="nav-item" onclick="switchTab('tab-invoice')" title="Akıllı Fatura Okuma, Matematiksel Sağlama ve Ürün Eşleştirme">
+      <button class="nav-item" data-tab="tab-accounting" data-perm="perm_accounting" onclick="switchTab('tab-accounting')" title="Gelir & Gider Yönetimi, Kasa Durumu ve Finans">
+        <span class="nav-icon">💼</span>
+        <span class="nav-label">Muhasebe</span>
+      </button>
+
+      <button class="nav-item" data-tab="tab-invoice" data-perm="perm_invoice" onclick="switchTab('tab-invoice')" title="Akıllı Fatura Okuma, Matematiksel Sağlama ve Ürün Eşleştirme">
         <span class="nav-icon">🧾</span>
         <span class="nav-label">Fatura Okuma</span>
       </button>
     </nav>
-  </aside>
+</aside>

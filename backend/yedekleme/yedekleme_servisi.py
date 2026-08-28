@@ -1,39 +1,56 @@
 # -*- coding: utf-8 -*-
 """
-Veritabanı Güvenli Yedekleme, Geri Yükleme ve Rollback Servisi (Sistematik Katalog Alt Klasörü)
+Veritabanı Güvenli Yedekleme, Geri Yükleme ve Rollback Servisi
+Hem SQLite (.db) hem de JSON yedeklerini destekler.
 """
 import os
 import shutil
 import datetime
 from backend.ayarlar import BACKUPS_DIR, URUNLER_BACKUPS_DIR, PRODUCTS_FILE
+from backend.araclar.sqlite_servisi import DB_PATH, backup_sqlite_db
 
 def _get_target_backup_dir() -> str:
-    """Ürün yedekleri için hedef alt dizini döner ve varlığını garanti eder."""
+    """Ürün ve veritabanı yedekleri için hedef alt dizini döner ve varlığını garanti eder."""
     os.makedirs(URUNLER_BACKUPS_DIR, exist_ok=True)
     return URUNLER_BACKUPS_DIR
 
 def create_products_backup(reason: str = "Otomatik Güvenlik Yedeği") -> str:
-    """Mevcut urunler.json dosyasının zaman damgalı güvenli yedeğini data/yedekler/katalog/ altına alır."""
-    if not os.path.exists(PRODUCTS_FILE):
-        return None
-    try:
-        target_dir = _get_target_backup_dir()
-        now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        backup_filename = f"urunler_yedek_{now_str}.json"
-        backup_filepath = os.path.join(target_dir, backup_filename)
-        shutil.copy2(PRODUCTS_FILE, backup_filepath)
-        
-        meta_filepath = os.path.join(target_dir, f"{backup_filename}.meta")
-        with open(meta_filepath, 'w', encoding='utf-8') as f:
-            f.write(f"Date: {datetime.datetime.now().strftime('%d %b %Y %H:%M:%S')}\nReason: {reason}\n")
-            
-        return backup_filename
-    except Exception as e:
-        print(f"[YEDEK UYARISI] Yedek alınamadı: {e}")
-        return None
+    """SQLite veritabanının ve ürünlerin zaman damgalı güvenli yedeğini data/yedekler/urunler/ altına alır."""
+    target_dir = _get_target_backup_dir()
+    now_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    
+    # 1. SQLite .db Yedeği
+    if os.path.exists(DB_PATH):
+        db_backup_filename = f"market_db_yedek_{now_str}.db"
+        db_backup_filepath = os.path.join(target_dir, db_backup_filename)
+        ok = backup_sqlite_db(db_backup_filepath)
+        if ok:
+            meta_filepath = os.path.join(target_dir, f"{db_backup_filename}.meta")
+            try:
+                with open(meta_filepath, 'w', encoding='utf-8') as f:
+                    f.write(f"Date: {datetime.datetime.now().strftime('%d %b %Y %H:%M:%S')}\nReason: {reason}\nType: SQLite DB\n")
+            except Exception:
+                pass
+            return db_backup_filename
+
+    # 2. JSON Fallback Yedeği
+    if os.path.exists(PRODUCTS_FILE):
+        try:
+            backup_filename = f"urunler_yedek_{now_str}.json"
+            backup_filepath = os.path.join(target_dir, backup_filename)
+            shutil.copy2(PRODUCTS_FILE, backup_filepath)
+            meta_filepath = os.path.join(target_dir, f"{backup_filename}.meta")
+            with open(meta_filepath, 'w', encoding='utf-8') as f:
+                f.write(f"Date: {datetime.datetime.now().strftime('%d %b %Y %H:%M:%S')}\nReason: {reason}\nType: JSON\n")
+            return backup_filename
+        except Exception as e:
+            print(f"[YEDEK UYARISI] Yedek alınamadı: {e}")
+            return None
+
+    return None
 
 def get_backups_list() -> list:
-    """Kayıtlı ürün veritabanı yedeklerinin listesini tarih sırasına göre döner."""
+    """Kayıtlı veritabanı yedeklerinin listesini tarih sırasına göre döner."""
     search_dirs = [URUNLER_BACKUPS_DIR, BACKUPS_DIR]
     seen_filenames = set()
     backups = []
@@ -42,7 +59,12 @@ def get_backups_list() -> list:
         if not os.path.exists(sdir):
             continue
         for f in os.listdir(sdir):
-            if (f.startswith("urunler_yedek_") or f.startswith("products_backup_")) and f.endswith(".json") and not f.endswith(".meta"):
+            is_valid_backup = (
+                (f.startswith("urunler_yedek_") or f.startswith("products_backup_") or f.startswith("market_db_yedek_")) 
+                and (f.endswith(".json") or f.endswith(".db"))
+                and not f.endswith(".meta")
+            )
+            if is_valid_backup:
                 if f in seen_filenames:
                     continue
                 seen_filenames.add(f)
@@ -83,13 +105,22 @@ def _resolve_backup_file(filename: str):
     return None
 
 def restore_products_backup(filename: str):
-    """Belirtilen yedeği urunler.json olarak geri yükler."""
+    """Belirtilen yedeği (.db veya .json) geri yükler."""
     backup_path = _resolve_backup_file(filename)
     if not backup_path or not os.path.exists(backup_path):
         return False, "Yedek dosyası bulunamadı."
     try:
-        shutil.copy2(backup_path, PRODUCTS_FILE)
-        return True, "Veritabanı başarıyla seçilen tarihteki haline geri yüklendi."
+        if backup_path.endswith(".db"):
+            shutil.copy2(backup_path, DB_PATH)
+            return True, "SQLite veritabanı başarıyla seçilen tarihteki haline geri yüklendi."
+        elif backup_path.endswith(".json"):
+            shutil.copy2(backup_path, PRODUCTS_FILE)
+            # JSON'dan DB'ye de aktar
+            from backend.araclar.depolama_araclari import save_json, load_json
+            data = load_json(PRODUCTS_FILE)
+            save_json(PRODUCTS_FILE, data)
+            return True, "JSON ürün yedeği başarıyla geri yüklendi ve veritabanı güncellendi."
+        return False, "Bilinmeyen yedek formatı."
     except Exception as e:
         return False, f"Geri yükleme hatası: {str(e)}"
 
@@ -111,17 +142,17 @@ def delete_products_backup(filename: str):
         return False, f"Yedek silinirken hata oluştu: {str(e)}"
 
 def delete_all_products_backups():
-    """Tüm ürün yedek dosyalarını ve meta verilerini sistemden siler."""
+    """Tüm ürün ve DB yedek dosyalarını sistemden siler."""
     deleted_count = 0
     search_dirs = [URUNLER_BACKUPS_DIR, BACKUPS_DIR]
     for sdir in search_dirs:
         if not os.path.exists(sdir):
             continue
         for f in os.listdir(sdir):
-            if f.startswith("urunler_yedek_") or f.startswith("products_backup_"):
+            if (f.startswith("urunler_yedek_") or f.startswith("products_backup_") or f.startswith("market_db_yedek_")):
                 try:
                     os.remove(os.path.join(sdir, f))
-                    if f.endswith(".json"):
+                    if f.endswith(".json") or f.endswith(".db"):
                         deleted_count += 1
                 except Exception:
                     pass
@@ -134,4 +165,3 @@ def rollback_latest_backup():
         return False, "Geri dönülecek herhangi bir yedek bulunamadı."
     latest_backup = backups[0]["filename"]
     return restore_products_backup(latest_backup)
-

@@ -1,52 +1,103 @@
 <div id="tab-catalog" class="tab-content">
         <div class="card catalog-container modern-catalog">
           
-          <!-- Üst Bütünleşik Excel Araç Çubuğu -->
-          <div class="catalog-toolbar" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; background: #0d1527; border-bottom: 1px solid rgba(255, 255, 255, 0.15); flex-wrap: nowrap; overflow: visible; position: relative; z-index: 100;">
+          <!-- Üst Bütünleşik 2 Katmanlı Ferah Araç Çubuğu (2-Tier Toolbar) -->
+          <div class="catalog-toolbar-container" style="background: #0b1329; border-bottom: 1.5px solid rgba(56,189,248,0.25); display: flex; flex-direction: column; gap: 6px; padding: 8px 14px; box-sizing: border-box; z-index: 100;">
             
-            <!-- Sol: Ana Sayfa Butonu, Başlık ve Arama Kutusu -->
-            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 300px; max-width: 440px;">
-              <!-- 🏠 ANA SAYFAYA DÖN BUTONU -->
-              <button type="button" onclick="switchTab('tab-home')" style="background: rgba(56,189,248,0.15); border: 1.5px solid #0284c7; border-radius: 6px; color: #38bdf8; padding: 5px 12px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;" onmouseover="this.style.background='#0284c7'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.15)'; this.style.color='#38bdf8';" title="Ana Sayfaya / Menüye Dön [Esc]">
-                <span style="font-size: 13px;">🏠</span>
-                <span>Ana Sayfa</span>
-              </button>
+            <!-- 1. KATMAN: NAVİGASYON, GENİŞ ARAMA & HIZLI EYLEM BUTONLARI -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+              
+              <!-- Sol: Ana Sayfa Butonu, Başlık ve Ferah Arama Alanı -->
+              <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <!-- 🏠 ANA SAYFAYA DÖN BUTONU -->
+                <button type="button" onclick="switchTab('tab-home')" style="background: rgba(56,189,248,0.15); border: 1.5px solid #0284c7; border-radius: 8px; color: #38bdf8; padding: 6px 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;" onmouseover="this.style.background='#0284c7'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.15)'; this.style.color='#38bdf8';" title="Ana Sayfaya / Menüye Dön [Esc]">
+                  <span style="font-size: 14px;">🏠</span>
+                  <span>Ana Sayfa</span>
+                </button>
 
-              <div class="catalog-title-inline" style="flex-shrink: 0;">
-                <span style="font-size: 15px;">📦</span>
-                <strong style="font-size: 13px;">Ürün Kataloğu</strong>
+                <div class="catalog-title-inline" style="flex-shrink: 0; display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 16px;">📦</span>
+                  <strong style="font-size: 13.5px; color: #f8fafc;">Ürün Kataloğu</strong>
+                </div>
+
+                <!-- Geniş ve Ferah Arama Kutusu -->
+                <div class="catalog-search-box" style="flex: 1; max-width: 520px; position: relative;">
+                  <span class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #38bdf8;">🔍</span>
+                  <input type="text" id="catalog-search-inp" placeholder="Ürün adı, barkod veya firma ara (örn: Avşar, 8681349030501)..." oninput="onCatalogFilterChange()" style="width: 100%; padding: 7px 12px 7px 34px; font-size: 12.5px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #ffffff; outline: none; box-sizing: border-box;">
+                </div>
               </div>
 
-              <div class="catalog-search-box" style="flex: 1;">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="catalog-search-inp" placeholder="Ürün adı, barkod veya firma ara..." oninput="onCatalogFilterChange()" style="padding: 6px 10px 6px 30px; font-size: 12px;">
+              <!-- Sağ: Hızlı İşlem Butonları & Tema -->
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button type="button" class="btn-secondary" onclick="openCustomBarcodesManageModal()" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-weight: 800; font-size: 12px; border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.14); border-radius: 8px; white-space: nowrap;" title="Özel Barkodları Yönet (Maksimum 6 Adet)">
+                  <span>🏷️</span>
+                  <span>Özel Barkodlar</span>
+                </button>
+
+                <!-- ⚡ TOPLU ZAM MOTORU BUTONU -->
+                <button type="button" onclick="openBatchPriceModal()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #ffffff; padding: 6px 14px; font-weight: 900; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 4px 12px rgba(2,132,199,0.35);" title="Marka veya Kategoriye Toplu Fiyat Güncelle & Zam Yap">
+                  <span>⚡</span>
+                  <span>Toplu Zam</span>
+                </button>
+
+                <!-- 📲 TOPTANCIYA WHATSAPP SİPARİŞ LİSTESİ -->
+                <button type="button" onclick="sendSupplierWhatsAppOrder()" style="background: linear-gradient(135deg, #25D366, #128C7E); border: none; color: #ffffff; padding: 6px 12px; font-weight: 800; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; box-shadow: 0 4px 12px rgba(37,211,102,0.3);" title="Azalan / Seçili Ürünleri Toptancıya WhatsApp Siparişi Olarak Gönder">
+                  <span>📲</span>
+                  <span>Sipariş Gönder</span>
+                </button>
+
+                <!-- 🖨️ BUGÜN DEĞİŞENLERİ BAS BUTONU & SAYAÇ -->
+                <button type="button" onclick="printPriceChangedQueue()" style="background: rgba(16,185,129,0.16); border: 1.5px solid #10b981; color: #34d399; padding: 6px 14px; font-weight: 900; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;" title="Bugün Fiyatı Değişen Ürünlerin Etiketini Topluca Yazdır">
+                  <span>🖨️</span>
+                  <span>Değişenleri Bas</span>
+                  <span id="price-changed-count-badge" style="background: #10b981; color: #000; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 10px; display: none;">0</span>
+                </button>
+
+                <button id="btn-catalog-theme" class="btn-theme-circle" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir" style="width: 32px; height: 32px; font-size: 14px; border-radius: 8px; background: #1e293b; border: 1px solid #334155; color: #f8fafc; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                  <span id="theme-icon">🌙</span>
+                </button>
               </div>
+
             </div>
 
-            <!-- Orta: Filtreler & Butonlar -->
-            <div class="catalog-filters" style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; position: relative;">
-              <div class="catalog-status-pills">
-                <button type="button" class="btn-status-pill active" id="pill-filter-all" onclick="setCatalogStatusFilter('ALL')" style="padding: 3px 8px; font-size: 11px;">
-                  Tümü <span id="count-pill-all" class="pill-count">0</span>
-                </button>
-                <button type="button" class="btn-status-pill pill-outdated" id="pill-filter-outdated" onclick="setCatalogStatusFilter('OUTDATED')" style="padding: 3px 8px; font-size: 11px;">
-                  ⚠️ Güncel Değil <span id="count-pill-outdated" class="pill-count">0</span>
-                </button>
-                <button type="button" class="btn-status-pill pill-matched" id="pill-filter-matched" onclick="setCatalogStatusFilter('MATCHED')" style="padding: 3px 8px; font-size: 11px;">
-                  ✅ Güncel <span id="count-pill-matched" class="pill-count">0</span>
-                </button>
+            <!-- 2. KATMAN: DURUM FİLTRELERİ, FİRMA AÇILIR LİSTESİ & İSTATİSTİK ROZETİ -->
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
+              
+              <!-- Sol: Durum Filtre Hapları -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="catalog-status-pills" style="display: flex; gap: 6px;">
+                  <button type="button" class="btn-status-pill active" id="pill-filter-all" onclick="setCatalogStatusFilter('ALL')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px;">
+                    Tümü <span id="count-pill-all" class="pill-count">0</span>
+                  </button>
+                  <button type="button" class="btn-status-pill pill-outdated" id="pill-filter-outdated" onclick="setCatalogStatusFilter('OUTDATED')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px;">
+                    ⚠️ Güncel Değil <span id="count-pill-outdated" class="pill-count">0</span>
+                  </button>
+                  <button type="button" class="btn-status-pill pill-matched" id="pill-filter-matched" onclick="setCatalogStatusFilter('MATCHED')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px;">
+                    ✅ Güncel <span id="count-pill-matched" class="pill-count">0</span>
+                  </button>
+                  <button type="button" class="btn-status-pill pill-special" id="pill-filter-special" onclick="setCatalogStatusFilter('SPECIAL')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px; color: #d8b4fe; border-color: rgba(168,85,247,0.4);">
+                    ⭐ Özel Kategori <span id="count-pill-special" class="pill-count" style="background: rgba(168,85,247,0.3); color: #f3e8ff;">0</span>
+                  </button>
+                  <button type="button" class="btn-status-pill" id="pill-filter-low-stock" onclick="setCatalogStatusFilter('LOW_STOCK')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px; color: #f87171; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1);" title="Stoğu 5 ve daha az olan kritik ürünleri listeler">
+                    📉 Azalan Stok <span id="count-pill-low-stock" class="pill-count" style="background: rgba(239,68,68,0.3); color: #fee2e2;">0</span>
+                  </button>
+                  <button type="button" class="btn-status-pill" id="pill-filter-expiring" onclick="setCatalogStatusFilter('EXPIRING')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.1);" title="Son kullanma tarihi yaklaşan (SKT) ürünleri listeler">
+                    📅 SKT Alarmları <span id="count-pill-expiring" class="pill-count" style="background: rgba(245,158,11,0.3); color: #fef3c7;">0</span>
+                  </button>
+                </div>
               </div>
 
-              <div class="filter-item" style="position: relative;">
+              <!-- Orta: Firma / Marka Seçici & Filtreleri Sıfırla -->
+              <div style="display: flex; align-items: center; gap: 8px; position: relative;">
                 <div class="searchable-brand-wrapper" id="brand-dropdown-wrapper" style="position: relative; display: inline-block;">
-                  <button type="button" id="btn-brand-dropdown-toggle" class="brand-dropdown-btn" onclick="toggleBrandDropdown()" style="padding: 5px 9px; font-size: 11.5px;">
+                  <button type="button" id="btn-brand-dropdown-toggle" class="brand-dropdown-btn" onclick="toggleBrandDropdown()" style="padding: 5px 12px; font-size: 12px; font-weight: 800; background: #070d1e; border: 1.5px solid #38bdf8; border-radius: 6px; color: #38bdf8; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                     <span id="selected-brand-label">🏢 Tüm Firmalar (0)</span>
-                    <span class="dropdown-arrow" style="font-size: 9px; margin-left: 4px;">▼</span>
+                    <span class="dropdown-arrow" style="font-size: 9px;">▼</span>
                   </button>
                   <input type="hidden" id="catalog-brand-select" value="ALL">
                   
                   <!-- Aramalı Açılır Firma Paneli -->
-                  <div id="brand-dropdown-popup" class="brand-dropdown-popup" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; width: 280px; z-index: 999999; background: #0f172a; border: 1px solid #38bdf8; border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.9); padding: 8px;">
+                  <div id="brand-dropdown-popup" class="brand-dropdown-popup" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; width: 300px; z-index: 999999; background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 8px; box-shadow: 0 16px 36px rgba(0,0,0,0.95); padding: 8px;">
                     <div class="brand-dropdown-search-box">
                       <span style="font-size: 12px; opacity: 0.7;">🔍</span>
                       <input type="text" id="brand-search-input" placeholder="Firma ara (örn: Ülker, Eti, Sütaş)..." oninput="onBrandSearchInput(this.value)" autocomplete="off">
@@ -57,37 +108,19 @@
                     </div>
                   </div>
                 </div>
+
+                <button type="button" id="btn-catalog-reset-filters" class="btn-catalog-reset" onclick="resetCatalogFilters()" title="Arama ve tüm filtreleri sıfırla" style="padding: 5px 10px; font-size: 11.5px; font-weight: 700; background: #1e293b; border: 1px solid #475569; color: #cbd5e1; border-radius: 6px; cursor: pointer;">
+                  🔄 Sıfırla
+                </button>
               </div>
 
-              <button type="button" id="btn-catalog-reset-filters" class="btn-catalog-reset" onclick="resetCatalogFilters()" title="Arama ve tüm filtreleri sıfırla" style="padding: 5px 8px; font-size: 11px;">
-                🔄 Sıfırla
-              </button>
+              <!-- Sağ: İstatistik Rozeti -->
+              <div>
+                <span id="catalog-stats-badge" class="badge-catalog-stats" style="padding: 4px 12px; font-size: 11.5px; font-weight: 800; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; border-radius: 6px;">0 Ürün</span>
+              </div>
 
-              <button type="button" class="btn-secondary" onclick="openCustomBarcodesManageModal()" style="display: flex; align-items: center; gap: 4px; padding: 5px 9px; font-weight: 800; font-size: 11.5px; border-color: rgba(99,102,241,0.5); color: #a5b4fc; background: rgba(99,102,241,0.12); border-radius: 6px; white-space: nowrap;" title="Özel Barkodları Yönet (Maksimum 6 Adet)">
-                🏷️ Özel Barkodlar (Maks 6)
-              </button>
-
-              <!-- ⚡ TOPLU ZAM MOTORU BUTONU -->
-              <button type="button" onclick="openBatchPriceModal()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #ffffff; padding: 5px 11px; font-weight: 900; font-size: 11.5px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; box-shadow: 0 2px 8px rgba(2,132,199,0.3);" title="Marka veya Kategoriye Toplu Fiyat Güncelle & Zam Yap">
-                <span>⚡</span>
-                <span>Toplu Zam</span>
-              </button>
-
-              <!-- 🖨️ BUGÜN DEĞİŞENLERİ BAS BUTONU & SAYAÇ -->
-              <button type="button" onclick="printPriceChangedQueue()" style="background: rgba(16,185,129,0.15); border: 1.5px solid #10b981; color: #34d399; padding: 5px 11px; font-weight: 900; font-size: 11.5px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap;" title="Bugün Fiyatı Değişen Ürünlerin Etiketini Topluca Yazdır">
-                <span>🖨️</span>
-                <span>Değişenleri Bas</span>
-                <span id="price-changed-count-badge" style="background: #10b981; color: #000; font-size: 10px; font-weight: 900; padding: 1px 5px; border-radius: 10px; display: none;">0</span>
-              </button>
             </div>
 
-            <!-- Sağ: İstatistik Rozeti ve Tema Değiştirici -->
-            <div class="catalog-actions-box" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-              <span id="catalog-stats-badge" class="badge-catalog-stats" style="padding: 3px 8px; font-size: 11px;">0 Ürün</span>
-              <button id="btn-catalog-theme" class="btn-theme-circle" onclick="toggleAppTheme()" title="Koyu / Açık Mod Değiştir" style="width: 30px; height: 30px; font-size: 14px;">
-                <span id="theme-icon">🌙</span>
-              </button>
-            </div>
           </div>
 
           <!-- Toplu Seçim İşlem Çubuğu (Multi-select Batch Bar) -->
@@ -98,11 +131,17 @@
               <span class="batch-hint">(Ctrl + Tık: Tekli seçim | Shift + Tık: Aralık seçimi | Tık: Detay Aç)</span>
             </div>
             <div class="batch-right">
+              <button type="button" class="btn-batch-clear" onclick="clearCatalogSelection()" title="Tüm ürün seçimlerini iptal et ve temizle" style="margin-right: 6px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #f87171; font-weight: 800; font-size: 11.5px; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                ✕ Seçimi Kaldır
+              </button>
               <button type="button" id="btn-batch-price" class="btn-batch-action btn-batch-price-btn" onclick="openBatchPriceModal()" title="Seçili ürünlerin fiyatlarını topluca değiştir">
                 💰 Toplu Fiyat
               </button>
               <button type="button" id="btn-batch-brand" class="btn-batch-action btn-batch-brand-btn" onclick="openBatchBrandModal()" title="Seçili ürünlerin markalarını topluca değiştir">
                 🏷️ Toplu Firma
+              </button>
+              <button type="button" id="btn-batch-no-label" class="btn-batch-action" onclick="submitBatchLabelExemptToggle()" title="Seçili ürünlerin etiket basım muafiyetini aç / kapat" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #f87171; font-weight: 700; font-size: 11.5px; padding: 6px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                🚫 Etiket Muaf Yap / Kaldır
               </button>
               <div class="batch-copies-box">
                 <label for="batch-copies-inp">Her birinden:</label>
@@ -112,9 +151,6 @@
               <button id="btn-batch-print" class="btn-batch-print" onclick="submitBatchPrint()">
                 🖨️ Seçilileri Toplu Yazdır
               </button>
-              <button class="btn-batch-clear" onclick="clearCatalogSelection()" title="Tüm seçimleri temizle">
-                ✕ Temizle
-              </button>
             </div>
           </div>
 
@@ -123,13 +159,16 @@
             <table class="catalog-table">
               <thead>
                 <tr>
-                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 8%; min-width: 70px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('brand')" style="width: 7%; min-width: 65px;">
                     Firma <span class="sort-icon" id="sort-ico-brand">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 10%; min-width: 95px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('barcode')" style="width: 9%; min-width: 85px;">
                     Barkod <span class="sort-icon" id="sort-ico-barcode">↕</span>
                   </th>
-                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 25%; min-width: 150px;">
+                  <th class="sortable-th" onclick="sortCatalogColumn('custom_barcode')" style="width: 8%; min-width: 80px;" title="Tanımlı Özel / Dahili Kısayol Barkodu">
+                    Özel Barkod <span class="sort-icon" id="sort-ico-custom_barcode">↕</span>
+                  </th>
+                  <th class="sortable-th" onclick="sortCatalogColumn('title')" style="width: 23%; min-width: 140px;">
                     Ürün Adı <span class="sort-icon" id="sort-ico-title">↕</span>
                   </th>
                   <th class="sortable-th" onclick="sortCatalogColumn('stock')" style="width: 6%; min-width: 55px; text-align: center;" title="Mevcut Stok Miktarı">

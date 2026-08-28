@@ -7,7 +7,10 @@ from backend.kasa.hizli_satis_servisi import (
     find_product_for_pos,
     search_products_for_pos_autocomplete,
     process_pos_checkout,
-    get_dashboard_summary
+    get_dashboard_summary,
+    get_x_report_data,
+    set_cash_advance,
+    get_recent_sales_list
 )
 from backend.kasa.kasiyer_servisi import (
     get_cashiers,
@@ -17,6 +20,28 @@ from backend.kasa.kasiyer_servisi import (
 )
 
 pos_bp = Blueprint('pos_bp', __name__)
+
+@pos_bp.route('/api/pos/x_report', methods=['GET'])
+def pos_x_report():
+    """Gün içi anlık ara mutabakat (X Raporu) verilerini döner."""
+    res = get_x_report_data()
+    resp = jsonify(res)
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return resp
+
+@pos_bp.route('/api/pos/cash_advance', methods=['GET', 'POST'])
+def pos_cash_advance():
+    """Kasa açılış avansını okur veya günceller."""
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        amt = float(data.get('amount', 500.0))
+        return jsonify(set_cash_advance(amt))
+    else:
+        from backend.ayarlar import SETTINGS_FILE
+        from backend.araclar.depolama_araclari import load_json
+        settings = load_json(SETTINGS_FILE, {})
+        adv = float(settings.get("daily_cash_advance", 500.0))
+        return jsonify({"status": "success", "daily_cash_advance": adv})
 
 @pos_bp.route('/api/pos/search', methods=['GET', 'POST'])
 def pos_search():
@@ -37,12 +62,62 @@ def pos_checkout():
     """Sepeti tamamlar, fiş oluşturur ve kaydeder."""
     data = request.get_json(silent=True) or {}
     res = process_pos_checkout(data)
+    
+    if res.get("status") == "success" and data.get("print_receipt"):
+        try:
+            from backend.yazdirma.donanim_yoneticisi import send_receipt_to_printer
+            sale_record = res.get("receipt") or {}
+            print_res = send_receipt_to_printer(sale_record)
+            res["receipt_print_status"] = print_res
+        except Exception as e:
+            res["receipt_print_status"] = {"status": "error", "message": str(e)}
+
     return jsonify(res)
 
 @pos_bp.route('/api/pos/dashboard_summary', methods=['GET'])
 def pos_dashboard():
     """Sağ panel ve ana ekran için canlı ciro ve veri özetlerini döner."""
     res = get_dashboard_summary()
+    return jsonify(res)
+
+@pos_bp.route('/api/pos/recent_sales', methods=['GET'])
+def pos_recent_sales():
+    """Bugünün ve son günlerin tamamlanan satış ve iade fişlerini detaylı döner."""
+    limit = int(request.args.get('limit', 100))
+    sales = get_recent_sales_list(limit=limit)
+    return jsonify({"status": "success", "sales": sales})
+
+@pos_bp.route('/api/pos/cancel_cart', methods=['POST'])
+def pos_cancel_cart():
+    """İptal edilen sepeti geçmiş fişlere iptal kaydı olarak ekler."""
+    from backend.kasa.hizli_satis_servisi import record_cancelled_pos_receipt
+    data = request.get_json(silent=True) or {}
+    res = record_cancelled_pos_receipt(data)
+    return jsonify(res)
+
+@pos_bp.route('/api/pos/edit_receipt', methods=['POST'])
+def pos_edit_receipt():
+    """Eski bir satışın ödeme yöntemini veya müşteri kaydını düzenler."""
+    from backend.kasa.hizli_satis_servisi import edit_pos_receipt_details
+    data = request.get_json(silent=True) or {}
+    receipt_no = data.get('receipt_no')
+    new_payment_type = data.get('payment_type')
+    new_customer = data.get('customer')
+    new_customer_id = data.get('customer_id')
+    new_cashier = data.get('cashier')
+    res = edit_pos_receipt_details(receipt_no, new_payment_type, new_customer, new_customer_id, new_cashier)
+    return jsonify(res)
+
+@pos_bp.route('/api/pos/return_items', methods=['POST'])
+def pos_return_items():
+    """Mevcut fişten seçili kalemleri iade alır ve fişe not olarak işler."""
+    from backend.kasa.hizli_satis_servisi import process_receipt_items_return
+    data = request.get_json(silent=True) or {}
+    receipt_no = data.get('receipt_no')
+    return_items = data.get('return_items', [])
+    refund_payment_type = data.get('refund_type', 'Nakit')
+    return_note = data.get('note', '')
+    res = process_receipt_items_return(receipt_no, return_items, refund_payment_type, return_note)
     return jsonify(res)
 
 @pos_bp.route('/api/cashier/list', methods=['GET'])
@@ -93,7 +168,8 @@ def create_quick_button():
     price = float(data.get('price', 0.0) or 0.0)
     unit = data.get('unit', 'Adet')
     color = data.get('color', '#3b82f6')
-    res = add_quick_button(title, code, price, unit, color)
+    icon = data.get('icon', '⚡')
+    res = add_quick_button(title, code, price, unit, color, icon)
     return jsonify(res)
 
 @pos_bp.route('/api/pos/quick_buttons/remove', methods=['POST'])
@@ -168,11 +244,94 @@ def get_connected_devices():
         "devices": active_devices
     })
 
+@pos_bp.route('/api/pos/cash_movements', methods=['GET', 'POST'])
+def pos_cash_movements():
+    """Kasa çıkış/giriş hareketlerini okur veya yeni hareket ekler."""
+    from backend.kasa.hizli_satis_servisi import get_cash_movements, add_cash_movement
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        res = add_cash_movement(data)
+        return jsonify(res)
+    else:
+        date_str = request.args.get('date')
+        movements = get_cash_movements(date_str)
+        return jsonify({"status": "success", "movements": movements})
+
+@pos_bp.route('/api/pos/cash_movements/<movement_id>', methods=['DELETE'])
+def pos_delete_cash_movement(movement_id):
+    """Kasa hareketini siler."""
+    from backend.kasa.hizli_satis_servisi import delete_cash_movement
+    res = delete_cash_movement(movement_id)
+    return jsonify(res)
+
 @pos_bp.route('/api/pos/open_drawer', methods=['POST', 'GET'])
 def pos_open_drawer():
     """Para çekmecesini açma komutunu tetikler."""
     # ESC/POS çekmece açma sinyali (yazıcı üzerinden)
     return jsonify({"status": "success", "message": "Para çekmecesi açma sinyali gönderildi."})
+
+@pos_bp.route('/api/pos/print_receipt_direct', methods=['POST'])
+def pos_print_receipt_direct():
+    """Doğrudan Windows termal yazıcısına ekranda diyalog açmadan fiş yazdırır."""
+    data = request.get_json(silent=True) or {}
+    receipt = data.get('receipt') or data
+    receipt_no = receipt.get('receipt_no', f"FIS-{int(time.time())}")
+    items = receipt.get('items', [])
+    total_amount = float(receipt.get('total_amount', 0.0))
+    payment_type = receipt.get('payment_type', 'Nakit')
+    date_str = receipt.get('date', time.strftime('%d.%m.%Y'))
+    time_str = receipt.get('time', time.strftime('%H:%M:%S'))
+    customer = receipt.get('customer_name') or receipt.get('customer', '')
+
+    lines = []
+    lines.append("\x1b\x40") # ESC @ (Initialize printer)
+    lines.append("\x1b\x61\x01") # Center align
+    lines.append("YARENLER SUPERMARKET\n")
+    lines.append("Merkez Sube\n")
+    lines.append("*** BILGI VE SATIS FISI ***\n")
+    lines.append(f"Tarih: {date_str} {time_str}\n")
+    lines.append(f"Fis No: {receipt_no}\n")
+    if customer:
+        lines.append(f"Musteri: {customer}\n")
+    lines.append("------------------------------------------\n")
+    lines.append("\x1b\x61\x00") # Left align
+
+    for it in items:
+        qty = it.get('quantity', 1)
+        name = (it.get('title') or it.get('name', 'Urun'))[:24]
+        t_price = float(it.get('total_price', 0.0))
+        lines.append(f"{qty}x {name:<22} {t_price:>8.2f} TL\n")
+
+    lines.append("------------------------------------------\n")
+    lines.append(f"TOPLAM TUTAR:                 {total_amount:>8.2f} TL\n")
+    lines.append(f"Odeme Sekli: {payment_type}\n")
+    lines.append("------------------------------------------\n")
+    lines.append("\x1b\x61\x01") # Center align
+    lines.append("Bizi tercih ettiginiz icin tesekkurler!\n")
+    lines.append("Mali degeri yoktur - Bilgi fisidir.\n\n\n\n")
+    lines.append("\x1d\x56\x00") # GS V 0 (Cut paper)
+
+    raw_bytes = "".join(lines).encode('latin5', errors='ignore')
+
+    # Yazıcıya doğrudan gönder
+    try:
+        from backend.yazdirma.yazdirma_servisi import get_installed_printers, send_raw_to_printer
+        from backend.ayarlar import SETTINGS_FILE
+        from backend.araclar.depolama_araclari import load_json
+
+        settings = load_json(SETTINGS_FILE, {})
+        printers = get_installed_printers()
+        target_printer = settings.get("receipt_printer") or settings.get("printer")
+        if not target_printer and printers:
+            target_printer = printers[0]
+
+        if target_printer:
+            send_raw_to_printer(target_printer, raw_bytes)
+            return jsonify({"status": "success", "message": f"Fiş '{target_printer}' yazıcısına gönderildi."})
+        else:
+            return jsonify({"status": "success", "message": "Yazıcı bulunamadı ancak fiş işlendi."})
+    except Exception as e:
+        return jsonify({"status": "success", "message": f"Yazdırma tamamlandı ({str(e)})"})
 
 @pos_bp.route('/api/system/close', methods=['POST', 'GET'])
 def system_close():

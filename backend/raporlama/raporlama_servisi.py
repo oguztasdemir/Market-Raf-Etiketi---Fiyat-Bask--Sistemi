@@ -112,9 +112,6 @@ def _get_display_date_str() -> str:
 
 def _ensure_reports_structure() -> dict:
     """Rapor dosyasını yükler."""
-    if not os.path.exists(REPORTS_FILE):
-        save_json(REPORTS_FILE, {})
-        return {}
     data = load_json(REPORTS_FILE, {})
     if not isinstance(data, dict):
         data = {}
@@ -237,26 +234,96 @@ def get_monthly_calendar_report(year: int = None, month: int = None) -> dict:
         date_str = day_date.strftime("%Y-%m-%d")
         weekday = day_date.weekday()  # 0: Pazartesi, 6: Pazar
 
-        # Günlük satışları oku (Yıl/Ay hiyerarşisi)
+        # Günlük satışları oku (Yıl/Ay hiyerarşisi - İptalleri Ayıkla & İadeleri Düş)
         daily_sales = get_sales_for_date(date_str)
 
         day_sales_total = 0.0
-        day_receipts = len(daily_sales)
+        day_receipts = 0
         day_sold_adet = 0.0
         day_sold_kg = 0.0
         day_cash = 0.0
         day_card = 0.0
 
         for sale in daily_sales:
+            is_cancelled = sale.get("is_cancelled") or sale.get("payment_type") == "İptal Edildi" or str(sale.get("receipt_no", "")).startswith("FIS-IPTAL")
+            if is_cancelled:
+                continue
+
+            is_ret = sale.get("is_return") or "iade" in str(sale.get("payment_type", "")).lower() or str(sale.get("receipt_no", "")).startswith("FIS-IADE")
+            if is_ret:
+                amt = abs(float(sale.get("total_amount", 0.0)))
+                day_sales_total -= amt
+                pb = sale.get("payment_breakdown")
+                if isinstance(pb, dict) and pb:
+                    for b_k, b_v in pb.items():
+                        b_str = str(b_k).lower()
+                        b_amt = abs(float(b_v or 0.0))
+                        if "kart" in b_str or "kredi" in b_str:
+                            day_card -= b_amt
+                            payment_breakdown["Kredi Kartı"] -= b_amt
+                        elif "veresiye" in b_str or "cari" in b_str:
+                            pass
+                        else:
+                            day_cash -= b_amt
+                            payment_breakdown["Nakit"] -= b_amt
+                else:
+                    ptype = str(sale.get("payment_type", "Nakit")).lower()
+                    if "kart" in ptype or "kredi" in ptype:
+                        day_card -= amt
+                        payment_breakdown["Kredi Kartı"] -= amt
+                    elif "veresiye" in ptype or "cari" in ptype:
+                        pass
+                    else:
+                        day_cash -= amt
+                        payment_breakdown["Nakit"] -= amt
+                continue
+
+            day_receipts += 1
             amt = float(sale.get("total_amount", 0.0))
-            day_sales_total += amt
-            ptype = sale.get("payment_type", "Nakit")
-            if "kart" in ptype.lower():
-                day_card += amt
-                payment_breakdown["Kredi Kartı"] += amt
+            
+            # Fiş içi iade kontrolü
+            in_place_ret = 0.0
+            if isinstance(sale.get("returns"), list):
+                for r in sale["returns"]:
+                    r_amt = float(r.get("refund_amount", 0.0))
+                    in_place_ret += r_amt
+                    r_type = str(r.get("refund_type", "Nakit")).lower()
+                    if "kart" in r_type or "kredi" in r_type:
+                        day_card -= r_amt
+                        payment_breakdown["Kredi Kartı"] -= r_amt
+                    elif "veresiye" in r_type or "cari" in r_type:
+                        pass
+                    else:
+                        day_cash -= r_amt
+                        payment_breakdown["Nakit"] -= r_amt
+
+            net_amt = max(0.0, amt - in_place_ret)
+            day_sales_total += net_amt
+            
+            # Ödeme türü ve parçalı ödeme ayrımı
+            pb = sale.get("payment_breakdown")
+            if isinstance(pb, dict) and pb:
+                for b_k, b_v in pb.items():
+                    b_str = str(b_k).lower()
+                    b_amt = float(b_v or 0.0)
+                    if "kart" in b_str or "kredi" in b_str:
+                        day_card += b_amt
+                        payment_breakdown["Kredi Kartı"] += b_amt
+                    elif "veresiye" in b_str or "cari" in b_str:
+                        pass
+                    else:
+                        day_cash += b_amt
+                        payment_breakdown["Nakit"] += b_amt
             else:
-                day_cash += amt
-                payment_breakdown["Nakit"] += amt
+                ptype = str(sale.get("payment_type", "Nakit")).lower()
+                if "kart" in ptype or "kredi" in ptype:
+                    day_card += amt
+                    payment_breakdown["Kredi Kartı"] += amt
+                elif "veresiye" in ptype or "cari" in ptype:
+                    pass
+                else:
+                    day_cash += amt
+                    payment_breakdown["Nakit"] += amt
 
             for item in sale.get("items", []):
                 t = item.get("title", "Ürün")
@@ -486,14 +553,80 @@ def get_detailed_day_report(date_str: str = None) -> dict:
         }
 
     for s in sales:
+        is_cancelled = s.get("is_cancelled") or s.get("payment_type") == "İptal Edildi" or str(s.get("receipt_no", "")).startswith("FIS-IPTAL")
+        if is_cancelled:
+            continue
+
+        is_ret = s.get("is_return") or "iade" in str(s.get("payment_type", "")).lower() or str(s.get("receipt_no", "")).startswith("FIS-IADE")
+        if is_ret:
+            amt = abs(float(s.get("total_amount", 0.0)))
+            total_amount -= amt
+            pb = s.get("payment_breakdown")
+            if isinstance(pb, dict) and pb:
+                for b_k, b_v in pb.items():
+                    b_str = str(b_k).lower()
+                    b_amt = abs(float(b_v or 0.0))
+                    if "kart" in b_str or "kredi" in b_str:
+                        card_total -= b_amt
+                    elif "veresiye" in b_str or "cari" in b_str:
+                        pass
+                    else:
+                        cash_total -= b_amt
+            else:
+                ptype = str(s.get("payment_type", "Nakit")).lower()
+                if "kart" in ptype or "kredi" in ptype:
+                    card_total -= amt
+                elif "veresiye" in ptype or "cari" in ptype:
+                    pass
+                else:
+                    cash_total -= amt
+            continue
+
         amt = float(s.get("total_amount", 0.0))
-        total_amount += amt
-        ptype = s.get("payment_type", "Nakit")
-        is_card = "kart" in ptype.lower()
-        if is_card:
-            card_total += amt
+        
+        # Fiş içi iade düşümü
+        in_place_ret = 0.0
+        if isinstance(s.get("returns"), list):
+            for r in s["returns"]:
+                r_amt = float(r.get("refund_amount", 0.0))
+                in_place_ret += r_amt
+                r_type = str(r.get("refund_type", "Nakit")).lower()
+                if "kart" in r_type or "kredi" in r_type:
+                    card_total -= r_amt
+                elif "veresiye" in r_type or "cari" in r_type:
+                    pass
+                else:
+                    cash_total -= r_amt
+
+        net_amt = max(0.0, amt - in_place_ret)
+        total_amount += net_amt
+
+        # Satış ödeme türü ve parçalı ödeme ayrımı
+        cur_sale_cash = 0.0
+        cur_sale_card = 0.0
+        pb = s.get("payment_breakdown")
+        if isinstance(pb, dict) and pb:
+            for b_k, b_v in pb.items():
+                b_str = str(b_k).lower()
+                b_amt = float(b_v or 0.0)
+                if "kart" in b_str or "kredi" in b_str:
+                    card_total += b_amt
+                    cur_sale_card += b_amt
+                elif "veresiye" in b_str or "cari" in b_str:
+                    pass
+                else:
+                    cash_total += b_amt
+                    cur_sale_cash += b_amt
         else:
-            cash_total += amt
+            ptype = str(s.get("payment_type", "Nakit")).lower()
+            if "kart" in ptype or "kredi" in ptype:
+                card_total += amt
+                cur_sale_card += amt
+            elif "veresiye" in ptype or "cari" in ptype:
+                pass
+            else:
+                cash_total += amt
+                cur_sale_cash += amt
 
         # Kasiyer bazlı detaylı toplama
         c_name = s.get("cashier", "Kasiyer") or "Kasiyer"
@@ -508,10 +641,8 @@ def get_detailed_day_report(date_str: str = None) -> dict:
             }
         cashier_dict[c_name]["receipt_count"] += 1
         cashier_dict[c_name]["total"] += amt
-        if is_card:
-            cashier_dict[c_name]["card"] += amt
-        else:
-            cashier_dict[c_name]["cash"] += amt
+        cashier_dict[c_name]["card"] += cur_sale_card
+        cashier_dict[c_name]["cash"] += cur_sale_cash
 
         # Satış Saati Tespiti
         t_str = str(s.get("time") or s.get("datetime") or "12:00:00")
@@ -525,10 +656,8 @@ def get_detailed_day_report(date_str: str = None) -> dict:
         if h_key in hourly_data:
             hourly_data[h_key]["revenue"] += amt
             hourly_data[h_key]["receipt_count"] += 1
-            if is_card:
-                hourly_data[h_key]["card"] += amt
-            else:
-                hourly_data[h_key]["cash"] += amt
+            hourly_data[h_key]["card"] += cur_sale_card
+            hourly_data[h_key]["cash"] += cur_sale_cash
 
         for item in s.get("items", []):
             t = item.get("title", "Ürün")
@@ -811,11 +940,28 @@ def get_weekly_heatmap_report(year: int = None, month: int = None) -> dict:
         if not sales:
             continue
         for s in sales:
+            is_cancelled = s.get("is_cancelled") or s.get("payment_type") == "İptal Edildi" or str(s.get("receipt_no", "")).startswith("FIS-IPTAL")
+            if is_cancelled:
+                continue
+
+            is_ret = s.get("is_return") or "iade" in str(s.get("payment_type", "")).lower() or str(s.get("receipt_no", "")).startswith("FIS-IADE")
+            if is_ret:
+                amt = abs(float(s.get("total_amount", 0.0)))
+                total_heatmap_rev -= amt
+                day_totals[w_day]["revenue"] -= amt
+                continue
+
             amt = float(s.get("total_amount", 0.0))
-            total_heatmap_rev += amt
+            in_place_ret = 0.0
+            if isinstance(s.get("returns"), list):
+                for r in s["returns"]:
+                    in_place_ret += float(r.get("refund_amount", 0.0))
+
+            net_amt = max(0.0, amt - in_place_ret)
+            total_heatmap_rev += net_amt
             total_heatmap_receipts += 1
             
-            day_totals[w_day]["revenue"] += amt
+            day_totals[w_day]["revenue"] += net_amt
             day_totals[w_day]["receipt_count"] += 1
             
             t_str = str(s.get("time") or s.get("datetime") or "12:00:00")
@@ -826,10 +972,10 @@ def get_weekly_heatmap_report(year: int = None, month: int = None) -> dict:
             except Exception:
                 h_int = 12
                 
-            hour_totals[h_int]["revenue"] += amt
+            hour_totals[h_int]["revenue"] += net_amt
             hour_totals[h_int]["receipt_count"] += 1
             
-            matrix[w_day][h_int]["revenue"] += amt
+            matrix[w_day][h_int]["revenue"] += net_amt
             matrix[w_day][h_int]["receipt_count"] += 1
             
             for item in s.get("items", []):

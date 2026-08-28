@@ -15,9 +15,11 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/frontend/manifest.json">
+  
   <!-- Modüler Mobil CSS -->
   <link rel="stylesheet" href="/frontend/stiller/mobil/mobile.css?v={{ cache_bust }}">
-  <link rel="stylesheet" href="/frontend/stiller/mobile.css?v={{ cache_bust }}">
 </head>
 <body>
 
@@ -33,8 +35,11 @@
   {% include 'mobil/sekmeler/tarayici_sekmesi.html' %}
   {% include 'mobil/sekmeler/kasa_sekmesi.html' %}
   {% include 'mobil/sekmeler/kuyruk_sekmesi.html' %}
+  {% include 'mobil/sekmeler/sayim_sekmesi.html' %}
 
   <!-- 4. SÖK-ÇIKAR MOBİL MODAL PENCERELERİ -->
+  {% include 'mobil/modallar/mobil_giris_ekrani.html' %}
+  {% include 'mobil/modallar/kamera_tarayici_modali.html' %}
   {% include 'mobil/modallar/yazdirma_ilerleme_modali.html' %}
   {% include 'mobil/modallar/yazdirma_dogrulama_modali.html' %}
   {% include 'mobil/modallar/hizli_urun_modali.html' %}

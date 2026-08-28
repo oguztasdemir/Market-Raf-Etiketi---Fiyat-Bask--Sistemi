@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof loadTemplates === 'function') loadTemplates().catch(() => {});
     if (typeof loadCurrentDate === 'function') loadCurrentDate().catch(() => {});
     if (typeof checkBackendAndDevices === 'function') checkBackendAndDevices().catch(() => {});
+    if (typeof loadDashboardSummary === 'function') loadDashboardSummary().catch(() => {});
+    if (typeof loadCustomersList === 'function') loadCustomersList().catch(() => {});
+    if (typeof loadMarketEmployees === 'function') loadMarketEmployees().catch(() => {});
     if (typeof setupSyncDropzone === 'function') setupSyncDropzone();
   }, 100);
 

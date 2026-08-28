@@ -1,0 +1,104 @@
+<!-- 🚀 YENİ MAĞAZA HIZLI KURULUM SİHİRBAZI MODALI (WHITELABEL SETUP) -->
+<div id="modal-setup-wizard" class="universal-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+  
+  <div style="background: #0b1329; border: 1px solid rgba(56,189,248,0.3); border-radius: 14px; width: 560px; max-width: 95vw; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 70px rgba(0,0,0,0.8);">
+    
+    <!-- Üst Başlık -->
+    <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #070d1e, #0f172a);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          🚀
+        </div>
+        <div>
+          <strong style="color: #f8fafc; font-size: 15px; display: block;">Yeni Mağaza Hızlı Kurulum Sihirbazı</strong>
+          <small style="color: #94a3b8; font-size: 11px;">Sistemi yeni bir markete devrederken tek tıkla yapılandırın</small>
+        </div>
+      </div>
+      <button type="button" class="btn-secondary" onclick="closeSetupWizardModal()" style="padding: 4px 10px; font-size: 12px;">✕</button>
+    </div>
+
+    <!-- Form Alanı -->
+    <div style="padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px;">
+      
+      <!-- 1. Market Kimliği -->
+      <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">1. Market & Şube Kimliği</div>
+        
+        <div class="form-group">
+          <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Market / Ticari Ünvan (Tüm etiket & fişlere yazılır) *</label>
+          <input type="text" id="wiz-market-name" placeholder="Örn: YILDIZ SÜPERMARKET" style="width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 800; background: #070d1e; border: 1.5px solid #38bdf8; border-radius: 6px; color: #38bdf8; box-sizing: border-box;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Şube Adı</label>
+            <input type="text" id="wiz-branch-name" placeholder="Merkez Şube" value="Merkez Şube" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">İletişim Telefonu</label>
+            <input type="text" id="wiz-phone" placeholder="0555 000 00 00" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Adres & Vergi Bilgileri -->
+      <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #fbbf24; text-transform: uppercase;">2. Fiş Üstü Adres & Vergi Bilgileri</div>
+        
+        <div class="form-group">
+          <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Açık Adres</label>
+          <input type="text" id="wiz-address" placeholder="Cumhuriyet Cad. No: 45 / A" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Vergi Dairesi</label>
+            <input type="text" id="wiz-tax-office" placeholder="V. Dairesi" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Vergi Kimlik No / T.C.</label>
+            <input type="text" id="wiz-tax-no" placeholder="Vergi No" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Fiş & Donanım Tercihleri -->
+      <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 11.5px; font-weight: 800; color: #34d399; text-transform: uppercase;">3. Fiş ve Baskı Ayarları</div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Termal Fiş Genişliği</label>
+            <select id="wiz-paper-width" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+              <option value="80mm" selected>80mm (Standart Kasa Fişi)</option>
+              <option value="58mm">58mm (Dar Fiş)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Kasa Açılış Avansı</label>
+            <input type="number" id="wiz-cash-advance" value="500" step="50" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 11px; color: #cbd5e1; font-weight: 700; display: block; margin-bottom: 4px;">Fiş Altı Teşekkür & İade Notu</label>
+          <input type="text" id="wiz-footer-note" value="Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!" style="width: 100%; padding: 7px 10px; font-size: 12px; background: #070d1e; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alt Aksiyon Butonları -->
+    <div style="padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: #070d1e;">
+      <button type="button" class="btn-secondary" onclick="closeSetupWizardModal()" style="padding: 8px 16px; font-size: 12px;">
+        Vazgeç
+      </button>
+      <button type="button" class="btn-primary" onclick="submitSetupWizard()" style="padding: 10px 24px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.4); display: flex; align-items: center; gap: 8px;">
+        <span>🎉</span>
+        <span>Kurulumu Tamamla & Uygula</span>
+      </button>
+    </div>
+
+  </div>
+
+</div>

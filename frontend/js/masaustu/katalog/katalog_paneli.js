@@ -15,6 +15,7 @@ let currentSortDirection = "asc";
 
 function isLabelPriceUpToDate(p) {
   if (!p) return true;
+  if (p.no_label === true) return true;
   const sysVal = parsePrice(p.price);
   const labelVal = parsePrice(p.label_price || p.price);
   if (p.label_price !== undefined && p.label_price !== null && p.label_price !== "") {
@@ -29,35 +30,87 @@ function setCatalogStatusFilter(filterType) {
   const pillAll = document.getElementById('pill-filter-all');
   const pillOutdated = document.getElementById('pill-filter-outdated');
   const pillMatched = document.getElementById('pill-filter-matched');
+  const pillSpecial = document.getElementById('pill-filter-special');
+  const pillLowStock = document.getElementById('pill-filter-low-stock');
+  const pillExpiring = document.getElementById('pill-filter-expiring');
 
   if (pillAll) pillAll.classList.toggle('active', filterType === 'ALL');
   if (pillOutdated) pillOutdated.classList.toggle('active', filterType === 'OUTDATED');
   if (pillMatched) pillMatched.classList.toggle('active', filterType === 'MATCHED');
+  if (pillSpecial) pillSpecial.classList.toggle('active', filterType === 'SPECIAL');
+  if (pillLowStock) pillLowStock.classList.toggle('active', filterType === 'LOW_STOCK');
+  if (pillExpiring) pillExpiring.classList.toggle('active', filterType === 'EXPIRING');
 
   onCatalogFilterChange();
 }
 
 
+function isProductExpiringSoon(p, daysAhead = 7) {
+  const expStr = String(p.expiration_date || p.skt || '').trim();
+  if (!expStr) return false;
+  try {
+    let expDate = null;
+    if (expStr.includes('-')) {
+      expDate = new Date(expStr);
+    } else if (expStr.includes('.')) {
+      const pts = expStr.split('.');
+      if (pts.length === 3) expDate = new Date(`${pts[2]}-${pts[1]}-${pts[0]}`);
+    }
+    if (!expDate || isNaN(expDate.getTime())) return false;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+    return diffDays <= daysAhead;
+  } catch (e) {
+    return false;
+  }
+}
+
 function updateCatalogStatusCounts() {
   let total = allCatalogProducts.length;
   let outdated = 0;
   let matched = 0;
+  let special = 0;
+  let lowStock = 0;
+  let expiring = 0;
 
   allCatalogProducts.forEach(p => {
+    if (p.is_special || p.special_category) {
+      special++;
+    }
     if (isLabelPriceUpToDate(p)) {
       matched++;
     } else {
       outdated++;
+    }
+    const st = parseFloat(p.stock || 0);
+    if (st <= 5) {
+      lowStock++;
+    }
+    if (isProductExpiringSoon(p, 7)) {
+      expiring++;
     }
   });
 
   const cAll = document.getElementById('count-pill-all');
   const cOutdated = document.getElementById('count-pill-outdated');
   const cMatched = document.getElementById('count-pill-matched');
+  const cSpecial = document.getElementById('count-pill-special');
+  const cLowStock = document.getElementById('count-pill-low-stock');
+  const cExpiring = document.getElementById('count-pill-expiring');
 
   if (cAll) cAll.innerText = total.toLocaleString('tr-TR');
   if (cOutdated) cOutdated.innerText = outdated.toLocaleString('tr-TR');
   if (cMatched) cMatched.innerText = matched.toLocaleString('tr-TR');
+  if (cSpecial) cSpecial.innerText = special.toLocaleString('tr-TR');
+  if (cLowStock) cLowStock.innerText = lowStock.toLocaleString('tr-TR');
+  if (cExpiring) cExpiring.innerText = expiring.toLocaleString('tr-TR');
+
+  const pBadge = document.getElementById('price-changed-count-badge');
+  if (pBadge) {
+    pBadge.innerText = outdated.toLocaleString('tr-TR');
+    pBadge.style.display = outdated > 0 ? 'inline-block' : 'none';
+  }
 }
 
 
@@ -330,9 +383,12 @@ function onCatalogFilterChange() {
     const matchesBrand = (selectedBrand === 'ALL') || (p.brand === selectedBrand);
     if (!matchesBrand) return false;
 
-    // Etiket Durumu Filtresi (Tümü / Güncel Değil / Güncel)
+    // Etiket Durumu Filtresi (Tümü / Güncel Değil / Güncel / Özel Kategori / Azalan Stok / SKT Alarmları)
     if (catalogStatusFilter === 'OUTDATED' && isLabelPriceUpToDate(p)) return false;
     if (catalogStatusFilter === 'MATCHED' && !isLabelPriceUpToDate(p)) return false;
+    if (catalogStatusFilter === 'SPECIAL' && !p.is_special && !p.special_category) return false;
+    if (catalogStatusFilter === 'LOW_STOCK' && (parseFloat(p.stock || 0) > 5)) return false;
+    if (catalogStatusFilter === 'EXPIRING' && !isProductExpiringSoon(p, 7)) return false;
 
     if (searchTokens.length === 0) return true;
     
@@ -389,6 +445,10 @@ function applyColumnSorting() {
       return (aUp - bUp) * dir;
     } else if (currentSortColumn === 'barcode') {
       return (a.barcode || '').localeCompare(b.barcode || '') * dir;
+    } else if (currentSortColumn === 'custom_barcode') {
+      const aCb = (a.custom_barcode || a.ozel_barkod || '').toString();
+      const bCb = (b.custom_barcode || b.ozel_barkod || '').toString();
+      return aCb.localeCompare(bCb, 'tr') * dir;
     } else if (currentSortColumn === 'brand') {
       return (a.brand || '').localeCompare(b.brand || '', 'tr') * dir;
     } else if (currentSortColumn === 'title') {
@@ -418,7 +478,7 @@ function applyColumnSorting() {
 
 
 function updateSortIcons() {
-  ['brand', 'barcode', 'title', 'stock', 'buying_price', 'price', 'profit_margin', 'label_price', 'date', 'status'].forEach(col => {
+  ['brand', 'barcode', 'custom_barcode', 'title', 'stock', 'buying_price', 'price', 'profit_margin', 'label_price', 'date', 'status'].forEach(col => {
     const iconEl = document.getElementById(`sort-ico-${col}`);
     if (iconEl) {
       if (currentSortColumn === col) {
@@ -439,6 +499,25 @@ function parsePrice(pStr) {
   if (!pStr) return 0;
   const clean = String(pStr).replace('TL', '').replace('tl', '').replace('₺', '').replace(',', '.').trim();
   return parseFloat(clean) || 0;
+}
+
+function formatPriceInput(val) {
+  if (val === null || val === undefined) return '';
+  let s = String(val).replace(/TL/gi, '').replace(/₺/g, '').trim();
+  if (!s) return '';
+  s = s.replace(/\s+/g, '');
+  if (s.includes(',') && s.includes('.')) {
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  } else if (s.includes(',')) {
+    s = s.replace(',', '.');
+  }
+  let num = parseFloat(s);
+  if (isNaN(num)) return String(val).trim() + (String(val).trim().toUpperCase().endsWith('TL') ? '' : ' TL');
+  return num.toFixed(2).replace('.', ',') + ' TL';
 }
 
 
@@ -536,20 +615,28 @@ document.addEventListener('click', (e) => {
 
 function handleCatalogRowClick(barcode, event) {
   // Buton veya input'a tıklandıysa modal açmayı durdur
-  if (event && (event.target.closest('button') || event.target.tagName === 'BUTTON')) return;
-  if (event && event.target.tagName === 'INPUT') return;
+  if (event && (event.target.closest('button') || event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT')) return;
 
-  const clickedIdx = filteredCatalogProducts.findIndex(p => p.barcode === barcode);
+  const cleanBc = String(barcode || '').trim();
+  const list = (filteredCatalogProducts && filteredCatalogProducts.length > 0) ? filteredCatalogProducts : allCatalogProducts;
+  let clickedIdx = list.findIndex(p => String(p.barcode || '').trim() === cleanBc);
 
-  // 1. Shift + Tık: Aralık Seçimi
-  if (event && event.shiftKey && anchorIndex !== -1) {
-    selectedBarcodes.clear();
-    const start = Math.min(anchorIndex, clickedIdx);
-    const end = Math.max(anchorIndex, clickedIdx);
-    for (let i = start; i <= end; i++) {
-      const item = filteredCatalogProducts[i];
-      if (item && item.barcode) {
-        selectedBarcodes.add(item.barcode);
+  // 1. Shift + Tık (veya Ctrl + Shift + Tık): Önceki Seçimleri KORU ve Aralığı Seç
+  if (event && event.shiftKey) {
+    if (anchorIndex === -1 || clickedIdx === -1) {
+      anchorIndex = clickedIdx !== -1 ? clickedIdx : 0;
+      selectedBarcodes.add(cleanBc);
+      baseSelection = new Set(selectedBarcodes);
+    } else {
+      // Önceki Ctrl seçimlerini taban alarak aralığı üzerine inşa et
+      selectedBarcodes = new Set(baseSelection);
+      const start = Math.min(anchorIndex, clickedIdx);
+      const end = Math.max(anchorIndex, clickedIdx);
+      for (let i = start; i <= end; i++) {
+        const item = list[i];
+        if (item && item.barcode) {
+          selectedBarcodes.add(String(item.barcode).trim());
+        }
       }
     }
     updateBatchActionBar();
@@ -557,21 +644,22 @@ function handleCatalogRowClick(barcode, event) {
     return;
   }
 
-  // 2. Ctrl / Cmd + Tık: Tekli Seçimi Aç / Kapat
+  // 2. Ctrl / Cmd + Tık: Tekli Seçimi Aç / Kapat ve Yeni Çapa (Anchor) Belirle
   if (event && (event.ctrlKey || event.metaKey)) {
-    if (selectedBarcodes.has(barcode)) {
-      selectedBarcodes.delete(barcode);
+    if (selectedBarcodes.has(cleanBc)) {
+      selectedBarcodes.delete(cleanBc);
     } else {
-      selectedBarcodes.add(barcode);
+      selectedBarcodes.add(cleanBc);
     }
-    anchorIndex = clickedIdx;
+    anchorIndex = clickedIdx !== -1 ? clickedIdx : 0;
+    baseSelection = new Set(selectedBarcodes);
     updateBatchActionBar();
     updateRowSelections();
     return;
   }
 
   // 3. Normal Tıklama: Ürün Detay & Düzenleme Modalını Aç!
-  openCatalogProductDetailModal(barcode);
+  openCatalogProductDetailModal(cleanBc);
 }
 
 function onRowCheckboxChange(barcode, checked, event) {
@@ -589,19 +677,22 @@ function handleCatalogSelectSquareClick(barcode, event) {
 // ==========================================
 
 function updateDetailModalStatusUI(prod, currentInputPrice = null) {
-  const labelPrice = prod.label_price || prod.price || '0,00 TL';
+  const isNoLabel = document.getElementById('cat-detail-check-no-label')?.checked ?? (prod.no_label === true);
+  const labelPrice = isNoLabel ? (prod.price || '0,00 TL') : (prod.label_price || prod.price || '0,00 TL');
   const sysPrice = currentInputPrice !== null ? currentInputPrice : (prod.price || '');
-  const isUpToDate = isLabelPriceUpToDate(prod) && (!currentInputPrice || parsePrice(currentInputPrice) === parsePrice(labelPrice));
+  const isUpToDate = isNoLabel || (isLabelPriceUpToDate(prod) && (!currentInputPrice || parsePrice(currentInputPrice) === parsePrice(labelPrice)));
   
   const labelValEl = document.getElementById('cat-detail-label-price-val');
   if (labelValEl) {
-    labelValEl.innerText = labelPrice;
-    labelValEl.style.color = isUpToDate ? '#34d399' : '#fbbf24';
+    labelValEl.innerText = isNoLabel ? 'Muaf (Etiketsiz)' : labelPrice;
+    labelValEl.style.color = isNoLabel ? '#94a3b8' : (isUpToDate ? '#34d399' : '#fbbf24');
   }
 
   const diffPill = document.getElementById('cat-detail-diff-pill');
   if (diffPill) {
-    if (isUpToDate) {
+    if (isNoLabel) {
+      diffPill.innerHTML = '<span style="color:#94a3b8; background: rgba(148,163,184,0.15); padding: 2px 6px; border-radius: 4px;">🚫 Etiket Muaf</span>';
+    } else if (isUpToDate) {
       diffPill.innerHTML = '<span style="color:#34d399;">Fiyat Eşit ✓</span>';
     } else {
       diffPill.innerHTML = '<span style="color:#ef4444; background: rgba(239,68,68,0.15); padding: 2px 6px; border-radius: 4px;">Fark Var ⚠️</span>';
@@ -610,9 +701,19 @@ function updateDetailModalStatusUI(prod, currentInputPrice = null) {
 
   const statusEl = document.getElementById('cat-detail-status-text');
   if (statusEl) {
-    statusEl.innerHTML = isUpToDate 
-      ? '<span style="color:#34d399;">✅ Güncel (Etiket Basılmış)</span>' 
-      : '<span style="color:#fbbf24;">⚠️ Güncel Değil (Etiket Basılmadı - Yazdır Butonuna Basın)</span>';
+    if (isNoLabel) {
+      statusEl.innerHTML = '<span style="color:#94a3b8;">🚫 Etiket Basımından Muaf (Dondurma vb.)</span>';
+    } else {
+      statusEl.innerHTML = isUpToDate 
+        ? '<span style="color:#34d399;">✅ Güncel (Etiket Basılmış)</span>' 
+        : '<span style="color:#fbbf24;">⚠️ Güncel Değil (Etiket Basılmadı - Yazdır Butonuna Basın)</span>';
+    }
+  }
+}
+
+function onDetailNoLabelToggle() {
+  if (currentDetailProduct) {
+    updateDetailModalStatusUI(currentDetailProduct);
   }
 }
 
@@ -622,11 +723,81 @@ function onDetailPriceInputChange() {
   updateDetailModalStatusUI(currentDetailProduct, rawPrice);
 }
 
+function toggleDetailQuickBtnFields() {
+  const chk = document.getElementById('cat-detail-check-quick-btn');
+  const fields = document.getElementById('cat-detail-quick-btn-fields');
+  if (fields) {
+    fields.style.display = (chk && chk.checked) ? 'grid' : 'none';
+  }
+}
+
+async function checkProductQuickButtonStatus(prod) {
+  const chk = document.getElementById('cat-detail-check-quick-btn');
+  const codeInp = document.getElementById('cat-detail-inp-quick-code');
+  const colorSel = document.getElementById('cat-detail-select-quick-color');
+  const iconSel = document.getElementById('cat-detail-select-quick-icon');
+
+  const bcs = prod.barcodes || [prod.barcode];
+  let isQuick = false;
+  let quickObj = null;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/pos/quick_buttons`);
+    const data = await res.json();
+    if (data.status === 'success' && Array.isArray(data.buttons)) {
+      quickObj = data.buttons.find(b => bcs.includes(b.code) || b.code === prod.barcode || b.title === prod.title);
+      if (quickObj) isQuick = true;
+    }
+  } catch (e) {}
+
+  if (chk) chk.checked = isQuick;
+  if (codeInp) {
+    codeInp.value = quickObj ? quickObj.code : (prod.barcode || (prod.title || 'URUN').split(' ')[0].toUpperCase());
+  }
+  if (colorSel && quickObj && quickObj.color) colorSel.value = quickObj.color;
+  if (iconSel && quickObj && quickObj.icon) iconSel.value = quickObj.icon;
+  toggleDetailQuickBtnFields();
+}
+
 function openCatalogProductDetailModal(barcode) {
   const cleanBc = String(barcode || '').trim();
-  const prod = allCatalogProducts.find(p => String(p.barcode || '').trim() === cleanBc);
+  let prod = allCatalogProducts.find(p => String(p.barcode || '').trim() === cleanBc);
+  if (!prod && cleanBc) {
+    const noZeros = cleanBc.replace(/^0+/, '');
+    prod = allCatalogProducts.find(p => {
+      const pBc = String(p.barcode || '').trim().replace(/^0+/, '');
+      const cBc = String(p.custom_barcode || '').trim().replace(/^0+/, '');
+      return (pBc && pBc === noZeros) || (cBc && cBc === noZeros);
+    });
+  }
+  if (!prod && filteredCatalogProducts && filteredCatalogProducts.length > 0) {
+    prod = filteredCatalogProducts.find(p => String(p.barcode || '').trim() === cleanBc);
+  }
+  if (!prod && typeof manavProductsData !== 'undefined' && Array.isArray(manavProductsData)) {
+    const mItem = manavProductsData.find(m => String(m.barcode || '').trim() === cleanBc || String(m.plu || '').trim() === cleanBc);
+    if (mItem) {
+      prod = {
+        barcode: mItem.barcode || `2700${String(mItem.plu).padStart(3, '0')}`,
+        barcodes: [mItem.barcode || `2700${String(mItem.plu).padStart(3, '0')}`],
+        title: mItem.title,
+        title1: mItem.title,
+        brand: 'MANAV',
+        firma: 'MANAV',
+        price: (mItem.price || '0,00 TL').includes('TL') ? mItem.price : `${mItem.price} TL`,
+        label_price: (mItem.price || '0,00 TL').includes('TL') ? mItem.price : `${mItem.price} TL`,
+        unit: mItem.unit || 'Kg',
+        kdv: mItem.kdv !== undefined ? mItem.kdv : 1,
+        origin: mItem.origin || 'TÜRKİYE',
+        is_scale_item: (mItem.unit || '').toLowerCase() !== 'adet',
+        plu: mItem.plu,
+        stock: mItem.stock || 100
+      };
+    }
+  }
+
   if (!prod) {
     console.warn("Ürün bulunamadı:", barcode);
+    if (typeof showToast === 'function') showToast("Ürün bilgisi bulunamadı: " + barcode, "warning");
     return;
   }
   currentDetailProduct = prod;
@@ -637,8 +808,19 @@ function openCatalogProductDetailModal(barcode) {
   const bcInp = document.getElementById('cat-detail-inp-barcode');
   if (bcInp) bcInp.value = prod.barcode || '';
 
-  const customBcInp = document.getElementById('cat-detail-inp-custom-barcode');
-  if (customBcInp) customBcInp.value = prod.custom_barcode || '';
+  // Çoklu Barkod Listesi
+  if (!prod.barcodes || !Array.isArray(prod.barcodes)) {
+    prod.barcodes = prod.barcode ? [prod.barcode] : [];
+  }
+  if (prod.alternate_barcodes && Array.isArray(prod.alternate_barcodes)) {
+    prod.alternate_barcodes.forEach(b => {
+      if (b && !prod.barcodes.includes(b)) prod.barcodes.push(b);
+    });
+  }
+  renderDetailBarcodesList();
+
+  const newBcInp = document.getElementById('cat-detail-inp-new-barcode');
+  if (newBcInp) newBcInp.value = '';
 
   const titleInp = document.getElementById('cat-detail-inp-title');
   if (titleInp) titleInp.value = prod.title || prod.title1 || '';
@@ -658,13 +840,141 @@ function openCatalogProductDetailModal(barcode) {
   const kdvInp = document.getElementById('cat-detail-inp-kdv');
   if (kdvInp) kdvInp.value = String(prod.kdv !== undefined ? prod.kdv : (prod.vat_rate !== undefined ? prod.vat_rate : '10'));
 
-  updateDetailModalStatusUI(prod);
+  const noLabelChk = document.getElementById('cat-detail-check-no-label');
+  if (noLabelChk) noLabelChk.checked = prod.no_label === true;
+
+  const isSpecial = prod.is_special === true || prod.special_category === true;
+  const isSpecialInp = document.getElementById('cat-detail-inp-is-special');
+  if (isSpecialInp) isSpecialInp.value = isSpecial ? 'true' : 'false';
+  updateDetailSpecialCatButtonUI(isSpecial);
+
+  if (typeof updateDetailModalStatusUI === 'function') {
+    updateDetailModalStatusUI(prod);
+  }
 
   const modal = document.getElementById('modal-catalog-product-detail');
   if (modal) {
     modal.style.display = 'flex';
     modal.classList.add('active');
   }
+}
+
+function renderDetailBarcodesList() {
+  const container = document.getElementById('cat-detail-barcodes-chips-container');
+  const countBadge = document.getElementById('cat-detail-barcodes-count-badge');
+  if (!container || !currentDetailProduct) return;
+
+  const bcs = currentDetailProduct.barcodes || [currentDetailProduct.barcode];
+  if (countBadge) countBadge.innerText = `${bcs.length} Kayıtlı Barkod`;
+
+  if (bcs.length === 0) {
+    container.innerHTML = `<span style="color: #64748b; font-size: 11px;">Kayıtlı barkod bulunamadı.</span>`;
+    return;
+  }
+
+  container.innerHTML = bcs.map((bc, idx) => {
+    const isPrimary = (idx === 0 || bc === currentDetailProduct.barcode);
+    return `
+      <span style="background: ${isPrimary ? 'rgba(56,189,248,0.18)' : 'rgba(168,85,247,0.18)'}; border: 1px solid ${isPrimary ? '#38bdf8' : '#a855f7'}; color: ${isPrimary ? '#38bdf8' : '#d8b4fe'}; font-weight: 800; font-family: monospace; padding: 4px 8px; border-radius: 6px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 6px;">
+        <span>${isPrimary ? '👑 ' + bc + ' (Ana)' : '🏷️ ' + bc}</span>
+        ${!isPrimary ? `
+          <button type="button" onclick="removeBarcodeFromCurrentDetailProduct('${bc}')" style="background: transparent; border: none; color: #f87171; font-weight: 900; font-size: 12px; cursor: pointer; padding: 0 2px; margin-left: 2px;" title="Bu barkodu kaldır">✕</button>
+        ` : ''}
+      </span>
+    `;
+  }).join('');
+}
+
+async function addBarcodeToCurrentDetailProduct() {
+  if (!currentDetailProduct) return;
+  const inp = document.getElementById('cat-detail-inp-new-barcode');
+  const newBc = (inp?.value || '').trim();
+  if (!newBc) {
+    if (typeof showToast === 'function') showToast('Lütfen eklenecek barkodu yazın veya okutun.', 'warning');
+    return;
+  }
+
+  if (!currentDetailProduct.barcodes) {
+    currentDetailProduct.barcodes = [currentDetailProduct.barcode];
+  }
+
+  if (currentDetailProduct.barcodes.includes(newBc)) {
+    if (typeof showToast === 'function') showToast('Bu barkod zaten ürüne kayıtlı.', 'info');
+    if (inp) inp.value = '';
+    return;
+  }
+
+  currentDetailProduct.barcodes.push(newBc);
+  currentDetailProduct.alternate_barcodes = currentDetailProduct.barcodes;
+  renderDetailBarcodesList();
+  if (inp) {
+    inp.value = '';
+    inp.focus();
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/products/add_barcode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcode: currentDetailProduct.barcode,
+        new_barcode: newBc
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      if (typeof showToast === 'function') showToast(`✓ Barkod eklendi: ${newBc}`, 'success');
+      onCatalogFilterChange();
+    }
+  } catch (e) {}
+}
+
+async function generateInternalBarcodeForDetail() {
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/generate_internal_barcode`);
+    const data = await res.json();
+    if (data.status === 'success' && data.barcode) {
+      const inp = document.getElementById('cat-detail-inp-new-barcode');
+      if (inp) {
+        inp.value = data.barcode;
+        inp.focus();
+      }
+      if (typeof showToast === 'function') {
+        showToast(`⚡ Yeni Mağaza İçi Barkod Üretildi: ${data.barcode}`, 'success');
+      }
+    }
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Barkod üretilemedi.', 'error');
+  }
+}
+
+async function removeBarcodeFromCurrentDetailProduct(bc) {
+  if (!currentDetailProduct || !bc) return;
+  
+  if (bc === currentDetailProduct.barcode) {
+    if (typeof showToast === 'function') showToast('Ana barkod doğrudan silinemez.', 'warning');
+    return;
+  }
+
+  currentDetailProduct.barcodes = (currentDetailProduct.barcodes || []).filter(b => b !== bc);
+  currentDetailProduct.alternate_barcodes = currentDetailProduct.barcodes;
+  renderDetailBarcodesList();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/products/remove_barcode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcode: currentDetailProduct.barcode,
+        remove_barcode: bc
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      if (typeof showToast === 'function') showToast(`✓ Barkod silindi: ${bc}`, 'info');
+      onCatalogFilterChange();
+    }
+  } catch (e) {}
 }
 
 function closeCatalogProductDetailModal() {
@@ -747,21 +1057,23 @@ async function printFromDetailModal() {
 async function submitCatalogProductDetail() {
   if (!currentDetailProduct) return;
   
-  const barcode = document.getElementById('cat-detail-inp-barcode')?.value.trim();
-  const customBarcode = document.getElementById('cat-detail-inp-custom-barcode')?.value.trim();
+  const barcode = currentDetailProduct.barcode || document.getElementById('cat-detail-inp-barcode')?.value.trim();
   const title = document.getElementById('cat-detail-inp-title')?.value.trim().toUpperCase();
   const brand = document.getElementById('cat-detail-inp-brand')?.value.trim().toUpperCase() || 'DİĞER';
   const rawPrice = document.getElementById('cat-detail-inp-price')?.value.trim();
   const origin = document.getElementById('cat-detail-inp-origin')?.value.trim().toUpperCase() || 'TÜRKİYE';
   const stock = parseInt(document.getElementById('cat-detail-inp-stock')?.value || '0', 10) || 0;
   const kdv = parseInt(document.getElementById('cat-detail-inp-kdv')?.value || '10', 10);
+  const barcodes = currentDetailProduct.barcodes || [barcode];
 
   if (!barcode || !title || !rawPrice) {
     showToast("Lütfen tüm alanları eksiksiz doldurun.", "warning");
     return;
   }
 
-  const price = rawPrice.includes('TL') ? rawPrice : `${rawPrice} TL`;
+  const price = formatPriceInput(rawPrice);
+  const noLabel = document.getElementById('cat-detail-check-no-label')?.checked ?? false;
+  const isSpecial = document.getElementById('cat-detail-inp-is-special')?.value === 'true';
 
   try {
     const res = await fetch(`${API_BASE}/api/products`, {
@@ -769,7 +1081,8 @@ async function submitCatalogProductDetail() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         barcode: barcode,
-        custom_barcode: customBarcode,
+        barcodes: barcodes,
+        alternate_barcodes: barcodes,
         title: title,
         brand: brand,
         price: price,
@@ -777,6 +1090,8 @@ async function submitCatalogProductDetail() {
         stock: stock,
         kdv: kdv,
         vat_rate: kdv,
+        no_label: noLabel,
+        is_special: isSpecial,
         source: 'PC'
       })
     });
@@ -784,28 +1099,55 @@ async function submitCatalogProductDetail() {
     if (data.status === 'success') {
       currentDetailProduct.title = title;
       currentDetailProduct.title1 = title;
-      currentDetailProduct.custom_barcode = customBarcode;
+      currentDetailProduct.barcodes = barcodes;
+      currentDetailProduct.alternate_barcodes = barcodes;
       currentDetailProduct.brand = brand;
       currentDetailProduct.price = price;
       currentDetailProduct.origin = origin;
       currentDetailProduct.stock = stock;
       currentDetailProduct.kdv = kdv;
-      currentDetailProduct.vat_rate = kdv;
-      // Dikkat: label_price (etiket fiyatı) manuel güncellemede DEĞİŞMEZ, sadece yazıcıdan basılınca değişir!
+      currentDetailProduct.no_label = noLabel;
+      currentDetailProduct.is_special = isSpecial;
+      currentDetailProduct.special_category = isSpecial;
+      if (noLabel) {
+        currentDetailProduct.label_price = price;
+      }
 
-      const priceInp = document.getElementById('cat-detail-inp-price');
-      if (priceInp) priceInp.value = price;
-      
-      updateDetailModalStatusUI(currentDetailProduct);
+      // Hızlı Buton API Senkronizasyonu
+      try {
+        if (isQuickBtn) {
+          await fetch(`${API_BASE}/api/pos/quick_buttons/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: title,
+              code: quickCode,
+              price: parsePrice(price),
+              unit: 'Adet',
+              color: quickColor,
+              icon: quickIcon
+            })
+          });
+        } else {
+          await fetch(`${API_BASE}/api/pos/quick_buttons/remove`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: barcode, id: barcode })
+          });
+        }
+      } catch (qbErr) {
+        console.warn("Hızlı buton güncellenirken hata:", qbErr);
+      }
 
+      closeCatalogProductDetailModal();
+      showToast(`✅ '${title}' başarıyla güncellendi!`, "success");
       buildBrandDropdownOptions();
       onCatalogFilterChange();
-      showToast(`✓ Ürün sistem satış fiyatı güncellendi: ${price}`, "success");
     } else {
-      showToast(`Hata: ${data.message}`, "error");
+      showToast(`❌ Güncelleme başarısız: ${data.message}`, "error");
     }
   } catch (err) {
-    showToast(`Bağlantı hatası: ${err.message}`, "error");
+    showToast(`❌ Güncelleme hatası: ${err.message}`, "error");
   }
 }
 
@@ -823,7 +1165,7 @@ async function openQuickPriceEdit(barcode) {
   const cleanPrice = newPrice.trim();
   if (!cleanPrice) return;
 
-  const formattedPrice = cleanPrice.includes('TL') ? cleanPrice : `${cleanPrice} TL`;
+  const formattedPrice = formatPriceInput(cleanPrice);
 
   try {
     const res = await fetch(`${API_BASE}/api/catalog/batch-price-update`, {
@@ -973,7 +1315,7 @@ function renderBatchPriceItemsList(newPriceStr = "") {
 
 function onBatchPriceCommonInput(val) {
   const cleanVal = (val || '').trim();
-  const displayVal = cleanVal ? (cleanVal.includes('TL') ? cleanVal : `${cleanVal} TL`) : '-';
+  const displayVal = cleanVal ? formatPriceInput(cleanVal) : '-';
   const sumPriceEl = document.getElementById('batch-summary-price');
   if (sumPriceEl) sumPriceEl.innerText = displayVal;
   renderBatchPriceItemsList(cleanVal ? displayVal : "");
@@ -997,7 +1339,7 @@ async function submitBatchPriceUpdate() {
     return;
   }
 
-  const formattedPrice = rawPrice.includes('TL') ? rawPrice : `${rawPrice} TL`;
+  const formattedPrice = formatPriceInput(rawPrice);
   const barcodes = batchPriceTargetProducts.map(p => p.barcode);
 
   try {
@@ -1166,22 +1508,17 @@ function updateRowSelections() {
 
   const rows = tbody.querySelectorAll('tr[data-barcode]');
   rows.forEach(tr => {
-    const barcode = tr.getAttribute('data-barcode');
-    const box = tr.querySelector('.custom-select-square');
+    const barcode = String(tr.getAttribute('data-barcode') || '').trim();
     const isSelected = selectedBarcodes.has(barcode);
 
     if (isSelected) {
       tr.classList.add('selected-row');
-      if (box) {
-        box.classList.add('active-checked');
-        box.innerText = '✓';
-      }
+      tr.style.backgroundColor = 'rgba(2, 132, 199, 0.28)';
+      tr.style.outline = '1.5px solid #38bdf8';
     } else {
       tr.classList.remove('selected-row');
-      if (box) {
-        box.classList.remove('active-checked');
-        box.innerText = '';
-      }
+      tr.style.backgroundColor = '';
+      tr.style.outline = '';
     }
   });
 }
@@ -1229,18 +1566,28 @@ function renderCatalogTable(reset = true) {
     const isSelected = selectedBarcodes.has(p.barcode);
     if (isSelected) tr.className = 'selected-row';
     tr.setAttribute('data-barcode', p.barcode);
+    tr.style.cursor = 'pointer';
     tr.onclick = (e) => handleCatalogRowClick(p.barcode, e);
+    tr.ondblclick = () => openCatalogProductDetailModal(p.barcode);
 
     const displayDate = formatCatalogDate(p);
+    const isExempt = p.no_label === true;
     const isUpToDate = isLabelPriceUpToDate(p);
     const labelPriceText = p.label_price || p.price;
-    const labelPriceBadge = isUpToDate
-      ? `<span class="badge-label-price matched">${labelPriceText}</span>`
-      : `<span class="badge-label-price outdated" title="Basılan Raf Etiketi Fiyatı: ${labelPriceText}">${labelPriceText}</span>`;
-
-    const statusBadge = isUpToDate
-      ? `<span class="badge-label-status matched">✅ Güncel</span>`
-      : `<button class="btn-label-status outdated" onclick="event.stopPropagation(); syncSingleProductLabelAndPrint('${p.barcode}')" title="Fiyat güncellendi ama etiket basılmadı! Tıklayarak etiketi basın ve güncelleyin">⚠️ Güncel Değil</button>`;
+    
+    let labelPriceBadge = '';
+    let statusBadge = '';
+    
+    if (isExempt) {
+      labelPriceBadge = `<span class="badge-label-price exempt" style="color:#64748b; font-size:10.5px; font-weight:600;" title="Etiket basımı pasif">- (Muaf)</span>`;
+      statusBadge = `<button class="btn-label-status exempt" onclick="event.stopPropagation(); toggleSingleProductLabelExempt('${p.barcode}')" style="background: rgba(148,163,184,0.12); color:#94a3b8; border:1px solid rgba(148,163,184,0.3); font-size:10.5px; padding:2px 7px; border-radius:4px; font-weight:700; cursor:pointer;" title="Bu ürün etiket basımından muaftır (Tıklayarak muafiyeti kaldırabilirsiniz)">🚫 Muaf</button>`;
+    } else if (isUpToDate) {
+      labelPriceBadge = `<span class="badge-label-price matched">${labelPriceText}</span>`;
+      statusBadge = `<span class="badge-label-status matched">✅ Güncel</span>`;
+    } else {
+      labelPriceBadge = `<span class="badge-label-price outdated" title="Basılan Raf Etiketi Fiyatı: ${labelPriceText}">${labelPriceText}</span>`;
+      statusBadge = `<button class="btn-label-status outdated" onclick="event.stopPropagation(); syncSingleProductLabelAndPrint('${p.barcode}')" title="Fiyat güncellendi ama etiket basılmadı! Tıklayarak etiketi basın ve güncelleyin">⚠️ Güncel Değil</button>`;
+    }
 
     // Geliş Fiyatı & Kâr Marjı Hesabı
     const buyingNum = parseFloat(String(p.buying_price || '0').replace(',', '.')) || 0;
@@ -1258,9 +1605,25 @@ function renderCatalogTable(reset = true) {
     const stockColor = stockNum > 0 ? '#38bdf8' : '#64748b';
     const buyingPriceDisp = buyingNum > 0 ? (p.buying_price + ' TL') : '-';
 
+    const isSpecial = p.is_special === true || p.special_category === true;
+    const specialStar = isSpecial 
+      ? `<span title="⭐ Özel Kategori Ürünü (Kaldırmak için tıkla)" style="cursor:pointer; color:#fbbf24; font-size:12px; margin-left:4px;" onclick="event.stopPropagation(); toggleSingleProductSpecialCategory('${p.barcode}')">⭐</span>` 
+      : `<span title="Özel Kategoriye Ekle" style="cursor:pointer; color:#475569; font-size:11px; margin-left:4px; opacity:0.35;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.35" onclick="event.stopPropagation(); toggleSingleProductSpecialCategory('${p.barcode}')">☆</span>`;
+
+    const customBarcodeVal = (p.custom_barcode || p.ozel_barkod || '').toString().trim();
+    const customBarcodeBadge = customBarcodeVal 
+      ? `<span class="badge-custom-barcode" style="background: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.35); font-family: monospace; font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;" title="Özel Kısayol Barkodu: ${customBarcodeVal}">${customBarcodeVal}</span>` 
+      : `<span style="color: #475569; font-size: 11px;">-</span>`;
+
     tr.innerHTML = `
-      <td><span class="badge-brand" style="max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; font-size: 10.5px; padding: 2px 6px;">${p.brand || 'DİĞER'}</span></td>
+      <td>
+        <div style="display:flex; align-items:center; gap:2px;">
+          <span class="badge-brand" style="max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; font-size: 10.5px; padding: 2px 6px;">${p.brand || 'DİĞER'}</span>
+          ${specialStar}
+        </div>
+      </td>
       <td><span class="barcode-text" style="font-size: 11px;">${p.barcode || ''}</span></td>
+      <td style="text-align: center;">${customBarcodeBadge}</td>
       <td style="font-weight: 700; color: #f8fafc; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Detayı Görüntüle ve Düzenle: ${p.title}"><span style="border-bottom: 1px dashed rgba(56,189,248,0.4);">${p.title}</span></td>
       <td style="text-align: center; font-weight: 800; font-family: monospace; font-size: 11.5px; color: ${stockColor};">${stockNum}</td>
       <td style="text-align: right; color: #94a3b8; font-weight: 600; font-family: monospace; font-size: 11px;">${buyingPriceDisp}</td>
@@ -1550,7 +1913,8 @@ async function submitAddNewCustomBarcode() {
 }
 
 async function deleteCustomBarcodeItem(id) {
-  if (!confirm('Bu özel barkodu silmek istediğinize emin misiniz?')) return;
+  const ok = await showCustomConfirm('Bu özel barkodu silmek istediğinize emin misiniz?', 'Özel Barkod Sil', 'Sil', 'Vazgeç', '🗑️');
+  if (!ok) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/custom_barcodes/delete`, {
@@ -1714,6 +2078,11 @@ async function openProductActivityHistory(barcode) {
   modal.style.display = 'flex';
   modal.classList.add('active');
 
+  currentActivityFilter = 'price';
+  document.querySelectorAll('#modal-product-activity-history .btn-status-pill').forEach(btn => btn.classList.remove('active'));
+  const priceTab = document.getElementById('act-tab-price');
+  if (priceTab) priceTab.classList.add('active');
+
   // Aktivite kayıtlarını yükle
   await loadProductActivities(cleanBc);
 }
@@ -1749,18 +2118,13 @@ async function loadProductActivities(barcode) {
 }
 
 function updateActivityFilterCounts() {
-  const counts = { all: currentActivitiesList.length, print: 0, price: 0, sale: 0, stock: 0 };
+  const counts = { price: 0, sale: 0, stock: 0 };
   currentActivitiesList.forEach(a => {
-    if (a.type === 'print') counts.print++;
-    else if (a.type === 'price') counts.price++;
-    else if (a.type === 'sale') counts.sale++;
+    if (a.type === 'print' || a.type === 'price') counts.price++;
+    else if (a.type === 'sale' || a.type === 'daily_sale') counts.sale++;
     else counts.stock++;
   });
 
-  const cAll = document.getElementById('act-count-all');
-  if (cAll) cAll.innerText = counts.all;
-  const cPrint = document.getElementById('act-count-print');
-  if (cPrint) cPrint.innerText = counts.print;
   const cPrice = document.getElementById('act-count-price');
   if (cPrice) cPrice.innerText = counts.price;
   const cSale = document.getElementById('act-count-sale');
@@ -1770,9 +2134,9 @@ function updateActivityFilterCounts() {
 }
 
 function filterActivityTimeline(type) {
-  currentActivityFilter = type;
+  currentActivityFilter = type || 'price';
   document.querySelectorAll('#modal-product-activity-history .btn-status-pill').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`act-tab-${type}`);
+  const activeBtn = document.getElementById(`act-tab-${currentActivityFilter}`);
   if (activeBtn) activeBtn.classList.add('active');
   renderActivityTimeline();
 }
@@ -1781,21 +2145,18 @@ function renderActivityTimeline() {
   const container = document.getElementById('act-history-timeline-container');
   if (!container) return;
 
-  const filtered = currentActivityFilter === 'all' 
-    ? currentActivitiesList 
-    : currentActivitiesList.filter(a => {
-        if (currentActivityFilter === 'print') return a.type === 'print';
-        if (currentActivityFilter === 'price') return a.type === 'price';
-        if (currentActivityFilter === 'sale') return a.type === 'sale';
-        return a.type !== 'print' && a.type !== 'price' && a.type !== 'sale';
-      });
+  const filtered = currentActivitiesList.filter(a => {
+    if (currentActivityFilter === 'price') return a.type === 'print' || a.type === 'price';
+    if (currentActivityFilter === 'sale') return a.type === 'sale' || a.type === 'daily_sale';
+    return a.type !== 'print' && a.type !== 'price' && a.type !== 'sale' && a.type !== 'daily_sale';
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; color: #64748b;">
         <span style="font-size: 32px; display: block; margin-bottom: 8px;">📭</span>
-        <p style="margin: 0; font-weight: 700; font-size: 13px; color: #94a3b8;">Henüz kayıtlı faaliyet bulunamadı.</p>
-        <small style="color: #64748b; font-size: 11px;">Etiket basımları, fiyat değişimleri ve kasa satışları otomatik olarak burada listelenir.</small>
+        <p style="margin: 0; font-weight: 700; font-size: 13.5px; color: #94a3b8;">Bu kategoride henüz kayıtlı işlem bulunamadı.</p>
+        <small style="color: #64748b; font-size: 11.5px;">Fiyat değişiklikleri, basılan etiketler ve gün gün satış özetleri burada listelenir.</small>
       </div>
     `;
     return;
@@ -1804,26 +2165,35 @@ function renderActivityTimeline() {
   const iconMap = {
     print: { icon: '🖨️', color: '#38bdf8', bg: 'rgba(56,189,248,0.15)', border: 'rgba(56,189,248,0.3)', badge: 'ETİKET BASIMI' },
     price: { icon: '💰', color: '#fbbf24', bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.3)', badge: 'FİYAT DEĞİŞİMİ' },
-    sale: { icon: '🛒', color: '#34d399', bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', badge: 'KASA SATIŞI' },
+    sale: { icon: '📅', color: '#34d399', bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', badge: 'GÜNLÜK SATIŞ' },
+    daily_sale: { icon: '📅', color: '#34d399', bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', badge: 'GÜNLÜK SATIŞ' },
     stock: { icon: '📦', color: '#a855f7', bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.3)', badge: 'STOK HAREKETİ' },
-    info: { icon: 'ℹ️', color: '#94a3b8', bg: 'rgba(148,163,184,0.15)', border: 'rgba(148,163,184,0.3)', badge: 'İŞLEM GÜNLÜĞÜ' }
+    info: { icon: '📝', color: '#94a3b8', bg: 'rgba(148,163,184,0.15)', border: 'rgba(148,163,184,0.3)', badge: 'İŞLEM NOTU' }
   };
 
   let html = '';
   filtered.forEach(item => {
     const style = iconMap[item.type] || iconMap.info;
+    const actorName = item.actor || 'Sistem / Kasiyer';
     html += `
-      <div style="background: #111827; border: 1px solid ${style.border}; border-left: 4px solid ${style.color}; border-radius: 8px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="background: #111827; border: 1.5px solid ${style.border}; border-left: 4px solid ${style.color}; border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 15px;">${style.icon}</span>
-            <strong style="color: #f8fafc; font-size: 12.5px;">${item.title || 'Faaliyet'}</strong>
-            <span style="background: ${style.bg}; color: ${style.color}; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; border: 1px solid ${style.border};">${style.badge}</span>
+            <span style="font-size: 16px;">${style.icon}</span>
+            <strong style="color: #f8fafc; font-size: 13.5px; font-weight: 800;">${item.title || 'Faaliyet'}</strong>
+            <span style="background: ${style.bg}; color: ${style.color}; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid ${style.border};">${style.badge}</span>
           </div>
-          <span style="color: #64748b; font-size: 11px; font-family: monospace; font-weight: 600;">${item.timestamp || '-'}</span>
+          <span style="color: #94a3b8; font-size: 11.5px; font-family: monospace; font-weight: 700;">${item.timestamp || '-'}</span>
         </div>
-        ${item.details ? `<div style="color: #cbd5e1; font-size: 11.5px; margin-top: 2px; padding-left: 24px;">${item.details}</div>` : ''}
-        ${item.actor ? `<div style="color: #64748b; font-size: 10.5px; padding-left: 24px; margin-top: 2px;">İşlem Yapan: <strong style="color: #94a3b8;">${item.actor}</strong></div>` : ''}
+        ${item.details ? `<div style="color: #cbd5e1; font-size: 12.5px; font-weight: 600; padding-left: 24px; line-height: 1.4;">${item.details}</div>` : ''}
+        ${actorName ? `
+          <div style="color: #64748b; font-size: 11.5px; padding-left: 24px; display: flex; align-items: center; gap: 6px;">
+            <span>👤 İşlem Yapan:</span>
+            <span style="background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; font-weight: 800; padding: 2px 7px; border-radius: 4px; font-size: 11px;">
+              ${actorName}
+            </span>
+          </div>
+        ` : ''}
       </div>
     `;
   });
@@ -1862,6 +2232,27 @@ async function submitProductManualActivityNote() {
   }
 }
 
+window.loadCatalog = loadCatalog;
+window.handleCatalogRowClick = handleCatalogRowClick;
+window.openCatalogProductDetailModal = openCatalogProductDetailModal;
+window.closeCatalogProductDetailModal = closeCatalogProductDetailModal;
+window.submitCatalogProductDetail = submitCatalogProductDetail;
+window.clearCatalogSelection = clearCatalogSelection;
+window.updateBatchActionBar = updateBatchActionBar;
+window.updateRowSelections = updateRowSelections;
+window.toggleSelectAllCatalogCustom = toggleSelectAllCatalogCustom;
+window.toggleBrandDropdown = toggleBrandDropdown;
+window.onBrandSearchInput = onBrandSearchInput;
+window.clearBrandSearch = clearBrandSearch;
+window.selectBrandOption = selectBrandOption;
+window.resetCatalogFilters = resetCatalogFilters;
+window.setCatalogStatusFilter = setCatalogStatusFilter;
+window.onCatalogFilterChange = onCatalogFilterChange;
+window.sortCatalogColumn = sortCatalogColumn;
+window.printFromDetailModal = printFromDetailModal;
+window.copyDetailBarcode = copyDetailBarcode;
+window.pinCurrentDetailToQuickButtons = pinCurrentDetailToQuickButtons;
+
 window.openProductActivityHistory = openProductActivityHistory;
 window.openDetailProductActivityHistory = openDetailProductActivityHistory;
 window.closeProductActivityHistoryModal = closeProductActivityHistoryModal;
@@ -1869,6 +2260,9 @@ window.filterActivityTimeline = filterActivityTimeline;
 window.submitProductManualActivityNote = submitProductManualActivityNote;
 window.loadProductActivities = loadProductActivities;
 
+window.renderDetailBarcodesList = renderDetailBarcodesList;
+window.addBarcodeToCurrentDetailProduct = addBarcodeToCurrentDetailProduct;
+window.removeBarcodeFromCurrentDetailProduct = removeBarcodeFromCurrentDetailProduct;
 window.loadCustomBarcodes = loadCustomBarcodes;
 window.openCustomBarcodesManageModal = openCustomBarcodesManageModal;
 window.closeCustomBarcodesManageModal = closeCustomBarcodesManageModal;
@@ -1876,8 +2270,207 @@ window.renderCustomBarcodesManageList = renderCustomBarcodesManageList;
 window.saveCustomBarcodeRow = saveCustomBarcodeRow;
 window.submitAddNewCustomBarcode = submitAddNewCustomBarcode;
 window.deleteCustomBarcodeItem = deleteCustomBarcodeItem;
-window.toggleCustomBarcodeDropdown = toggleCustomBarcodeDropdown;
-window.selectCustomBarcodeForTarget = selectCustomBarcodeForTarget;
+window.toggleDetailQuickBtnFields = toggleDetailQuickBtnFields;
+window.onDetailNoLabelToggle = onDetailNoLabelToggle;
+
+async function toggleSingleProductLabelExempt(barcode) {
+  const prod = allCatalogProducts.find(p => p.barcode === barcode);
+  if (!prod) return;
+  const newStatus = !prod.no_label;
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/batch-label-exempt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcodes: [barcode],
+        exempt: newStatus
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      prod.no_label = newStatus;
+      if (newStatus) {
+        prod.label_price = prod.price;
+      }
+      onCatalogFilterChange();
+      showToast(newStatus ? `✓ '${prod.title}' etiket muafiyetine alındı.` : `✓ '${prod.title}' etiket muafiyeti kaldırıldı.`, "success");
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+async function submitBatchLabelExemptToggle() {
+  if (selectedBarcodes.size === 0) {
+    showToast("Lütfen önce tablodan ürün seçin.", "warning");
+    return;
+  }
+
+  const selectedList = allCatalogProducts.filter(p => selectedBarcodes.has(p.barcode));
+  if (selectedList.length === 0) return;
+
+  const hasUnexempt = selectedList.some(p => !p.no_label);
+  const targetExempt = hasUnexempt;
+
+  const actionText = targetExempt ? "Etiket Muaf Yapılsın" : "Muafiyet Kaldırılsın";
+  const confirmed = await showCustomConfirm(
+    `Seçili ${selectedList.length} ürün için etiket basım muafiyeti ayarlanacak:\n\nDurum: ${targetExempt ? "🚫 ETİKET MUAF (Basılmayacak)" : "🖨️ ETİKET AKTİF (Basılacak)"}`,
+    `🚫 Toplu Etiket Muafiyeti (${selectedList.length} Ürün)`,
+    actionText,
+    "İptal"
+  );
+  if (!confirmed) return;
+
+  const barcodes = selectedList.map(p => p.barcode);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/batch-label-exempt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcodes: barcodes,
+        exempt: targetExempt
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      selectedList.forEach(p => {
+        p.no_label = targetExempt;
+        if (targetExempt) {
+          p.label_price = p.price;
+        }
+      });
+      onCatalogFilterChange();
+      showToast(`✓ ${selectedList.length} ürün ${targetExempt ? 'etiket muafiyetine alındı' : 'etiket basımına açıldı'}.`, "success");
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+window.toggleSingleProductLabelExempt = toggleSingleProductLabelExempt;
+window.submitBatchLabelExemptToggle = submitBatchLabelExemptToggle;
+
+function updateDetailSpecialCatButtonUI(isSpecial) {
+  const btn = document.getElementById('btn-detail-toggle-special-cat');
+  if (!btn) return;
+  if (isSpecial) {
+    btn.style.background = 'rgba(168,85,247,0.22)';
+    btn.style.border = '1.5px solid #a855f7';
+    btn.style.color = '#d8b4fe';
+    btn.innerHTML = `<span>⭐</span> Özel Kategoride Ekli (Çıkar)`;
+  } else {
+    btn.style.background = '#1e293b';
+    btn.style.border = '1.5px solid #475569';
+    btn.style.color = '#cbd5e1';
+    btn.innerHTML = `<span>➕</span> Özel Kategoriye Ekle`;
+  }
+}
+
+async function toggleDetailProductSpecialCategory() {
+  if (!currentDetailProduct) return;
+  const isSpecialInp = document.getElementById('cat-detail-inp-is-special');
+  const currentVal = (isSpecialInp ? isSpecialInp.value === 'true' : false) || currentDetailProduct.is_special === true;
+  const newVal = !currentVal;
+
+  if (isSpecialInp) isSpecialInp.value = newVal ? 'true' : 'false';
+  currentDetailProduct.is_special = newVal;
+  currentDetailProduct.special_category = newVal;
+  updateDetailSpecialCatButtonUI(newVal);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/batch-special-category`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcodes: [currentDetailProduct.barcode],
+        is_special: newVal
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      onCatalogFilterChange();
+      showToast(newVal ? `✓ '${currentDetailProduct.title}' Özel Kategoriye eklendi.` : `✓ '${currentDetailProduct.title}' Özel Kategoriden çıkarıldı.`, "success");
+    }
+  } catch (err) {
+    showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+async function toggleSingleProductSpecialCategory(barcode) {
+  const prod = allCatalogProducts.find(p => p.barcode === barcode);
+  if (!prod) return;
+  const newVal = !(prod.is_special === true || prod.special_category === true);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/batch-special-category`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcodes: [barcode],
+        is_special: newVal
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      prod.is_special = newVal;
+      prod.special_category = newVal;
+      onCatalogFilterChange();
+      showToast(newVal ? `✓ '${prod.title}' Özel Kategoriye eklendi.` : `✓ '${prod.title}' Özel Kategoriden çıkarıldı.`, "success");
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+function sendSupplierWhatsAppOrder() {
+  let targetItems = [];
+  if (selectedBarcodes && selectedBarcodes.size > 0) {
+    targetItems = allCatalogProducts.filter(p => selectedBarcodes.has(p.barcode));
+  } else if (catalogStatusFilter === 'LOW_STOCK' && filteredCatalogProducts.length > 0) {
+    targetItems = filteredCatalogProducts;
+  } else {
+    targetItems = allCatalogProducts.filter(p => (parseFloat(p.stock || 0) <= 5));
+  }
+
+  if (!targetItems || targetItems.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ Sipariş listesine eklenecek azalan veya seçili ürün bulunamadı.', 'warning');
+    }
+    return;
+  }
+
+  const now = new Date();
+  const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+
+  let lines = targetItems.slice(0, 30).map((p, idx) => {
+    const stock = parseFloat(p.stock || 0);
+    return `${idx + 1}. *${p.title}* (Mevcut: ${stock}) ➔ Sipariş: _____ Koli/Adet`;
+  }).join('\n');
+
+  if (targetItems.length > 30) {
+    lines += `\n... ve ${targetItems.length - 30} kalem daha ürün bulunmaktadır.`;
+  }
+
+  const text = `📋 *TOPTANCI SİPARİŞ LİSTESİ / EKSİK ÜRÜNLER*\n🏢 *MARKET SİPARİŞ FORMU*\n📅 *Tarih:* ${dateStr}\n\n${lines}\n\nLütfen siparişlerin teslimat gününü teyit ediniz.\nİyi çalışmalar dileriz.`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+window.updateDetailSpecialCatButtonUI = updateDetailSpecialCatButtonUI;
+window.toggleDetailProductSpecialCategory = toggleDetailProductSpecialCategory;
+window.toggleSingleProductSpecialCategory = toggleSingleProductSpecialCategory;
+window.sendSupplierWhatsAppOrder = sendSupplierWhatsAppOrder;
+window.generateInternalBarcodeForDetail = generateInternalBarcodeForDetail;
+
 
 
 

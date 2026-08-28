@@ -1,44 +1,220 @@
-<div id="modal-parked-receipts" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
-    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 620px; max-width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
-      
-      <!-- Başlık & Kapat Butonu -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
+<!-- =========================================================
+     MODAL: ESKİ SATIŞLAR & BEKLEYEN FİŞLER (GENİŞ VE FERAH GÖRÜNÜM - F8)
+     ========================================================= -->
+<div id="modal-parked-receipts" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
+  <div style="background: #0f172a; border: 1.5px solid #3b82f6; border-radius: 14px; width: 1080px; max-width: 96%; height: 86vh; max-height: 86vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 65px rgba(0,0,0,0.85); box-sizing: border-box;">
+    
+    <!-- Başlık & Üst Sekmeler -->
+    <div style="background: #1e293b; padding: 14px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          📜
+        </div>
         <div>
-          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Eski Satışlar & Bekleyen Fişler [F8]</h3>
-          <small style="color: #94a3b8; font-size: 12px;">Beklemedeki fişleri geri çağırın veya son satışları inceleyin</small>
-        </div>
-        <button onclick="closeParkedReceiptsModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
-      </div>
-
-      <!-- 1. Bekleyen Fişler -->
-      <div style="margin-bottom: 14px;">
-        <div style="font-size: 12px; font-weight: 600; color: #fbbf24; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-          <span>Beklemedeki Fişler (Park)</span>
-          <button type="button" onclick="clearAllParkedReceipts()" style="background: transparent; border: none; color: #f87171; font-size: 11px; font-weight: 600; cursor: pointer;">Tümünü Temizle</button>
-        </div>
-        <div id="parked-receipts-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
-          <!-- JS Dolduracak -->
+          <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Eski Satışlar & Bekleyen Fişler [F9]</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">Geçmiş fişleri inceleyin, yeniden yazdırın, iade alın veya bekleyen fişleri kasaya çağırın</small>
         </div>
       </div>
 
-      <!-- 2. Son Tamamlanan Satışlar -->
-      <div>
-        <div style="font-size: 12px; font-weight: 600; color: #38bdf8; margin-bottom: 6px;">
-          Bugün Tamamlanan Son Satışlar
-        </div>
-        <div id="recent-pos-sales-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
-          <!-- JS Dolduracak -->
-        </div>
+      <!-- Sekme Değiştirici Butonlar -->
+      <div style="display: flex; gap: 6px; background: #0f172a; padding: 4px; border-radius: 8px; border: 1px solid #334155;">
+        <button type="button" id="btn-tab-recent-sales" onclick="switchRecentSalesSubTab('sales')" style="padding: 7px 16px; font-size: 12px; font-weight: 800; border: none; border-radius: 6px; background: #2563eb; color: #fff; cursor: pointer; transition: all 0.15s;">
+          🛒 Tamamlanan Satışlar (<span id="recent-sales-count-badge">0</span>)
+        </button>
+        <button type="button" id="btn-tab-parked-receipts" onclick="switchRecentSalesSubTab('parked')" style="padding: 7px 16px; font-size: 12px; font-weight: 800; border: none; border-radius: 6px; background: transparent; color: #94a3b8; cursor: pointer; transition: all 0.15s;">
+          ⏸️ Bekleyen Fişler (<span id="parked-receipts-count-badge">0</span>)
+        </button>
       </div>
 
-      <!-- Alt Kapat Butonu -->
-      <div style="display: flex; justify-content: flex-end; border-top: 1px solid #334155; padding-top: 12px; margin-top: 14px;">
-        <button type="button" onclick="closeParkedReceiptsModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">Kapat (Esc)</button>
+      <button type="button" onclick="closeParkedReceiptsModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 2px 8px;" title="Kapat (Esc)">&times;</button>
+    </div>
+
+    <!-- 1. SEKME: TAMAMLANAN SATIŞLAR & İADELER LİSTESİ -->
+    <div id="pane-recent-sales" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 16px 20px;">
+      
+      <!-- Arama ve Filtre Çubuğu -->
+      <div style="display: flex; gap: 10px; margin-bottom: 12px; align-items: center;">
+        <div style="flex: 1; position: relative;">
+          <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px;">🔍</span>
+          <input type="text" id="recent-sales-search-inp" placeholder="Fiş No, Ürün Adı veya Kasiyere göre anında filtrele..." oninput="filterRecentSalesTable(this.value)" style="width: 100%; padding: 9px 12px 9px 36px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-size: 13px; outline: none; box-sizing: border-box;">
+        </div>
+        <button type="button" onclick="fetchRecentSalesList()" class="btn-secondary" style="padding: 9px 16px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+          🔄 Yenile
+        </button>
+      </div>
+
+      <!-- Satışlar Tablosu -->
+      <div style="flex: 1; overflow-y: auto; border: 1px solid #334155; border-radius: 10px; background: #070d1e;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; color: #e2e8f0;">
+          <thead style="position: sticky; top: 0; background: #1e293b; z-index: 10; border-bottom: 2px solid #3b82f6;">
+            <tr>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8;">Fiş No & Tarih</th>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8;">Ödeme Türü</th>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8;">Kasiyer / Müşteri</th>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8;">Ürünler / Kalem</th>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8; text-align: right;">Toplam Tutar</th>
+              <th style="padding: 10px 14px; font-size: 11px; text-transform: uppercase; color: #94a3b8; text-align: center;">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="recent-pos-sales-table-body">
+            <tr>
+              <td colspan="6" style="padding: 24px; text-align: center; color: #64748b;">Satışlar yükleniyor...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
-  </div>
 
-  <!-- =========================================================
-       MODAL: ÜRÜN İADE / GERİ ALMA
-       ========================================================= -->
+    <!-- 2. SEKME: BEKLEYEN (PARK) FİŞLER LİSTESİ -->
+    <div id="pane-parked-receipts" style="flex: 1; display: none; flex-direction: column; overflow: hidden; padding: 16px 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-size: 12px; font-weight: 700; color: #fbbf24;">KASADA BEKLEMEYE ALINMIŞ SATIŞ FİŞLERİ</span>
+        <button type="button" onclick="clearAllParkedReceipts()" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); color: #f87171; font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer;">
+          🗑️ Tüm Bekleyenleri Sil
+        </button>
+      </div>
+
+      <div id="parked-receipts-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+        <!-- JS Dolduracak -->
+      </div>
+    </div>
+
+    <!-- Alt Çubuk & Kapat Butonu -->
+    <div style="background: #1e293b; padding: 12px 20px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+      <div style="font-size: 11.5px; color: #94a3b8;">
+        💡 İpucu: Listeden istediğiniz fişin <strong style="color: #38bdf8;">[✏️ Düzenle]</strong> butonuna basarak ödeme türünü (Nakit/Kart/Veresiye) değiştirebilir, <strong style="color: #fbbf24;">[📥 Fişi Getir]</strong> ile kasaya geri çağırabilirsiniz.
+      </div>
+      <button type="button" onclick="closeParkedReceiptsModal()" style="padding: 8px 20px; font-size: 12.5px; font-weight: 700; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 8px; cursor: pointer;">
+        Kapat (Esc)
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL: SATIŞ FİŞİ DÜZENLEME (ÖDEME TÜRÜ / MÜŞTERİ DEĞİŞTİRME)
+     ========================================================= -->
+<div id="modal-pos-edit-sale" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center;">
+  <div style="background: #0f172a; border: 1.5px solid #38bdf8; border-radius: 14px; width: 480px; max-width: 95%; overflow: hidden; box-shadow: 0 25px 65px rgba(0,0,0,0.85); padding: 22px; box-sizing: border-box;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 14px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">✏️</span>
+        <div>
+          <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #f8fafc;">Satış Fişini Düzenle</h3>
+          <small id="edit-sale-receipt-subtitle" style="color: #94a3b8; font-size: 11.5px; font-family: monospace;">FIS-000</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeEditSaleModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 2px 6px;">&times;</button>
+    </div>
+
+    <!-- Tutar Göstergesi -->
+    <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <span style="font-size: 12px; color: #94a3b8;">Fiş Tutarı:</span>
+      <strong id="edit-sale-total-amount" style="color: #10b981; font-family: monospace; font-size: 18px;">0,00 TL</strong>
+    </div>
+
+    <!-- Ödeme Türü Seçimi -->
+    <div style="margin-bottom: 12px;">
+      <label style="font-size: 11.5px; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">Ödeme Türü (*):</label>
+      <select id="edit-sale-payment-type" onchange="onEditSalePaymentTypeChange()" style="width: 100%; padding: 9px 12px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-weight: 700; font-size: 13px; box-sizing: border-box;">
+        <option value="Nakit">💵 Nakit</option>
+        <option value="Kredi Kartı">💳 Kredi Kartı</option>
+        <option value="Veresiye">📒 Veresiye (Açık Hesap)</option>
+        <option value="Havale / EFT">🏦 Havale / EFT</option>
+      </select>
+    </div>
+
+    <!-- Müşteri Seçimi (Veresiye veya diğer durumlarda) -->
+    <div id="edit-sale-customer-section" style="margin-bottom: 12px;">
+      <label style="font-size: 11.5px; font-weight: 800; color: #cbd5e1; display: block; margin-bottom: 4px;">Müşteri / Cari Kaydı:</label>
+      <select id="edit-sale-customer-select" style="width: 100%; padding: 9px 12px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #fff; font-weight: 700; font-size: 13px; box-sizing: border-box;">
+        <option value="">Perakende Müşteri</option>
+      </select>
+    </div>
+
+    <!-- Butonlar -->
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+      <button type="button" onclick="closeEditSaleModal()" class="btn-secondary" style="padding: 8px 16px; font-size: 12.5px;">Vazgeç</button>
+      <button type="button" onclick="submitEditSaleSave()" class="btn-primary" style="padding: 8px 22px; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1);">
+        💾 Değişiklikleri Kaydet
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL: FİŞTEN ÜRÜN / TUTAR İADESİ ALMA (SEÇİMLİ İADE)
+     ========================================================= -->
+<div id="modal-pos-return-items" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center;">
+  <div style="background: #0f172a; border: 1.5px solid #ef4444; border-radius: 14px; width: 560px; max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 65px rgba(239,68,68,0.25); box-sizing: border-box;">
+    
+    <!-- Başlık -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 20px; background: rgba(239,68,68,0.08);">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 22px;">↩️</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #f8fafc;">Fiş İadesi & Ürün Seçimi</h3>
+          <small id="return-modal-subtitle" style="color: #94a3b8; font-size: 11.5px; font-family: monospace;">FIS-000</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeReturnItemsModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 2px 6px;">&times;</button>
+    </div>
+
+    <!-- Gövde -->
+    <div style="padding: 16px 20px; overflow-y: auto; flex: 1;">
+      
+      <!-- İade Modu Seçimi -->
+      <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+        <button type="button" id="btn-return-mode-all" onclick="setReturnMode('all')" style="flex: 1; padding: 9px; border-radius: 8px; border: 1.5px solid #ef4444; background: rgba(239,68,68,0.2); color: #fff; font-weight: 800; font-size: 12.5px; cursor: pointer;">
+          🔘 Tüm Fişi İade Al
+        </button>
+        <button type="button" id="btn-return-mode-select" onclick="setReturnMode('custom')" style="flex: 1; padding: 9px; border-radius: 8px; border: 1px solid #334155; background: #070d1e; color: #94a3b8; font-weight: 800; font-size: 12.5px; cursor: pointer;">
+          🔘 Belirli Ürünleri Seç
+        </button>
+      </div>
+
+      <!-- İade Edilecek Ürünler Listesi -->
+      <div style="background: #070d1e; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; margin-bottom: 14px;">
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; padding: 0 4px; display: flex; justify-content: space-between;">
+          <span>İADE ALINACAK ÜRÜNLER</span>
+          <span>MİKTAR / TUTAR</span>
+        </div>
+        <div id="return-modal-items-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto;">
+          <!-- JS Dolduracak -->
+        </div>
+      </div>
+
+      <!-- İade Ödeme Yöntemi & İade Toplamı -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div>
+          <label style="font-size: 11.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">İade Ödeme Yöntemi:</label>
+          <select id="return-modal-payment-type" style="width: 100%; padding: 8px 10px; background: #070d1e; border: 1.5px solid #334155; border-radius: 6px; color: #fff; font-weight: 700; font-size: 12.5px; box-sizing: border-box;">
+            <option value="Nakit">💵 Nakit Olarak İade Et</option>
+            <option value="Kredi Kartı">💳 Kredi Kartına İade Et</option>
+            <option value="Veresiye">📒 Veresiye Borcundan Düş</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 11.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 4px;">İade Tutarı:</label>
+          <div id="return-modal-calculated-total" style="background: rgba(239,68,68,0.15); border: 1px solid #ef4444; border-radius: 6px; padding: 7px 12px; font-size: 16px; font-weight: 900; color: #f87171; text-align: right; font-family: monospace;">
+            0,00 TL
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div style="padding: 12px 20px; background: #070d1e; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end; gap: 8px;">
+      <button type="button" onclick="closeReturnItemsModal()" class="btn-secondary" style="padding: 8px 16px; font-size: 12.5px;">Vazgeç</button>
+      <button type="button" onclick="submitReturnItemsConfirmation()" style="padding: 8px 20px; font-size: 13px; font-weight: 800; background: #ef4444; border: 1px solid #dc2626; color: #fff; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+        <span>✔</span> İadeyi Onayla ve Fişe Kaydet
+      </button>
+    </div>
+
+  </div>
+</div>

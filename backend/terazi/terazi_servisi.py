@@ -22,7 +22,27 @@ DEFAULT_SCALE_SETTINGS = {
     "protocol": "DIGI_SM100_ETHERNET",
     "dept_code": 1,
     "barcode_prefix": "27",
-    "timeout_sec": 2.5
+    "timeout_sec": 2.5,
+    "scales_list": [
+        {
+            "id": "scale_main",
+            "name": "Manav Terazisi (Ana)",
+            "ip": "192.168.1.61",
+            "port": 2061,
+            "department": "Manav",
+            "model": "DIGI SM-100",
+            "is_active": True
+        },
+        {
+            "id": "scale_meat",
+            "name": "Kasap & Şarküteri Terazisi",
+            "ip": "192.168.1.62",
+            "port": 2061,
+            "department": "Kasap / Şarküteri",
+            "model": "DIGI SM-100",
+            "is_active": False
+        }
+    ]
 }
 
 def get_scale_settings() -> dict:
@@ -33,6 +53,8 @@ def get_scale_settings() -> dict:
     for k, v in DEFAULT_SCALE_SETTINGS.items():
         if k not in settings:
             settings[k] = v
+    if not settings.get("scales_list"):
+        settings["scales_list"] = DEFAULT_SCALE_SETTINGS["scales_list"]
     return settings
 
 def save_scale_settings(new_settings: dict) -> dict:
@@ -42,11 +64,20 @@ def save_scale_settings(new_settings: dict) -> dict:
     save_json(SCALE_SETTINGS_FILE, current)
     return current
 
+def get_scales_pool() -> list:
+    """Kayıtlı tüm terazi havuzunu döner."""
+    cfg = get_scale_settings()
+    return cfg.get("scales_list", DEFAULT_SCALE_SETTINGS["scales_list"])
+
+def save_scales_pool(pool: list) -> list:
+    """Terazi havuzunu günceller."""
+    cfg = get_scale_settings()
+    cfg["scales_list"] = pool
+    save_scale_settings(cfg)
+    return pool
+
 def get_manav_products() -> list:
     """Manav ürünlerini PLU sırasına göre yükler."""
-    if not os.path.exists(MANAV_PRODUCTS_FILE):
-        return []
-
     data = load_json(MANAV_PRODUCTS_FILE, [])
     if not isinstance(data, list):
         return []
@@ -264,19 +295,20 @@ def stream_fetch_prices_from_scale(ip=None):
         return
 
     try:
-        # Teraziden hafızayı oku
-        res = subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=8)
-        
-        f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
-        if not os.path.exists(f37_path):
-            yield {
-                "type": "error",
-                "message": f"Terazi yanıt vermedi veya veri dosyası ({f37_path}) oluşturulamadı."
-            }
-            return
+        # Teraziden hafızayı oku - Mutex korumalı
+        with _SCALE_MUTEX:
+            res = subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=8)
+            
+            f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
+            if not os.path.exists(f37_path):
+                yield {
+                    "type": "error",
+                    "message": f"Terazi yanıt vermedi veya veri dosyası ({f37_path}) oluşturulamadı."
+                }
+                return
 
-        with open(f37_path, "rb") as f:
-            raw = f.read().decode("ascii", errors="ignore")
+            with open(f37_path, "rb") as f:
+                raw = f.read().decode("ascii", errors="ignore")
 
         BLOCK_SIZE = 176
         total_blocks = len(raw) // BLOCK_SIZE
@@ -789,8 +821,9 @@ def stream_all_plus_to_scale(ip=None, port=None):
             }
             time.sleep(0.012)
 
-        # 5. DIGI Motoruyla Teraziye Yaz (WR 37)
-        wr_res = subprocess.run([exe_path, "WR", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=10)
+        # 5. DIGI Motoruyla Teraziye Yaz (WR 37) - Mutex Korumalı
+        with _SCALE_MUTEX:
+            wr_res = subprocess.run([exe_path, "WR", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=10)
         
         # Adet ürünleri de güncelle
         for p in products:
@@ -839,55 +872,56 @@ def send_all_plus_to_scale(ip=None, port=None) -> dict:
     f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
 
     try:
-        raw = b""
-        if os.path.exists(f37_path):
-            with open(f37_path, "rb") as f:
-                raw = f.read()
-        elif os.path.exists(exe_path):
-            subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, timeout=8)
+        with _SCALE_MUTEX:
+            raw = b""
             if os.path.exists(f37_path):
                 with open(f37_path, "rb") as f:
                     raw = f.read()
+            elif os.path.exists(exe_path):
+                subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, timeout=8)
+                if os.path.exists(f37_path):
+                    with open(f37_path, "rb") as f:
+                        raw = f.read()
 
-        raw_str = raw.decode("ascii", errors="ignore")
-        BLOCK_SIZE = 176
-        total_blocks = len(raw_str) // BLOCK_SIZE
-        prod_map = {int(p.get("plu", 0)): p for p in kg_products if p.get("plu")}
-        new_blocks = []
+            raw_str = raw.decode("ascii", errors="ignore")
+            BLOCK_SIZE = 176
+            total_blocks = len(raw_str) // BLOCK_SIZE
+            prod_map = {int(p.get("plu", 0)): p for p in kg_products if p.get("plu")}
+            new_blocks = []
 
-        for i in range(total_blocks):
-            block = raw_str[i * BLOCK_SIZE : (i + 1) * BLOCK_SIZE]
-            plu_str = block[:8]
-            if plu_str.isdigit():
-                plu_val = int(plu_str)
-                if plu_val in prod_map:
-                    p = prod_map[plu_val]
-                    cents = _parse_price_to_cents(p.get("price", "0"))
-                    new_price_str = f"{cents:08d}"
-                    block = re.sub(r'[0-9]{8}(1105[0-9]{7})', f'{new_price_str}\\1', block, count=1)
-            new_blocks.append(block)
+            for i in range(total_blocks):
+                block = raw_str[i * BLOCK_SIZE : (i + 1) * BLOCK_SIZE]
+                plu_str = block[:8]
+                if plu_str.isdigit():
+                    plu_val = int(plu_str)
+                    if plu_val in prod_map:
+                        p = prod_map[plu_val]
+                        cents = _parse_price_to_cents(p.get("price", "0"))
+                        new_price_str = f"{cents:08d}"
+                        block = re.sub(r'[0-9]{8}(1105[0-9]{7})', f'{new_price_str}\\1', block, count=1)
+                new_blocks.append(block)
 
-        updated_raw = "".join(new_blocks).encode("ascii")
-        if len(raw) > len(updated_raw):
-            updated_raw += raw[len(updated_raw):]
+            updated_raw = "".join(new_blocks).encode("ascii")
+            if len(raw) > len(updated_raw):
+                updated_raw += raw[len(updated_raw):]
 
-        with open(f37_path, "wb") as f:
-            f.write(updated_raw)
+            with open(f37_path, "wb") as f:
+                f.write(updated_raw)
 
-        sending_dir = os.path.join(tools_dir, "SENDING")
-        os.makedirs(sending_dir, exist_ok=True)
-        with open(os.path.join(sending_dir, "SENDPLU.DAT"), "wb") as f:
-            f.write(updated_raw)
-        with open(os.path.join(tools_dir, "SENDPLU.DAT"), "wb") as f:
-            f.write(updated_raw)
+            sending_dir = os.path.join(tools_dir, "SENDING")
+            os.makedirs(sending_dir, exist_ok=True)
+            with open(os.path.join(sending_dir, "SENDPLU.DAT"), "wb") as f:
+                f.write(updated_raw)
+            with open(os.path.join(tools_dir, "SENDPLU.DAT"), "wb") as f:
+                f.write(updated_raw)
 
-        now_str = datetime.datetime.now().strftime("%d %b %Y %H:%M")
-        for p in products:
-            p["scale_price"] = p.get("price")
-            p["sync_status"] = "synced"
-            p["last_synced_at"] = now_str
+            now_str = datetime.datetime.now().strftime("%d %b %Y %H:%M")
+            for p in products:
+                p["scale_price"] = p.get("price")
+                p["sync_status"] = "synced"
+                p["last_synced_at"] = now_str
 
-        wr_res = subprocess.run([exe_path, "WR", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=10)
+            wr_res = subprocess.run([exe_path, "WR", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=10)
 
         save_all_manav_products(products)
         export_scale_files(products)

@@ -1,0 +1,16 @@
+{
+  "name": "Market Reyon & POS Terminali",
+  "short_name": "MarketPOS",
+  "start_url": "/mobile",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#030712",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/frontend/stiller/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

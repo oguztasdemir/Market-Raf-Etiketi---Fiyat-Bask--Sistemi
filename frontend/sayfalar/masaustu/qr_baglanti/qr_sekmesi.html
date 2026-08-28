@@ -1,0 +1,116 @@
+<!-- =========================================================
+     SEKME: MOBİL QR BAĞLANTISI & CANLI CİHAZ YÖNETİMİ
+     ========================================================= -->
+<div id="tab-qr" class="tab-content" style="display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; max-height: calc(100vh - 65px);">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+    
+    <!-- Başlık Kartı -->
+    <div style="background: #0b1329; border: 1.5px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-size: 32px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 6px 10px;">📱</span>
+        <div>
+          <h2 style="margin: 0; font-size: 18px; font-weight: 900; color: #f8fafc;">Mobil Barkod Okuyucu & QR Bağlantısı</h2>
+          <small style="color: #94a3b8; font-size: 12.5px;">Telefonunuzla reyonlarda gezerken ürün barkodunu okutun ve raftan ayrılmadan anında etiket basın</small>
+        </div>
+      </div>
+      <button type="button" onclick="loadMobileQrCode()" style="background: #1e293b; border: 1px solid #475569; color: #38bdf8; padding: 8px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+        🔄 Yenile / Bağlantıyı Tara
+      </button>
+    </div>
+
+    <!-- 2 Sütunlu Ana Grid -->
+    <div style="display: grid; grid-template-columns: 380px 1fr; gap: 20px;">
+      
+      <!-- Sol: QR Kod Kartı -->
+      <div style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <div style="font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 12px;">
+          📷 Kamerayla Okutun
+        </div>
+
+        <div id="mobile-qr-canvas" style="background: #ffffff; padding: 14px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; min-width: 178px; min-height: 178px;">
+          <!-- JS tarafından QR Canvas çizilir -->
+        </div>
+
+        <div style="margin-top: 14px; width: 100%;">
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; text-align: left;">Mobil Terminal Bağlantı Adresi</label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="inp-mobile-url" readonly value="http://192.168.1.34:5000/mobile" style="background: #070d1e; border: 1px solid #334155; border-radius: 6px; padding: 8px 10px; color: #34d399; font-family: monospace; font-size: 12.5px; font-weight: 700; flex: 1; outline: none;">
+            <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('inp-mobile-url').value); if(typeof showToast==='function') showToast('📋 Bağlantı kopyalandı!','success');" style="background: #1e293b; border: 1px solid #334155; color: #f8fafc; padding: 0 12px; border-radius: 6px; cursor: pointer;" title="Linki Kopyala">📋</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 12px; width: 100%;">
+          <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; text-align: left;">Masaüstü Web Bağlantı Adresi</label>
+          <input type="text" id="inp-pc-web-url" readonly value="http://192.168.1.34:5000" style="width: 100%; background: #070d1e; border: 1px solid #334155; border-radius: 6px; padding: 7px 10px; color: #38bdf8; font-family: monospace; font-size: 12px; box-sizing: border-box; outline: none;">
+        </div>
+      </div>
+
+      <!-- Sağ: Nasıl Çalışır & Bağlı Cihazlar -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- Adım Adım Rehber -->
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+          <h3 style="margin: 0 0 14px 0; font-size: 14.5px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
+            <span>🚀</span> 3 Kolay Adımda Mobil Kullanım
+          </h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; border-left: 3px solid #38bdf8;">
+              <div style="font-size: 18px; margin-bottom: 4px;">1️⃣</div>
+              <strong style="color: #f8fafc; font-size: 12.5px; display: block;">Aynı WiFi'a Bağlanın</strong>
+              <small style="color: #94a3b8; font-size: 11px;">Telefonunuzun bu bilgisayarla aynı dükkan/ev WiFi ağına bağlı olduğundan emin olun.</small>
+            </div>
+
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; border-left: 3px solid #34d399;">
+              <div style="font-size: 18px; margin-bottom: 4px;">2️⃣</div>
+              <strong style="color: #f8fafc; font-size: 12.5px; display: block;">Kamerayı QR'a Tutun</strong>
+              <small style="color: #94a3b8; font-size: 11px;">Kamera uygulamasını açıp soldaki QR kodu okutun ve bağlantıya tıklayın.</small>
+            </div>
+
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; border-left: 3px solid #a855f7;">
+              <div style="font-size: 18px; margin-bottom: 4px;">3️⃣</div>
+              <strong style="color: #f8fafc; font-size: 12.5px; display: block;">Okutun & Yazdırın</strong>
+              <small style="color: #94a3b8; font-size: 11px;">Reyonlarda gezerken ürün barkodunu kamerayla okutup doğrudan etiket basın.</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ağdaki Donanımlar ve Cihazlar Özeti -->
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+          <h3 style="margin: 0 0 12px 0; font-size: 14.5px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+            <span>📶</span> Canlı Sistem & Ağ Donanım Durumu
+          </h3>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 20px;">💻</div>
+              <div id="dev-count-pcs" style="font-size: 16px; font-weight: 900; color: #38bdf8;">1</div>
+              <small style="color: #94a3b8; font-size: 11px;">Masaüstü</small>
+            </div>
+
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 20px;">📱</div>
+              <div id="dev-count-mobiles" style="font-size: 16px; font-weight: 900; color: #34d399;">0</div>
+              <small style="color: #94a3b8; font-size: 11px;">Mobil Cihaz</small>
+            </div>
+
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 20px;">🖨️</div>
+              <div id="dev-count-printers" style="font-size: 16px; font-weight: 900; color: #fbbf24;">1</div>
+              <small style="color: #94a3b8; font-size: 11px;">Yazıcı</small>
+            </div>
+
+            <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 20px;">⚖️</div>
+              <div id="dev-count-scales" style="font-size: 16px; font-weight: 900; color: #c084fc;">1</div>
+              <small style="color: #94a3b8; font-size: 11px;">Terazi</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

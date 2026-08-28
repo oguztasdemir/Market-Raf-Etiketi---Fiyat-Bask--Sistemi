@@ -51,9 +51,14 @@
         </div>
       </div>
 
-      <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
-        <button type="button" class="btn-secondary" onclick="closeManavModal()">İptal</button>
-        <button type="button" class="btn-primary" onclick="submitManavProductModal()" style="font-weight: 800;">💾 Kaydet</button>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <button type="button" id="btn-manav-open-full-detail" class="btn-secondary" onclick="openFullCatalogDetailFromManavModal()" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); font-size: 11.5px; padding: 6px 12px; font-weight: 700;">
+          🔍 Tüm Ürün Detayını Aç
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-secondary" onclick="closeManavModal()">İptal</button>
+          <button type="button" class="btn-primary" onclick="submitManavProductModal()" style="font-weight: 800;">💾 Kaydet</button>
+        </div>
       </div>
     </div>
   </div>

@@ -1,9 +1,0 @@
-{
-  "ip": "192.168.1.61",
-  "port": 2061,
-  "scale_model": "DIGI SM-100",
-  "protocol": "DIGI_SM100_ETHERNET",
-  "dept_code": 1,
-  "barcode_prefix": "27",
-  "timeout_sec": 2.5
-}

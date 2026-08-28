@@ -1,4 +1,4 @@
-<div id="tab-market-accounting" class="tab-content" style="padding: 16px; box-sizing: border-box; overflow-y: auto; max-height: calc(100vh - 65px);">
+<div id="tab-accounting" class="tab-content" style="padding: 16px; box-sizing: border-box; overflow-y: auto; max-height: calc(100vh - 65px);">
 
   <!-- 1. ÜST BAŞLIK VE AY KONTROLLERİ -->
   <div style="display: flex; justify-content: space-between; align-items: center; background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 20px; margin-bottom: 16px;">
@@ -8,10 +8,10 @@
       </div>
       <div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <h2 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Market Bilgileri, Kasiyerler & Gelir / Gider Muhasebesi</h2>
+          <h2 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Market Gelir / Gider Muhasebesi</h2>
           <span id="acc-period-badge" style="font-size: 11.5px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 800;">Ağustos 2026</span>
         </div>
-        <small style="color: #94a3b8; font-size: 11.5px;">Dükkan kirası, personel maaşları, faturalar, toptancı ödemeleri ve net kâr analizi</small>
+        <small style="color: #94a3b8; font-size: 11.5px;">Aylık kasa cirosu, gider takibi, net kâr analizi ve harcama dökümleri</small>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
     <div style="background: #0b1329; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 16px; border-left: 4px solid #ef4444;">
       <div style="font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">💸 Aylık Toplam Giderler</div>
       <div id="acc-kpi-expense" style="font-size: 22px; font-weight: 900; color: #f87171; font-family: monospace; margin: 4px 0;">0,00 TL</div>
-      <div id="acc-kpi-expense-sub" style="font-size: 11px; color: #94a3b8;">🏢 Kira • 👥 Maaş • 💡 Faturalar • 🚚 Mal Alımı</div>
+      <div id="acc-kpi-expense-sub" style="font-size: 11px; color: #94a3b8;">Kira • Maaş • Faturalar • Toptancı</div>
     </div>
 
     <!-- Net Kâr Kartı -->
@@ -57,57 +57,46 @@
 
   </div>
 
-  <!-- 3. ANA ALT SEKMELER: MUHASEBE / MARKET BİLGİLERİ -->
+  <!-- 3. ANA ALT SEKMELER (SADELEŞTİRİLMİŞ 3 PANEL) -->
   <div style="display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
     <button type="button" id="acc-subtab-btn-expenses" onclick="switchAccountingSubTab('expenses')" class="btn-primary" style="padding: 7px 18px; font-weight: 800; font-size: 12px; background: #0284c7; color: #fff;">
-      📊 Gelir & Gider Yönetimi (Kira, Maaş, Faturalar)
+      📋 Gider Hareketleri Tablosu
     </button>
-    <button type="button" id="acc-subtab-btn-market" onclick="switchAccountingSubTab('market')" class="btn-secondary" style="padding: 7px 18px; font-weight: 700; font-size: 12px; background: transparent; color: #94a3b8;">
-      🏪 Market Tanımı, POS & Kasiyerler
+    <button type="button" id="acc-subtab-btn-breakdown" onclick="switchAccountingSubTab('breakdown')" class="btn-secondary" style="padding: 7px 18px; font-weight: 700; font-size: 12px; background: transparent; color: #94a3b8;">
+      📑 Harcama Kategori Dağılımı
+    </button>
+    <button type="button" id="acc-subtab-btn-categories" onclick="switchAccountingSubTab('categories')" class="btn-secondary" style="padding: 7px 18px; font-weight: 700; font-size: 12px; background: transparent; color: #94a3b8;">
+      ⚙️ Gider Kategorilerini Özelleştir
     </button>
   </div>
 
-  <!-- SEKMELERE GÖRE İÇERİK PANELLERİ -->
-
-  <!-- PANE 1: GELİR / GİDER YÖNETİMİ -->
+  <!-- =========================================================
+       PANEL 1: GİDER HAREKETLERİ KÜTÜĞÜ VE ARAMA TABLOSU
+       ========================================================= -->
   <div id="acc-subpane-expenses" style="display: flex; flex-direction: column; gap: 14px;">
     
-    <!-- Kategori Dağılım Çubuğu & Kartları -->
     <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 12px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">📑 Aylık Gider Dağılımı ve Kalemleri</span>
-        <small style="color: #94a3b8; font-size: 11px;">Toplam <strong id="acc-expense-count-text" style="color:#fff;">0</strong> Gider Kaydı</small>
-      </div>
-
-      <!-- Çoklu Kategori Segment Çubuğu -->
-      <div id="acc-category-progressbar" style="height: 12px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; display: flex;">
-        <!-- JS Dinamik Dolduracak -->
-      </div>
-
-      <!-- Kategori Mini Kartları -->
-      <div id="acc-category-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px;">
-        <!-- JS Dinamik Dolduracak -->
-      </div>
-    </div>
-
-    <!-- Gider Kayıtları Listesi Tablosu -->
-    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <strong style="color: #f8fafc; font-size: 13.5px; font-weight: 800;">📋 Gelir & Gider Hareketleri Kütüğü</strong>
+          <strong style="color: #f8fafc; font-size: 13.5px; font-weight: 800;">📋 Gelir & Gider Kayıtları</strong>
           <span id="acc-table-count-badge" style="font-size: 11px; background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 2px 7px; border-radius: 4px; font-weight: 700;">0 Kayıt</span>
         </div>
         
-        <input type="text" id="acc-search-inp" placeholder="🔍 Gider veya Alacaklı Ara..." oninput="filterAccountingTable(this.value)" style="width: 240px; padding: 6px 12px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <select id="acc-filter-category" onchange="filterAccountingByCategory(this.value)" style="padding: 6px 10px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+            <option value="all">Tüm Kategoriler</option>
+          </select>
+          <input type="text" id="acc-search-inp" placeholder="🔍 Başlık veya Alacaklı Ara..." oninput="filterAccountingTable(this.value)" style="width: 220px; padding: 6px 12px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+        </div>
       </div>
 
-      <div style="overflow-y: auto; max-height: 380px;">
+      <div style="overflow-y: auto; max-height: 440px;">
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px;">
           <thead>
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 11px; text-transform: uppercase; position: sticky; top: 0; background: #0b1329; z-index: 5;">
               <th style="padding: 10px 12px;">Tarih / Saat</th>
               <th style="padding: 10px 12px;">Kategori</th>
-              <th style="padding: 10px 12px;">Gider / Gelir Açıklaması</th>
+              <th style="padding: 10px 12px;">Gider / Harcama Açıklaması</th>
               <th style="padding: 10px 12px;">Kime / Kurum</th>
               <th style="padding: 10px 12px; text-align: center;">Ödeme Türü</th>
               <th style="padding: 10px 12px; text-align: right;">Tutar</th>
@@ -123,103 +112,56 @@
 
   </div>
 
-  <!-- PANE 2: MARKET TANIMI, POS & KASİYERLER -->
-  <div id="acc-subpane-market" style="display: none; grid-template-columns: 1fr 1fr; gap: 16px;">
+  <!-- =========================================================
+       PANEL 2: HARCAMA KATEGORİ DAĞILIMI VE GRAFİK ÇUBUĞU
+       ========================================================= -->
+  <div id="acc-subpane-breakdown" style="display: none; flex-direction: column; gap: 14px;">
     
-    <!-- Sol Kart: Market & POS Bilgileri -->
-    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
-      <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
-        <span style="font-size: 18px;">🏪</span>
-        <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #38bdf8;">Market & Şube Genel Bilgileri</h3>
+    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 13px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">📑 Aylık Gider Dağılımı ve Kalemleri</span>
+        <small style="color: #94a3b8; font-size: 11px;">Toplam <strong id="acc-expense-count-text" style="color:#fff;">0</strong> Gider Kaydı</small>
       </div>
 
-      <div class="form-row" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px;">
-        <div class="form-group">
-          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Market / Ticari Ünvan</label>
-          <input type="text" id="acc-market-name" placeholder="Örn: YARENLER SÜPERMARKET" style="width: 100%; padding: 8px 10px; font-size: 12.5px; font-weight: 700; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
-        </div>
-        <div class="form-group">
-          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Şube / Kasa Tanımı</label>
-          <input type="text" id="acc-branch-name" placeholder="Örn: Merkez Şube - Kasa 1" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
-        </div>
+      <!-- Çoklu Kategori Segment Çubuğu -->
+      <div id="acc-category-progressbar" style="height: 14px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 7px; overflow: hidden; display: flex;">
+        <!-- JS Dinamik Dolduracak -->
       </div>
 
-      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div class="form-group">
-          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">İletişim Telefonu</label>
-          <input type="text" id="acc-phone" placeholder="0555 000 00 00" style="width: 100%; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
-        </div>
-        <div class="form-group">
-          <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Banka POS Komisyonu (%)</label>
-          <div style="position: relative;">
-            <input type="number" id="acc-pos-commission" step="0.05" min="0" max="15" value="1.85" style="width: 100%; padding: 8px 10px; font-size: 12.5px; font-weight: 900; font-family: monospace; background: rgba(15,23,42,0.8); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px; color: #fbbf24; box-sizing: border-box;">
-            <span style="position: absolute; right: 10px; top: 8px; color: #94a3b8; font-size: 12px; font-weight: 800;">%</span>
-          </div>
-        </div>
+      <!-- Kategori Mini Kartları Grid -->
+      <div id="acc-category-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+        <!-- JS Dinamik Dolduracak -->
       </div>
-
-      <div class="form-group">
-        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Vergi Dairesi & Vergi No</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="acc-tax-office" placeholder="V. Dairesi" style="width: 50%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
-          <input type="text" id="acc-tax-no" placeholder="V. No" style="width: 50%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block;">Fiş Altı Bilgi / Teşekkür Notu</label>
-        <textarea id="acc-receipt-footer" rows="2" placeholder="Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!" style="width: 100%; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box; resize: vertical;"></textarea>
-      </div>
-
-      <button type="button" class="btn-primary" onclick="saveAccountingMarketInfo()" style="padding: 8px 16px; font-weight: 800; font-size: 12px; margin-top: 4px;">
-        💾 Market Bilgilerini Güncelle
-      </button>
     </div>
 
-    <!-- Sağ Kart: Kasiyer & Personel Kadrosu -->
-    <div class="card" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 18px;">👥</span>
-          <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #34d399;">Kasiyer & Personel Kadrosu</h3>
+  </div>
+
+  <!-- =========================================================
+       PANEL 3: KULLANICININ ÖZELLEŞTİREBİLECEĞİ GİDER KATEGORİLERİ
+       ========================================================= -->
+  <div id="acc-subpane-categories" style="display: none; flex-direction: column; gap: 14px;">
+    
+    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc;">⚙️ Gider Kategorilerini Yönet</h3>
+          <small style="color: #94a3b8; font-size: 11px;">Marketinize özel harcama ve masraf kategorileri tanımlayın veya düzenleyin.</small>
         </div>
-        <span id="acc-cashier-badge" style="font-size: 11px; background: rgba(16,185,129,0.15); color: #34d399; padding: 2px 8px; border-radius: 4px; font-weight: 800;">0 Kasiyer</span>
       </div>
 
-      <!-- Kasiyer Listesi Tablosu -->
-      <div style="max-height: 200px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; background: #090d16;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
-          <thead>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; font-size: 10.5px; text-transform: uppercase;">
-              <th style="padding: 8px 10px;">Kasiyer Adı</th>
-              <th style="padding: 8px 10px;">Kasa Kodu</th>
-              <th style="padding: 8px 10px;">Yetki</th>
-              <th style="padding: 8px 10px; text-align: center;">Durum</th>
-              <th style="padding: 8px 10px; text-align: right;">İşlem</th>
-            </tr>
-          </thead>
-          <tbody id="acc-cashiers-table-body">
-            <!-- JS Dinamik Dolduracak -->
-          </tbody>
-        </table>
+      <!-- Kategori Ekleme Formu -->
+      <div style="background: rgba(15,23,42,0.6); border: 1px dashed rgba(56,189,248,0.3); border-radius: 8px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="text" id="inp-new-category-icon" placeholder="İkon (örn: 🛵)" style="width: 80px; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; text-align: center;">
+        <input type="text" id="inp-new-category-name" placeholder="Kategori Adı (örn: Kurye & Yakıt Masrafı)" style="flex: 1; min-width: 220px; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+        <input type="color" id="inp-new-category-color" value="#0284c7" style="width: 44px; height: 36px; padding: 0; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
+        <button type="button" class="btn-primary" onclick="addNewCustomExpenseCategory()" style="padding: 8px 18px; font-size: 12px; font-weight: 800;">
+          ➕ Kategori Ekle
+        </button>
       </div>
 
-      <!-- Yeni Kasiyer Ekleme Alt Formu -->
-      <div style="background: rgba(15,23,42,0.6); border: 1px dashed rgba(52,211,153,0.3); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;">
-        <div style="font-size: 11px; font-weight: 800; color: #34d399;">➕ Yeni Kasiyer / Personel Tanımla</div>
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto; gap: 8px; align-items: center;">
-          <input type="text" id="acc-new-cashier-name" placeholder="Adı Soyadı..." style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
-          <input type="text" id="acc-new-cashier-id" placeholder="Kasa Kodu" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
-          <input type="password" id="acc-new-cashier-pin" placeholder="PIN" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff; box-sizing: border-box;">
-          <select id="acc-new-cashier-role" style="padding: 6px 8px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #fff;">
-            <option value="cashier" selected>Kasiyer</option>
-            <option value="supervisor">Kasa Şefi</option>
-            <option value="admin">Müdür</option>
-          </select>
-          <button type="button" class="btn-primary" onclick="submitAddNewAccountingCashier()" style="padding: 6px 12px; font-size: 11px; font-weight: 800; background: #059669; white-space: nowrap;">
-            Ekle
-          </button>
-        </div>
+      <!-- Mevcut Kategoriler Listesi -->
+      <div id="acc-custom-categories-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 6px;">
+        <!-- JS Dinamik Dolduracak -->
       </div>
     </div>
 

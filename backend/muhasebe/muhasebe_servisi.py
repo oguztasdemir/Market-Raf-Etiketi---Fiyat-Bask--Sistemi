@@ -37,24 +37,79 @@ def get_accounting_overview(year: int = None, month: int = None) -> dict:
     num_days = calendar.monthrange(y, m)[1]
     month_prefix = f"{y:04d}-{m:02d}"
 
-    # 1. Satış Gelirlerini Hesapla (Yıl/Ay hiyerarşisi)
+    # 1. Satış Gelirlerini Hesapla (Yıl/Ay hiyerarşisi - İptalleri Ayıkla & İadeleri Düş)
     total_sales_income = 0.0
     cash_income = 0.0
     card_income = 0.0
+    debt_income = 0.0
     total_receipts = 0
 
     for day in range(1, num_days + 1):
         date_str = f"{month_prefix}-{day:02d}"
         sales = get_sales_for_date(date_str)
         for s in sales:
-            amt = float(s.get("total_amount", 0.0))
-            ptype = str(s.get("payment_type", "Nakit")).lower()
-            total_sales_income += amt
+            is_cancelled = s.get("is_cancelled") or s.get("payment_type") == "İptal Edildi" or str(s.get("receipt_no", "")).startswith("FIS-IPTAL")
+            if is_cancelled:
+                continue
+
+            is_ret = s.get("is_return") or "iade" in str(s.get("payment_type", "")).lower() or str(s.get("receipt_no", "")).startswith("FIS-IADE")
+            if is_ret:
+                amt = abs(float(s.get("total_amount", 0.0)))
+                total_sales_income -= amt
+                ptype = str(s.get("payment_type", "Nakit")).lower()
+                if "kart" in ptype or "kredi" in ptype:
+                    card_income -= amt
+                elif "veresiye" in ptype or "cari" in ptype:
+                    debt_income -= amt
+                else:
+                    cash_income -= amt
+                continue
+
             total_receipts += 1
-            if "kart" in ptype or "kredi" in ptype:
-                card_income += amt
+            amt = float(s.get("total_amount", 0.0))
+            gross_amt = amt
+            
+            # Fiş içi iade düşümü
+            in_place_return_amt = 0.0
+            if isinstance(s.get("returns"), list):
+                for r in s["returns"]:
+                    r_amt = float(r.get("refund_amount", 0.0))
+                    r_type = str(r.get("refund_type", "Nakit")).lower()
+                    in_place_return_amt += r_amt
+                    if "kart" in r_type or "kredi" in r_type:
+                        card_income -= r_amt
+                    elif "veresiye" in r_type or "cari" in r_type:
+                        debt_income -= r_amt
+                    else:
+                        cash_income -= r_amt
+
+            net_rec_amt = max(0.0, gross_amt - in_place_return_amt)
+            total_sales_income += net_rec_amt
+
+            pb = s.get("payment_breakdown")
+            if isinstance(pb, dict) and pb:
+                for b_key, b_val in pb.items():
+                    b_k = str(b_key).lower()
+                    val = float(b_val or 0.0)
+                    if "kart" in b_k or "kredi" in b_k:
+                        card_income += val
+                    elif "veresiye" in b_k or "cari" in b_k:
+                        debt_income += val
+                    else:
+                        cash_income += val
             else:
-                cash_income += amt
+                ptype = str(s.get("payment_type", "Nakit")).lower()
+                if "kart" in ptype or "kredi" in ptype:
+                    card_income += gross_amt
+                elif "veresiye" in ptype or "cari" in ptype:
+                    debt_income += gross_amt
+                else:
+                    cash_income += gross_amt
+
+    total_sales_income = round(max(0.0, total_sales_income), 2)
+    cash_income = round(max(0.0, cash_income), 2)
+    card_income = round(max(0.0, card_income), 2)
+    debt_income = round(max(0.0, debt_income), 2)
 
     # 2. Giderleri Hesapla
     all_expenses = load_json(EXPENSES_FILE, [])
@@ -99,11 +154,40 @@ def get_accounting_overview(year: int = None, month: int = None) -> dict:
             "percentage": pct
         })
 
-    category_breakdown.sort(key=lambda x: x["total"], reverse=True)
+    # Ürün Kataloğunu maliyet hesabı için yükle
+    from backend.ayarlar import PRODUCTS_FILE
+    prod_catalog = load_json(PRODUCTS_FILE, [])
+    prod_costs = {clean_barcode(p.get("barcode")): parse_price_val(p.get("last_cost") or p.get("buying_price", 0)) for p in prod_catalog if p.get("barcode")}
 
-    # 4. Net Kâr ve Finansal Sağlık Göstergesi
-    net_profit = total_sales_income - total_expenses
-    profit_margin = round((net_profit / total_sales_income * 100), 1) if total_sales_income > 0 else 0.0
+    total_cogs = 0.0 # Satılan Malın Maliyeti (COGS / SMM)
+    for day in range(1, num_days + 1):
+        date_str = f"{month_prefix}-{day:02d}"
+        sales = get_sales_for_date(date_str)
+        for s in sales:
+            if s.get("is_cancelled") or s.get("payment_type") == "İptal Edildi":
+                continue
+            is_ret = s.get("is_return") or "iade" in str(s.get("payment_type", "")).lower()
+            for itm in s.get("items", []):
+                bc = clean_barcode(itm.get("barcode"))
+                qty = float(itm.get("quantity", 1.0))
+                cost = prod_costs.get(bc, 0.0)
+                if cost <= 0:
+                    # Maliyet bilinmiyorsa varsayılan %30 kâr marjı ile kestirim
+                    tot_item_price = float(itm.get("total_price", 0.0))
+                    cost = round(tot_item_price * 0.70 / (qty if qty > 0 else 1), 2)
+                item_cost = round(cost * qty, 2)
+                if is_ret:
+                    total_cogs -= item_cost
+                else:
+                    total_cogs += item_cost
+
+    total_cogs = round(max(0.0, total_cogs), 2)
+    gross_profit = round(max(0.0, total_sales_income - total_cogs), 2)
+    gross_margin = round((gross_profit / total_sales_income * 100), 1) if total_sales_income > 0 else 0.0
+
+    # 4. Net Kâr ve Finansal Sağlık Göstergesi (P&L: Brüt Kâr - İşletme Giderleri)
+    net_profit = round(gross_profit - total_expenses, 2)
+    net_profit_margin = round((net_profit / total_sales_income * 100), 1) if total_sales_income > 0 else 0.0
 
     tr_months = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
     month_name = tr_months[m] if 1 <= m <= 12 else str(m)
@@ -115,17 +199,25 @@ def get_accounting_overview(year: int = None, month: int = None) -> dict:
         "month_name": month_name,
         "total_sales_income": round(total_sales_income, 2),
         "total_sales_income_str": format_currency(total_sales_income),
+        "total_cogs": total_cogs,
+        "total_cogs_str": format_currency(total_cogs),
+        "gross_profit": gross_profit,
+        "gross_profit_str": format_currency(gross_profit),
+        "gross_margin": gross_margin,
         "cash_income": round(cash_income, 2),
         "cash_income_str": format_currency(cash_income),
         "card_income": round(card_income, 2),
         "card_income_str": format_currency(card_income),
+        "debt_income": round(debt_income, 2),
+        "debt_income_str": format_currency(debt_income),
         "total_receipts": total_receipts,
         "total_expenses": round(total_expenses, 2),
         "total_expenses_str": format_currency(total_expenses),
-        "net_profit": round(net_profit, 2),
+        "net_profit": net_profit,
         "net_profit_str": format_currency(net_profit),
         "is_profit": net_profit >= 0,
-        "profit_margin": profit_margin,
+        "profit_margin": net_profit_margin,
+        "net_profit_margin": net_profit_margin,
         "category_breakdown": category_breakdown,
         "expenses": month_expenses,
         "all_categories": [

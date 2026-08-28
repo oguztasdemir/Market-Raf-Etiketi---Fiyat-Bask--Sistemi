@@ -140,8 +140,7 @@ def analyze_excel_diff(excel_path: str) -> dict:
         return {"status": "error", "message": "Excel/CSV dosyası bulunamadı."}
 
     mtime = os.path.getmtime(excel_path)
-    prod_mtime = os.path.getmtime(PRODUCTS_FILE) if os.path.exists(PRODUCTS_FILE) else 0
-    cache_key = (excel_path, mtime, prod_mtime)
+    cache_key = (excel_path, mtime)
 
     if cache_key in _DIFF_CACHE:
         return _DIFF_CACHE[cache_key]

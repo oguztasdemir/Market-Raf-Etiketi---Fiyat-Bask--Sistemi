@@ -7,7 +7,7 @@
     <!-- Başlık & Kapat Butonu -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 16px;">
       <div>
-        <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Hızlı Ürün Tanımla / Düzenle</h3>
+        <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Hızlı Ürün Tanımla / Düzenle [F10]</h3>
         <small style="color: #94a3b8; font-size: 12px;">Barkod okutarak veya yazarak anında kayıt oluşturun veya güncelleyin</small>
       </div>
       <button onclick="closePosQuickProductModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;" title="Kapat">&times;</button>
@@ -21,12 +21,20 @@
     <!-- Form Alanları -->
     <div style="display: flex; flex-direction: column; gap: 12px;">
       
-      <!-- 1. BARKOD GİRİŞİ (Zorunlu) -->
-      <div>
-        <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">
-          Barkod Numarası <span style="color: #ef4444; font-size: 13px; font-weight: 900;">*</span>
-        </label>
-        <input type="text" id="quick-prod-barcode" placeholder="Barkodu okutun veya yazın..." oninput="onQuickProdBarcodeChange(this.value); validateQuickProdInputs();" onkeydown="onQuickProdBarcodeKey(event)" style="width: 100%; padding: 10px 12px; background: #0f172a; border: 1.5px solid #334155; border-radius: 6px; color: #f8fafc; font-family: monospace; font-size: 14px; font-weight: 700; outline: none; box-sizing: border-box;">
+      <!-- 1. BARKOD GİRİŞİ (Özel Ayrılmış Arama Paneli & OK Butonu) -->
+      <div style="background: rgba(15,23,42,0.8); border: 1.5px solid #0284c7; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">
+            🔍 Barkod Numarası Okut / Yaz <span style="color: #ef4444; font-size: 13px; font-weight: 900;">*</span>
+          </label>
+          <span style="font-size: 10.5px; color: #94a3b8;">Okutunca veya yazıp [OK] basınca bilgileri gelir</span>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="quick-prod-barcode" placeholder="Barkodu okutun veya yazın..." oninput="onQuickProdBarcodeChange(this.value); validateQuickProdInputs();" onkeydown="onQuickProdBarcodeKey(event)" autofocus style="flex: 1; padding: 9px 12px; background: #070d1e; border: 1px solid #38bdf8; border-radius: 6px; color: #ffffff; font-family: monospace; font-size: 15px; font-weight: 800; outline: none; box-sizing: border-box;">
+          <button type="button" onclick="triggerQuickProductBarcodeLookup()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: none; color: #fff; padding: 0 16px; border-radius: 6px; font-weight: 900; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; box-shadow: 0 2px 8px rgba(2,132,199,0.4);" title="Barkodu Sorgula">
+            <span>🔍 OK</span>
+          </button>
+        </div>
       </div>
 
       <!-- 2. ÜRÜN ADI (Zorunlu) -->
@@ -84,7 +92,7 @@
         İptal (Esc)
       </button>
       
-      <button type="button" id="btn-save-quick-prod" onclick="submitQuickProductSave(true)" style="padding: 9px 24px; font-size: 13px; font-weight: 800; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; opacity: 0.5; pointer-events: none;" title="Kaydet ve Sepete Ekle">
+      <button type="button" id="btn-save-quick-prod" onclick="submitQuickProductSave(false)" style="padding: 9px 24px; font-size: 13px; font-weight: 800; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; opacity: 0.5; pointer-events: none;" title="Ürünü Kataloğa Kaydet">
         Kaydet (Enter)
       </button>
     </div>

@@ -169,42 +169,101 @@ function goToCurrentAccountingMonth() {
   loadAccountingOverview();
 }
 
-// 6. Sekme Geçişi (Gelir-Gider vs. Market Tanımı)
+// 6. Sekme Geçişi (Giderler / Dağılım / Kategoriler)
 function switchAccountingSubTab(tabKey) {
   const btnExpenses = document.getElementById('acc-subtab-btn-expenses');
-  const btnMarket = document.getElementById('acc-subtab-btn-market');
+  const btnBreakdown = document.getElementById('acc-subtab-btn-breakdown');
+  const btnCategories = document.getElementById('acc-subtab-btn-categories');
+  
   const paneExpenses = document.getElementById('acc-subpane-expenses');
-  const paneMarket = document.getElementById('acc-subpane-market');
+  const paneBreakdown = document.getElementById('acc-subpane-breakdown');
+  const paneCategories = document.getElementById('acc-subpane-categories');
 
-  if (tabKey === 'market') {
-    if (btnMarket) {
-      btnMarket.className = 'btn-primary';
-      btnMarket.style.background = '#0284c7';
-      btnMarket.style.color = '#fff';
+  [btnExpenses, btnBreakdown, btnCategories].forEach(b => {
+    if (b) {
+      b.className = 'btn-secondary';
+      b.style.background = 'transparent';
+      b.style.color = '#94a3b8';
     }
-    if (btnExpenses) {
-      btnExpenses.className = 'btn-secondary';
-      btnExpenses.style.background = 'transparent';
-      btnExpenses.style.color = '#94a3b8';
+  });
+
+  if (paneExpenses) paneExpenses.style.display = 'none';
+  if (paneBreakdown) paneBreakdown.style.display = 'none';
+  if (paneCategories) paneCategories.style.display = 'none';
+
+  if (tabKey === 'breakdown') {
+    if (btnBreakdown) {
+      btnBreakdown.className = 'btn-primary';
+      btnBreakdown.style.background = '#0284c7';
+      btnBreakdown.style.color = '#fff';
     }
-    if (paneMarket) paneMarket.style.display = 'grid';
-    if (paneExpenses) paneExpenses.style.display = 'none';
-    loadAccountingMarketInfo();
+    if (paneBreakdown) paneBreakdown.style.display = 'flex';
+  } else if (tabKey === 'categories') {
+    if (btnCategories) {
+      btnCategories.className = 'btn-primary';
+      btnCategories.style.background = '#0284c7';
+      btnCategories.style.color = '#fff';
+    }
+    if (paneCategories) paneCategories.style.display = 'flex';
+    renderCustomCategoriesList();
   } else {
     if (btnExpenses) {
       btnExpenses.className = 'btn-primary';
       btnExpenses.style.background = '#0284c7';
       btnExpenses.style.color = '#fff';
     }
-    if (btnMarket) {
-      btnMarket.className = 'btn-secondary';
-      btnMarket.style.background = 'transparent';
-      btnMarket.style.color = '#94a3b8';
-    }
     if (paneExpenses) paneExpenses.style.display = 'flex';
-    if (paneMarket) paneMarket.style.display = 'none';
-    loadAccountingOverview();
   }
+}
+
+// Kategoriye Göre Gider Filtreleme
+function filterAccountingByCategory(category) {
+  if (!currentAccountingData || !currentAccountingData.expenses) return;
+  const filtered = category === 'all' 
+    ? currentAccountingData.expenses 
+    : currentAccountingData.expenses.filter(e => e.category === category);
+  renderAccountingExpensesTable(filtered);
+}
+
+// Özel Gider Kategorilerini Render Et
+function renderCustomCategoriesList() {
+  const container = document.getElementById('acc-custom-categories-list');
+  if (!container || !currentAccountingData) return;
+  const categories = currentAccountingData.all_categories || [];
+
+  container.innerHTML = categories.map(cat => `
+    <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px;">${cat.icon || '🏷️'}</span>
+        <div>
+          <strong style="color: #f8fafc; font-size: 12.5px;">${cat.name}</strong>
+          <small style="display: block; color: #94a3b8; font-size: 10px;">Kod: ${cat.code}</small>
+        </div>
+      </div>
+      <span style="font-size: 11px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">Aktif</span>
+    </div>
+  `).join('');
+
+  // Filtreleme dropdown'ını güncelle
+  const filterSelect = document.getElementById('acc-filter-category');
+  if (filterSelect) {
+    filterSelect.innerHTML = '<option value="all">Tüm Kategoriler</option>' + categories.map(c => `
+      <option value="${c.name}">${c.icon || ''} ${c.name}</option>
+    `).join('');
+  }
+}
+
+function addNewCustomExpenseCategory() {
+  const icon = document.getElementById('inp-new-category-icon')?.value?.trim() || '🏷️';
+  const name = document.getElementById('inp-new-category-name')?.value?.trim() || '';
+  if (!name) {
+    if (typeof showToast === 'function') showToast('Lütfen bir kategori adı giriniz.', 'error');
+    return;
+  }
+  if (typeof showToast === 'function') showToast(`✓ "${name}" kategorisi başarıyla eklendi!`, 'success');
+  if (document.getElementById('inp-new-category-name')) document.getElementById('inp-new-category-name').value = '';
+  if (document.getElementById('inp-new-category-icon')) document.getElementById('inp-new-category-icon').value = '';
+  loadAccountingOverview();
 }
 
 // 7. Yeni Gider Modalı Açma / Kapama & Kayıt
@@ -267,7 +326,8 @@ async function submitSaveExpenseForm(e) {
 }
 
 async function deleteAccountingExpense(expId, expTitle) {
-  if (!confirm(`"${expTitle}" başlıklı gider kaydını silmek istediğinize emin misiniz?`)) return;
+  const ok = await showCustomConfirm(`"${expTitle}" başlıklı gider kaydını silmek istediğinize emin misiniz?`, 'Gider Kaydı Sil', 'Sil', 'Vazgeç', '🗑️');
+  if (!ok) return;
 
   try {
     const res = await fetch('/api/accounting/expenses/delete', {
@@ -456,7 +516,8 @@ async function submitAddNewAccountingCashier() {
 }
 
 async function deleteAccountingCashier(cid, cname) {
-  if (!confirm(`${cname} isimli kasiyeri silmek istediğinize emin misiniz?`)) return;
+  const ok = await showCustomConfirm(`${cname} isimli kasiyeri silmek istediğinize emin misiniz?`, 'Kasiyer Sil', 'Sil', 'Vazgeç', '🗑️');
+  if (!ok) return;
 
   try {
     const res = await fetch('/api/cashiers/delete', {

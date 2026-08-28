@@ -76,6 +76,9 @@
       <!-- SEKME: SENKRONİZASYON -->
       {% include 'masaustu/senkronizasyon/senkronizasyon_sekmesi.html' %}
 
+      <!-- SEKME: MOBİL QR BAĞLANTISI -->
+      {% include 'masaustu/qr_baglanti/qr_sekmesi.html' %}
+
       <!-- SEKME: MANAV & TERAZİ PLU -->
       {% include 'masaustu/manav_terazi/manav_sekmesi.html' %}
 
@@ -88,7 +91,10 @@
       <!-- SEKME: AYARLAR -->
       {% include 'masaustu/ayarlar/ayarlar_sekmesi.html' %}
 
-      <!-- SEKME: MARKET BİLGİLERİ & MUHASEBE -->
+      <!-- SEKME: MARKET PROFİLİ, ÇALIŞANLAR & İZİNLER -->
+      {% include 'masaustu/market/market_sekmesi.html' %}
+
+      <!-- SEKME: GELİR / GİDER MUHASEBESİ -->
       {% include 'masaustu/muhasebe/muhasebe_sekmesi.html' %}
 
       <!-- SEKME: MÜŞTERİ VERESİYE & CARİ DEFTERİ -->
@@ -114,6 +120,10 @@
   {% include 'masaustu/hizli_satis/modallar/kasiyer_degistir_modali.html' %}
   {% include 'masaustu/hizli_satis/modallar/barkod_bulunamadi_modali.html' %}
   {% include 'masaustu/hizli_satis/modallar/fis_yazdir_onay_modali.html' %}
+  {% include 'masaustu/hizli_satis/modallar/x_raporu_modali.html' %}
+  {% include 'masaustu/hizli_satis/modallar/kasa_cikis_modali.html' %}
+  {% include 'masaustu/hizli_satis/modallar/veresiye_islemleri_modali.html' %}
+  {% include 'masaustu/hizli_satis/modallar/sepet_sil_onay_modali.html' %}
 
   <!-- KATALOG, MANAV, RAPOR, MUHASEBE, FATURA & ORTAK MODALLAR -->
   {% include 'masaustu/katalog/modallar/urun_detay_modali.html' %}
@@ -126,8 +136,11 @@
   {% include 'masaustu/raporlama/modallar/haftalik_isi_haritasi_modali.html' %}
   {% include 'masaustu/muhasebe/modallar/yeni_gider_modali.html' %}
   {% include 'masaustu/fatura/modallar/fatura_gorsel_onizleme_modali.html' %}
+  {% include 'masaustu/manav_terazi/modallar/manav_urun_modali.html' %}
   {% include 'masaustu/manav_terazi/modallar/terazi_onay_modali.html' %}
   {% include 'masaustu/manav_terazi/modallar/terazi_ilerleme_modali.html' %}
+  {% include 'masaustu/ayarlar/modallar/kurulum_sihirbazi_modali.html' %}
+  {% include 'masaustu/ayarlar/modallar/donanim_yoneticisi_modali.html' %}
   {% include 'masaustu/ortak_modallar/onay_diyalogu.html' %}
   {% include 'masaustu/ortak_modallar/prompt_diyalogu.html' %}
   {% include 'masaustu/ortak_modallar/cikis_onay_modali.html' %}
@@ -146,9 +159,11 @@
   <script src="/frontend/js/masaustu/yazdirma/toplu_yazdirma_modali.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/yedekleme/yedekler_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/raporlama/raporlar_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/market/market_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/muhasebe/muhasebe_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/fatura/fatura_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/terazi/manav_terazi_paneli.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/masaustu/donanim/donanim_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/kasa/kasa_paneli.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/masaustu/app.js?v={{ cache_bust }}"></script>
 </body>

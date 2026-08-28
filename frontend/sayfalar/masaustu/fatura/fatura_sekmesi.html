@@ -1,7 +1,7 @@
 <div id="tab-invoice" class="tab-content" style="padding: 10px; box-sizing: border-box; height: 100%; max-height: 100%; overflow: hidden;">
 
-  <!-- ANA GÖVDE: SOL ŞİRKET GEZGİNİ (320px) + SAĞ ALAN (1fr) -->
-  <div style="display: grid; grid-template-columns: 320px 1fr; gap: 12px; width: 100%; height: 100%; min-height: 0; overflow: hidden;">
+  <!-- ANA GÖVDE: SOL ŞİRKET GEZGİNİ (340px) + SAĞ ALAN (1fr) -->
+  <div style="display: grid; grid-template-columns: 340px 1fr; gap: 12px; width: 100%; height: 100%; min-height: 0; overflow: hidden;">
 
     <!-- ========================================================================= -->
     <!-- A. SOL PANEL: TOPTANCI & FATURA ARŞİV GEZGİNİ -->
@@ -17,6 +17,16 @@
           <span id="inv-total-companies-badge" style="font-size: 11px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 7px; border-radius: 5px; font-weight: 800;">
             - Şirket
           </span>
+        </div>
+
+        <!-- Ödeal API Canlı Çekim & Ayar Hızlı Eylemleri -->
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" id="btn-fetch-odeal-invoices" onclick="fetchInvoicesFromOdealDirect(false)" style="flex: 1; background: linear-gradient(135deg, #7c3aed, #6366f1); border: 1px solid rgba(168,85,247,0.4); color: #fff; padding: 7px 10px; border-radius: 7px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(124,58,237,0.35); transition: all 0.15s ease;">
+            ⚡ Ödeal'dan Faturaları Çek
+          </button>
+          <button type="button" id="btn-open-odeal-settings" onclick="openOdealApiConfigModal()" title="Ödeal API Key ve Bağlantı Ayarları" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 7px 10px; border-radius: 7px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;">
+            ⚙️
+          </button>
         </div>
 
         <!-- Arama Girişi -->
@@ -83,216 +93,200 @@
             Yeni Fatura Girişi & Akıllı Ayrıştırma Stüdyosu
           </h3>
           <p style="margin: 0; color: #94a3b8; font-size: 13px;">
-            e-Fatura XML (UBL-TR), e-Arşiv PDF veya fotoğraf yükleyin. Sistem iskonto, KDV ve stok artışlarını anında hesaplar.
+            e-Fatura XML (UBL-TR), Ödeal API portalı veya dosya yükleyin. Sistem iskonto, KDV ve stok artışlarını anında hesaplar.
           </p>
         </div>
 
-        <!-- 2 BÜYÜK YÜKLEME KARTI -->
-        <div style="display: grid; grid-template-columns: 1.18fr 1fr; gap: 18px; max-width: 820px; margin: 0 auto; width: 100%;">
+        <!-- 2 BÜYÜK YÜKLEME & ÖDEAL API KARTI -->
+        <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; max-width: 860px; margin: 0 auto; width: 100%;">
           
-          <!-- Kart 1: Sürükle Bırak / Masaüstü Dosya Seçici -->
-          <div id="invoice-dropzone-container" class="inv-dropzone-studio" style="padding: 30px 18px;" onclick="document.getElementById('invoice-file-input').click()" ondragover="event.preventDefault(); this.style.borderColor='#38bdf8'; this.style.background='rgba(56,189,248,0.1)';" ondragleave="this.style.borderColor='rgba(56,189,248,0.4)'; this.style.background='radial-gradient(circle at center, rgba(56, 189, 248, 0.05) 0%, rgba(9, 13, 22, 0.8) 100%)';" ondrop="handleInvoiceDrop(event)">
-            <div style="width: 58px; height: 58px; border-radius: 14px; background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.35); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 10px auto; box-shadow: 0 4px 14px rgba(56,189,248,0.2);">
-              📥
+          <!-- Kart 1: Canlı Ödeal API Entegrasyonu (Tamamen Otomatik) -->
+          <div style="background: linear-gradient(135deg, #13122b, #0b1329); border: 1.5px solid rgba(168,85,247,0.4); border-radius: 14px; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 6px 24px rgba(168,85,247,0.18);">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(168,85,247,0.22); border: 1px solid rgba(168,85,247,0.45); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 10px;">
+              ⚡
             </div>
-            <strong style="color: #f8fafc; font-size: 15px; display: block; margin-bottom: 4px;">Dosya Seç veya Sürükle</strong>
-            <p style="color: #94a3b8; font-size: 12px; margin: 0 0 14px 0;">
-              XML (UBL-TR) • PDF Belgesi • Fotoğraf (JPG/PNG)
+            <strong style="color: #c084fc; font-size: 15px; display: block; margin-bottom: 3px;">Ödeal e-Fatura API Senkronizasyonu</strong>
+            <p id="odeal-live-sync-status-text" style="color: #34d399; font-size: 12px; margin: 0 0 14px 0; font-weight: 700;">
+              🟢 API Key Tanımlı • Otomatik Çekiliyor
             </p>
-            <div style="display: flex; justify-content: center; gap: 8px;">
-              <span style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; font-size: 12.5px; font-weight: 800; padding: 8px 22px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 14px rgba(2,132,199,0.35);">
-                Dosyalara Gözat
-              </span>
-              <button type="button" onclick="event.stopPropagation(); loadDemoSampleInvoice();" class="btn-secondary" style="font-size: 12px; font-weight: 700; padding: 7px 12px; background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); color: #fbbf24; border-radius: 8px;">
-                🧪 Demo Yükle
+            <div style="display: flex; gap: 8px; width: 100%; max-width: 320px; justify-content: center;">
+              <button type="button" id="btn-fetch-odeal-card" onclick="fetchInvoicesFromOdealDirect(false)" style="background: linear-gradient(135deg, #7c3aed, #6366f1); border: 1px solid rgba(168,85,247,0.5); color: #fff; font-size: 11.5px; font-weight: 800; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(124,58,237,0.35);">
+                ⚡ Şimdi Çek
+              </button>
+              <button type="button" onclick="openOdealApiConfigModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; font-size: 11.5px; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                ⚙️ API Key / Ayarlar
               </button>
             </div>
-            <input type="file" id="invoice-file-input" accept=".xml,.pdf,.txt,.png,.jpg,.jpeg,.bmp,.webp" onchange="handleInvoiceFileSelected(event)" style="display: none;">
           </div>
 
-          <!-- Kart 2: Canlı Gömülü Mobil QR Kod Kartı -->
-          <div style="background: #090d16; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-              <span style="font-size: 18px;">📱</span>
-              <strong style="color: #38bdf8; font-size: 13.5px; font-weight: 800;">Telefondan Fotoğraf Çek & Yükle</strong>
+          <!-- Kart 2: Sürükle Bırak / Masaüstü XML & ZIP Dosya Seçici -->
+          <div id="invoice-dropzone-container" class="inv-dropzone-studio" style="padding: 24px 20px; display: flex; flex-direction: column; justify-content: center; align-items: center;" onclick="document.getElementById('invoice-file-input').click()" ondragover="event.preventDefault(); this.style.borderColor='#38bdf8'; this.style.background='rgba(56,189,248,0.1)';" ondragleave="this.style.borderColor='rgba(56,189,248,0.4)'; this.style.background='radial-gradient(circle at center, rgba(56, 189, 248, 0.05) 0%, rgba(9, 13, 22, 0.8) 100%)';" ondrop="handleInvoiceDrop(event)">
+            <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(56,189,248,0.18); border: 1px solid rgba(56,189,248,0.35); display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 10px;">
+              📁
             </div>
-            
-            <div style="background: #fff; padding: 6px; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-              <img id="inv-embedded-qr-img" src="" alt="Mobil QR" style="width: 125px; height: 125px; display: block;">
+            <strong style="color: #f8fafc; font-size: 15px; display: block; margin-bottom: 3px;">XML veya ZIP Yükle</strong>
+            <p style="color: #94a3b8; font-size: 12px; margin: 0 0 14px 0; text-align: center;">
+              UBL-TR e-Fatura XML • Toplu ZIP Arşivi
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <span style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; font-size: 12px; font-weight: 800; padding: 8px 18px; border-radius: 8px; cursor: pointer;">
+                Dosya Seç
+              </span>
+              <button type="button" onclick="event.stopPropagation(); loadDemoSampleInvoice();" class="btn-secondary" style="font-size: 12px; font-weight: 700; padding: 8px 12px; background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); color: #fbbf24; border-radius: 8px;">
+                🧪 Demo Fatura
+              </button>
             </div>
-
-            <div id="inv-embedded-qr-url" style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-bottom: 8px; word-break: break-all;">
-              http://192.168.1.124:5000/mobile
-            </div>
-
-            <button type="button" onclick="copyMobileInvoiceUrl()" class="btn-secondary" style="font-size: 11px; font-weight: 700; padding: 5px 14px; color: #38bdf8; border-color: rgba(56,189,248,0.3); display: flex; align-items: center; gap: 4px; border-radius: 6px;">
-              📋 Bağlantıyı Kopyala
-            </button>
+            <input type="file" id="invoice-file-input" accept=".xml,.ubl,.zip,.pdf" onchange="handleInvoiceFileSelected(event)" style="display: none;">
           </div>
 
         </div>
 
         <!-- Alt Bilgi / Güvenlik Sağlama Rehberi -->
-        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 12px; max-width: 820px; margin: 0 auto; width: 100%;">
+        <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; padding: 12px 18px; display: flex; align-items: center; gap: 12px; max-width: 860px; margin: 0 auto; width: 100%;">
           <span style="font-size: 24px;">🛡️</span>
           <div style="font-size: 12px; color: #cbd5e1; line-height: 1.45;">
-            <strong>Otomatik Matematiksel Sağlama Motoru:</strong> Yüklenen her fatura için <code>(Miktar × Liste Fiyatı) - İskonto + KDV = Genel Toplam</code> matematiksel olarak doğrulanır ve piyasa barkodlarıyla otomatik eşleştirilir.
+            <strong>Otomatik Matematiksel Sağlama Motoru:</strong> Yüklenen ve Ödeal'dan çekilen her fatura için <code>(Miktar × Liste Fiyatı) - İskonto + KDV = Genel Toplam</code> matematiksel olarak doğrulanır, koli içi adetler (24'lü, 12'li) çözümlenir ve piyasa barkodlarıyla otomatik eşleştirilir.
           </div>
         </div>
 
       </div>
 
-      <!-- B.2. OKUNAN / SEÇİLEN FATURA İNCELEME: YAN YANA BELGE ÖNİZLEME & AŞAMALI KONTROL SİHİRBAZI -->
-      <div id="invoice-results-container" style="display: none; flex: 1; min-height: 0; height: 100%; overflow: hidden;">
+      <!-- B.2. OKUNAN / SEÇİLEN FATURA İNCELEME: YAN YANA / TAM BELGE / TABLO STÜDYOSU -->
+      <div id="invoice-results-container" style="display: none; flex-direction: column; width: 100%; height: 100%; min-height: 0; overflow: hidden; flex: 1;">
         
-        <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 12px; width: 100%; height: 100%; min-height: 0; overflow: hidden; padding: 10px; box-sizing: border-box;">
+        <!-- ÜST GÖRÜNÜM MODU GEÇİŞ ÇUBUĞU -->
+        <div style="background: #090e1a; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; width: 100%; box-sizing: border-box;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #94a3b8; font-size: 11.5px; font-weight: 800; text-transform: uppercase;">GÖRÜNÜM:</span>
+            <div style="display: flex; background: rgba(255,255,255,0.06); padding: 2px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+              <button type="button" id="btn-view-split" onclick="setInvoiceStudioViewMode('split')" style="background: #0284c7; color: #fff; border: none; padding: 5px 12px; font-size: 11.5px; font-weight: 800; border-radius: 4px; cursor: pointer;">
+                ◫ Yan Yana
+              </button>
+              <button type="button" id="btn-view-doc" onclick="setInvoiceStudioViewMode('doc_only')" style="background: transparent; color: #94a3b8; border: none; padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 4px; cursor: pointer;">
+                📄 Sadece Belge
+              </button>
+              <button type="button" id="btn-view-table" onclick="setInvoiceStudioViewMode('table_only')" style="background: transparent; color: #94a3b8; border: none; padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 4px; cursor: pointer;">
+                📊 Sadece Tablo
+              </button>
+            </div>
+          </div>
 
-          <!-- ========================================================================= -->
-          <!-- 1. ORTA SÜTUN: ORİJİNAL FATURA BELGESİ / GÖRSELİ ÖNİZLEME -->
-          <!-- ========================================================================= -->
-          <div style="background: #080d18; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; height: 100%;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" onclick="showNewInvoiceUploadView()" class="btn-secondary" style="font-size: 11.5px; padding: 5px 12px; border-radius: 6px; display: flex; align-items: center; gap: 4px;">
+              ➕ Yeni Fatura Yükle / Senkronize Et
+            </button>
+            <button type="button" onclick="printOfficialInvoicePreview()" class="btn-secondary" style="font-size: 11.5px; padding: 5px 12px; border-radius: 6px; display: flex; align-items: center; gap: 4px; color: #38bdf8; border-color: rgba(56,189,248,0.3);">
+              🖨️ Resmi Belgeyi Yazdır
+            </button>
+          </div>
+        </div>
+
+        <!-- STÜDYO ANA GÖVDE: SOL BELGE / SAĞ TABLO VE DOĞRULAMA -->
+        <div id="invoice-studio-grid" style="display: grid; grid-template-columns: 1.1fr 1fr; width: 100%; height: 100%; min-height: 0; flex: 1; overflow: hidden;">
+          
+          <!-- SOL: RESMİ BELGE / XML / PDF / GÖRSEL GÖRÜNTÜLEYİCİ -->
+          <div id="inv-pane-document" style="background: #060a14; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; position: relative;">
             
-            <!-- Önizleme Başlığı ve Büyütme Araçları -->
-            <div style="padding: 10px 14px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 16px;">🔍</span>
-                <strong style="color: #f8fafc; font-size: 13px; font-weight: 800;">Orijinal Belge Önizleme</strong>
-              </div>
-              
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <button type="button" onclick="zoomInvoiceDoc(0.2)" class="btn-secondary" style="padding: 3px 8px; font-size: 11px; font-weight: 800;" title="Yakınlaştır">➕</button>
-                <button type="button" onclick="zoomInvoiceDoc(-0.2)" class="btn-secondary" style="padding: 3px 8px; font-size: 11px; font-weight: 800;" title="Uzaklaştır">➖</button>
-                <button type="button" onclick="resetInvoiceDocZoom()" class="btn-secondary" style="padding: 3px 8px; font-size: 11px; font-weight: 800;" title="Sıfırla">🔄</button>
-                <a id="inv-preview-external-link" href="#" target="_blank" class="btn-secondary" style="padding: 3px 10px; font-size: 11px; font-weight: 800; text-decoration: none; color: #38bdf8;" title="Yeni Sekmede Aç">↗ Tam Ekran</a>
+            <!-- Belge Kontrol Başlığı -->
+            <div style="background: #0a1020; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+              <span style="font-size: 11px; color: #94a3b8; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                📑 Resmi e-Fatura / Belge Önizlemesi
+              </span>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <button type="button" onclick="zoomInvoiceDoc(0.15)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 24px; height: 24px; border-radius: 4px; font-weight: 800; cursor: pointer;">+</button>
+                <button type="button" onclick="zoomInvoiceDoc(-0.15)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 24px; height: 24px; border-radius: 4px; font-weight: 800; cursor: pointer;">-</button>
+                <button type="button" onclick="resetInvoiceDocZoom()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 2px 6px; font-size: 10px; border-radius: 4px; cursor: pointer;">Sıfırla</button>
+                <a id="inv-preview-external-link" href="#" target="_blank" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; padding: 2px 8px; font-size: 10.5px; border-radius: 4px; text-decoration: none; font-weight: 700; margin-left: 4px;">↗ Ayrı Sekmede Aç</a>
               </div>
             </div>
 
-            <!-- Belge Görüntüleme Sahnesi -->
-            <div id="inv-doc-stage" style="flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: #030712; padding: 12px; position: relative;">
-              <!-- Resim veya PDF buraya yüklenecek -->
-              <img id="inv-doc-img" src="" alt="Fatura Belgesi" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); transition: transform 0.15s ease; transform-origin: center center;">
-              <iframe id="inv-doc-iframe" src="" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
-              <div id="inv-doc-fallback" style="display: none; text-align: center; color: #94a3b8; font-size: 13px; padding: 30px;">
-                📄 Bu fatura e-Fatura XML formatında kayıtlıdır. Ayrıştırılan kalemler ve matematiksel doğrulama sağdaki aşamalarda sunulmuştur.
+            <!-- Belge İçerik Çerçevesi (Iframe veya Fotoğraf) -->
+            <div id="inv-doc-viewport" style="flex: 1; min-height: 0; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 10px; background: #030712;">
+              <iframe id="inv-doc-iframe" style="width: 100%; height: 100%; border: none; background: #fff; border-radius: 6px; display: none; transform-origin: top center; transition: transform 0.15s ease;"></iframe>
+              <img id="inv-doc-img" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; display: none; transform-origin: center center; transition: transform 0.15s ease;" alt="Fatura Belgesi">
+              <div id="inv-doc-fallback" style="color: #64748b; font-size: 13px; text-align: center;">
+                Fatura belgesi görseli veya HTML şablonu bulunamadı.
               </div>
             </div>
 
           </div>
 
-          <!-- ========================================================================= -->
-          <!-- 2. SAĞ SÜTUN: AŞAMA AŞAMA DOĞRULAMA & KONTROL SİHİRBAZI -->
-          <!-- ========================================================================= -->
-          <div style="background: #080d18; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; height: 100%;">
+          <!-- SAĞ: KALEMLER, STOK EŞLEŞTİRME VE SİSTEME İŞLEME -->
+          <div id="inv-pane-table" style="display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; background: #080e1e;">
             
-            <!-- Aşama Başlık Çubuğu -->
-            <div style="padding: 10px 14px; background: #0b1329; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-              <div>
-                <strong style="color: #f8fafc; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
-                  📋 Fatura Kontrol & Ayrıştırma Paneli
-                </strong>
-                <small style="color: #94a3b8; font-size: 10.5px;">Aşağıdaki aşamalardan faturayı kontrol edip onaylayın</small>
-              </div>
-              <button type="button" onclick="showNewInvoiceUploadView()" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; font-weight: 700; color: #94a3b8;">
-                ✖ Kapat
-              </button>
-            </div>
-
-            <!-- Kaydırılabilir Aşamalar Gövdesi -->
-            <div style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px;">
-
-              <!-- AŞAMA 1: TEDARİKÇİ & FATURA BİLGİLERİ -->
-              <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <strong style="font-size: 12px; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
-                    1️⃣ Tedarikçi & Fatura Bilgileri
-                  </strong>
-                  <span id="inv-res-format-badge" style="font-size: 10px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 7px; border-radius: 4px; font-weight: 800;">UBL-TR XML</span>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
-                  <div>
-                    <span style="color: #94a3b8; font-size: 11px; display: block;">Tedarikçi Firma:</span>
-                    <strong id="inv-res-supplier" style="color: #f8fafc; font-size: 13.5px;">-</strong>
-                  </div>
-                  <div>
-                    <span style="color: #94a3b8; font-size: 11px; display: block;">Vergi / VKN No:</span>
-                    <strong id="inv-res-vkn" style="color: #cbd5e1; font-family: monospace;">-</strong>
-                  </div>
-                  <div>
-                    <span style="color: #94a3b8; font-size: 11px; display: block;">Fatura Numarası:</span>
-                    <strong id="inv-res-no" style="color: #38bdf8; font-family: monospace; font-size: 13px; cursor: pointer;" onclick="copyInvoiceNumber()" title="Kopyala">-</strong>
-                  </div>
-                  <div>
-                    <span style="color: #94a3b8; font-size: 11px; display: block;">Düzenleme Tarihi:</span>
-                    <strong id="inv-res-date" style="color: #cbd5e1;">-</strong>
-                  </div>
-                </div>
-              </div>
-
-              <!-- AŞAMA 2: MATEMATİKSEL SAĞLAMA & DİP TOPLAM -->
-              <div id="inv-math-validation-box" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="font-size: 12px; color: #34d399; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
-                    2️⃣ Matematiksel Sağlama & Genel Toplam
-                  </strong>
-                  <span id="inv-math-icon" style="font-size: 16px;">🧮</span>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 6px; margin-bottom: 6px;">
-                  <div>
-                    <div id="inv-math-status-title" style="font-size: 12.5px; font-weight: 800; color: #34d399;">%100 Tutarlı Sağlama</div>
-                    <small id="inv-math-status-desc" style="font-size: 11px; color: #94a3b8;">Kalem toplamları fatura dip toplamı ile eşleşiyor.</small>
-                  </div>
-                  <div style="text-align: right;">
-                    <div style="font-size: 10px; color: #94a3b8; font-weight: 800;">ÖDENECEK TOPLAM</div>
-                    <div id="inv-res-grand-total" style="font-size: 20px; font-weight: 900; color: #34d399; font-family: monospace;">0,00 TL</div>
+            <!-- Tedarikçi & Fatura Özet Başlığı -->
+            <div style="background: #0f172a; padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+              
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                <div>
+                  <h4 id="inv-res-supplier" style="margin: 0; font-size: 15px; font-weight: 900; color: #f8fafc; line-height: 1.2;">
+                    -
+                  </h4>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 11.5px; color: #94a3b8;">
+                    <span>Fatura No: <strong id="inv-res-no" style="color: #38bdf8; font-family: monospace;">-</strong></span>
+                    <span>•</span>
+                    <span>Tarih: <strong id="inv-res-date" style="color: #cbd5e1;">-</strong></span>
+                    <span>•</span>
+                    <span>VKN: <strong id="inv-res-vkn" style="color: #cbd5e1; font-family: monospace;">-</strong></span>
                   </div>
                 </div>
 
-                <div id="inv-res-sub-totals" style="font-size: 11px; color: #cbd5e1; text-align: right;">
-                  Ara Toplam: 0 TL • KDV: 0 TL • İskonto: 0 TL
-                </div>
-              </div>
-
-              <!-- AŞAMA 3: KALEM KALEM ÜRÜN EŞLEŞTİRME & KÂR MARJI TABLOSU -->
-              <div style="background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <strong style="font-size: 12px; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
-                    3️⃣ Kalem Kalem Eşleştirme & Kâr Kontrolü
-                  </strong>
-                  <span id="inv-items-count-badge" style="font-size: 10.5px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 800;">
-                    0 Kalem
+                <div style="text-align: right; flex-shrink: 0;">
+                  <span id="inv-res-format-badge" style="font-size: 10.5px; background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); padding: 2px 7px; border-radius: 5px; font-weight: 800;">
+                    UBL-TR XML
                   </span>
+                  <div id="inv-res-grand-total" style="font-size: 17px; font-weight: 900; color: #34d399; font-family: monospace; margin-top: 3px;">
+                    0,00 TL
+                  </div>
                 </div>
+              </div>
 
-                <!-- Kalem Tablosu -->
-                <div style="max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px;">
-                  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px;">
-                    <thead>
-                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 9.5px; text-transform: uppercase; position: sticky; top: 0; background: #0b1329; z-index: 5;">
-                        <th style="padding: 6px 4px;">Durum</th>
-                        <th style="padding: 6px 4px;">Barkod</th>
-                        <th style="padding: 6px 4px;">Ürün Adı</th>
-                        <th style="padding: 6px 4px; text-align: center;">Miktar</th>
-                        <th style="padding: 6px 4px; text-align: center; color: #38bdf8;">Mevcut ➔ Yeni</th>
-                        <th style="padding: 6px 4px; text-align: right; color: #fbbf24;">Net Maliyet</th>
-                        <th style="padding: 6px 4px; text-align: right; color: #34d399;">Raf Fiyatı</th>
-                        <th style="padding: 6px 4px; text-align: center;">Kâr Marjı</th>
-                        <th style="padding: 6px 4px; text-align: right;">Toplam</th>
-                      </tr>
-                    </thead>
-                    <tbody id="invoice-items-table-body">
-                      <!-- JS dolduracak -->
-                    </tbody>
-                  </table>
+              <!-- Matematiksel Sağlama ve Doğrulama Durumu -->
+              <div id="inv-math-validation-box" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 10px;">
+                <span id="inv-math-icon" style="font-size: 20px;">🧮</span>
+                <div style="font-size: 11.5px; min-width: 0; flex: 1;">
+                  <strong id="inv-math-status-title" style="color: #34d399; display: block;">Matematiksel Sağlama Doğrulandı (%100 Tutarlı)</strong>
+                  <span id="inv-math-status-desc" style="color: #cbd5e1; font-size: 11px;">(Ara Toplam - İskonto + KDV = Genel Toplam) eksiksiz hesaplandı.</span>
                 </div>
               </div>
 
             </div>
 
-            <!-- AŞAMA 4: NİHAİ ONAY & İŞLEME ÇUBUĞU (SABİT ALT PANEL) -->
-            <div style="padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.08); background: #0b1329; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-              <div style="display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: #cbd5e1;">
+            <!-- Kalem Tablosu Başlığı & Sayaç -->
+            <div style="background: #0a1122; padding: 6px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+              <strong style="color: #cbd5e1; font-size: 11.5px; display: flex; align-items: center; gap: 6px;">
+                📦 Fatura Kalemleri & Stok Eşleştirme
+              </strong>
+              <span id="inv-items-count-badge" style="font-size: 10.5px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                0 Kalem
+              </span>
+            </div>
+
+            <!-- Kalemler Tablosu (Kaydırılabilir) -->
+            <div style="flex: 1; min-height: 0; overflow-y: auto; background: #080e1e;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left;">
+                <thead style="position: sticky; top: 0; background: #0d1527; z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                  <tr style="color: #94a3b8; font-size: 10.5px; text-transform: uppercase;">
+                    <th style="padding: 8px 6px;">Durum</th>
+                    <th style="padding: 8px 6px;">Barkod</th>
+                    <th style="padding: 8px 6px;">Ürün Adı</th>
+                    <th style="padding: 8px 6px; text-align: center;">Miktar</th>
+                    <th style="padding: 8px 6px; text-align: center;">Stok Değişimi</th>
+                    <th style="padding: 8px 6px; text-align: right;">Birim Maliyet</th>
+                    <th style="padding: 8px 6px; text-align: right;">Satış Fiyatı</th>
+                    <th style="padding: 8px 6px; text-align: center;">Kâr %</th>
+                    <th style="padding: 8px 6px; text-align: right;">Toplam</th>
+                  </tr>
+                </thead>
+                <tbody id="invoice-items-table-body">
+                  <!-- JS ile Dinamik Doldurulur -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Alt Kısım: Onay ve Sisteme İşleme Çubuğu -->
+            <div style="background: #090f1d; border-top: 1px solid rgba(255,255,255,0.08); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+              <div style="display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: #cbd5e1;">
                 <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
                   <input type="checkbox" id="opt-update-stocks" checked style="cursor: pointer; width: 13px; height: 13px;">
                   <strong>📦 Stokları Artır</strong>
@@ -321,6 +315,69 @@
 
     </div>
 
+  </div>
+
+  <!-- ÖDEAL e-FATURA CANLI API AYARLARI MODALI -->
+  <div id="modal-odeal-api-config" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 99999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: #0f172a; border: 1px solid rgba(168,85,247,0.35); border-radius: 12px; width: 480px; max-width: 92vw; padding: 22px; box-shadow: 0 12px 36px rgba(0,0,0,0.7); display: flex; flex-direction: column; gap: 14px;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
+        <strong style="color: #c084fc; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+          ⚡ Ödeal Portal e-Fatura API Ayarları
+        </strong>
+        <button type="button" onclick="closeOdealApiConfigModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 11px;">
+        
+        <!-- API KEY (Öncelikli) -->
+        <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); border-radius: 8px; padding: 10px 12px;">
+          <label style="color: #c084fc; font-size: 11.5px; font-weight: 800; display: block; margin-bottom: 4px;">🔑 Ödeal API Anahtarı (API Key / Token)</label>
+          <input type="password" id="odeal-cfg-key" placeholder="Ödeal portalından aldığınız API Key..." style="width: 100%; box-sizing: border-box; background: #080e1e; border: 1px solid rgba(168,85,247,0.4); border-radius: 6px; color: #fff; padding: 7px 10px; font-size: 12px; font-family: monospace;">
+          <small style="color: #94a3b8; font-size: 10.5px; display: block; margin-top: 3px;">Ödeal portalında oluşturulan API Key ile tüm toptancı faturalarınız güvenli çekilir.</small>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 3px;">İşyeri VKN / TCKN</label>
+            <input type="text" id="odeal-cfg-vkn" value="52345033274" style="width: 100%; box-sizing: border-box; background: #080e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; padding: 6px 10px; font-size: 12px; font-family: monospace;">
+          </div>
+          <div>
+            <label style="color: #94a3b8; font-size: 11px; display: block; margin-bottom: 3px;">Portal Adresi (URL)</label>
+            <input type="text" id="odeal-cfg-url" value="https://fatura.odeal.com" style="width: 100%; box-sizing: border-box; background: #080e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; padding: 6px 10px; font-size: 12px;">
+          </div>
+        </div>
+
+        <!-- Kullanıcı Adı & Şifre (Alternatif SOAP / Portal Girişi) -->
+        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 11px; color: #64748b; font-weight: 700;">Opsiyonel: Portal / Web Servis Kullanıcı Bilgileri</span>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="color: #94a3b8; font-size: 10.5px; display: block; margin-bottom: 3px;">Kullanıcı Adı</label>
+              <input type="text" id="odeal-cfg-user" value="oguzpossistemi" style="width: 100%; box-sizing: border-box; background: #080e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; padding: 6px 10px; font-size: 12px; font-family: monospace;">
+            </div>
+            <div>
+              <label style="color: #94a3b8; font-size: 10.5px; display: block; margin-bottom: 3px;">Şifre</label>
+              <input type="password" id="odeal-cfg-pass" value="Yarenler_123" style="width: 100%; box-sizing: border-box; background: #080e1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; padding: 6px 10px; font-size: 12px; font-family: monospace;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Anlık Bağlantı Test Sonuç Kutusu (Modal İçinde Görünür) -->
+        <div id="odeal-test-result-box" style="display: none; padding: 10px 12px; border-radius: 8px; font-size: 11.5px; font-weight: 700; line-height: 1.4; transition: all 0.2s ease;"></div>
+
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+        <button type="button" id="btn-test-odeal-conn" onclick="testOdealApiConnection()" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; padding: 7px 14px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+          🔌 Bağlantıyı Test Et
+        </button>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" onclick="closeOdealApiConfigModal()" class="btn-secondary" style="padding: 7px 14px; font-size: 11.5px; border-radius: 6px; cursor: pointer;">Kapat</button>
+          <button type="button" onclick="saveOdealApiConfigFromModal()" class="btn-primary" style="padding: 7px 16px; font-size: 11.5px; background: linear-gradient(135deg, #9333ea, #7e22ce); font-weight: 800; border-radius: 6px; cursor: pointer;">💾 Kaydet</button>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>

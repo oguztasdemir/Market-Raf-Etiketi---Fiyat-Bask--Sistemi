@@ -1,0 +1,62 @@
+<!-- 🎯 TAM EKRAN GELİŞMİŞ MOBİL KAMERA & BARKOD TARAYICI MODALI -->
+<div id="fullscreen-camera-overlay" class="fullscreen-camera-overlay">
+
+  <!-- 1. CANLI VİDEO VE FALLBACK ELEMENTLERİ -->
+  <video id="fullscreen-video" playsinline autoplay muted></video>
+  <div id="fullscreen-reader" style="display: none;"></div>
+
+  <!-- 2. ÜST KONTROL ÇUBUĞU (Kapat, Fener, Zoom & Parlama Modu) -->
+  <div class="fs-top-bar">
+    <button type="button" class="fs-btn-close" onclick="closeFullscreenCamera()">
+      <span>✕</span>
+      <span>Kapat</span>
+    </button>
+
+    <!-- Fener (Flashlight) Butonu -->
+    <button type="button" id="btn-fs-torch" class="fs-btn-tool" style="display: none;" onclick="toggleFlashlight()">
+      <span style="font-size: 16px;">⚡</span>
+      <span id="txt-fs-torch">Fener</span>
+    </button>
+
+    <!-- Parlama ve Yuvarlak Yüzey Filtresi (HDR Anti-Glare & De-warp) -->
+    <button type="button" id="btn-fs-glare" class="fs-btn-tool active" onclick="toggleGlareMode()">
+      <span style="font-size: 15px;">🛡️</span>
+      <span id="txt-fs-glare">Parlama & Eğri: AÇIK</span>
+    </button>
+  </div>
+
+  <!-- 3. ZOOM KONTROL DÜĞMELERİ (Parlama ve Yuvarlak Yüzeylerde Geri Çekilip Yakınlaştırma) -->
+  <div class="fs-zoom-bar" id="fs-zoom-controls">
+    <button type="button" class="fs-btn-zoom active" id="btn-zoom-1x" onclick="setCameraZoom(1.0)">1.0x</button>
+    <button type="button" class="fs-btn-zoom" id="btn-zoom-15x" onclick="setCameraZoom(1.5)">1.5x</button>
+    <button type="button" class="fs-btn-zoom" id="btn-zoom-2x" onclick="setCameraZoom(2.0)">2.0x</button>
+    <button type="button" class="fs-btn-zoom" id="btn-zoom-3x" onclick="setCameraZoom(3.0)">3.0x</button>
+  </div>
+
+  <!-- 4. ORTA ODAK VE HEDEF GÖSTERGESİ (HUD) -->
+  <div class="fs-center-hud">
+    <div class="fs-reticle-box">
+      <!-- Köşe Kılavuzları -->
+      <div class="reticle-corner tl"></div>
+      <div class="reticle-corner tr"></div>
+      <div class="reticle-corner bl"></div>
+      <div class="reticle-corner br"></div>
+
+      <!-- Kırmızı Lazer Tarama Çizgisi -->
+      <div class="fs-laser-line"></div>
+
+      <!-- Yuvarlak / Eğri Ambalaj Kılavuz İpucu -->
+      <div class="fs-guide-curve-hint">
+        <span>🥚 Yuvarlak & Parlak Ambalaj Kılavuzu</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ALT BİLGİLENDİRME & İPUCU ÇUBUĞU -->
+  <div class="fs-bottom-bar">
+    <div class="fs-hint-banner">
+      <span>💡 <strong>İpucu:</strong> Yumurtalı çikolata veya parlayan ambalajlarda telefonu <strong>20-30 cm geride</strong> tutup <strong>2.0x Zoom</strong> yapın.</span>
+    </div>
+  </div>
+
+</div>

@@ -121,6 +121,11 @@ def clean_product_title(s: str) -> str:
     if not s or not isinstance(s, str):
         return str(s or '').strip()
     
+    # HTML taglarını ve scriptleri içeriğiyle beraber temizle (XSS Koruması)
+    s = re.sub(r'<script[^>]*>.*?</script>', '', s, flags=re.IGNORECASE | re.DOTALL)
+    s = re.sub(r'<style[^>]*>.*?</style>', '', s, flags=re.IGNORECASE | re.DOTALL)
+    s = re.sub(r'<[^>]+>', '', s)
+
     s = fix_corrupted_turkish_text(s)
     s = s.replace('\xa0', ' ').replace('\t', ' ').replace('\r', ' ').replace('\n', ' ')
     for k, v in WORD_REPLACEMENTS.items():
@@ -147,8 +152,6 @@ def clean_product_title(s: str) -> str:
 
     s = re.sub(r'(^|\s|X|x)(\d+(?:[.,]\d+)?)\s*(GR|KG|LT|ML|CL|CC|G|L)\b', split_num_unit, s, flags=re.IGNORECASE)
     s = re.sub(r'([A-ZĞÜŞİÖÇa-zğüşıöç]{2,})(\d+)\b', r'\1 \2', s)
-    s = re.sub(r'\s+([,\.\:\;\!\?])', r'\1', s)
-    s = re.sub(r'([,])([^\s\d])', r'\1 \2', s)
     s = re.sub(r'\s+', ' ', s).strip()
     return s
 
@@ -157,6 +160,8 @@ def clean_barcode(val) -> str:
     if not val:
         return ""
     s = str(val).strip()
+    if s.startswith("bc_") or s.startswith("BC_"):
+        s = s[3:]
     
     # Sondaki ,00 veya .00 veya ,0 veya .0 temizle
     if s.endswith(',00') or s.endswith('.00'):
@@ -180,13 +185,20 @@ def clean_barcode(val) -> str:
             s = f"{int(round(f_val))}"
         except Exception:
             pass
+
+    # Rakam ve tirelerden oluşan barkodlardaki tireleri temizle (örn. 869-0504-114925 -> 8690504114925)
+    if '-' in s:
+        s_nodash = s.replace('-', '')
+        if s_nodash.isdigit():
+            s = s_nodash
+
     return s.strip()
 
 def parse_price_val(p_str) -> float:
-    """Fiyat metnini (örn. '125,50 TL') float değere çevirir."""
+    """Fiyat metnini (örn. '125,50 TL', '325 tl', '325', '325.5') float değere çevirir."""
     if p_str is None:
         return 0.0
-    s = str(p_str).replace('TL', '').replace('tl', '').replace('₺', '').replace(' ', '').strip()
+    s = str(p_str).replace('TL', '').replace('tl', '').replace('Tl', '').replace('₺', '').replace(' ', '').strip()
     if not s:
         return 0.0
 
@@ -212,14 +224,14 @@ def parse_price_val(p_str) -> float:
         return 0.0
 
 def format_price_display(val) -> str:
-    """Fiyat değerini standart '125,50 TL' formatına dönüştürür."""
-    if val is None or val == "":
+    """Fiyat değerini daima kuruşu 2 basamaklı ve sonunda ' TL' olacak şekilde formatlar (Örn: 325 -> 325,00 TL, 325.5 -> 325,50 TL)."""
+    if val is None or str(val).strip() == "":
         return ""
     f = parse_price_val(val)
-    if f > 0 or str(val).strip() in ['0', '0 TL', '0,00', '0,00 TL']:
+    if f > 0 or str(val).strip() in ['0', '0 TL', '0,00', '0,00 TL', '0.0', '0.00']:
         return f"{f:.2f} TL".replace('.', ',')
     s = str(val).strip().replace('.', ',')
-    if not (s.endswith('TL') or s.endswith('tl')):
+    if not (s.endswith('TL') or s.endswith('tl') or s.endswith('TL')):
         s += " TL"
     return s
 

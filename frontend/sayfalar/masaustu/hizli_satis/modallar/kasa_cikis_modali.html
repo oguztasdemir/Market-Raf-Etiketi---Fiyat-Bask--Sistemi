@@ -1,0 +1,77 @@
+<!-- =========================================================
+     MODAL: KASA ÇIKIŞI & GİRİŞİ (TOPTANCI, FIRIN, MASRAF, AVANS)
+     ========================================================= -->
+<div id="modal-pos-cash-movement" class="modal-backdrop" style="position: fixed; inset: 0; background: rgba(4, 8, 16, 0.88); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 99999999;">
+  <div style="background: #0f172a; border: 1.5px solid rgba(239,68,68,0.4); border-radius: 14px; width: 540px; max-width: 96%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85); padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span id="cash-mov-header-icon" style="font-size: 24px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 4px 8px;">💸</span>
+        <div>
+          <h3 id="cash-mov-header-title" style="color: #f8fafc; font-size: 16px; font-weight: 800; margin: 0;">Kasa Çıkışı / Toptancı & Gider Ödemesi</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">Kasadan çıkan parayı toptancı, fırın veya dükkan masrafı olarak kaydedin</small>
+        </div>
+      </div>
+      <button type="button" onclick="closePosCashMovementModal()" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #94a3b8; font-size: 16px; cursor: pointer; padding: 4px 10px;">✕</button>
+    </div>
+
+    <!-- İşlem Türü Seçimi (Çıkış vs Giriş) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #070d1e; padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+      <button type="button" id="btn-cash-mov-type-out" onclick="setCashMovementType('out')" style="padding: 10px 12px; font-size: 12.5px; font-weight: 900; background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(239,68,68,0.35);">
+        <span>🔴 Kasa Çıkışı (Ödeme / Gider)</span>
+      </button>
+      <button type="button" id="btn-cash-mov-type-in" onclick="setCashMovementType('in')" style="padding: 10px 12px; font-size: 12.5px; font-weight: 800; background: transparent; color: #94a3b8; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <span>🟢 Kasa Girişi (Avans / Ekleme)</span>
+      </button>
+    </div>
+
+    <!-- Tutar Girişi -->
+    <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Ödeme / Çıkış Tutarı (₺):</label>
+      <div style="position: relative; display: flex; align-items: center;">
+        <input type="number" id="cash-mov-amount-inp" placeholder="0,00" step="any" autofocus style="width: 100%; padding: 10px 14px; font-size: 22px; font-weight: 900; font-family: monospace; background: #070d1e; border: 2px solid #ef4444; border-radius: 8px; color: #f87171; outline: none; box-sizing: border-box; text-align: right;">
+        <span style="position: absolute; right: 14px; font-size: 18px; font-weight: 900; color: #94a3b8; pointer-events: none;">₺</span>
+      </div>
+    </div>
+
+    <!-- Hızlı Kategori Seçimi -->
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Hızlı Kategori Seçin:</label>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;" id="cash-mov-cat-pills">
+        <button type="button" class="cash-cat-btn active" onclick="selectCashMovCategory('Toptancı / Mal Alımı', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #1e293b; border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; cursor: pointer;">🚚 Toptancı Ödemesi</button>
+        <button type="button" class="cash-cat-btn" onclick="selectCashMovCategory('Ekmekçi / Fırın', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; border-radius: 8px; cursor: pointer;">🍞 Ekmekçi / Fırın</button>
+        <button type="button" class="cash-cat-btn" onclick="selectCashMovCategory('Manav / Hal', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; border-radius: 8px; cursor: pointer;">🥬 Manav / Hal</button>
+        <button type="button" class="cash-cat-btn" onclick="selectCashMovCategory('Temizlik & Sarf Malzeme', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; border-radius: 8px; cursor: pointer;">🧹 Temizlik & Sarf</button>
+        <button type="button" class="cash-cat-btn" onclick="selectCashMovCategory('Yemek / Masraf', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; border-radius: 8px; cursor: pointer;">🍔 Yemek / Masraf</button>
+        <button type="button" class="cash-cat-btn" onclick="selectCashMovCategory('Vergi, Muhasebe & Diğer', this)" style="padding: 8px 6px; font-size: 11.5px; font-weight: 800; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; border-radius: 8px; cursor: pointer;">📝 Diğer Gider</button>
+      </div>
+      <input type="hidden" id="cash-mov-category-val" value="Toptancı / Mal Alımı">
+    </div>
+
+    <!-- Açıklama / Not -->
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Açıklama / Kime Verildi:</label>
+      <input type="text" id="cash-mov-desc-inp" placeholder="Örn: Sütaş 12 koli süt ödemesi veya 80 adet ekmek" style="width: 100%; padding: 9px 12px; font-size: 12.5px; font-weight: 600; background: #070d1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none; box-sizing: border-box;">
+    </div>
+
+    <!-- Bugünün Kasa Çıkışları Listesi (Önizleme) -->
+    <div id="cash-mov-today-preview" style="background: #070d1e; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px; max-height: 100px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;">
+      <div style="font-size: 10.5px; font-weight: 800; color: #64748b; text-transform: uppercase;">Bugünkü Kasa Hareketleri:</div>
+      <div id="cash-mov-today-list" style="display: flex; flex-direction: column; gap: 3px; font-size: 11.5px;">
+        <!-- JS tarafından doldurulacak -->
+      </div>
+    </div>
+
+    <!-- Alt Aksiyon Butonları -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+      <button type="button" onclick="closePosCashMovementModal()" class="btn-secondary" style="padding: 8px 16px; font-size: 12.5px;">
+        Vazgeç (ESC)
+      </button>
+      <button type="button" onclick="submitPosCashMovement()" id="btn-submit-cash-mov" class="btn-primary" style="padding: 9px 22px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(239,68,68,0.4);">
+        💾 Çıkışı Kaydet
+      </button>
+    </div>
+
+  </div>
+</div>

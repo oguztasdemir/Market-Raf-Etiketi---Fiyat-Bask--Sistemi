@@ -1,36 +1,43 @@
-<div id="modal-pos-price-check" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
-    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 500px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
-      
-      <!-- Başlık & Kapat Butonu -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
-        <div>
-          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Ürün Fiyat & Stok Sorgula [F6]</h3>
-          <small style="color: #94a3b8; font-size: 12px;">Barkod okutun veya ürün adı yazın</small>
+<div id="modal-pos-price-check" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(6px); z-index: 99999; align-items: center; justify-content: center;">
+  <div style="background: #0f172a; border: 1.5px solid #0284c7; border-radius: 12px; width: 540px; max-width: 96%; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); padding: 22px; box-sizing: border-box;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(2,132,199,0.15); border: 1px solid rgba(56,189,248,0.35); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+          🏷️
         </div>
-        <button onclick="closePosPriceCheckModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Ürün Fiyat & Stok Sorgula [F2]</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">Barkod okutun veya yazıp [Fiyat Gör] butonuna basın</small>
+        </div>
       </div>
-
-      <!-- Barkod Girişi -->
-      <div style="margin-bottom: 12px;">
-        <input type="text" id="pos-price-check-input" placeholder="Barkod okutun veya yazın..." oninput="handlePosPriceCheckLive(this.value)" onkeydown="handlePosPriceCheckKey(event)" style="width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #ffffff; font-family: monospace; font-size: 14px; font-weight: 600; outline: none; box-sizing: border-box;">
-      </div>
-
-      <!-- Sonuç Kartı -->
-      <div id="pos-price-check-result" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 14px; text-align: center; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div style="font-size: 13px; color: #64748b;">Barkod okutulması bekleniyor...</div>
-      </div>
-
-      <!-- Alt Butonlar -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 12px; margin-top: 14px;">
-        <button type="button" onclick="closePosPriceCheckModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">Kapat (Esc)</button>
-        <button type="button" id="btn-add-checked-to-cart" onclick="addFoundProductToPosCart()" style="display: none; padding: 8px 18px; font-size: 13px; font-weight: 700; background: #16a34a; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
-          Sepete Ekle (Enter)
-        </button>
-      </div>
-
+      <button type="button" onclick="closePosPriceCheckModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 2px 6px;" title="Kapat (Esc)">&times;</button>
     </div>
-  </div>
 
-  <!-- =========================================================
-       MODAL: ESKİ SATIŞLAR & BEKLEYEN FİŞLER
-       ========================================================= -->
+    <!-- Barkod Girişi ve Fiyat Gör Butonu -->
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+      <div style="flex: 1; position: relative;">
+        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px;">🔍</span>
+        <input type="text" id="pos-price-check-input" placeholder="Barkod okutun veya yazın..." onkeydown="handlePosPriceCheckKey(event)" style="width: 100%; padding: 11px 12px 11px 38px; background: #070d1e; border: 1.5px solid #334155; border-radius: 8px; color: #ffffff; font-family: monospace; font-size: 15px; font-weight: 700; outline: none; box-sizing: border-box;">
+      </div>
+      <button type="button" id="btn-submit-price-check" onclick="executePosPriceCheck()" class="btn-primary" style="padding: 0 18px; font-size: 13px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); display: flex; align-items: center; gap: 6px; white-space: nowrap; border-radius: 8px; cursor: pointer;">
+        <span>🔍</span> Fiyat Gör
+      </button>
+    </div>
+
+    <!-- Sonuç Kartı -->
+    <div id="pos-price-check-result" style="background: #070d1e; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="font-size: 13px; color: #64748b;">Barkod okutulması bekleniyor...</div>
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; margin-top: 16px;">
+      <button type="button" onclick="closePosPriceCheckModal()" style="padding: 9px 18px; font-size: 12.5px; font-weight: 700; background: #1e293b; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; cursor: pointer;">Kapat (Esc)</button>
+      <button type="button" id="btn-add-checked-to-cart" onclick="addFoundProductToPosCart()" style="display: none; padding: 9px 22px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
+        🛒 Sepete Ekle (Enter)
+      </button>
+    </div>
+
+  </div>
+</div>

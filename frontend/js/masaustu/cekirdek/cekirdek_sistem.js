@@ -65,6 +65,9 @@ function showCustomConfirm(message, title = "Onay Gerekiyor", okText = "Onayla",
     if (cancelEl) cancelEl.innerText = cancelText;
 
     modal.style.display = 'flex';
+    setTimeout(() => {
+      if (okEl) okEl.focus();
+    }, 40);
   });
 }
 
@@ -197,6 +200,28 @@ function switchTab(tabId) {
   const heading = document.getElementById('page-heading');
   const subheading = document.getElementById('page-subheading');
 
+  // RBAC Yetki Kontrolü: Giriş yapan kasiyer/çalışan yetkili mi?
+  const tabPermMap = {
+    'tab-pos': 'perm_pos',
+    'tab-catalog': 'perm_catalog_view',
+    'tab-manav': 'perm_manav_plu',
+    'tab-reports': 'perm_reports',
+    'tab-design': 'perm_print_labels',
+    'tab-customers': 'perm_customers',
+    'tab-invoice': 'perm_invoice',
+    'tab-accounting': 'perm_accounting',
+    'tab-market': 'perm_settings',
+    'tab-settings': 'perm_settings',
+    'tab-backups': 'perm_settings'
+  };
+
+  if (tabPermMap[tabId] && typeof hasPermission === 'function' && !hasPermission(tabPermMap[tabId])) {
+    if (typeof showToast === 'function') {
+      showToast('⛔ Bu sekmeye erişim yetkiniz bulunmamaktadır. Lütfen yöneticinizle iletişime geçin.', 'warning');
+    }
+    return;
+  }
+
   // Aktif menü butonunu belirle
   document.querySelectorAll('.nav-item').forEach(btn => {
     const attr = btn.getAttribute('onclick') || '';
@@ -238,6 +263,7 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '🎨 Etiket Düzenle & Şablonlar';
     if (subheading) subheading.innerText = 'Özel etiket modelleri oluşturun, özelleştirin ve kaydedin';
     loadTemplates();
+    if (typeof checkDesignStudioPrintersStatus === 'function') checkDesignStudioPrintersStatus();
   } else if (tabId === 'tab-reports') {
     if (heading) heading.innerText = '📈 Aylık Takvim & Günlük Satış Raporları';
     if (subheading) subheading.innerText = 'Ay ay ciro grafikleri, kasa fişleri, ödeme dağılımı ve günlük detaylar';
@@ -259,14 +285,23 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '⚙️ Termal Etiket Donanım & Kalibrasyon Ayarları';
     if (subheading) subheading.innerText = 'Yazıcı seçimi, kağıt ölçüsü, ofset kalibrasyonu ve baskı kontrastı';
     loadMarketSettings();
-  } else if (tabId === 'tab-market-accounting') {
-    if (heading) heading.innerText = '💼 Market Bilgileri, Kasiyerler & Gelir / Gider Muhasebesi';
+  } else if (tabId === 'tab-market') {
+    if (heading) heading.innerText = '🏢 Market Profili, Çalışanlar & İzin Matrisi (RBAC)';
+    if (subheading) subheading.innerText = 'Şube ve mağaza kimliği, personel kadrosu ve admin yetkilendirme yönetimi';
+    if (typeof loadMarketPanel === 'function') loadMarketPanel();
+  } else if (tabId === 'tab-accounting' || tabId === 'tab-market-accounting') {
+    if (heading) heading.innerText = '💼 Market Gelir / Gider Muhasebesi';
     if (subheading) subheading.innerText = 'Dükkan kirası, personel maaşları, faturalar, toptancı ödemeleri ve net kâr analizi';
     if (typeof loadAccountingOverview === 'function') loadAccountingOverview();
   } else if (tabId === 'tab-invoice') {
     if (heading) heading.innerText = '🧾 Akıllı Fatura Okuma, Sağlama & Ürün Eşleştirme';
     if (subheading) subheading.innerText = 'Toptancı faturalarını okuyun, iskonto ve KDV dahil net maliyetleri çıkarın, stokları otomatik güncelleyin';
     if (typeof loadInvoiceArchiveHistory === 'function') loadInvoiceArchiveHistory();
+    if (typeof fetchInvoicesFromOdealDirect === 'function') fetchInvoicesFromOdealDirect(true);
+  } else if (tabId === 'tab-customers') {
+    if (heading) heading.innerText = '📒 Müşteri Cari & Veresiye Defteri';
+    if (subheading) subheading.innerText = 'Müşteri hesap kartları, veresiye alışveriş hareketleri ve tahsilat takibi';
+    if (typeof loadCustomersList === 'function') loadCustomersList();
   }
 }
 
@@ -281,7 +316,7 @@ function showToast(msg, type = "info") {
     container.id = 'global-toast-container';
     container.style.cssText = `
       position: fixed;
-      bottom: 60px;
+      top: 20px;
       right: 24px;
       z-index: 9999999;
       display: flex;
@@ -573,7 +608,8 @@ async function submitAddNewCashier() {
 }
 
 async function deleteCashier(cid, cname) {
-  if (!confirm(`${cname} isimli kasiyeri sistemden silmek istediğinize emin misiniz?`)) return;
+  const ok = await showCustomConfirm(`${cname} isimli kasiyeri sistemden silmek istediğinize emin misiniz?`, 'Kasiyer Sil', 'Sil', 'Vazgeç', '🗑️');
+  if (!ok) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/cashiers/delete`, {
@@ -816,6 +852,136 @@ function openQuickProductFromNotFoundAlert() {
   }
 }
 
+function openSetupWizardModal() {
+  const sName = document.getElementById('settings-market-name')?.value || '';
+  const sBranch = document.getElementById('settings-branch-name')?.value || 'Merkez Şube';
+  const sPhone = document.getElementById('settings-phone')?.value || '';
+  const sAddr = document.getElementById('settings-address')?.value || '';
+  const sTaxOff = document.getElementById('settings-tax-office')?.value || '';
+  const sTaxNo = document.getElementById('settings-tax-no')?.value || '';
+  const sWidth = document.getElementById('settings-receipt-paper-width')?.value || '80mm';
+
+  if (document.getElementById('wiz-market-name')) document.getElementById('wiz-market-name').value = sName;
+  if (document.getElementById('wiz-branch-name')) document.getElementById('wiz-branch-name').value = sBranch;
+  if (document.getElementById('wiz-phone')) document.getElementById('wiz-phone').value = sPhone;
+  if (document.getElementById('wiz-address')) document.getElementById('wiz-address').value = sAddr;
+  if (document.getElementById('wiz-tax-office')) document.getElementById('wiz-tax-office').value = sTaxOff;
+  if (document.getElementById('wiz-tax-no')) document.getElementById('wiz-tax-no').value = sTaxNo;
+  if (document.getElementById('wiz-paper-width')) document.getElementById('wiz-paper-width').value = sWidth;
+
+  const modal = document.getElementById('modal-setup-wizard');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeSetupWizardModal() {
+  const modal = document.getElementById('modal-setup-wizard');
+  if (modal) modal.style.display = 'none';
+}
+
+async function submitSetupWizard() {
+  const marketName = document.getElementById('wiz-market-name')?.value?.trim();
+  const branchName = document.getElementById('wiz-branch-name')?.value?.trim() || 'Merkez Şube';
+  const phone = document.getElementById('wiz-phone')?.value?.trim() || '';
+  const address = document.getElementById('wiz-address')?.value?.trim() || '';
+  const taxOffice = document.getElementById('wiz-tax-office')?.value?.trim() || '';
+  const taxNo = document.getElementById('wiz-tax-no')?.value?.trim() || '';
+  const paperWidth = document.getElementById('wiz-paper-width')?.value || '80mm';
+  const cashAdvance = parseFloat(document.getElementById('wiz-cash-advance')?.value) || 500.0;
+  const footerNote = document.getElementById('wiz-footer-note')?.value?.trim() || 'Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!';
+
+  if (!marketName) {
+    if (typeof showToast === 'function') showToast('Lütfen market / ticari ünvan adını giriniz.', 'error');
+    return;
+  }
+
+  const payload = {
+    market_name: marketName,
+    branch_name: branchName,
+    phone: phone,
+    address: address,
+    tax_office: taxOffice,
+    tax_no: taxNo,
+    receipt_paper_width: paperWidth,
+    daily_cash_advance: cashAdvance,
+    receipt_footer_note: footerNote
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      closeSetupWizardModal();
+      if (typeof showToast === 'function') showToast(`🎉 "${marketName}" için mağaza kurulumu başarıyla tamamlandı!`, 'success');
+      loadMarketSettings();
+      if (typeof loadDashboardSummary === 'function') loadDashboardSummary();
+      if (typeof loadReceiptDesignSettings === 'function') loadReceiptDesignSettings();
+    }
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('Kurulum kaydedilirken hata oluştu.', 'error');
+  }
+}
+
+function updateSidebarNavVisibility() {
+  const navButtons = document.querySelectorAll('.sidebar-nav .nav-item');
+  if (!navButtons || navButtons.length === 0) return;
+
+  const currentCashier = (typeof activeCashier !== 'undefined' && activeCashier) ? activeCashier : { id: 'admin', role: 'admin' };
+  const isAdmin = (currentCashier.role === 'admin' || currentCashier.id === 'admin');
+
+  // Çalışanın efektif izinlerini bul
+  let currentPermissions = [];
+  if (typeof marketEmployeesList !== 'undefined' && marketEmployeesList && currentCashier.id) {
+    const emp = marketEmployeesList.find(e => String(e.id) === String(currentCashier.id));
+    if (emp && emp.effective_permissions) {
+      currentPermissions = emp.effective_permissions;
+    }
+  }
+
+  let activeTabStillVisible = true;
+  let firstAllowedTabId = 'tab-home';
+
+  navButtons.forEach(btn => {
+    const perm = btn.getAttribute('data-perm');
+    const tabId = btn.getAttribute('data-tab');
+
+    // Admin veya izinsiz genel sekmeler (none) her zaman açık
+    if (isAdmin || !perm || perm === 'none') {
+      btn.style.display = 'flex';
+      return;
+    }
+
+    // Yetki kontrolü (Özel çalışan yetkisi dahil)
+    const isGranted = currentPermissions.includes(perm);
+    if (isGranted) {
+      btn.style.display = 'flex';
+    } else {
+      btn.style.display = 'none';
+      if (btn.classList.contains('active')) {
+        activeTabStillVisible = false;
+      }
+    }
+  });
+
+  // Eğer çalışanın o an bulunduğu sekme yetkisizse otomatik olarak yetkili olduğu ilk sekmeye (örn: POS) yönlendir
+  if (!activeTabStillVisible) {
+    if (currentPermissions.includes('perm_pos')) {
+      switchTab('tab-pos');
+    } else if (currentPermissions.includes('perm_catalog_view')) {
+      switchTab('tab-catalog');
+    } else {
+      switchTab('tab-home');
+    }
+  }
+}
+
+window.updateSidebarNavVisibility = updateSidebarNavVisibility;
+window.openSetupWizardModal = openSetupWizardModal;
+window.closeSetupWizardModal = closeSetupWizardModal;
+window.submitSetupWizard = submitSetupWizard;
 window.openUniversalModal = openUniversalModal;
 window.closeUniversalModal = closeUniversalModal;
 window.playBarcodeNotFoundSound = playBarcodeNotFoundSound;
@@ -827,14 +993,275 @@ window.openQuickProductFromNotFoundAlert = openQuickProductFromNotFoundAlert;
 window.toggleSidebarCollapse = toggleSidebarCollapse;
 window.initSidebarState = initSidebarState;
 window.formatBarcodeDisplay = formatBarcodeDisplay;
+window.showCustomConfirm = showCustomConfirm;
+window.showAppConfirm = showCustomConfirm;
+window.showCustomPrompt = showCustomPrompt;
+window.showAppPrompt = showCustomPrompt;
+window._resolveAppConfirm = _resolveAppConfirm;
+window._resolveAppPrompt = _resolveAppPrompt;
+
+function formatPhoneNumberString(val) {
+  if (!val) return '';
+  let str = String(val).trim();
+  let digits = str.replace(/\D/g, '');
+  if (!digits) return str;
+
+  // Başka ülke kodu (+49, +1, vb.) ile girildiyse
+  if (str.startsWith('+') && !digits.startsWith('90')) {
+    if (digits.length <= 3) return `+${digits}`;
+    if (digits.length <= 6) return `+${digits.slice(0, 2)} ${digits.slice(2)}`;
+    if (digits.length <= 9) return `+${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+    return `+${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 12)}`.trim();
+  }
+
+  // Türkiye (+90) Formatı
+  if (digits.startsWith('90')) {
+    digits = digits.substring(2);
+  } else if (digits.startsWith('0')) {
+    digits = digits.substring(1);
+  }
+
+  digits = digits.substring(0, 10);
+
+  if (digits.length === 0) return '+90 ';
+  if (digits.length <= 3) return `+90 ${digits}`;
+  if (digits.length <= 6) return `+90 ${digits.slice(0, 3)} ${digits.slice(3)}`;
+  return `+90 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+}
+
+function formatPhoneInput(input) {
+  if (!input) return;
+  const val = input.value;
+  if (!val) return;
+  input.value = formatPhoneNumberString(val);
+}
+
+function cleanPhoneForWhatsApp(phone) {
+  if (!phone) return '';
+  let digits = String(phone).replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = digits.substring(1);
+  if (!digits.startsWith('90') && digits.length === 10) digits = '90' + digits;
+  return digits;
+}
+
+function sendWhatsAppUniversal(phone, text, receiptNo = '') {
+  const cleanPhone = cleanPhoneForWhatsApp(phone);
+  if (!cleanPhone || cleanPhone.length < 10) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ Müşterinin geçerli bir WhatsApp telefon numarası bulunamadı.', 'warning');
+    }
+    return false;
+  }
+
+  // 1. Arka planda sunucu WhatsApp Bot motoruna ilet & PDF oluştur
+  fetch('/api/whatsapp/send_automated', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone: cleanPhone,
+      text: text,
+      receipt_no: receiptNo
+    })
+  }).then(r => r.json()).then(data => {
+    console.log('WhatsApp bot iletimi:', data);
+  }).catch(e => console.warn('Bot iletim uyarısı:', e));
+
+  // 2. WhatsApp Web API üzerinden mesajı hazırla ve aç
+  try {
+    const webUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+    window.open(webUrl, '_blank');
+  } catch (err) {}
+
+  if (typeof showToast === 'function') {
+    showToast('💬 WhatsApp bilgi fişi müşteriye iletildi!', 'success');
+  }
+
+  return true;
+}
+
+function printPaymentReceiptSlip({
+  custName,
+  custPhone = '',
+  amount = 0,
+  payMethod = 'Nakit',
+  txType = 'payment',
+  oldBalance = 0,
+  newBalance = 0,
+  dateStr = new Date().toLocaleString('tr-TR'),
+  receiptNo = `MAK-${Date.now()}`
+}) {
+  const printWin = window.open('', '_blank', 'width=380,height=580');
+  if (!printWin) return;
+
+  const isDebt = txType === 'debt';
+  const title = isDebt ? 'BORÇ EKLEME MAKBUZU' : 'VERESİYE ÖDEME MAKBUZU';
+
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html lang="tr">
+      <head>
+        <meta charset="UTF-8">
+        <title>${title} - ${custName}</title>
+        <style>
+          body { font-family: 'Courier New', Courier, monospace; padding: 12px; margin: 0; font-size: 12px; color: #000; }
+          @media print { @page { margin: 0; size: 80mm auto; } body { margin: 2mm; } }
+          .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; }
+          .title { font-size: 15px; font-weight: 900; }
+          .row { display: flex; justify-content: space-between; margin: 4px 0; }
+          .totals { border-top: 1px dashed #000; border-bottom: 2px dashed #000; padding: 6px 0; margin-top: 6px; }
+          .bold { font-weight: bold; }
+          .footer { text-align: center; margin-top: 10px; font-size: 10.5px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="title">YARENLER SÜPERMARKET</div>
+          <div style="font-size: 11px;">Merkez Şube</div>
+          <div style="font-size: 12px; font-weight: bold; margin-top: 4px;">*** ${title} ***</div>
+          <div style="font-size: 10.5px; margin-top: 4px;">Tarih: ${dateStr}</div>
+          <div style="font-size: 10.5px;">Makbuz No: ${receiptNo}</div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+          <div class="row"><span class="bold">Müşteri Adı:</span> <span>${custName}</span></div>
+          ${custPhone ? `<div class="row"><span>Telefon:</span> <span>${custPhone}</span></div>` : ''}
+          <div class="row"><span>Ödeme Yöntemi:</span> <span>${payMethod}</span></div>
+        </div>
+
+        <div class="totals">
+          <div class="row bold" style="font-size: 14px;">
+            <span>${isDebt ? 'EKLENEN TUTAR:' : 'TAHSİL EDİLEN:'}</span>
+            <span>${parseFloat(amount).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
+          </div>
+          <div class="row" style="font-size: 11px; margin-top: 4px;">
+            <span>Önceki Bakiye:</span>
+            <span>${parseFloat(oldBalance).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
+          </div>
+          <div class="row bold" style="font-size: 13px; margin-top: 4px; border-top: 1px dashed #000; padding-top: 4px;">
+            <span>KALAN GÜNCEL BORÇ:</span>
+            <span>${parseFloat(newBalance).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p style="margin: 4px 0; font-weight: bold;">Ödemeniz için teşekkür ederiz!</p>
+          <p style="margin: 2px 0; font-size: 9px;">Bilgi amaçlı düzenlenmiştir.</p>
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 250);
+          };
+        <\/script>
+      </body>
+    </html>
+  `);
+  printWin.document.close();
+}
+
+window.formatPhoneNumberString = formatPhoneNumberString;
+window.formatPhoneInput = formatPhoneInput;
+window.cleanPhoneForWhatsApp = cleanPhoneForWhatsApp;
+window.sendWhatsAppUniversal = sendWhatsAppUniversal;
+window.printPaymentReceiptSlip = printPaymentReceiptSlip;
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const activeModal = document.querySelector('.modal-backdrop[style*="display: flex"], .modal-backdrop.active');
-    if (activeModal) {
-      if (typeof closeCatalogProductDetailModal === 'function') closeCatalogProductDetailModal();
+  const confirmModal = document.getElementById('modal-app-confirm');
+  if (confirmModal && confirmModal.style.display === 'flex') {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      _resolveAppConfirm(true);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      _resolveAppConfirm(false);
+      return;
     }
   }
+
+  const promptModal = document.getElementById('modal-app-prompt');
+  if (promptModal && promptModal.style.display === 'flex') {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      const input = document.getElementById('app-prompt-input');
+      _resolveAppPrompt(input ? input.value : '');
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      _resolveAppPrompt(null);
+      return;
+    }
+  }
+
+  if (e.key === 'Escape') {
+    const confirmModal = document.getElementById('modal-app-confirm');
+    const promptModal = document.getElementById('modal-app-prompt');
+    if ((confirmModal && confirmModal.style.display === 'flex') || (promptModal && promptModal.style.display === 'flex')) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    closeAllActiveModals();
+  }
 });
+
+// EVRENSEL MODAL KAPATICI (ESC İLE TÜM AÇIK MODALLARI ANINDA KAPAT VE BARKODA ODAKLAN)
+function closeAllActiveModals() {
+  if (typeof closePosXReportModal === 'function') closePosXReportModal();
+  if (typeof closePosCreditModal === 'function') closePosCreditModal();
+  if (typeof closeReturnItemsModal === 'function') closeReturnItemsModal();
+  if (typeof closePosReturnModal === 'function') closePosReturnModal();
+  if (typeof closeEditSaleModal === 'function') closeEditSaleModal();
+  if (typeof closeParkedReceiptsModal === 'function') closeParkedReceiptsModal();
+  if (typeof closePosRecentSalesModal === 'function') closePosRecentSalesModal();
+  if (typeof closePosQuickProductModal === 'function') closePosQuickProductModal();
+  if (typeof closeAddQuickButtonModal === 'function') closeAddQuickButtonModal();
+  if (typeof closePosPriceCheckModal === 'function') closePosPriceCheckModal();
+  if (typeof closePosCashMovementModal === 'function') closePosCashMovementModal();
+  if (typeof closeCashierSwitchModal === 'function') closeCashierSwitchModal();
+  if (typeof closePosMobileQrModal === 'function') closePosMobileQrModal();
+  if (typeof closePosPaymentModal === 'function') closePosPaymentModal();
+  if (typeof closePosClearConfirmModal === 'function') closePosClearConfirmModal();
+  if (typeof closeCatalogProductDetailModal === 'function') closeCatalogProductDetailModal();
+  if (typeof closePosAutocompletePopup === 'function') closePosAutocompletePopup();
+
+  document.querySelectorAll('.universal-modal-overlay, .modal-backdrop, .modal-overlay, [id^="modal-pos-"], [id^="modal-parked"]').forEach(m => {
+    if (m.id !== 'modal-app-confirm' && m.id !== 'modal-app-prompt') {
+      if (m.style.display && m.style.display !== 'none') {
+        m.style.display = 'none';
+      }
+      m.classList.remove('active');
+    }
+  });
+
+  const barInp = document.getElementById('pos-barcode-input');
+  if (barInp) {
+    setTimeout(() => { try { barInp.focus(); barInp.select(); } catch(err){} }, 30);
+  }
+}
+window.closeAllActiveModals = closeAllActiveModals;
+
+// F5 VE CTRL+R İLE SAYFA YENİLEME SERBEST BIRAKILDI (UYARI VERMEDEN SESSİZCE YENİLER)
+window._isExplicitReload = false;
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'F5' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
+    window._isExplicitReload = true;
+  }
+}, true);
+
+// SADECE PENCERE KAPATILIRKEN KORUMA (YENİLEMELERDE ASLA ENGELLEMEZ)
+window.addEventListener('beforeunload', (e) => {
+  if (window._isExplicitReload) return;
+  // F5 veya sayfa yenilemede uyarısız doğrudan yeniler, sepet localStorage'dan geri yüklenir
+});
+
 
 

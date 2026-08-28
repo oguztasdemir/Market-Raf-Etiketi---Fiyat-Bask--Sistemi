@@ -58,7 +58,7 @@ def save_cashiers(cashiers: list):
     save_json(CASHIERS_FILE, cashiers)
 
 def verify_cashier_pin(cashier_id: str, pin: str = "") -> dict:
-    """Kasiyer PIN kodunu doğrular ve aktif oturum açar (Başlangıçta şifre boş olabilir)."""
+    """Kasiyer PIN kodunu doğrular ve aktif oturum açar."""
     cashiers = get_cashiers()
     pin_str = str(pin or "").strip()
 
@@ -66,8 +66,7 @@ def verify_cashier_pin(cashier_id: str, pin: str = "") -> dict:
         if c.get("id") == cashier_id or c.get("name") == cashier_id:
             expected_pin = str(c.get("pin", "") or "").strip()
 
-            # Eğer tanımlı şifre yoksa (boşsa) veya girilen şifre doğruysa giriş başarılı
-            if expected_pin == "" or expected_pin == pin_str or pin_str == "":
+            if expected_pin == pin_str:
                 CURRENT_SHIFT["active_cashier_id"] = c.get("id")
                 CURRENT_SHIFT["active_cashier_name"] = c.get("name")
                 CURRENT_SHIFT["shift_start"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

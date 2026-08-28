@@ -3,9 +3,10 @@
  */
 
 let manavProductsData = [];
-let currentManavView = 'grid'; // 'grid' | 'table'
-let currentManavFilter = 'all'; // 'all' | 'diff' | 'synced'
+let currentManavView = 'table'; // 'grid' | 'table'
+let currentManavFilter = 'kg'; // 'kg' | 'adet' | 'all' | 'diff' | 'synced'
 let activeScaleSettings = null;
+let currentEditingManavPlu = null;
 
 // Modül Başlatıcı
 async function initManavPanel() {
@@ -20,7 +21,7 @@ async function loadManavStatus() {
   const statusBadge = document.getElementById('scale-status-badge');
   const statusText = document.getElementById('scale-status-text');
   const pingText = document.getElementById('scale-ping-text');
-  const modelText = document.getElementById('scale-model-text');
+  const poolSelect = document.getElementById('scale-pool-select');
 
   try {
     const res = await fetch(`${API_BASE}/api/scale/status`);
@@ -30,21 +31,27 @@ async function loadManavStatus() {
       activeScaleSettings = data.settings || {};
       const conn = data.connection || {};
 
-      if (modelText) {
-        modelText.innerText = `${activeScaleSettings.ip}:${activeScaleSettings.port} (${activeScaleSettings.scale_model || 'DIGI/TERAOKA'})`;
+      if (poolSelect && Array.isArray(activeScaleSettings.scales_list)) {
+        const curVal = `${activeScaleSettings.ip}:${activeScaleSettings.port}`;
+        poolSelect.innerHTML = activeScaleSettings.scales_list.map(sc => {
+          const val = `${sc.ip}:${sc.port}`;
+          const isSel = val === curVal ? 'selected' : '';
+          const icon = sc.department?.toLowerCase().includes('kasap') ? '🥩' : '🥬';
+          return `<option value="${val}" ${isSel}>${icon} ${sc.name} (${sc.ip})</option>`;
+        }).join('');
       }
 
       if (conn.online) {
         if (statusBadge) {
           statusBadge.className = 'badge-status-pill online';
-          statusBadge.innerText = '🟢 ÇEVRİMİÇİ (BAĞLI)';
+          statusBadge.innerText = '🟢 Çevrimiçi';
         }
         if (statusText) statusText.innerText = 'Terazi Aktif';
         if (pingText) pingText.innerText = `${conn.ping_ms} ms`;
       } else {
         if (statusBadge) {
           statusBadge.className = 'badge-status-pill offline';
-          statusBadge.innerText = '🔴 ÇEVRİMDIŞI';
+          statusBadge.innerText = '🔴 Çevrimdışı';
         }
         if (statusText) statusText.innerText = 'Bağlantı Yok';
         if (pingText) pingText.innerText = '-';
@@ -55,6 +62,23 @@ async function loadManavStatus() {
       statusBadge.className = 'badge-status-pill offline';
       statusBadge.innerText = '🔴 HATA';
     }
+  }
+}
+
+async function onScalePoolSelectChange() {
+  const poolSelect = document.getElementById('scale-pool-select');
+  if (!poolSelect) return;
+  const parts = poolSelect.value.split(':');
+  if (parts.length === 2) {
+    const ip = parts[0];
+    const port = parseInt(parts[1]);
+    if (typeof showToast === 'function') showToast(`🔄 ${ip} terazisine geçiliyor...`, 'info');
+    await fetch(`${API_BASE}/api/scale/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip, port })
+    });
+    await loadManavStatus();
   }
 }
 
@@ -117,7 +141,7 @@ async function loadManavProducts() {
       manavProductsData = (data.products || []).map(p => {
         p.title = sanitizeTitle(p.title);
         return p;
-      });
+      }).sort((a, b) => (parseInt(a.plu, 10) || 0) - (parseInt(b.plu, 10) || 0));
       renderManavView();
       updateManavCounts(data.total, data.diff_count);
     }
@@ -126,6 +150,13 @@ async function loadManavProducts() {
       gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #ef4444; padding: 30px;">Hata: ${err.message}</div>`;
     }
   }
+}
+
+function getNextPluNumber() {
+  if (!manavProductsData || manavProductsData.length === 0) return 1;
+  const plus = manavProductsData.map(p => parseInt(p.plu, 10)).filter(n => !isNaN(n));
+  if (plus.length === 0) return 1;
+  return Math.max(...plus) + 1;
 }
 
 // Sayaçları Güncelle
@@ -149,7 +180,7 @@ function updateManavCounts(total, diff) {
   if (pillSynced) pillSynced.innerText = s;
 }
 
-// Görünümü Render Et (Doğrudan Düzenlenebilir Tablo Liste)
+// Görünümü Render Et (Doğrudan Düzenlenebilir Tablo Liste - Her Zaman 1-2-3-4-5 Sıralı)
 function renderManavView() {
   const searchVal = (document.getElementById('manav-search-inp')?.value || '').toLowerCase().trim();
 
@@ -178,6 +209,9 @@ function renderManavView() {
 
     return true;
   });
+
+  // Her zaman PLU 1, 2, 3, 4, 5... şeklinde sabit artan sırada göster
+  filtered.sort((a, b) => (parseInt(a.plu, 10) || 0) - (parseInt(b.plu, 10) || 0));
 
   renderManavTable(filtered);
 }
@@ -218,7 +252,7 @@ function renderManavTable(items) {
     const cleanTitleText = sanitizeTitle(item.title);
 
     html += `
-      <tr onclick="openEditManavModal(${item.plu})" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='transparent'" title="PLU Tuşunu, Ürün Adını ve Fiyatını Düzenlemek için Tıklayın">
+      <tr onclick="openEditManavModal(${item.plu})" ondblclick="openCatalogProductDetailModal('${item.barcode || item.plu}')" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='transparent'" title="Düzenlemek için Tıklayın, Detaylı Kart için Çift Tıklayın">
         <td style="font-weight: 900; color: #38bdf8; text-align: center; font-size: 13px; font-family: monospace;">[${item.plu}]</td>
         <td style="font-family: monospace; color: #94a3b8;">${item.barcode || '-'}</td>
         <td style="font-weight: 800; color: #ffffff;">
@@ -898,11 +932,19 @@ function openAddManavModal() {
 }
 
 function openEditManavModal(plu) {
-  const item = manavProductsData.find(x => intVal(x.plu) === intVal(plu));
-  if (!item) return;
+  const targetPlu = parseInt(plu, 10);
+  const item = (manavProductsData || []).find(x => parseInt(x.plu, 10) === targetPlu);
+  if (!item) {
+    if (typeof showToast === 'function') showToast(`PLU [${plu}] ürünü bulunamadı.`, 'warning');
+    return;
+  }
 
+  currentEditingManavPlu = targetPlu;
   const modal = document.getElementById('modal-manav-product');
-  if (!modal) return;
+  if (!modal) {
+    if (typeof showToast === 'function') showToast('Manav düzenleme penceresi yüklenemedi.', 'error');
+    return;
+  }
 
   document.getElementById('manav-modal-title').innerText = `✏️ PLU ${item.plu} Düzenle`;
   document.getElementById('inp-manav-plu').value = item.plu;
@@ -918,14 +960,27 @@ function openEditManavModal(plu) {
   modal.style.display = 'flex';
 }
 
+function openFullCatalogDetailFromManavModal() {
+  if (!currentEditingManavPlu) return;
+  const item = (manavProductsData || []).find(x => parseInt(x.plu, 10) === parseInt(currentEditingManavPlu, 10));
+  if (!item) return;
+
+  closeManavModal();
+  const bc = item.barcode || `2701${String(item.plu).padStart(3, '0')}`;
+  if (typeof openCatalogProductDetailModal === 'function') {
+    openCatalogProductDetailModal(bc);
+  }
+}
+
 function closeManavModal() {
   const modal = document.getElementById('modal-manav-product');
   if (modal) modal.style.display = 'none';
+  currentEditingManavPlu = null;
 }
 
 async function submitManavProductModal() {
   const plu = document.getElementById('inp-manav-plu')?.value;
-  const title = document.getElementById('inp-manav-title')?.value;
+  let title = document.getElementById('inp-manav-title')?.value;
   const price = document.getElementById('inp-manav-price')?.value;
   const barcode = document.getElementById('inp-manav-barcode')?.value;
   const unit = document.getElementById('inp-manav-unit')?.value;
@@ -938,6 +993,13 @@ async function submitManavProductModal() {
     }
     return;
   }
+
+  // Meyve & Sebze / Manav ürünlerinde standart 'MNV ' ön eki ekle
+  let cleanTitle = String(title || '').trim().toUpperCase();
+  if (!cleanTitle.startsWith('MNV ')) {
+    cleanTitle = `MNV ${cleanTitle}`;
+  }
+  title = cleanTitle;
 
   try {
     const res = await fetch(`${API_BASE}/api/scale/products`, {
@@ -1080,3 +1142,5 @@ window.deleteManavProductAction = deleteManavProductAction;
 window.openScaleSettingsModal = openScaleSettingsModal;
 window.closeScaleSettingsModal = closeScaleSettingsModal;
 window.submitScaleSettingsModal = submitScaleSettingsModal;
+window.openFullCatalogDetailFromManavModal = openFullCatalogDetailFromManavModal;
+window.onScalePoolSelectChange = onScalePoolSelectChange;

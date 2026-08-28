@@ -97,18 +97,30 @@ Terminal veya PowerShell üzerinden proje klasöründe bağımlılıkları yükl
 pip install -r requirements.txt
 ```
 
-### 3. Sistemi Başlatma
-Sistemi doğrudan Python ile veya koruma betiğiyle başlatabilirsiniz:
+### 3. Sistemi Başlatma Seçenekleri
+
+#### A. Web & Mobil Sunucu Modu (Tarayıcıda Çalıştırma)
 ```bash
 python main.py
 ```
-veya 7/24 kesintisiz otomatik kurtarma için:
+> Web sunucusunu (`0.0.0.0:5000` / `5001`) başlatır ve varsayılan tarayıcınızı otomatik açar.
+
+#### B. Masaüstü GUI & Standalone EXE Modu (Pencereli Uygulama)
+```bash
+python web_gui.py
+```
+> PyWebView ile bağımsız masaüstü penceresinde çalıştırır. PyInstaller ile `.exe` derlemek için ana giriş noktasıdır:
+> ```bash
+> pyinstaller --noconsole --onefile web_gui.py
+> ```
+
+#### C. 7/24 Kesintisiz Arka Plan Koruma Servisi
 ```bash
 SISTEMI_BASLAT_VE_KORU.bat
 ```
 
 ### 4. Erişim Adresleri
-* **Masaüstü Yönetim Paneli:** `http://127.0.0.1:5000` (Otomatik pencere olarak açılır)
+* **Masaüstü Web Paneli:** `http://127.0.0.1:5000`
 * **Yerel Ağ / Diğer Bilgisayarlar:** `http://[YEREL_IP]:5000`
 * **Mobil El Terminali (HTTP):** `http://[YEREL_IP]:5000/mobile`
 * **Mobil Canlı Kamera Tarayıcı (HTTPS):** `https://[YEREL_IP]:5001/mobile`

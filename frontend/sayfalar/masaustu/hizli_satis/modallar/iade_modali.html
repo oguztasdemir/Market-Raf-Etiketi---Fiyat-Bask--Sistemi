@@ -1,45 +1,74 @@
-<div id="modal-pos-return" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center;">
-    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 440px; max-width: 95%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
-      
-      <!-- Başlık & Kapat Butonu -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 14px;">
-        <div>
-          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #f8fafc;">Ürün İade / Geri Alma [F9]</h3>
-          <small style="color: #94a3b8; font-size: 12px;">İade tutarı sepete eksi bakiye olarak yansıtılır</small>
+<!-- =========================================================
+     MODAL: ÜRÜN İADE / GERİ ALMA (SATIŞ MANTIĞIYLA BİREBİR AYNI İADE - F9)
+     ========================================================= -->
+<div id="modal-pos-return" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
+  <div style="background: #0f172a; border: 1.5px solid #ef4444; border-radius: 14px; width: 520px; max-width: 95%; overflow: hidden; box-shadow: 0 25px 65px rgba(239,68,68,0.3); padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+          ↩️
         </div>
-        <button onclick="closePosReturnModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 2px 6px;">&times;</button>
-      </div>
-
-      <!-- Form Alanları -->
-      <div style="display: flex; flex-direction: column; gap: 10px;">
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">İade Barkodu veya Ürün Adı</label>
-          <input type="text" id="pos-return-barcode" placeholder="Barkod okutun veya ürün adı..." style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 13px; outline: none; box-sizing: border-box;">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div>
-            <label style="display: block; font-size: 11px; font-weight: 600; color: #f87171; text-transform: uppercase; margin-bottom: 4px;">İade Tutarı (TL)</label>
-            <input type="number" step="0.01" id="pos-return-amount" placeholder="0.00" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f87171; font-size: 14px; font-weight: 700; outline: none; box-sizing: border-box;">
-          </div>
-          <div>
-            <label style="display: block; font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Miktar</label>
-            <input type="number" step="1" id="pos-return-qty" value="1" style="width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 14px; outline: none; box-sizing: border-box;">
-          </div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #f87171;">Ürün İade / Geri Alma [F8]</h3>
+          <small style="color: #94a3b8; font-size: 11.5px;">İade edilen ürünlerin stokları otomatik artar ve kasadan düşülür</small>
         </div>
       </div>
+      <button onclick="closePosReturnModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; padding: 2px 6px;">&times;</button>
+    </div>
 
-      <!-- Alt Butonlar -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 12px; margin-top: 14px;">
-        <button type="button" onclick="closePosReturnModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">İptal (Esc)</button>
-        <button type="button" onclick="submitPosReturnExecute()" style="padding: 8px 18px; font-size: 13px; font-weight: 700; background: #dc2626; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
-          İadeyi Sepete Ekle (Enter)
+    <!-- SEPETTE ÜRÜN VARSA: DOĞRUDAN İADE ÖZETİ VE ÖDEME SEÇENEKLERİ -->
+    <div id="pos-return-cart-summary-section" style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">İADE EDİLECEK ÜRÜNLER:</div>
+          <strong id="pos-return-items-count-text" style="font-size: 13px; color: #cbd5e1;">0 Kalem Ürün</strong>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">MÜŞTERİYE İADE TUTARI:</div>
+          <strong id="pos-return-total-amount-text" style="font-size: 22px; color: #ef4444; font-family: monospace; font-weight: 900;">0,00 TL</strong>
+        </div>
+      </div>
+
+      <!-- İade Ürün Listesi Önizlemesi -->
+      <div id="pos-return-items-preview-list" style="max-height: 140px; overflow-y: auto; background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #cbd5e1;">
+        <!-- JS Dolduracak -->
+      </div>
+
+      <div style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 2px;">
+        İade ödeme yöntemini seçerek işlemi tamamlayınız:
+      </div>
+
+      <!-- 3'LÜ İADE BUTONLARI -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button type="button" onclick="executeDirectPosReturn('Nakit İade')" style="padding: 12px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+          <span>💵 NAKİT İADE YAP</span>
+          <small style="font-size: 10.5px; opacity: 0.85;">[1] veya [Enter]</small>
+        </button>
+
+        <button type="button" onclick="executeDirectPosReturn('Kart İade')" style="padding: 12px; font-size: 13px; font-weight: 900; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(59,130,246,0.3);">
+          <span>💳 KART İADE YAP</span>
+          <small style="font-size: 10.5px; opacity: 0.85;">[2]</small>
         </button>
       </div>
-
     </div>
-  </div>
 
-  <!-- =========================================================
-       MODAL: KASİYER DEĞİŞTİR / GİRİŞ YAP
-       ========================================================= -->
+    <!-- SEPET BOŞSA: BİLGİLENDİRME VE BARKOD GİRİŞİ -->
+    <div id="pos-return-empty-cart-section" style="display: none; flex-direction: column; gap: 10px; text-align: center; padding: 14px 0;">
+      <div style="font-size: 32px;">📦</div>
+      <h4 style="margin: 0; color: #f8fafc; font-size: 14px;">Satış Sepetiniz Boş</h4>
+      <p style="color: #94a3b8; font-size: 12.5px; margin: 0; line-height: 1.45;">
+        İade almak istediğiniz ürünleri ana ekrandan okutarak sepete ekleyin ve ardından <strong style="color: #ef4444;">[İADE]</strong> butonuna basınız.
+      </p>
+    </div>
+
+    <!-- Alt Kapat Butonu -->
+    <div style="display: flex; justify-content: flex-end; border-top: 1px solid #334155; padding-top: 12px;">
+      <button type="button" onclick="closePosReturnModal()" style="padding: 8px 16px; font-size: 12.5px; font-weight: 700; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 8px; cursor: pointer;">
+        Kapat (Esc)
+      </button>
+    </div>
+
+  </div>
+</div>

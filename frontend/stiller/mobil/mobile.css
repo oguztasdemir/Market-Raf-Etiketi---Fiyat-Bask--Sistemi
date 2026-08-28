@@ -215,19 +215,20 @@
       top: 0;
       left: 0;
       right: 0;
-      padding: 16px 20px;
+      padding: 14px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 20;
-      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+      gap: 8px;
+      z-index: 25;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
     }
 
     .fs-btn-close {
-      background: rgba(239, 68, 68, 0.85);
+      background: rgba(239, 68, 68, 0.9);
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 20px;
       font-size: 13px;
       font-weight: 800;
@@ -236,20 +237,67 @@
       gap: 6px;
       cursor: pointer;
       backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
-    .fs-badge-hint {
-      background: rgba(0, 0, 0, 0.6);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      padding: 6px 12px;
+    .fs-btn-tool {
+      background: rgba(30, 41, 59, 0.8);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 7px 12px;
       border-radius: 20px;
       font-size: 12px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
       backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
     }
 
-    /* Tam Ekran Ortadaki Kırmızı Lazer ve Odak HUD */
+    .fs-btn-tool.active {
+      background: rgba(16, 185, 129, 0.3);
+      border-color: #10b981;
+      color: #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
+
+    /* 🔍 Zoom Kontrol Çubuğu */
+    .fs-zoom-bar {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 6px;
+      border-radius: 24px;
+      z-index: 24;
+      backdrop-filter: blur(10px);
+    }
+
+    .fs-btn-zoom {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .fs-btn-zoom.active {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Tam Ekran Ortadaki Odak ve Hedef HUD */
     .fs-center-hud {
       position: absolute;
       inset: 0;
@@ -260,65 +308,94 @@
       z-index: 10;
     }
 
-    .fs-target-box {
+    .fs-reticle-box {
       position: relative;
-      width: 82vw;
-      max-width: 340px;
-      height: 220px;
-      border: 1.5px dashed rgba(255, 255, 255, 0.35);
+      width: 84vw;
+      max-width: 330px;
+      height: 200px;
+      border: 1.5px dashed rgba(255, 255, 255, 0.28);
       border-radius: 16px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.42);
     }
 
-    /* Köşe Vurguları */
-    .fs-corner {
+    /* Köşe Kılavuzları */
+    .reticle-corner {
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-color: #38bdf8;
       border-style: solid;
       border-width: 0;
     }
 
-    .fs-corner-tl { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 8px; }
-    .fs-corner-tr { top: -2px; right: -2px; border-top-width: 4px; border-right-width: 4px; border-top-right-radius: 8px; }
-    .fs-corner-bl { bottom: -2px; left: -2px; border-bottom-width: 4px; border-left-width: 4px; border-bottom-left-radius: 8px; }
-    .fs-corner-br { bottom: -2px; right: -2px; border-bottom-width: 4px; border-right-width: 4px; border-bottom-right-radius: 8px; }
+    .reticle-corner.tl { top: -2px; left: -2px; border-top-width: 4px; border-left-width: 4px; border-top-left-radius: 8px; }
+    .reticle-corner.tr { top: -2px; right: -2px; border-top-width: 4px; border-right-width: 4px; border-top-right-radius: 8px; }
+    .reticle-corner.bl { bottom: -2px; left: -2px; border-bottom-width: 4px; border-left-width: 4px; border-bottom-left-radius: 8px; }
+    .reticle-corner.br { bottom: -2px; right: -2px; border-bottom-width: 4px; border-right-width: 4px; border-bottom-right-radius: 8px; }
 
     /* ORTADA SABİT PARLAK KIRMIZI LAZER ÇİZGİSİ */
     .fs-laser-line {
       position: absolute;
-      left: 0;
-      right: 0;
+      left: 4px;
+      right: 4px;
       top: 50%;
       transform: translateY(-50%);
       height: 3px;
       background: #ff0000;
-      box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000;
+      box-shadow: 0 0 10px #ff0000, 0 0 22px #ff0000, 0 0 32px #ff0000;
       z-index: 15;
       border-radius: 2px;
+      animation: laserSweep 2s ease-in-out infinite alternate;
     }
 
-    /* Tam Ekran Alt Açıklama */
+    @keyframes laserSweep {
+      0% { top: 25%; opacity: 0.85; }
+      50% { top: 50%; opacity: 1; }
+      100% { top: 75%; opacity: 0.85; }
+    }
+
+    .fs-guide-curve-hint {
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      text-align: center;
+    }
+
+    .fs-guide-curve-hint span {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #7dd3fc;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    /* Tam Ekran Alt Açıklama ve İpucu */
     .fs-bottom-bar {
       position: absolute;
-      bottom: 30px;
+      bottom: 24px;
       left: 0;
       right: 0;
       text-align: center;
       z-index: 20;
-      padding: 0 20px;
+      padding: 0 16px;
     }
 
-    .fs-bottom-pill {
+    .fs-hint-banner {
       display: inline-block;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-      padding: 10px 18px;
-      border-radius: 24px;
-      font-size: 12.5px;
-      font-weight: 700;
-      backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f1f5f9;
+      padding: 9px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.4;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     }
 
     /* Manuel Barkod Arama Satırı */

@@ -72,9 +72,14 @@ def generate_market_shelf_zpl(data, orientation="POR", x_offset=0, y_offset=0, w
     raw_t2 = data.get('title2', 'PIR PAT KAP')
     t1, t2 = split_title_lines(raw_t1, raw_t2, max_chars_per_line=max_title_chars)
 
-    brand = clean_tr(data.get('brand', 'YARENLER')).strip().upper()
+    from backend.araclar.depolama_araclari import load_json
+    from backend.ayarlar import SETTINGS_FILE
+    settings = load_json(SETTINGS_FILE, {})
+    default_market_brand = str(settings.get("market_name", "MARKET")).strip().upper()
+
+    brand = clean_tr(data.get('brand') or default_market_brand).strip().upper()
     if not brand or brand in ['DIGER', 'DİĞER', 'DİGER']:
-        brand = 'YARENLER'
+        brand = default_market_brand
     origin = clean_tr(data.get('origin', 'TURKIYE')).strip().upper()
     
     # Tarih belirleme

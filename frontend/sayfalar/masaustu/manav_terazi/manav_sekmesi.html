@@ -16,7 +16,9 @@
               <div class="scale-status-info">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span id="scale-status-badge" class="badge-status-pill online">🟢 Çevrimiçi</span>
-                  <strong id="scale-model-text" style="font-size: 12px; color: #38bdf8;">192.168.1.61:2061 (DIGI/TERAOKA)</strong>
+                  <select id="scale-pool-select" onchange="onScalePoolSelectChange()" style="background: #070d1e; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 800; outline: none; cursor: pointer;">
+                    <option value="192.168.1.61:2061">🥬 Manav Terazisi (192.168.1.61)</option>
+                  </select>
                 </div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
                   Yanıt Süresi: <span id="scale-ping-text" style="color: #34d399; font-weight: 700;">-</span>
@@ -28,7 +30,7 @@
                   🧪 Test Et
                 </button>
                 <button class="btn-sm btn-secondary" onclick="openScaleSettingsModal()" title="Terazi IP ve Port Ayarları">
-                  ⚙️ Ayarlar
+                  ⚙️ Terazi Ayarları
                 </button>
               </div>
             </div>
@@ -51,22 +53,19 @@
               </button>
             </div>
 
-            <!-- Orta: Filtre Sekmeleri (Kg ve Adet Ayrımı) -->
+            <!-- Orta: Filtre Sekmeleri (Tartılı ve Adet Ayrımı) -->
             <div class="sync-tab-pills" style="margin: 0 8px;">
-              <button class="sync-pill-btn active" id="pill-manav-all" onclick="filterManavTab('all')">
-                📦 Tümü (<span id="manav-count-all">0</span>)
+              <button class="sync-pill-btn active" id="pill-manav-kg" onclick="filterManavTab('kg')" style="color: #38bdf8; font-weight: 800;" title="Teraziye bağlanan, PLU tuşu olan ve gramajla tartılan ürünler">
+                ⚖️ Tartılı Ürünler (<span id="manav-count-kg">0</span>)
               </button>
-              <button class="sync-pill-btn" id="pill-manav-kg" onclick="filterManavTab('kg')" style="color: #38bdf8;">
-                ⚖️ Kilogram / Tartım (<span id="manav-count-kg">0</span>)
+              <button class="sync-pill-btn" id="pill-manav-adet" onclick="filterManavTab('adet')" style="color: #c084fc; font-weight: 800;" title="Terazi tartımı gerektirmeyen, doğrudan kasada adet/demet/bağ olarak satılan ürünler">
+                📦 Adet / Demet Ürünler (<span id="manav-count-adet">0</span>)
               </button>
-              <button class="sync-pill-btn" id="pill-manav-adet" onclick="filterManavTab('adet')" style="color: #c084fc;">
-                🥬 Adet / Demet (<span id="manav-count-adet">0</span>)
+              <button class="sync-pill-btn" id="pill-manav-all" onclick="filterManavTab('all')" title="Tüm manav ve yeşillik ürünleri">
+                📋 Tümü (<span id="manav-count-all">0</span>)
               </button>
-              <button class="sync-pill-btn" id="pill-manav-diff" onclick="filterManavTab('diff')" style="color: #f59e0b;">
+              <button class="sync-pill-btn" id="pill-manav-diff" onclick="filterManavTab('diff')" style="color: #f59e0b;" title="Sistem fiyatı ile terazi fiyatı arasında fark olan tartılı ürünler">
                 ⚠️ Fiyat Farkı (<span id="manav-count-diff">0</span>)
-              </button>
-              <button class="sync-pill-btn" id="pill-manav-synced" onclick="filterManavTab('synced')" style="color: #34d399;">
-                ✅ Güncel (<span id="manav-count-synced">0</span>)
               </button>
             </div>
 

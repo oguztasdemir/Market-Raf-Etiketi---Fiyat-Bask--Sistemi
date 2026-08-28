@@ -148,8 +148,12 @@ def start_code_watcher(on_change_callback=None):
                                 not os.environ.get('NO_RELOAD')):
                                 print(f"⚡ [PYTHON YENİDEN BAŞLATILIYOR] '{fname}' güncellendi, sunucu anında yeniden başlatılıyor...")
                                 time.sleep(0.3)
-                                quoted_args = [f'"{sys.executable}"', f'"{main_script}"'] + [f'"{a}"' if ' ' in a else a for a in sys.argv[1:]]
-                                os.execv(sys.executable, quoted_args)
+                                if sys.platform == "win32":
+                                    args = [f'"{sys.executable}"', f'"{main_script}"'] + [f'"{a}"' if ' ' in a else a for a in sys.argv[1:]]
+                                    os.execv(sys.executable, [sys.executable, f'"{main_script}"'] + sys.argv[1:])
+                                else:
+                                    args = [sys.executable, main_script] + sys.argv[1:]
+                                    os.execv(sys.executable, args)
                     else:
                         mtimes[fpath] = curr_mtime
                 except Exception:

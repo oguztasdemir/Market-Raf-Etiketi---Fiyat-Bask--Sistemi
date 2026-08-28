@@ -1,0 +1,136 @@
+<!-- 📊 GÜN İÇİ ARA KASA MUTABAKAT (X RAPORU) MODALI -->
+<div id="modal-pos-x-report" class="universal-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(6px);">
+  
+  <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; width: 440px; max-width: 94vw; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.7);">
+    
+    <!-- Başlık Çubuğu -->
+    <div style="padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: #070d1e;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">📊</span>
+        <div>
+          <strong style="color: #f8fafc; font-size: 14px; display: block;">Gün İçi Ara Mutabakat (X Raporu)</strong>
+          <small style="color: #38bdf8; font-size: 11px; display: flex; align-items: center; gap: 4px;">
+            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+            Anlık Canlı Kasa Durumu
+          </small>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" class="btn-secondary" onclick="openPosXReportModal()" style="padding: 5px 10px; font-size: 11px; font-weight: 700; color: #38bdf8; border-color: rgba(56,189,248,0.4);" title="Raporu Anlık Yenile">🔄 Yenile</button>
+        <button type="button" class="btn-secondary" onclick="closePosXReportModal()" style="padding: 4px 10px; font-size: 12px;" title="Kapat [ESC]">✕</button>
+      </div>
+    </div>
+
+    <!-- Termal Görünümlü X Raporu Gövdesi -->
+    <div style="padding: 16px; overflow-y: auto; flex: 1;">
+      
+      <!-- Fiş Kağıdı Önizleme Alanı -->
+      <div id="x-report-receipt-paper" style="background: #ffffff; color: #000000; font-family: 'JetBrains Mono', 'Courier New', monospace; padding: 18px 16px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 12px; line-height: 1.45;">
+        
+        <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
+          <strong id="x-rep-market-name" style="font-size: 14px; display: block; font-weight: 900;">YARENLER MARKET</strong>
+          <div style="font-size: 11px; font-weight: 700; margin-top: 2px;">*** ARA KASA RAPORU (X) ***</div>
+          <div id="x-rep-datetime" style="font-size: 10px; margin-top: 3px; color: #333;">Yükleniyor...</div>
+          <div id="x-rep-cashier" style="font-size: 10.5px; margin-top: 2px;">Kasiyer: Yükleniyor...</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>KASA AÇILIŞ AVANSI:</span>
+          <strong id="x-rep-opening-cash">...</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>NAKİT SATIŞLAR (+):</span>
+          <strong id="x-rep-cash-sales">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>KREDİ KARTI (+):</span>
+          <strong id="x-rep-card-sales">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span>VERESİYE / CARİ (+):</span>
+          <strong id="x-rep-debt-sales">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #047857;">
+          <span>VERESİYE TAHSİLATI (+):</span>
+          <strong id="x-rep-debt-collections">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #047857;">
+          <span>KASA GİRİŞLERİ (+):</span>
+          <strong id="x-rep-cash-inflow">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #b91c1c;">
+          <span>KASA ÇIKIŞLARI / TOPTANCI (-):</span>
+          <strong id="x-rep-cash-outflow">0,00 TL</strong>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #b91c1c;">
+          <span>İADELER (-):</span>
+          <strong id="x-rep-returns">0,00 TL</strong>
+        </div>
+
+        <div style="border-top: 1px dashed #000; margin: 8px 0; padding-top: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 900;">
+            <span>GÜNCEL TOPLAM CİRO:</span>
+            <span id="x-rep-total-sales">0,00 TL</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 3px; color: #444;">
+            <span>TOPLAM FİŞ / KALEM:</span>
+            <span id="x-rep-counts">0 Fiş / 0 Adet</span>
+          </div>
+        </div>
+
+        <!-- Günün Kasa Hareket Dökümü (Toptancı, Fırın vs.) -->
+        <div id="x-rep-movements-section" style="border-top: 1px dashed #000; margin-top: 6px; padding-top: 6px; font-size: 10.5px; display: none;">
+          <strong style="display: block; font-size: 11px; margin-bottom: 4px;">KASA ÇIKIŞ DETAYLARI:</strong>
+          <div id="x-rep-movements-list" style="display: flex; flex-direction: column; gap: 2px;"></div>
+        </div>
+
+        <div style="border-top: 2px solid #000; margin-top: 8px; padding-top: 8px; background: #f1f5f9; padding: 6px 8px; border-radius: 4px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 900;">
+            <span>ÇEKMECEDEKİ NET NAKİT:</span>
+            <span id="x-rep-drawer-cash" style="color: #047857;">500,00 TL</span>
+          </div>
+          <small style="font-size: 9.5px; color: #64748b; display: block; margin-top: 2px;">(Açılış + Nakit Satışlar + Girişler - İadeler - Kasa Çıkışları)</small>
+        </div>
+
+      </div>
+
+      <!-- Kasa Açılış Avansı Düzenleme Alanı -->
+      <div style="margin-top: 14px; background: rgba(15,23,42,0.7); border: 1px dashed rgba(56,189,248,0.25); border-radius: 8px; padding: 10px 12px;">
+        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 6px;">💵 Sabah Kasa Açılış Avansı (Bozuk Para):</div>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="inp-x-cash-advance" step="10" placeholder="500.00" onkeydown="if(event.key==='Enter') updateCashAdvanceFromXModal()" style="flex: 1; padding: 6px 10px; font-size: 12px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff;">
+          <button type="button" class="btn-secondary" onclick="updateCashAdvanceFromXModal()" style="padding: 6px 14px; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer;">
+            Kaydet & Güncelle
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alt Aksiyon Butonları -->
+    <div style="padding: 12px 18px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; background: #070d1e; gap: 8px;">
+      <button type="button" class="btn-secondary" onclick="closePosXReportModal()" style="padding: 8px 14px; font-size: 12px;">
+        Kapat
+      </button>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" onclick="shareXReportViaWhatsApp()" style="padding: 8px 16px; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #25D366, #128C7E); color: #ffffff; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37,211,102,0.35);">
+          <span>📲</span>
+          <span>WhatsApp'tan Paylaş</span>
+        </button>
+        <button type="button" class="btn-primary" onclick="printPosXReportThermal()" style="padding: 8px 18px; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); display: flex; align-items: center; gap: 6px;">
+          <span>🖨️</span>
+          <span>X Raporu Yazdır</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
