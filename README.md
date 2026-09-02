@@ -1,5 +1,11 @@
 <div align="center">
 
+# 🛒 OYMAPOS Barkod Sistemi
+### Market, Mağaza Raf Etiketi, Hızlı Kasa (POS) & Terazi Yönetim Otomasyonu
+
+---
+</div>
+
 ## 🌟 Öne Çıkan Temel Yetenekler
 
 ### ⚡ 1. Ultra Hızlı Kasa Terminali (POS)
