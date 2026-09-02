@@ -151,8 +151,44 @@ function applyAppTheme(theme) {
     btn.innerHTML = isLight ? `<span>☀️</span> <span>Açık Mod</span>` : `<span>🌙</span> <span>Koyu Mod</span>`;
   });
 
+  // Ayarlar sekmesindeki tema kartı butonlarını güncelle
+  const darkBtn = document.getElementById('btn-theme-opt-dark');
+  const lightBtn = document.getElementById('btn-theme-opt-light');
+  const themeBadge = document.getElementById('current-theme-badge');
+
+  if (darkBtn && lightBtn) {
+    if (isLight) {
+      darkBtn.style.border = '2px solid transparent';
+      darkBtn.style.background = '#0f172a';
+      lightBtn.style.border = '2px solid #0284c7';
+      lightBtn.style.background = '#ffffff';
+      lightBtn.style.boxShadow = '0 4px 14px rgba(2,132,199,0.25)';
+      darkBtn.style.boxShadow = 'none';
+    } else {
+      darkBtn.style.border = '2px solid #0284c7';
+      darkBtn.style.background = '#070c18';
+      darkBtn.style.boxShadow = '0 4px 14px rgba(2,132,199,0.25)';
+      lightBtn.style.border = '2px solid transparent';
+      lightBtn.style.background = '#f8fafc';
+      lightBtn.style.boxShadow = 'none';
+    }
+  }
+
+  if (themeBadge) {
+    themeBadge.innerText = isLight ? 'Aktif Tema: Açık ☀️' : 'Aktif Tema: Koyu 🌙';
+    themeBadge.style.color = isLight ? '#0284c7' : '#38bdf8';
+  }
+
   localStorage.setItem('app_theme', theme);
 }
+
+function selectAppThemeFromSettings(theme) {
+  applyAppTheme(theme);
+  if (typeof showToast === 'function') {
+    showToast(theme === 'light' ? '☀️ Açık Tema aktif edildi.' : '🌙 Koyu Tema aktif edildi.', 'info');
+  }
+}
+window.selectAppThemeFromSettings = selectAppThemeFromSettings;
 
 
 async function loadCurrentDate() {
@@ -168,7 +204,27 @@ async function loadCurrentDate() {
       if (editorDateLbl) editorDateLbl.innerText = data.date;
     }
   } catch(e) {}
+  startLiveClock();
 }
+
+function startLiveClock() {
+  function updateClock() {
+    const now = new Date();
+    const dStr = now.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const tStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    const posDateEl = document.getElementById('pos-footer-date');
+    const posTimeEl = document.getElementById('pos-footer-time');
+
+    if (posDateEl) posDateEl.innerText = dStr;
+    if (posTimeEl) posTimeEl.innerText = tStr;
+  }
+  updateClock();
+  if (!window._liveClockInterval) {
+    window._liveClockInterval = setInterval(updateClock, 1000);
+  }
+}
+window.startLiveClock = startLiveClock;
 
 
 function switchTab(tabId) {
@@ -208,7 +264,6 @@ function switchTab(tabId) {
     'tab-reports': 'perm_reports',
     'tab-design': 'perm_print_labels',
     'tab-customers': 'perm_customers',
-    'tab-invoice': 'perm_invoice',
     'tab-accounting': 'perm_accounting',
     'tab-market': 'perm_settings',
     'tab-settings': 'perm_settings',
@@ -235,11 +290,11 @@ function switchTab(tabId) {
   if (tabId === 'tab-pos') {
     document.body.classList.add('pos-fullscreen');
     document.body.classList.remove('catalog-fullscreen');
-    if (typeof renderPosCart === 'function') renderPosCart();
-    if (typeof selectPosQuickCategory === 'function') selectPosQuickCategory(window.currentPosQuickCategory || 'manav_adet');
-    if (typeof initPosBottomButtons === 'function') initPosBottomButtons();
+    try { if (typeof renderPosCart === 'function') renderPosCart(); } catch(e){ console.error(e); }
+    try { if (typeof selectPosQuickCategory === 'function') selectPosQuickCategory(window.currentPosQuickCategory || 'manav_adet'); } catch(e){ console.error(e); }
+    try { if (typeof initPosBottomButtons === 'function') initPosBottomButtons(); } catch(e){ console.error(e); }
     const inp = document.getElementById('pos-barcode-input');
-    if (inp) setTimeout(() => inp.focus(), 150);
+    if (inp) setTimeout(() => { try { inp.focus(); } catch(e){} }, 150);
   } else if (tabId === 'tab-catalog') {
     document.body.classList.remove('pos-fullscreen');
     document.body.classList.add('catalog-fullscreen');
@@ -297,7 +352,6 @@ function switchTab(tabId) {
     if (heading) heading.innerText = '🧾 Akıllı Fatura Okuma, Sağlama & Ürün Eşleştirme';
     if (subheading) subheading.innerText = 'Toptancı faturalarını okuyun, iskonto ve KDV dahil net maliyetleri çıkarın, stokları otomatik güncelleyin';
     if (typeof loadInvoiceArchiveHistory === 'function') loadInvoiceArchiveHistory();
-    if (typeof fetchInvoicesFromOdealDirect === 'function') fetchInvoicesFromOdealDirect(true);
   } else if (tabId === 'tab-customers') {
     if (heading) heading.innerText = '📒 Müşteri Cari & Veresiye Defteri';
     if (subheading) subheading.innerText = 'Müşteri hesap kartları, veresiye alışveriş hareketleri ve tahsilat takibi';
@@ -930,7 +984,20 @@ function updateSidebarNavVisibility() {
   if (!navButtons || navButtons.length === 0) return;
 
   const currentCashier = (typeof activeCashier !== 'undefined' && activeCashier) ? activeCashier : { id: 'admin', role: 'admin' };
-  const isAdmin = (currentCashier.role === 'admin' || currentCashier.id === 'admin');
+  
+  // Varsayılan olarak veya 'admin' / 'SOLO' / 'kasa1' ise veya yetki listesi henüz yüklenmemişse TÜM MENÜYÜ AÇIK TUT
+  const isSoloOrAdmin = (!activeCashier || 
+                         activeCashier.role === 'admin' || 
+                         activeCashier.id === 'admin' || 
+                         activeCashier.id === 'kasa1' || 
+                         (typeof currentOperatingMode !== 'undefined' && currentOperatingMode === 'SOLO'));
+
+  if (isSoloOrAdmin) {
+    navButtons.forEach(btn => {
+      btn.style.display = 'flex';
+    });
+    return;
+  }
 
   // Çalışanın efektif izinlerini bul
   let currentPermissions = [];
@@ -942,19 +1009,17 @@ function updateSidebarNavVisibility() {
   }
 
   let activeTabStillVisible = true;
-  let firstAllowedTabId = 'tab-home';
 
   navButtons.forEach(btn => {
     const perm = btn.getAttribute('data-perm');
-    const tabId = btn.getAttribute('data-tab');
 
     // Admin veya izinsiz genel sekmeler (none) her zaman açık
-    if (isAdmin || !perm || perm === 'none') {
+    if (!perm || perm === 'none') {
       btn.style.display = 'flex';
       return;
     }
 
-    // Yetki kontrolü (Özel çalışan yetkisi dahil)
+    // Yetki kontrolü
     const isGranted = currentPermissions.includes(perm);
     if (isGranted) {
       btn.style.display = 'flex';
@@ -1053,7 +1118,7 @@ function sendWhatsAppUniversal(phone, text, receiptNo = '') {
     return false;
   }
 
-  // 1. Arka planda sunucu WhatsApp Bot motoruna ilet & PDF oluştur
+  // 1. Send message to background queue
   fetch('/api/whatsapp/send_automated', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1062,19 +1127,32 @@ function sendWhatsAppUniversal(phone, text, receiptNo = '') {
       text: text,
       receipt_no: receiptNo
     })
-  }).then(r => r.json()).then(data => {
-    console.log('WhatsApp bot iletimi:', data);
-  }).catch(e => console.warn('Bot iletim uyarısı:', e));
-
-  // 2. WhatsApp Web API üzerinden mesajı hazırla ve aç
-  try {
-    const webUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
-    window.open(webUrl, '_blank');
-  } catch (err) {}
-
-  if (typeof showToast === 'function') {
-    showToast('💬 WhatsApp bilgi fişi müşteriye iletildi!', 'success');
-  }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success' && data.is_bot_active) {
+      if (typeof showToast === 'function') {
+        showToast('💬 WhatsApp mesajı arka planda otomatik olarak gönderiliyor.', 'success');
+      }
+    } else {
+      // Fallback to manual WhatsApp Web tab
+      try {
+        const webUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+        window.open(webUrl, '_blank');
+      } catch (err) {}
+      if (typeof showToast === 'function') {
+        showToast('💬 Tarayıcı yönlendirmesi ile WhatsApp mesajı hazırlandı.', 'success');
+      }
+    }
+  })
+  .catch(e => {
+    console.warn('Bot connection warning:', e);
+    // Fallback to manual WhatsApp Web tab on network error
+    try {
+      const webUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+      window.open(webUrl, '_blank');
+    } catch (err) {}
+  });
 
   return true;
 }
@@ -1249,19 +1327,54 @@ function closeAllActiveModals() {
 }
 window.closeAllActiveModals = closeAllActiveModals;
 
-// F5 VE CTRL+R İLE SAYFA YENİLEME SERBEST BIRAKILDI (UYARI VERMEDEN SESSİZCE YENİLER)
-window._isExplicitReload = false;
+// ==========================================
+// TAM EKRAN (FULLSCREEN) YÖNETİMİ (ALT + ENTER / F11)
+// ==========================================
+function toggleFullScreenMode() {
+  // 1. PyWebview Masaüstü Pencere API'si (pywebview.api.toggle_fullscreen)
+  if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.toggle_fullscreen === 'function') {
+    window.pywebview.api.toggle_fullscreen().catch(err => {
+      console.log('Pywebview fullscreen geçiş hatası:', err);
+    });
+    return;
+  }
+
+  // 2. Standart HTML5 Fullscreen API Fallback (Tarayıcı ortamı)
+  if (!document.fullscreenElement) {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+      document.documentElement.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
+window.toggleFullScreenMode = toggleFullScreenMode;
+
+// ALT + ENTER veya F11 ile Tam Ekran Aç / Kapat
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'F5' || (e.ctrlKey && (e.key === 'r' || e.key === 'R'))) {
-    window._isExplicitReload = true;
+  if ((e.altKey && e.key === 'Enter') || e.key === 'F11') {
+    e.preventDefault();
+    toggleFullScreenMode();
   }
 }, true);
-
-// SADECE PENCERE KAPATILIRKEN KORUMA (YENİLEMELERDE ASLA ENGELLEMEZ)
-window.addEventListener('beforeunload', (e) => {
-  if (window._isExplicitReload) return;
-  // F5 veya sayfa yenilemede uyarısız doğrudan yeniler, sepet localStorage'dan geri yüklenir
-});
-
-
-
+// ==========================================
+// UYGULAMA GÜVENLİ KAPATMA (ALT + F4 & API)
+// ==========================================
+function exitDesktopApp() {
+  if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.close_app === 'function') {
+    window.pywebview.api.close_app();
+  } else {
+    window.close();
+  }
+}
+window.exitDesktopApp = exitDesktopApp;

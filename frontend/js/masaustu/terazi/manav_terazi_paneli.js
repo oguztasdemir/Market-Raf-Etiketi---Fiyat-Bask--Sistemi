@@ -186,12 +186,13 @@ function renderManavView() {
 
   let filtered = manavProductsData.filter(item => {
     const unit = (item.unit || '').toLowerCase();
+    const isAdet = ['adet', 'demet', 'paket', 'pk'].includes(unit);
 
     // Filtre
     if (currentManavFilter === 'kg') {
-      if (unit === 'adet') return false;
+      if (isAdet) return false;
     } else if (currentManavFilter === 'adet') {
-      if (unit !== 'adet') return false;
+      if (!isAdet) return false;
     } else if (currentManavFilter === 'diff') {
       if (item.sync_status !== 'diff' && item.price === item.scale_price) return false;
     } else if (currentManavFilter === 'synced') {
@@ -200,7 +201,7 @@ function renderManavView() {
 
     // Arama
     if (searchVal) {
-      const pluMatch = String(item.plu || '').includes(searchVal);
+      const pluMatch = item.plu ? String(item.plu).includes(searchVal) : false;
       const cleanT = sanitizeTitle(item.title || '').toLowerCase();
       const titleMatch = cleanT.includes(searchVal);
       const barcodeMatch = (item.barcode || '').toLowerCase().includes(searchVal);
@@ -210,8 +211,17 @@ function renderManavView() {
     return true;
   });
 
-  // Her zaman PLU 1, 2, 3, 4, 5... şeklinde sabit artan sırada göster
-  filtered.sort((a, b) => (parseInt(a.plu, 10) || 0) - (parseInt(b.plu, 10) || 0));
+  // Tartılı ürünler PLU sırasına göre, Adet ürünleri başlığa göre sıralanır
+  filtered.sort((a, b) => {
+    const aAdet = ['adet', 'demet', 'paket', 'pk'].includes((a.unit || '').toLowerCase());
+    const bAdet = ['adet', 'demet', 'paket', 'pk'].includes((b.unit || '').toLowerCase());
+    if (!aAdet && !bAdet) {
+      return (parseInt(a.plu, 10) || 0) - (parseInt(b.plu, 10) || 0);
+    }
+    if (!aAdet && bAdet) return -1;
+    if (aAdet && !bAdet) return 1;
+    return (a.title || '').localeCompare(b.title || '');
+  });
 
   renderManavTable(filtered);
 }
@@ -239,9 +249,12 @@ function renderManavTable(items) {
   items.forEach(item => {
     const isAdet = ['adet', 'demet', 'paket', 'pk'].includes((item.unit || '').toLowerCase());
     const isDiff = !isAdet && (item.sync_status === 'diff' || item.price !== item.scale_price);
+    const isEmpty = !(item.title || '').trim();
     
     let statusBadge = '';
-    if (isAdet) {
+    if (isEmpty) {
+      statusBadge = '<span class="badge-sync-status" style="background: rgba(148,163,184,0.06); color: #64748b; border: 1px solid rgba(148,163,184,0.2); padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">📭 Boş Slot</span>';
+    } else if (isAdet) {
       statusBadge = '<span class="badge-sync-status" style="background: rgba(192,132,252,0.12); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">📦 Adet (Muaf)</span>';
     } else if (isDiff) {
       statusBadge = '<span class="badge-sync-status changed">⚠️ Fiyat Farkı</span>';
@@ -249,22 +262,28 @@ function renderManavTable(items) {
       statusBadge = '<span class="badge-sync-status matched">✅ Terazi Güncel</span>';
     }
 
-    const cleanTitleText = sanitizeTitle(item.title);
+    const cleanTitleText = isEmpty 
+      ? '<span style="color: #475569; font-style: italic; font-weight: 400; font-size: 12.5px;">[Boş PLU Slotu - Tanımlamak için Tıklayın]</span>' 
+      : sanitizeTitle(item.title);
+
+    const pluDisplay = isAdet ? '<span style="color: #64748b; font-size: 11px; font-style: italic;">Barkodlu</span>' : (item.plu ? `[${item.plu}]` : '-');
+    const pluColor = isAdet ? '#64748b' : '#38bdf8';
+    const clickParam = isAdet ? `'${item.barcode}'` : (item.plu || `'${item.barcode}'`);
 
     html += `
-      <tr onclick="openEditManavModal(${item.plu})" ondblclick="openCatalogProductDetailModal('${item.barcode || item.plu}')" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='transparent'" title="Düzenlemek için Tıklayın, Detaylı Kart için Çift Tıklayın">
-        <td style="font-weight: 900; color: #38bdf8; text-align: center; font-size: 13px; font-family: monospace;">[${item.plu}]</td>
-        <td style="font-family: monospace; color: #94a3b8;">${item.barcode || '-'}</td>
+      <tr onclick="openEditManavModal(${clickParam})" ondblclick="${isEmpty ? '' : `openCatalogProductDetailModal('${item.barcode || item.plu}')`}" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='transparent'" title="${isEmpty ? 'Yeni Ürün Tanımlamak için Tıklayın' : 'Düzenlemek için Tıklayın, Detaylı Kart için Çift Tıklayın'}">
+        <td style="font-weight: 900; color: ${pluColor}; text-align: center; font-size: 12.5px; font-family: monospace;">${pluDisplay}</td>
+        <td style="font-family: monospace; color: #94a3b8; font-weight: 600;">${item.barcode || '-'}</td>
         <td style="font-weight: 800; color: #ffffff;">
-          <span style="color: #38bdf8; margin-right: 6px;">✏️</span> ${cleanTitleText}
+          <span style="color: ${isEmpty ? '#475569' : '#38bdf8'}; margin-right: 6px;">${isEmpty ? '➕' : '✏️'}</span> ${cleanTitleText}
         </td>
         <td style="text-align: center; font-weight: 700; font-size: 12px;">
-          <span style="background: ${isAdet ? 'rgba(192,132,252,0.15)' : 'rgba(56,189,248,0.15)'}; color: ${isAdet ? '#c084fc' : '#38bdf8'}; padding: 2px 7px; border-radius: 4px;">
-            ${isAdet ? 'Adet' : 'Kg'}
+          <span style="background: ${isAdet ? 'rgba(192,132,252,0.15)' : 'rgba(56,189,248,0.15)'}; color: ${isAdet ? '#c084fc' : '#38bdf8'}; padding: 2px 7px; border-radius: 4px; opacity: ${isEmpty ? 0.3 : 1};">
+            ${isAdet ? (item.unit || 'Adet') : 'Kg'}
           </span>
         </td>
-        <td style="text-align: right; font-weight: 900; color: #10b981; font-size: 13.5px; font-family: monospace;">${item.price}</td>
-        <td style="text-align: right; color: ${isDiff ? '#f87171' : '#94a3b8'}; font-weight: 700; font-family: monospace;">${isAdet ? '-' : (item.scale_price || '-')}</td>
+        <td style="text-align: right; font-weight: 900; color: #10b981; font-size: 13.5px; font-family: monospace;">${item.price || '-'}</td>
+        <td style="text-align: right; color: ${isDiff ? '#f87171' : '#94a3b8'}; font-weight: 700; font-family: monospace;">${isEmpty ? '-' : (isAdet ? '-' : (item.scale_price || '-'))}</td>
         <td style="text-align: center;">${statusBadge}</td>
       </tr>
     `;
@@ -913,42 +932,107 @@ async function printManavLabelQuick(barcode, title, price) {
 }
 
 // 10. Yeni / Düzenle Modal Yönetimi
+function onManavUnitChange() {
+  const unitVal = (document.getElementById('inp-manav-unit')?.value || 'Kg').toLowerCase();
+  const isAdet = ['adet', 'demet', 'paket', 'pk'].includes(unitVal);
+  const pluGroup = document.getElementById('group-manav-plu');
+  const pluInp = document.getElementById('inp-manav-plu');
+  const pluLbl = document.getElementById('lbl-manav-plu');
+  const barcodeInp = document.getElementById('inp-manav-barcode');
+
+  if (isAdet) {
+    if (pluGroup) pluGroup.style.display = 'none';
+    if (pluInp) {
+      pluInp.value = '';
+      pluInp.required = false;
+    }
+    if (barcodeInp && !barcodeInp.value) {
+      generateBarcodeForManavModal();
+    }
+  } else {
+    if (pluGroup) pluGroup.style.display = 'block';
+    if (pluInp) {
+      if (!pluInp.value) pluInp.value = getNextPluNumber();
+      pluInp.required = true;
+    }
+  }
+}
+
+async function generateBarcodeForManavModal() {
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/generate_internal_barcode`);
+    const data = await res.json();
+    if (data.status === 'success' && data.barcode) {
+      const bcInp = document.getElementById('inp-manav-barcode');
+      if (bcInp) bcInp.value = data.barcode;
+      if (typeof showToast === 'function') showToast(`⚡ Otomatik barkod atandı: ${data.barcode}`, 'info');
+    }
+  } catch (e) {
+    // Fallback rastgele 270 serisi
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    const bcInp = document.getElementById('inp-manav-barcode');
+    if (bcInp) bcInp.value = `270${rand}`;
+  }
+}
+
 function openAddManavModal() {
   const modal = document.getElementById('modal-manav-product');
   if (!modal) return;
 
-  document.getElementById('manav-modal-title').innerText = '🥬 Yeni Manav / PLU Ürünü Ekle';
+  currentEditingManavPlu = null;
+  document.getElementById('manav-modal-title').innerText = '🥬 Yeni Manav Ürünü Ekle';
   document.getElementById('inp-manav-plu').value = getNextPluNumber();
   document.getElementById('inp-manav-plu').readOnly = false;
   document.getElementById('inp-manav-title').value = '';
   document.getElementById('inp-manav-price').value = '';
   document.getElementById('inp-manav-barcode').value = '';
-  document.getElementById('inp-manav-unit').value = 'Kg';
+  
+  const unitSelect = document.getElementById('inp-manav-unit');
+  if (unitSelect) {
+    unitSelect.value = currentManavFilter === 'adet' ? 'Adet' : 'Kg';
+  }
+  
   document.getElementById('inp-manav-origin').value = 'TÜRKİYE';
   const kdvInp = document.getElementById('inp-manav-kdv');
   if (kdvInp) kdvInp.value = '1';
 
+  const deleteBtn = document.getElementById('btn-manav-delete');
+  const detailBtn = document.getElementById('btn-manav-open-full-detail');
+  if (deleteBtn) deleteBtn.style.display = 'none';
+  if (detailBtn) detailBtn.style.display = 'none';
+
+  onManavUnitChange();
   modal.style.display = 'flex';
 }
 
-function openEditManavModal(plu) {
-  const targetPlu = parseInt(plu, 10);
-  const item = (manavProductsData || []).find(x => parseInt(x.plu, 10) === targetPlu);
+function openEditManavModal(identifier) {
+  let item = null;
+  if (typeof identifier === 'number' || (!isNaN(parseInt(identifier, 10)) && String(identifier).length <= 4)) {
+    const targetPlu = parseInt(identifier, 10);
+    item = (manavProductsData || []).find(x => x.plu && parseInt(x.plu, 10) === targetPlu);
+  }
   if (!item) {
-    if (typeof showToast === 'function') showToast(`PLU [${plu}] ürünü bulunamadı.`, 'warning');
+    const targetBc = String(identifier).trim();
+    item = (manavProductsData || []).find(x => String(x.barcode || '').trim() === targetBc);
+  }
+
+  if (!item) {
+    if (typeof showToast === 'function') showToast(`Ürün bulunamadı.`, 'warning');
     return;
   }
 
-  currentEditingManavPlu = targetPlu;
+  currentEditingManavPlu = item.plu || item.barcode;
   const modal = document.getElementById('modal-manav-product');
   if (!modal) {
     if (typeof showToast === 'function') showToast('Manav düzenleme penceresi yüklenemedi.', 'error');
     return;
   }
 
-  document.getElementById('manav-modal-title').innerText = `✏️ PLU ${item.plu} Düzenle`;
-  document.getElementById('inp-manav-plu').value = item.plu;
-  document.getElementById('inp-manav-plu').readOnly = true;
+  const isAdet = ['adet', 'demet', 'paket', 'pk'].includes((item.unit || '').toLowerCase());
+
+  document.getElementById('manav-modal-title').innerText = isAdet ? `✏️ ${item.title || 'Adet Ürünü'} Düzenle` : `✏️ PLU ${item.plu} Düzenle`;
+  document.getElementById('inp-manav-plu').value = item.plu || '';
+  document.getElementById('inp-manav-plu').readOnly = !isAdet;
   document.getElementById('inp-manav-title').value = item.title || '';
   document.getElementById('inp-manav-price').value = item.price || '';
   document.getElementById('inp-manav-barcode').value = item.barcode || '';
@@ -957,16 +1041,24 @@ function openEditManavModal(plu) {
   const kdvInp = document.getElementById('inp-manav-kdv');
   if (kdvInp) kdvInp.value = String(item.kdv !== undefined ? item.kdv : '1');
 
+  // Toggle buttons visibility based on occupied slot
+  const isEmpty = !(item.title || '').trim();
+  const deleteBtn = document.getElementById('btn-manav-delete');
+  const detailBtn = document.getElementById('btn-manav-open-full-detail');
+  if (deleteBtn) deleteBtn.style.display = isEmpty ? 'none' : 'inline-block';
+  if (detailBtn) detailBtn.style.display = isEmpty ? 'none' : 'inline-block';
+
+  onManavUnitChange();
   modal.style.display = 'flex';
 }
 
 function openFullCatalogDetailFromManavModal() {
   if (!currentEditingManavPlu) return;
-  const item = (manavProductsData || []).find(x => parseInt(x.plu, 10) === parseInt(currentEditingManavPlu, 10));
+  const item = (manavProductsData || []).find(x => (x.plu && String(x.plu) === String(currentEditingManavPlu)) || (x.barcode && String(x.barcode) === String(currentEditingManavPlu)));
   if (!item) return;
 
   closeManavModal();
-  const bc = item.barcode || `2701${String(item.plu).padStart(3, '0')}`;
+  const bc = item.barcode || `2701${String(item.plu || '').padStart(3, '0')}`;
   if (typeof openCatalogProductDetailModal === 'function') {
     openCatalogProductDetailModal(bc);
   }
@@ -978,18 +1070,54 @@ function closeManavModal() {
   currentEditingManavPlu = null;
 }
 
+function deleteManavProductFromModal() {
+  if (!currentEditingManavPlu) return;
+  
+  showScaleConfirmDialog({
+    icon: '🗑️',
+    title: 'Ürün Silme Onayı',
+    subtitle: 'Manav Ürününü Sil',
+    message: `Bu ürünü manav listesinden silmek istediğinize emin misiniz?`,
+    onConfirm: async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/scale/products/${currentEditingManavPlu}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          closeManavModal();
+          if (typeof showToast === 'function') showToast(`🗑️ Ürün silindi.`, 'success');
+          loadManavProducts();
+        } else {
+          if (typeof showToast === 'function') showToast(`Hata: ${data.message}`, 'error');
+        }
+      } catch (err) {
+        if (typeof showToast === 'function') showToast(`Bağlantı hatası: ${err.message}`, 'error');
+      }
+    }
+  });
+}
+
 async function submitManavProductModal() {
-  const plu = document.getElementById('inp-manav-plu')?.value;
+  const unit = document.getElementById('inp-manav-unit')?.value || 'Kg';
+  const isAdet = ['adet', 'demet', 'paket', 'pk'].includes(unit.toLowerCase());
+  const plu = isAdet ? null : document.getElementById('inp-manav-plu')?.value;
   let title = document.getElementById('inp-manav-title')?.value;
   const price = document.getElementById('inp-manav-price')?.value;
-  const barcode = document.getElementById('inp-manav-barcode')?.value;
-  const unit = document.getElementById('inp-manav-unit')?.value;
-  const origin = document.getElementById('inp-manav-origin')?.value;
+  let barcode = document.getElementById('inp-manav-barcode')?.value;
+  const origin = document.getElementById('inp-manav-origin')?.value || 'TÜRKİYE';
   const kdv = parseInt(document.getElementById('inp-manav-kdv')?.value || '1', 10);
 
-  if (!plu || !title || !price) {
+  if (!title || !price) {
     if (typeof showToast === 'function') {
-      showToast('Lütfen PLU No, Ürün Adı ve Fiyat alanlarını doldurun.', 'warning');
+      showToast('Lütfen Ürün Adı ve Fiyat alanlarını doldurun.', 'warning');
+    }
+    return;
+  }
+
+  if (!isAdet && !plu) {
+    if (typeof showToast === 'function') {
+      showToast('Tartılı (Kg) ürünler için PLU Tuş Numarası zorunludur.', 'warning');
     }
     return;
   }
@@ -1143,4 +1271,5 @@ window.openScaleSettingsModal = openScaleSettingsModal;
 window.closeScaleSettingsModal = closeScaleSettingsModal;
 window.submitScaleSettingsModal = submitScaleSettingsModal;
 window.openFullCatalogDetailFromManavModal = openFullCatalogDetailFromManavModal;
+window.deleteManavProductFromModal = deleteManavProductFromModal;
 window.onScalePoolSelectChange = onScalePoolSelectChange;

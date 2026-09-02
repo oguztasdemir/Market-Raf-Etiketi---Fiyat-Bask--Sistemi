@@ -11,7 +11,7 @@ import threading
 from backend.ayarlar import (
     DATA_DIR, PRODUCTS_FILE, MANAV_PRODUCTS_FILE, CUSTOM_BARCODES_FILE,
     CASH_MOVEMENTS_FILE, CUSTOMERS_FILE, EXPENSES_FILE,
-    EMPLOYEES_FILE, CASHIERS_FILE, ROLES_FILE,
+    EMPLOYEES_FILE, ROLES_FILE,
     SETTINGS_FILE, MARKET_PROFILE_FILE, SCALE_SETTINGS_FILE,
     REPORTS_FILE, QUICK_BUTTONS_FILE, TEMPLATES_FILE, DRAFT_CACHE_FILE,
     SALES_DIR
@@ -32,7 +32,6 @@ _CONFIG_NAME_MAP = {
     "hizli_butonlar.json": "hizli_butonlar",
     "odeal_ayarlari.json": "odeal_ayarlari",
     "whatsapp_bot_queue.json": "whatsapp_bot_queue",
-    "tedarikci_eslesmeleri.json": "tedarikci_eslesmeleri",
 }
 
 def load_json(file_path: str, default=None):
@@ -124,16 +123,6 @@ def load_json(file_path: str, default=None):
                     return default
                 return [json.loads(r['raw_json']) for r in rows if r['raw_json']]
 
-        # 9. Kasiyerler
-        if fname == "kasiyerler.json":
-            with get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT raw_json FROM kasiyerler;")
-                rows = cursor.fetchall()
-                if not rows and default is not None:
-                    return default
-                return [json.loads(r['raw_json']) for r in rows if r['raw_json']]
-
         # 10. Roller
         if fname == "roller.json":
             with get_connection() as conn:
@@ -163,6 +152,16 @@ def load_json(file_path: str, default=None):
                 if row and row['raw_json']:
                     return json.loads(row['raw_json'])
                 return default if default is not None else {}
+
+        # 13. Günlük Satış Fişleri (örn: 2026-09-01.json)
+        if (fname.endswith(".json") and len(fname) == 15 and fname[:10].count("-") == 2) or "satis" in file_path.replace("\\", "/"):
+            date_key = fname.replace(".json", "")
+            if len(date_key) == 10 and date_key.count("-") == 2:
+                sales = get_sales_for_date(date_key)
+                if sales:
+                    return sales
+                return default if default is not None else []
+
 
     except Exception as e:
         print(f"[UYARI] SQLite load_json hatası ({file_path}): {e}")
@@ -213,9 +212,19 @@ def save_json(file_path: str, data) -> bool:
 
             with db_session() as conn:
                 cursor = conn.cursor()
-                cursor.execute("DELETE FROM urunler;")
+                # 1. Geçici aktif barkodlar tablosu oluştur ve doldur
+                cursor.execute("CREATE TEMP TABLE IF NOT EXISTS temp_active_barcodes (barcode TEXT PRIMARY KEY);")
+                cursor.execute("DELETE FROM temp_active_barcodes;")
+                
+                active_barcodes = [(row[0],) for row in urunler_rows]
+                cursor.executemany("INSERT OR IGNORE INTO temp_active_barcodes (barcode) VALUES (?);", active_barcodes)
+                
+                # 2. Artık listede olmayan eski ürünleri sil
+                cursor.execute("DELETE FROM urunler WHERE barcode NOT IN (SELECT barcode FROM temp_active_barcodes);")
+                
+                # 3. Kalan ve yeni ürünleri ekle/güncelle (INSERT OR REPLACE)
                 cursor.executemany("""
-                    INSERT INTO urunler (barcode, title, title1, title2, brand, price, price_num, buy_price, vat, stock, origin, unit, category, date, updated_at, raw_json)
+                    INSERT OR REPLACE INTO urunler (barcode, title, title1, title2, brand, price, price_num, buy_price, vat, stock, origin, unit, category, date, updated_at, raw_json)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, urunler_rows)
             return True
@@ -376,30 +385,6 @@ def save_json(file_path: str, data) -> bool:
                 """, c_rows)
             return True
 
-        # 9. Kasiyerler
-        if fname == "kasiyerler.json" and isinstance(data, list):
-            k_rows = []
-            for k in data:
-                kid = str(k.get("id") or "").strip()
-                if not kid:
-                    continue
-                name = str(k.get("name") or "").strip()
-                pin = str(k.get("pin") or "").strip()
-                role = str(k.get("role") or "").strip()
-                role_name = str(k.get("role_name") or "").strip()
-                active = 1 if k.get("active", True) else 0
-                raw_json = json.dumps(k, ensure_ascii=False)
-                k_rows.append((kid, name, pin, role, role_name, active, raw_json))
-
-            with db_session() as conn:
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM kasiyerler;")
-                cursor.executemany("""
-                    INSERT INTO kasiyerler (id, name, pin, role, role_name, active, raw_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, k_rows)
-            return True
-
         # 10. Roller
         if fname == "roller.json" and isinstance(data, list):
             r_rows = []
@@ -454,6 +439,13 @@ def save_json(file_path: str, data) -> bool:
                     ON CONFLICT(key) DO UPDATE SET raw_json = excluded.raw_json, updated_at = excluded.updated_at
                 """, (json.dumps(data, ensure_ascii=False),))
             return True
+
+        # 13. Günlük Satış Fişleri (örn: 2026-09-01.json)
+        if (fname.endswith(".json") and len(fname) == 15 and fname[:10].count("-") == 2) or "satis" in file_path.replace("\\", "/"):
+            date_key = fname.replace(".json", "")
+            if len(date_key) == 10 and date_key.count("-") == 2 and isinstance(data, list):
+                return save_sales_for_date(date_key, data)
+
 
     except Exception as e:
         print(f"[HATA] SQLite save_json hatası ({file_path}): {e}")

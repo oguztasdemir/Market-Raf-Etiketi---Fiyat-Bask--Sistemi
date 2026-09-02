@@ -16,7 +16,7 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from backend.ayarlar import (
-    DATA_DIR, URUNLER_DIR, SATIS_KASA_DIR, SALES_DIR, INVOICES_DIR,
+    DATA_DIR, URUNLER_DIR, SATIS_KASA_DIR, SALES_DIR,
     SISTEM_AYARLAR_DIR, SABLONLAR_DIR, BACKUPS_DIR
 )
 from backend.araclar.sqlite_servisi import (
@@ -50,7 +50,6 @@ def backup_existing_data():
         os.path.join(SISTEM_AYARLAR_DIR, "musteriler.json"),
         os.path.join(SISTEM_AYARLAR_DIR, "giderler.json"),
         os.path.join(SISTEM_AYARLAR_DIR, "calisanlar.json"),
-        os.path.join(SISTEM_AYARLAR_DIR, "kasiyerler.json"),
         os.path.join(SISTEM_AYARLAR_DIR, "roller.json"),
         os.path.join(SISTEM_AYARLAR_DIR, "ayarlar.json"),
         os.path.join(SISTEM_AYARLAR_DIR, "market_profili.json"),
@@ -345,28 +344,6 @@ def migrate_all():
                 """, (cid, name, role_id, role_name, pin, phone, active, raw_json))
             counts["calisanlar"] = len(c_list)
 
-        kasiyer_path = os.path.join(SISTEM_AYARLAR_DIR, "kasiyerler.json")
-        if os.path.exists(kasiyer_path):
-            with open(kasiyer_path, "r", encoding="utf-8") as f:
-                k_list = json.load(f)
-            for k in k_list:
-                kid = str(k.get("id") or "").strip()
-                if not kid:
-                    continue
-                name = str(k.get("name") or "").strip()
-                pin = str(k.get("pin") or "").strip()
-                role = str(k.get("role") or "").strip()
-                role_name = str(k.get("role_name") or "").strip()
-                active = 1 if k.get("active", True) else 0
-                raw_json = json.dumps(k, ensure_ascii=False)
-                cursor.execute("""
-                    INSERT INTO kasiyerler (id, name, pin, role, role_name, active, raw_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(id) DO UPDATE SET
-                        name = excluded.name, pin = excluded.pin, role = excluded.role,
-                        role_name = excluded.role_name, active = excluded.active, raw_json = excluded.raw_json
-                """, (kid, name, pin, role, role_name, active, raw_json))
-            counts["kasiyerler"] = len(k_list)
 
         roller_path = os.path.join(SISTEM_AYARLAR_DIR, "roller.json")
         if os.path.exists(roller_path):

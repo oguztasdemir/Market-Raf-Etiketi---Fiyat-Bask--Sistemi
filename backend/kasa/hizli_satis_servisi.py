@@ -13,12 +13,32 @@ _RECEIPT_SEQ_LOCK = threading.Lock()
 _RECEIPT_SEQ = int(time.time() * 1000) % 100000
 
 def get_next_receipt_no(now: datetime.datetime) -> str:
-    """Çoklu iş parçacıklarında çakışmayan, sıralı ve benzersiz fiş no üretir."""
-    global _RECEIPT_SEQ
+    """A000.000.001 formatında sıralı ve şık fiş seri numarası üretir (SQLite satislar tablosuyla tam senkron)."""
+    from backend.araclar.sqlite_servisi import get_connection
     with _RECEIPT_SEQ_LOCK:
-        _RECEIPT_SEQ += 1
-        seq_num = _RECEIPT_SEQ % 100000
-    return f"FIS-{now.strftime('%Y%m%d')}-{now.strftime('%H%M%S')}-{seq_num:05d}"
+        try:
+            with get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM satislar;")
+                row = cursor.fetchone()
+                db_count = row[0] if row else 0
+        except Exception:
+            db_count = 0
+
+        from backend.ayarlar import SETTINGS_FILE
+        settings = load_json(SETTINGS_FILE, {})
+        base_count = int(settings.get("lifetime_sales_count", 0))
+        current_seq = max(db_count, base_count) + 1
+        settings["lifetime_sales_count"] = current_seq
+        save_json(SETTINGS_FILE, settings)
+
+    limit = 999_999_999
+    c_val = max(1, current_seq)
+    letter_index = (c_val - 1) // limit
+    letter = chr(65 + (letter_index % 26))
+    num = ((c_val - 1) % limit) + 1
+    num_str = f"{num:09d}"
+    return f"{letter}{num_str[0:3]}.{num_str[3:6]}.{num_str[6:9]}"
 
 def parse_scale_barcode(barcode: str) -> dict:
     """
@@ -569,10 +589,10 @@ def process_pos_checkout(sale_data: dict) -> dict:
         from backend.araclar.depolama_araclari import _STORAGE_LOCK
         with _STORAGE_LOCK:
             products = load_json(PRODUCTS_FILE, [])
-            prod_dict = {str(p.get("barcode", "")).strip(): p for p in products if p.get("barcode")}
+            prod_dict = {clean_barcode(p.get("barcode", "")): p for p in products if p.get("barcode")}
             stock_updated = False
             for itm in items:
-                bc = str(itm.get("barcode", "")).strip()
+                bc = clean_barcode(itm.get("barcode", ""))
                 qty = float(itm.get("quantity", 1.0))
                 if bc in prod_dict:
                     current_stock = float(prod_dict[bc].get("stock", 100))
@@ -587,6 +607,7 @@ def process_pos_checkout(sale_data: dict) -> dict:
                 invalidate_product_cache()
     except Exception as e:
         print(f"[UYARI] Satış/İade sonrası stok güncelleme hatası: {e}")
+
 
     # Müşteri Veresiye / Cari Hesabına Otomatik İşleme
     if "veresiye" in payment_type.lower() or "cari" in payment_type.lower() or sale_data.get("customer_id"):
@@ -718,9 +739,17 @@ def edit_pos_receipt_details(receipt_no: str, new_payment_type: str, new_custome
                     with _STORAGE_LOCK:
                         customers = load_json(CUSTOMERS_FILE, [])
                         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        if "veresiye" in str(old_payment_type).lower() and "veresiye" not in str(new_payment_type).lower():
+                        
+                        is_old_veresiye = "veresiye" in str(old_payment_type).lower() or "cari" in str(old_payment_type).lower()
+                        is_new_veresiye = "veresiye" in str(new_payment_type).lower() or "cari" in str(new_payment_type).lower()
+
+                        old_target_cust_id = old_customer_id
+                        new_target_cust_id = new_customer_id or old_customer_id
+
+                        # 1. Eski müşteriden borç düş (Eğer eski fiş veresiye ise ve ya veresiye kapandı ya da müşteri değişti)
+                        if is_old_veresiye and (not is_new_veresiye or (new_customer_id and new_customer_id != old_customer_id)):
                             for c in customers:
-                                if c.get("id") == old_customer_id or c.get("name") == s.get("customer"):
+                                if c.get("id") == old_target_cust_id or c.get("name") == s.get("customer"):
                                     old_b = float(c.get("balance", 0.0))
                                     new_b = round(old_b - old_amount, 2)
                                     c["balance"] = new_b
@@ -735,14 +764,16 @@ def edit_pos_receipt_details(receipt_no: str, new_payment_type: str, new_custome
                                         "old_balance": round(old_b, 2),
                                         "new_balance": round(new_b, 2),
                                         "payment_method": new_payment_type or "Nakit",
-                                        "description": f"Fiş #{receipt_no} Veresiye'den {new_payment_type}'e çevrildi (Borç Düşümü)",
+                                        "description": f"Fiş #{receipt_no} düzenlendi (Borç Aktarımı/Düşümü)",
                                         "receipt_no": receipt_no,
                                         "actor": new_cashier or s.get("cashier", "Kasiyer")
                                     })
                                     break
-                        elif "veresiye" not in str(old_payment_type).lower() and "veresiye" in str(new_payment_type).lower():
+
+                        # 2. Yeni müşteriye borç ekle (Eğer yeni fiş veresiye ise ve ya yeni veresiye yapıldı ya da müşteri değişti)
+                        if is_new_veresiye and (not is_old_veresiye or (new_customer_id and new_customer_id != old_customer_id)):
                             for c in customers:
-                                if c.get("id") == new_customer_id or c.get("name") == (new_customer or s.get("customer")):
+                                if c.get("id") == new_target_cust_id or c.get("name") == (new_customer or s.get("customer")):
                                     old_b = float(c.get("balance", 0.0))
                                     new_b = round(old_b + old_amount, 2)
                                     c["balance"] = new_b
@@ -757,11 +788,12 @@ def edit_pos_receipt_details(receipt_no: str, new_payment_type: str, new_custome
                                         "old_balance": round(old_b, 2),
                                         "new_balance": round(new_b, 2),
                                         "payment_method": "Veresiye",
-                                        "description": f"Fiş #{receipt_no} Veresiye'ye çevrildi (Borç Ekleme)",
+                                        "description": f"Fiş #{receipt_no} düzenlendi (Borç Aktarımı/Ekleme)",
                                         "receipt_no": receipt_no,
                                         "actor": new_cashier or s.get("cashier", "Kasiyer")
                                     })
                                     break
+
                         save_json(CUSTOMERS_FILE, customers)
                 except Exception as ex:
                     print(f"Cari güncelleme uyarısı: {ex}")
@@ -771,8 +803,12 @@ def edit_pos_receipt_details(receipt_no: str, new_payment_type: str, new_custome
                 target_record = s
                 break
         if modified:
+            # Tarih bazlı kaydet (SQLite satislar tablosunu ve dosyayı günceller)
+            rec_date = s.get("date") or datetime.datetime.now().strftime("%Y-%m-%d")
+            save_sales_for_date(rec_date, sales)
             save_json(f_path, sales)
             break
+
 
     if found:
         return {"status": "success", "message": f"Fiş #{receipt_no} başarıyla güncellendi.", "receipt": target_record}
@@ -975,7 +1011,17 @@ def get_dashboard_summary() -> dict:
 
     active_c = get_active_cashier()
 
-    lifetime_sales = int(settings.get("lifetime_sales_count", 0)) + monthly_count
+    from backend.araclar.sqlite_servisi import get_connection
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM satislar;")
+            row = cursor.fetchone()
+            total_db_sales = row[0] if row else 0
+    except Exception:
+        total_db_sales = 0
+
+    lifetime_sales = max(total_db_sales, int(settings.get("lifetime_sales_count", 0)))
     
     # A000.000.001 Formatı (1 milyarda B'ye döner)
     limit = 999_999_999
@@ -1108,15 +1154,96 @@ def remove_quick_button(button_id: str) -> dict:
         "buttons": buttons
     }
 
+def get_barkodsuz_products() -> list:
+    """Kayıtlı barkodsuz ürünler listesini ve özel sırasını döner."""
+    from backend.ayarlar import BARKODSUZ_PRODUCTS_FILE, PRODUCTS_FILE
+    from backend.katalog.katalog_rotalari import get_indexed_products
+
+    saved_items = load_json(BARKODSUZ_PRODUCTS_FILE, None)
+    if saved_items and isinstance(saved_items, list) and len(saved_items) > 0:
+        # Kayıtlı listedeki ürünlerin güncel fiyatlarını katalogdan eşle
+        _, bc_map = get_indexed_products()
+        for itm in saved_items:
+            bc = str(itm.get("barcode") or "").strip()
+            if bc and bc in bc_map:
+                itm["price"] = parse_price_val(bc_map[bc].get("price", itm.get("price", 0.0)))
+                itm["price_str"] = format_price_display(itm["price"])
+                itm["unit"] = str(bc_map[bc].get("unit") or itm.get("unit", "Adet"))
+            elif "price_str" not in itm:
+                itm["price_str"] = format_price_display(itm.get("price", 0.0))
+        return saved_items
+
+    # İlk defa çalışıyorsa varsayılan ürünleri yükle ve kaydet
+    all_prods, bc_map = get_indexed_products()
+    def resolve_catalog_product(search_barcode, search_title_kw, fallback_title, fallback_price, fallback_unit="Adet"):
+        clean_bc = str(search_barcode).strip()
+        matched = None
+        if clean_bc and clean_bc in bc_map:
+            matched = bc_map[clean_bc]
+        else:
+            for p in all_prods:
+                p_bc = str(p.get("barcode") or "").strip()
+                p_title = str(p.get("title") or p.get("title1") or "").lower()
+                if clean_bc and p_bc.lower() == clean_bc.lower():
+                    matched = p
+                    break
+                if search_title_kw and search_title_kw.lower() in p_title:
+                    matched = p
+                    break
+        
+        if matched:
+            p_price = parse_price_val(matched.get("price", fallback_price))
+            p_unit = str(matched.get("unit") or fallback_unit)
+            p_title = str(matched.get("title") or matched.get("title1") or fallback_title)
+            p_code = str(matched.get("barcode") or clean_bc)
+            return {
+                "id": f"bs_{p_code}",
+                "title": fallback_title or p_title,
+                "price": p_price,
+                "price_str": format_price_display(p_price),
+                "unit": p_unit,
+                "barcode": p_code,
+                "is_scale_item": False
+            }
+        else:
+            return {
+                "id": f"bs_{clean_bc}",
+                "title": fallback_title,
+                "price": float(fallback_price),
+                "price_str": format_price_display(fallback_price),
+                "unit": fallback_unit,
+                "barcode": clean_bc,
+                "is_scale_item": False
+            }
+
+    default_items = [
+        resolve_catalog_product("BEBETO BURGER", "bebeto jelibon burger", "Bebeto Jelibon Burger", 10.0),
+        resolve_catalog_product("Beyaz Yumurta", "beyaz yumurta", "Beyaz Yumurta Adet", 4.50),
+        resolve_catalog_product("24000055", "futbol topu", "Futbol Topu", 150.0),
+        resolve_catalog_product("KARTON BARDAK", "karton bardak", "Karton Bardak", 2.0),
+        resolve_catalog_product("8681873050341", "çakmak tokai", "Çakmak Küçük Boy", 15.0),
+        resolve_catalog_product("5 TL", "özkaynak 10 lt", "Özkaynak 10Lt Su", 80.0),
+        resolve_catalog_product("ERİK-MUNZUR 5LT", "munzur 5 lt", "Erikli Munzur Su 5Lt", 70.0),
+        resolve_catalog_product("24000024", "su 5 litre", "Buzdağı Su 5Lt", 40.0),
+    ]
+    save_json(BARKODSUZ_PRODUCTS_FILE, default_items)
+    return default_items
+
+def save_barkodsuz_products(items: list) -> list:
+    """Barkodsuz ürünler sırasını ve listesini kaydeder."""
+    from backend.ayarlar import BARKODSUZ_PRODUCTS_FILE
+    save_json(BARKODSUZ_PRODUCTS_FILE, items)
+    return items
+
 def get_quick_category_products(category: str = "manav_adet") -> list:
     """
-    Seçili kategoriye göre (MANAV ADET, MANAV KG veya BARKODSUZ) alfabetik sıralı hızlı ürün listesi döner.
+    Seçili kategoriye göre (MANAV ADET veya BARKODSUZ) sıralı hızlı ürün listesi döner.
     """
     cat = str(category or "").strip().lower()
     
     # Türkçe karakter duyarlı alfabetik (A-Z) sıralama
     def tr_sort_key(item):
-        t = item["title"].lower()
+        t = item.get("title", "").lower()
         tr_map = str.maketrans("çğışöü", "cgisou")
         return t.translate(tr_map)
 
@@ -1144,7 +1271,7 @@ def get_quick_category_products(category: str = "manav_adet") -> list:
 
             price_val = parse_price_val(p.get("price", "0"))
             items.append({
-                "id": f"plu_{p.get('plu')}",
+                "id": f"plu_{p.get('plu') or p.get('barcode')}",
                 "plu": p.get("plu"),
                 "title": name,
                 "price": price_val,
@@ -1180,7 +1307,7 @@ def get_quick_category_products(category: str = "manav_adet") -> list:
 
             price_val = parse_price_val(p.get("price", "0"))
             items.append({
-                "id": f"plu_{p.get('plu')}",
+                "id": f"plu_{p.get('plu') or p.get('barcode')}",
                 "plu": p.get("plu"),
                 "title": name,
                 "price": price_val,
@@ -1193,17 +1320,8 @@ def get_quick_category_products(category: str = "manav_adet") -> list:
         return sorted(items, key=tr_sort_key)
     
     elif cat == "barkodsuz":
-        presets = [
-            {"id": "bs_5", "title": "Muhtelif 5 TL", "price": 5.0, "price_str": "5,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_10", "title": "Muhtelif 10 TL", "price": 10.0, "price_str": "10,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_15", "title": "Muhtelif 15 TL", "price": 15.0, "price_str": "15,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_20", "title": "Muhtelif 20 TL", "price": 20.0, "price_str": "20,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_25", "title": "Muhtelif 25 TL", "price": 25.0, "price_str": "25,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_50", "title": "Muhtelif 50 TL", "price": 50.0, "price_str": "50,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_100", "title": "Muhtelif 100 TL", "price": 100.0, "price_str": "100,00 TL", "unit": "Adet", "barcode": "BARKODSUZ", "is_scale_item": False},
-            {"id": "bs_poset", "title": "Market Poşeti", "price": 0.50, "price_str": "0,50 TL", "unit": "Adet", "barcode": "POSET", "is_scale_item": False}
-        ]
-        return presets
+        # Kullanıcının belirlediği sıralı barkodsuz ürün listesini döner
+        return get_barkodsuz_products()
     else:
         return []
 

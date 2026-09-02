@@ -1,42 +1,42 @@
 <!-- =========================================================
      MODAL: FİŞ İPTAL / SEPET SİLME ONAY MODALI (F3)
      ========================================================= -->
-<div id="modal-pos-clear-confirm" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(4, 8, 16, 0.85); backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center;">
-  <div style="background: #0f172a; border: 1.5px solid #ef4444; border-radius: 14px; width: 440px; max-width: 92%; overflow: hidden; box-shadow: 0 25px 60px rgba(239,68,68,0.25); padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; color: #f8fafc;">
+<div id="modal-pos-clear-confirm" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(4, 8, 16, 0.88); backdrop-filter: blur(10px); z-index: 99999999; align-items: center; justify-content: center;">
+  <div style="background: #0b1324; border: 1.5px solid #ef4444; border-radius: 16px; width: 540px; max-width: 94%; overflow: hidden; box-shadow: 0 25px 70px rgba(239,68,68,0.3); padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; color: #f8fafc; animation: fadeIn 0.15s ease;">
     
     <!-- Başlık & İkon -->
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.4); display: flex; align-items: center; justify-content: center; font-size: 26px;">
         🗑️
       </div>
       <div>
-        <h3 style="margin: 0; font-size: 16px; font-weight: 900; color: #f87171;">Satış Fişi İptal Edilsin mi?</h3>
-        <small style="color: #94a3b8; font-size: 11.5px;">Kasada açık olan alışveriş sepeti sıfırlanacaktır</small>
+        <h3 style="margin: 0; font-size: 17.5px; font-weight: 900; color: #f87171;">Satış Fişi İptal Edilsin mi?</h3>
+        <small style="color: #94a3b8; font-size: 12.5px;">Kasada açık olan alışveriş sepeti sıfırlanacaktır</small>
       </div>
     </div>
 
     <!-- Tutar & Kalem Özet Kutusu -->
-    <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: #070d1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">İPTAL EDİLECEK SEPET:</div>
-        <strong id="pos-clear-items-count-text" style="font-size: 13px; color: #cbd5e1;">0 Kalem Ürün</strong>
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 700;">İPTAL EDİLECEK SEPET:</div>
+        <strong id="pos-clear-items-count-text" style="font-size: 14.5px; color: #cbd5e1;">0 Kalem Ürün</strong>
       </div>
       <div style="text-align: right;">
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 700;">TOPLAM TUTAR:</div>
-        <strong id="pos-clear-total-amount-text" style="font-size: 18px; color: #ef4444; font-family: monospace; font-weight: 900;">0,00 TL</strong>
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 700;">TOPLAM TUTAR:</div>
+        <strong id="pos-clear-total-amount-text" style="font-size: 22px; color: #ef4444; font-family: monospace; font-weight: 900;">0,00 TL</strong>
       </div>
     </div>
 
-    <p style="color: #cbd5e1; font-size: 12.5px; margin: 0; line-height: 1.45;">
+    <p style="color: #cbd5e1; font-size: 13.5px; margin: 0; line-height: 1.6;">
       Mevcut satış fişini silmek ve sepeti tamamen temizlemek istediğinize emin misiniz? Bu işlem geri alınamaz.
     </p>
 
     <!-- Butonlar -->
-    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
-      <button type="button" onclick="closePosClearConfirmModal()" class="btn-secondary" style="padding: 9px 16px; font-size: 12.5px; font-weight: 700; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 8px; cursor: pointer;">
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px;">
+      <button type="button" onclick="closePosClearConfirmModal()" class="btn-secondary" style="padding: 10px 20px; font-size: 13.5px; font-weight: 700; background: #1e293b; border: 1px solid #475569; color: #cbd5e1; border-radius: 8px; cursor: pointer;">
         Vazgeç (Esc)
       </button>
-      <button type="button" id="btn-confirm-execute-clear" onclick="executeClearPosCart()" style="padding: 9px 20px; font-size: 12.5px; font-weight: 900; background: linear-gradient(135deg, #dc2626, #991b1b); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(220,38,38,0.4);">
+      <button type="button" id="btn-confirm-execute-clear" onclick="executeClearPosCart()" style="padding: 10px 24px; font-size: 13.5px; font-weight: 900; background: linear-gradient(135deg, #dc2626, #991b1b); color: #ffffff; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(220,38,38,0.4);">
         <span>🗑️ Evet, Fişi İptal Et (Enter)</span>
       </button>
     </div>

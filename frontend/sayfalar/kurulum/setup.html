@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OYMAPOS - Mağaza Kurulum ve Yapılandırma Sihirbazı</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #070d19 0%, #0f172a 100%);
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(56, 189, 248, 0.15);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --success: #10b981;
+      --accent: #6366f1;
+      --glow-color: rgba(56, 189, 248, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    .setup-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      width: 680px;
+      max-width: 100%;
+      padding: 36px 40px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.08);
+      backdrop-filter: blur(24px);
+      position: relative;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-badge {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+      background: linear-gradient(to right, #ffffff, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+
+    /* Mode Selection Tabs */
+    .mode-switcher {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      background: rgba(7, 13, 25, 0.5);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px 14px;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--card-bg);
+      color: #fff;
+      border: 1px solid var(--primary);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: rgba(7, 13, 25, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      transition: all 0.25s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+      outline: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .upload-zone {
+      border: 2px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      background: rgba(56, 189, 248, 0.02);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .upload-zone span {
+      font-size: 26px;
+    }
+
+    .upload-zone strong {
+      font-size: 13px;
+      color: var(--primary);
+    }
+
+    .upload-zone p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .file-badge {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--success);
+      font-weight: 700;
+      display: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 14.5px;
+      font-weight: 800;
+      font-family: inherit;
+      color: #070d19;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(14, 165, 233, 0.35);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+      box-shadow: 0 6px 24px rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Loader Overlay */
+    .loader-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(7, 13, 25, 0.95);
+      border-radius: 24px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 100;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(56, 189, 248, 0.15);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.9s infinite linear;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-overlay span {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+      max-width: 80%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="setup-container">
+    <!-- Loading Overlay -->
+    <div id="loader" class="loader-overlay">
+      <div class="spinner"></div>
+      <span id="loader-msg">Veritabanı ilklendiriliyor ve katalog yükleniyor...</span>
+    </div>
+
+    <!-- Header -->
+    <div class="header-logo">
+      <img src="/frontend/resimler/logo.png" alt="OYMAPOS Logo" class="logo-badge">
+      <h1>OYMAPOS Mağaza Kurulumu</h1>
+      <p class="subtitle">Sisteminizi yeni bir işletme için saniyeler içinde hazırlayın</p>
+    </div>
+
+    <!-- Mode Switcher Tabs -->
+    <div class="mode-switcher">
+      <button type="button" class="mode-btn active" id="tab-fresh" onclick="switchTab('fresh')">
+        <span>✨</span> Yeni Sıfır Kurulum
+      </button>
+      <button type="button" class="mode-btn" id="tab-restore" onclick="switchTab('restore')">
+        <span>📦</span> Yedekten Geri Yükle (.zip)
+      </button>
+    </div>
+
+    <!-- 1. FRESH SETUP FORM -->
+    <form id="setup-form" onsubmit="submitFreshForm(event)" enctype="multipart/form-data">
+      <div class="form-section">
+        
+        <!-- Market Adı -->
+        <div class="form-group">
+          <label for="market_name">Market / Ticari Ünvan *</label>
+          <input type="text" id="market_name" name="market_name" required placeholder="Örn: YARENLER SÜPERMARKET">
+        </div>
+
+        <!-- Şube ve Avans -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="branch_name">Şube / Kasa Tanımı</label>
+            <input type="text" id="branch_name" name="branch_name" value="Merkez Şube" placeholder="Merkez Şube">
+          </div>
+          <div class="form-group">
+            <label for="daily_cash_advance">Kasa Açılış Avansı (TL)</label>
+            <input type="number" id="daily_cash_advance" name="daily_cash_advance" value="500" min="0">
+          </div>
+        </div>
+
+        <!-- Telefon ve Vergi Bilgisi -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="phone">İletişim Telefonu</label>
+            <input type="text" id="phone" name="phone" placeholder="0555 000 00 00">
+          </div>
+          <div class="form-group">
+            <label>Vergi Bilgileri</label>
+            <div style="display: flex; gap: 6px;">
+              <input type="text" id="tax_office" name="tax_office" placeholder="V. Dairesi" style="width: 50%;">
+              <input type="text" id="tax_no" name="tax_no" placeholder="V. No" style="width: 50%;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Açık Adres -->
+        <div class="form-group">
+          <label for="address">Açık Adres</label>
+          <input type="text" id="address" name="address" placeholder="Atatürk Cad. Cumhuriyet Mah. No:12/A">
+        </div>
+
+        <!-- Donanım Seçenekleri: Fiş & Terazi -->
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="receipt_paper_width">Fiş Yazıcı Kağıt Genişliği</label>
+            <select id="receipt_paper_width" name="receipt_paper_width">
+              <option value="80mm" selected>📄 80 mm (Standart Geniş Fiş)</option>
+              <option value="58mm">📄 58 mm (Dar Fiş)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scale_model">Manav Terazi Modeli</label>
+            <select id="scale_model" name="scale_model">
+              <option value="DIGI_SM100" selected>⚖️ DIGI SM-100 / SM-500 (Ethernet)</option>
+              <option value="BIZERBA">⚖️ Bizerba BC-II (Ethernet)</option>
+              <option value="MANUAL">⚖️ Harici / Manuel Terazi</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fiş Notu -->
+        <div class="form-group">
+          <label for="receipt_footer_note">Fiş Altı Teşekkür Notu</label>
+          <input type="text" id="receipt_footer_note" name="receipt_footer_note" value="Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!">
+        </div>
+
+        <!-- Hazır Katalog Seçimi -->
+        <div class="form-group" style="background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 12px 14px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; text-transform: none; font-size: 13px; color: #f8fafc; font-weight: 700;">
+            <input type="checkbox" id="include_seed_catalog" name="include_seed_catalog" value="true" checked style="width: 18px; height: 18px; accent-color: #38bdf8; cursor: pointer;">
+            <span>📦 Hazır 4.500+ Market Barkod Kataloğunu Yükle (Önerilir)</span>
+          </label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-left: 28px; margin-top: 2px;">
+            İşareti kaldırırsanız sistem tamamen boş (0 ürünle) açılır, ürünleri kendiniz eklersiniz.
+          </p>
+        </div>
+
+        <!-- Excel Fiyat Aktarımı -->
+        <div class="form-group">
+          <label>Fiyat Transfer Dosyası (Opsiyonel)</label>
+          <div class="upload-zone" onclick="document.getElementById('price_excel').click()">
+            <span>📊</span>
+            <strong>Cortex_POS_Fiyat_Aktarim.xlsx</strong>
+            <p>Eski sisteminizden aldığınız Excel fiyat listesini aktarmak için tıklayın</p>
+            <input type="file" id="price_excel" name="price_excel" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelSelected(this)">
+            <div id="excel-file-name" class="file-badge"></div>
+          </div>
+        </div>
+
+
+        <button type="submit" class="btn-submit">
+          <span>🚀</span> Kurulumu Tamamla ve Sistemi Başlat
+        </button>
+
+      </div>
+    </form>
+
+    <!-- 2. RESTORE BACKUP FORM -->
+    <form id="restore-form" onsubmit="submitRestoreForm(event)" enctype="multipart/form-data" style="display: none;">
+      <div class="form-section">
+        <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 14px; font-size: 13px; color: #c7d2fe;">
+          💡 <strong>OYMAPOS Sistem Yedeği Geri Yükleme</strong><br>
+          Daha önce alınmış <code>gunluk_tam_yedek_*.zip</code> dosyanızı yükleyerek ürünleri, manav listesini, satış geçmişini ve mağaza ayarlarını tek adımda eksiksiz geri yükleyebilirsiniz.
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>OYMAPOS ZIP Yedek Dosyası *</label>
+          <div class="upload-zone" onclick="document.getElementById('backup_zip').click()" style="padding: 30px;">
+            <span>📦</span>
+            <strong style="color: #818cf8;">Yedek Arşiv Dosyasını Seçin (.zip)</strong>
+            <p>Bilgisayarınızdaki OYMAPOS yedek dosyasını buraya bırakın veya tıklayın</p>
+            <input type="file" id="backup_zip" name="backup_zip" accept=".zip" required style="display: none;" onchange="handleZipSelected(this)">
+            <div id="zip-file-name" class="file-badge"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #818cf8, #6366f1); color: #fff; box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);">
+          <span>📥</span> Yedeği Geri Yükle ve Sistemi Aç
+        </button>
+      </div>
+    </form>
+
+  </div>
+
+  <script>
+    function switchTab(mode) {
+      const freshTab = document.getElementById('tab-fresh');
+      const restoreTab = document.getElementById('tab-restore');
+      const freshForm = document.getElementById('setup-form');
+      const restoreForm = document.getElementById('restore-form');
+
+      if (mode === 'fresh') {
+        freshTab.classList.add('active');
+        restoreTab.classList.remove('active');
+        freshForm.style.display = 'block';
+        restoreForm.style.display = 'none';
+      } else {
+        restoreTab.classList.add('active');
+        freshTab.classList.remove('active');
+        freshForm.style.display = 'none';
+        restoreForm.style.display = 'block';
+      }
+    }
+
+    function handleExcelSelected(input) {
+      const el = document.getElementById('excel-file-name');
+      if (input.files && input.files.length > 0) {
+        el.textContent = "✓ Fiyat Dosyası: " + input.files[0].name;
+        el.style.display = "block";
+      } else {
+        el.style.display = "none";
+      }
+    }
+
+    function handleZipSelected(input) {
+      const el = document.getElementById('zip-file-name');
+      if (input.files && input.files.length > 0) {
+        el.textContent = "✓ Seçilen Yedek: " + input.files[0].name;
+        el.style.display = "block";
+      } else {
+        el.style.display = "none";
+      }
+    }
+
+    function submitFreshForm(event) {
+      event.preventDefault();
+      
+      const loader = document.getElementById('loader');
+      const loaderMsg = document.getElementById('loader-msg');
+      loader.style.display = "flex";
+      loaderMsg.textContent = "Veritabanı ilklendiriliyor ve katalog yükleniyor...";
+      
+      const formData = new FormData(document.getElementById('setup-form'));
+      
+      const fileInput = document.getElementById('price_excel');
+      if (fileInput.files && fileInput.files.length > 0) {
+        loaderMsg.textContent = "Excel fiyat dosyası okunuyor ve ürünler eşleştiriliyor...";
+      }
+      
+      fetch('/api/setup/execute', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'success') {
+          loaderMsg.textContent = "✓ Kurulum başarılı! Uygulamaya yönlendiriliyorsunuz...";
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1200);
+        } else {
+          loader.style.display = "none";
+          alert("Kurulum hatası: " + data.message);
+        }
+      })
+      .catch(err => {
+        loader.style.display = "none";
+        alert("Bağlantı hatası: " + err);
+      });
+    }
+
+    function submitRestoreForm(event) {
+      event.preventDefault();
+      
+      const loader = document.getElementById('loader');
+      const loaderMsg = document.getElementById('loader-msg');
+      loader.style.display = "flex";
+      loaderMsg.textContent = "Yedek arşivi açılıyor ve veritabanı geri yükleniyor...";
+      
+      const formData = new FormData(document.getElementById('restore-form'));
+      
+      fetch('/api/setup/restore_backup', {
+        method: 'POST',
+        body: formData
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'success') {
+          loaderMsg.textContent = "✓ Yedek başarıyla yüklendi! Uygulama başlatılıyor...";
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1200);
+        } else {
+          loader.style.display = "none";
+          alert("Yedek yükleme hatası: " + data.message);
+        }
+      })
+      .catch(err => {
+        loader.style.display = "none";
+        alert("Bağlantı hatası: " + err);
+      });
+    }
+  </script>
+</body>
+</html>

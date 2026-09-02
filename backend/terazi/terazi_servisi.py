@@ -32,15 +32,6 @@ DEFAULT_SCALE_SETTINGS = {
             "department": "Manav",
             "model": "DIGI SM-100",
             "is_active": True
-        },
-        {
-            "id": "scale_meat",
-            "name": "Kasap & Şarküteri Terazisi",
-            "ip": "192.168.1.62",
-            "port": 2061,
-            "department": "Kasap / Şarküteri",
-            "model": "DIGI SM-100",
-            "is_active": False
         }
     ]
 }
@@ -161,11 +152,17 @@ def fetch_prices_from_scale(ip=None) -> dict:
         }
 
     try:
+        f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
         # 1. Teraziden tüm hafızayı oku (RD 37) - Mutex korumalı
         with _SCALE_MUTEX:
+            if os.path.exists(f37_path):
+                try:
+                    os.remove(f37_path)
+                except Exception:
+                    pass
+
             res = subprocess.run([exe_path, "RD", "37", target_ip], cwd=tools_dir, capture_output=True, text=True, timeout=8)
             
-            f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
             if not os.path.exists(f37_path):
                 return {
                     "status": "error",
@@ -174,6 +171,7 @@ def fetch_prices_from_scale(ip=None) -> dict:
 
             with open(f37_path, "rb") as f:
                 raw = f.read().decode("ascii", errors="ignore")
+
 
         BLOCK_SIZE = 176
         total_blocks = len(raw) // BLOCK_SIZE
@@ -221,10 +219,19 @@ def fetch_prices_from_scale(ip=None) -> dict:
         # Tekilleştir ve sırala
         seen = set()
         unique_prods = []
-        for p in sorted(products, key=lambda x: x["plu"]):
-            if p["plu"] not in seen:
+        for p in sorted(products, key=lambda x: x.get("plu", 0)):
+            if p.get("plu") and p["plu"] not in seen:
                 seen.add(p["plu"])
                 unique_prods.append(p)
+
+        # Mevcut Adet / Demet ürünlerini teraziden gelen listeye dahil et (koru)
+        adet_items = [x for x in existing_list if (x.get('unit') or '').lower() in ('adet', 'demet', 'paket', 'pk')]
+        for a_it in adet_items:
+            if a_it.get("plu") and a_it["plu"] not in seen:
+                seen.add(a_it["plu"])
+                unique_prods.append(a_it)
+            elif not a_it.get("plu"):
+                unique_prods.append(a_it)
 
         if not unique_prods:
             return {
@@ -356,10 +363,19 @@ def stream_fetch_prices_from_scale(ip=None):
         # Tekilleştir ve sırala
         seen = set()
         unique_prods = []
-        for p in sorted(products, key=lambda x: x["plu"]):
-            if p["plu"] not in seen:
+        for p in sorted(products, key=lambda x: x.get("plu", 0)):
+            if p.get("plu") and p["plu"] not in seen:
                 seen.add(p["plu"])
                 unique_prods.append(p)
+
+        # Mevcut Adet / Demet ürünlerini teraziden gelen listeye dahil et (koru)
+        adet_items = [x for x in existing_list if (x.get('unit') or '').lower() in ('adet', 'demet', 'paket', 'pk')]
+        for a_it in adet_items:
+            if a_it.get("plu") and a_it["plu"] not in seen:
+                seen.add(a_it["plu"])
+                unique_prods.append(a_it)
+            elif not a_it.get("plu"):
+                unique_prods.append(a_it)
 
         total = len(unique_prods)
         if total == 0:

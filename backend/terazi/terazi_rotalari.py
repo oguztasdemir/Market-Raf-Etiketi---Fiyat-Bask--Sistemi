@@ -94,19 +94,70 @@ def update_settings_endpoint():
 
 @scale_bp.route('/api/scale/products', methods=['GET'])
 def get_products():
-    """Tüm manav ürünlerini PLU sırasına göre döner."""
-    products = get_manav_products()
-    diff_count = sum(1 for p in products if p.get('sync_status') == 'diff' or p.get('price') != p.get('scale_price'))
+    """Tüm manav ürünlerini (1-400 arası Tartılı PLU slotları + Adet/Demet barkodlu ürünler) döner."""
+    import json
+    db_products = get_manav_products()
+    products_map = {}
+    adet_products = []
+
+    for p in db_products:
+        unit_val = (p.get("unit") or "").lower()
+        is_adet = unit_val in ('adet', 'demet', 'paket', 'pk')
+        if is_adet:
+            adet_products.append(p)
+        else:
+            try:
+                plu_val = int(p.get("plu", 0))
+                if plu_val > 0:
+                    products_map[plu_val] = p
+            except:
+                pass
+            
+    all_slots = []
+    # 1. 1-400 arası Tartılı (Kg) PLU slotları
+    for plu in range(1, 401):
+        if plu in products_map:
+            all_slots.append(products_map[plu])
+        else:
+            empty_item = {
+                "plu": plu,
+                "barcode": "",
+                "title": "",
+                "name": "",
+                "price": "",
+                "scale_price": "",
+                "unit": "Kg",
+                "origin": "TÜRKİYE",
+                "sync_status": "synced",
+                "raw_json": json.dumps({
+                    "plu": plu,
+                    "barcode": "",
+                    "title": "",
+                    "name": "",
+                    "price": "",
+                    "scale_price": "",
+                    "unit": "Kg",
+                    "origin": "TÜRKİYE",
+                    "sync_status": "synced"
+                }, ensure_ascii=False)
+            }
+            all_slots.append(empty_item)
+
+    # 2. Adet / Demet ürünleri (PLU'suz, barkodlu ürünler)
+    for a_p in adet_products:
+        all_slots.append(a_p)
+            
+    diff_count = sum(1 for p in db_products if p.get('unit', 'Kg').lower() not in ('adet', 'demet', 'paket', 'pk') and (p.get('sync_status') == 'diff' or p.get('price') != p.get('scale_price')))
     return jsonify({
         "status": "success",
-        "products": products,
-        "total": len(products),
+        "products": all_slots,
+        "total": len(all_slots),
         "diff_count": diff_count
     })
 
 @scale_bp.route('/api/scale/products', methods=['POST'])
 def save_product():
-    """Yeni manav ürünü ekler veya mevcut PLU'yu günceller."""
+    """Yeni manav ürünü ekler veya mevcut PLU/Barkod'u günceller."""
     data = request.get_json(silent=True) or {}
     plu = data.get('plu')
     title = data.get('title', '').strip().upper()
@@ -119,16 +170,34 @@ def save_product():
     except Exception:
         kdv = 1
 
-    if not plu or not title or not price:
-        return jsonify({"status": "error", "message": "PLU Numarası, Ürün Adı ve Fiyat zorunludur."}), 400
+    is_adet = unit.lower() in ('adet', 'demet', 'paket', 'pk')
 
-    try:
-        plu_int = int(plu)
-    except:
-        return jsonify({"status": "error", "message": "Geçersiz PLU numarası."}), 400
+    if not title or not price:
+        return jsonify({"status": "error", "message": "Ürün Adı ve Fiyat zorunludur."}), 400
+
+    plu_int = None
+    if plu is not None and str(plu).strip() != "":
+        try:
+            plu_int = int(plu)
+        except:
+            if not is_adet:
+                return jsonify({"status": "error", "message": "Geçersiz PLU numarası."}), 400
+
+    if not is_adet and (plu_int is None or plu_int <= 0):
+        return jsonify({"status": "error", "message": "Tartılı (Kg) ürünler için geçerli bir PLU Numarası zorunludur."}), 400
 
     if not barcode:
-        barcode = f"27{plu_int:05d}"
+        if is_adet:
+            # Adet ürünü için otomatik EAN-13 veya 270 serisi üret
+            products = get_manav_products()
+            used_bc = {p.get("barcode") for p in products if p.get("barcode")}
+            for seq in range(1001, 9999):
+                cand_bc = f"270{seq:04d}"
+                if cand_bc not in used_bc:
+                    barcode = cand_bc
+                    break
+        elif plu_int:
+            barcode = f"27{plu_int:05d}"
 
     if not ("TL" in price or "₺" in price):
         price = f"{price} TL"
@@ -136,7 +205,16 @@ def save_product():
     products = get_manav_products()
     found = False
     for p in products:
-        if int(p.get("plu", 0)) == plu_int:
+        # Eşleşme kriteri: Adet ürünlerinde barkod veya PLU, Tartılıda PLU veya Barkod
+        matched = False
+        if is_adet and barcode and p.get("barcode") == barcode:
+            matched = True
+        elif plu_int and p.get("plu") and int(p.get("plu", 0)) == plu_int:
+            matched = True
+        elif barcode and p.get("barcode") == barcode:
+            matched = True
+
+        if matched:
             p["title"] = title
             p["price"] = price
             p["unit"] = unit
@@ -144,14 +222,20 @@ def save_product():
             p["barcode"] = barcode
             p["kdv"] = kdv
             p["vat_rate"] = kdv
-            if p.get("price") != p.get("scale_price"):
+            if plu_int and not is_adet:
+                p["plu"] = plu_int
+            elif is_adet:
+                p["plu"] = None
+                p["scale_price"] = "-"
+                p["sync_status"] = "synced"
+            if not is_adet and p.get("price") != p.get("scale_price"):
                 p["sync_status"] = "diff"
             found = True
             break
 
     if not found:
         products.append({
-            "plu": plu_int,
+            "plu": None if is_adet else plu_int,
             "barcode": barcode,
             "title": title,
             "price": price,
@@ -160,28 +244,35 @@ def save_product():
             "kdv": kdv,
             "vat_rate": kdv,
             "scale_price": "-",
-            "sync_status": "diff"
+            "sync_status": "synced" if is_adet else "diff"
         })
 
     save_all_manav_products(products)
     return jsonify({
         "status": "success",
-        "message": f"PLU {plu_int} ({title}) başarıyla kaydedildi.",
+        "message": f"'{title}' başarıyla kaydedildi.",
         "products": get_manav_products()
     })
 
-@scale_bp.route('/api/scale/products/<int:plu>', methods=['DELETE'])
-def delete_product(plu):
-    """PLU ürününü listeden siler."""
+@scale_bp.route('/api/scale/products/<plu_or_barcode>', methods=['DELETE'])
+def delete_product(plu_or_barcode):
+    """PLU veya Barkod ile ürünü listeden siler."""
     products = get_manav_products()
-    new_list = [p for p in products if int(p.get("plu", 0)) != plu]
+    new_list = []
+    for p in products:
+        p_plu = str(p.get("plu", ""))
+        p_bc = str(p.get("barcode", ""))
+        if p_plu == str(plu_or_barcode) or p_bc == str(plu_or_barcode):
+            continue
+        new_list.append(p)
+
     if len(new_list) == len(products):
-        return jsonify({"status": "error", "message": f"PLU {plu} bulunamadı."}), 404
+        return jsonify({"status": "error", "message": f"Ürün ({plu_or_barcode}) bulunamadı."}), 404
 
     save_all_manav_products(new_list)
     return jsonify({
         "status": "success",
-        "message": f"PLU {plu} başarıyla silindi.",
+        "message": f"Ürün ({plu_or_barcode}) başarıyla silindi.",
         "products": get_manav_products()
     })
 

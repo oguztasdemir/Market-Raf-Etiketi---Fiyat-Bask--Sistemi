@@ -122,6 +122,8 @@ def api_create_or_update_product():
     """Yeni ürün ekler veya mevcut ürünü günceller."""
     req_data = request.json or {}
     barcode = clean_barcode(req_data.get("barcode"))
+    old_barcode = clean_barcode(req_data.get("old_barcode"))
+    
     title = clean_product_title(req_data.get("title") or req_data.get("title1") or "")
     title2 = str(req_data.get("title2") or "").strip()
     brand = (req_data.get("brand") or "YARENLER").strip().upper()
@@ -151,6 +153,10 @@ def api_create_or_update_product():
         return jsonify({"status": "error", "message": "Barkod ve Ürün Adı zorunludur."}), 400
 
     products = load_json(PRODUCTS_FILE, [])
+    
+    # Barkod değiştiyse eski barkodu silerek kaydet (çift kayıt oluşmasın)
+    if old_barcode and old_barcode != barcode:
+        products = [p for p in products if clean_barcode(p.get("barcode")) != old_barcode]
     found = False
     now_datetime = get_online_or_system_datetime()
 
@@ -520,10 +526,13 @@ def api_catalog_batch_label_exempt():
 
 @catalog_bp.route("/api/catalog/batch-special-category", methods=["POST"])
 def api_catalog_batch_special_category():
-    """Seçilen ürünlerin Özel Kategori durumunu (is_special) topluca günceller."""
+    """Seçilen ürünlerin Özel Kategori durumunu (is_special) ve özel barkod alanını günceller."""
     req_data = request.json or {}
     barcodes = req_data.get("barcodes", [])
     is_special = req_data.get("is_special", None) # True, False or None (toggle)
+    category = req_data.get("category", "")
+    custom_bc = req_data.get("custom_barcode", None)
+    custom_bc_name = req_data.get("custom_barcode_name", None)
 
     if not barcodes:
         return jsonify({"status": "error", "message": "Barkod listesi boş."}), 400
@@ -540,6 +549,14 @@ def api_catalog_batch_special_category():
             target_special = not prod_map[bc].get("is_special", False) if is_special is None else bool(is_special)
             prod_map[bc]["is_special"] = target_special
             prod_map[bc]["special_category"] = target_special
+            if target_special:
+                if custom_bc:
+                    prod_map[bc]["custom_barcode"] = custom_bc
+                if custom_bc_name:
+                    prod_map[bc]["custom_barcode_name"] = custom_bc_name
+            else:
+                prod_map[bc]["custom_barcode"] = None
+                prod_map[bc]["custom_barcode_name"] = None
             prod_map[bc]["updated_at"] = now_datetime
             updated_count += 1
 
@@ -1257,6 +1274,102 @@ def api_generate_supplier_order_sheet():
         "total_suppliers": len(supplier_groups),
         "suppliers": list(supplier_groups.values())
     })
+
+
+@catalog_bp.route("/api/setup/export_prices", methods=["GET"])
+@catalog_bp.route("/api/katalog/export_excel", methods=["GET"])
+def api_setup_export_prices():
+    """Mevcut veritabanındaki tüm Market ve Manav ürünlerini Excel formatında indirmeyi sağlar."""
+    from backend.araclar.setup_servisi import export_prices_to_excel
+    from flask import send_file
+    try:
+        excel_io = export_prices_to_excel()
+        return send_file(
+            excel_io,
+            as_attachment=True,
+            download_name="OYMAPOS_Urun_ve_Fiyat_Katalogu.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Excel dışa aktarma hatası: {str(e)}"}), 500
+
+
+@catalog_bp.route("/api/setup/execute", methods=["POST"])
+def api_setup_execute():
+    """Kurulum formunu ve opsiyonel Excel fiyat dosyasını işleyip kurulumu tamamlar."""
+    from backend.araclar.setup_servisi import execute_setup
+    
+    market_name = request.form.get("market_name", "").strip()
+    branch_name = request.form.get("branch_name", "Merkez Şube").strip()
+    phone = request.form.get("phone", "").strip()
+    address = request.form.get("address", "").strip()
+    tax_office = request.form.get("tax_office", "").strip()
+    tax_no = request.form.get("tax_no", "").strip()
+    paper_width = request.form.get("receipt_paper_width", "80mm").strip()
+    cash_advance = request.form.get("daily_cash_advance", "500.0").strip()
+    footer_note = request.form.get("receipt_footer_note", "Bizi tercih ettiğiniz için teşekkür ederiz. İyi günler dileriz!").strip()
+    scale_model = request.form.get("scale_model", "DIGI_SM100").strip()
+    scale_ip = request.form.get("scale_ip", "192.168.1.61").strip()
+    include_seed = request.form.get("include_seed_catalog", "true").lower() in ("true", "1", "on", "yes")
+    
+    if not market_name:
+        return jsonify({"status": "error", "message": "Lütfen market / ticari ünvan adını giriniz."}), 400
+        
+    market_info = {
+        "market_name": market_name,
+        "branch_name": branch_name,
+        "phone": phone,
+        "address": address,
+        "tax_office": tax_office,
+        "tax_no": tax_no,
+        "receipt_paper_width": paper_width,
+        "daily_cash_advance": cash_advance,
+        "receipt_footer_note": footer_note,
+        "scale_model": scale_model,
+        "scale_ip": scale_ip,
+        "include_seed_catalog": include_seed
+    }
+
+    
+    excel_file = request.files.get("price_excel")
+    excel_bytes = None
+    if excel_file and excel_file.filename:
+        try:
+            excel_bytes = excel_file.read()
+        except Exception as e:
+            return jsonify({"status": "error", "message": f"Dosya okuma hatası: {str(e)}"}), 400
+            
+    success, msg = execute_setup(market_info, excel_bytes)
+    if success:
+        return jsonify({"status": "success", "message": msg})
+    else:
+        return jsonify({"status": "error", "message": msg}), 500
+
+
+@catalog_bp.route("/api/setup/restore_backup", methods=["POST"])
+def api_setup_restore_backup():
+    """ZIP formatındaki OYMAPOS yedeğini yükleyerek sistemi geri yükler ve kurulumu tamamlar."""
+    from backend.araclar.setup_servisi import restore_from_backup_zip
+    
+    backup_file = request.files.get("backup_zip")
+    if not backup_file or not backup_file.filename:
+        return jsonify({"status": "error", "message": "Lütfen geçerli bir .zip yedek dosyası seçiniz."}), 400
+        
+    try:
+        zip_bytes = backup_file.read()
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Dosya okuma hatası: {str(e)}"}), 400
+        
+    success, msg = restore_from_backup_zip(zip_bytes)
+    if success:
+        return jsonify({"status": "success", "message": msg})
+    else:
+        return jsonify({"status": "error", "message": msg}), 500
+
+
+
+
+
 
 
 

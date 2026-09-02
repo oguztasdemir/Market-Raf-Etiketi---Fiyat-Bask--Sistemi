@@ -191,23 +191,6 @@ def init_db():
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_giderler_date ON giderler(date);")
 
-        # 9. Faturalar & Alış Faturaları
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS faturalar (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            invoice_no TEXT,
-            company_name TEXT,
-            invoice_date TEXT,
-            total_amount REAL DEFAULT 0.0,
-            vat_amount REAL DEFAULT 0.0,
-            status TEXT,
-            file_path TEXT,
-            raw_json TEXT
-        );
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_faturalar_no ON faturalar(invoice_no);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_faturalar_comp ON faturalar(company_name);")
-
         # 10. Çalışanlar, Kasiyerler ve Roller
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS calisanlar (
@@ -234,17 +217,7 @@ def init_db():
         );
         """)
 
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS kasiyerler (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            pin TEXT,
-            role TEXT,
-            role_name TEXT,
-            active INTEGER DEFAULT 1,
-            raw_json TEXT
-        );
-        """)
+        # 10. Roller
 
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS roller (

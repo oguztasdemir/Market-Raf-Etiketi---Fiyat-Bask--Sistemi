@@ -9,14 +9,17 @@
       </div>
 
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="display: grid; grid-template-columns: 100px 1fr; gap: 10px;">
-          <div class="form-group">
-            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">PLU Tuş No</label>
-            <input type="number" id="inp-manav-plu" value="1" min="1" max="9999" style="font-size: 16px; font-weight: 900; color: #38bdf8; text-align: center;">
+        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+          <div class="form-group" id="group-manav-plu">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);" id="lbl-manav-plu">PLU Tuş No</label>
+            <input type="number" id="inp-manav-plu" value="1" min="1" max="9999" placeholder="PLU" style="font-size: 16px; font-weight: 900; color: #38bdf8; text-align: center;">
           </div>
           <div class="form-group">
-            <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Barkod Numarası</label>
-            <input type="text" id="inp-manav-barcode" placeholder="Örn: 2700001" style="font-family: monospace; font-weight: 700;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Barkod Numarası</label>
+              <button type="button" onclick="generateBarcodeForManavModal()" style="background: transparent; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; text-decoration: underline; font-weight: 700;">⚡ Otomatik Üret</button>
+            </div>
+            <input type="text" id="inp-manav-barcode" placeholder="Örn: 2701001 veya 869..." style="font-family: monospace; font-weight: 700;">
           </div>
         </div>
 
@@ -32,7 +35,7 @@
           </div>
           <div class="form-group">
             <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Birim</label>
-            <select id="inp-manav-unit" class="custom-select" style="font-weight: 700;">
+            <select id="inp-manav-unit" class="custom-select" onchange="onManavUnitChange()" style="font-weight: 700;">
               <option value="Kg" selected>Kg</option>
               <option value="Adet">Adet</option>
               <option value="Demet">Demet</option>
@@ -52,9 +55,14 @@
       </div>
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-        <button type="button" id="btn-manav-open-full-detail" class="btn-secondary" onclick="openFullCatalogDetailFromManavModal()" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); font-size: 11.5px; padding: 6px 12px; font-weight: 700;">
-          🔍 Tüm Ürün Detayını Aç
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" id="btn-manav-delete" class="btn-secondary" onclick="deleteManavProductFromModal()" style="background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.3); color: #ef4444; font-size: 11.5px; padding: 6px 12px; font-weight: 700; display: none;">
+            🗑️ Ürünü Sil
+          </button>
+          <button type="button" id="btn-manav-open-full-detail" class="btn-secondary" onclick="openFullCatalogDetailFromManavModal()" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); font-size: 11.5px; padding: 6px 12px; font-weight: 700;">
+            🔍 Tüm Ürün Detayını Aç
+          </button>
+        </div>
         <div style="display: flex; gap: 8px;">
           <button type="button" class="btn-secondary" onclick="closeManavModal()">İptal</button>
           <button type="button" class="btn-primary" onclick="submitManavProductModal()" style="font-weight: 800;">💾 Kaydet</button>

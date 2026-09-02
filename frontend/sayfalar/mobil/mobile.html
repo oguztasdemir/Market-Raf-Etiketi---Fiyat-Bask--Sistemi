@@ -30,12 +30,8 @@
   {% include 'mobil/bilesenler/mobil_nav.html' %}
 
   <!-- 3. MOBİL SEKME İÇERİKLERİ -->
-  {% include 'mobil/sekmeler/hub_sekmesi.html' %}
-  {% include 'mobil/sekmeler/fatura_sekmesi.html' %}
   {% include 'mobil/sekmeler/tarayici_sekmesi.html' %}
-  {% include 'mobil/sekmeler/kasa_sekmesi.html' %}
   {% include 'mobil/sekmeler/kuyruk_sekmesi.html' %}
-  {% include 'mobil/sekmeler/sayim_sekmesi.html' %}
 
   <!-- 4. SÖK-ÇIKAR MOBİL MODAL PENCERELERİ -->
   {% include 'mobil/modallar/mobil_giris_ekrani.html' %}
@@ -44,7 +40,15 @@
   {% include 'mobil/modallar/yazdirma_dogrulama_modali.html' %}
   {% include 'mobil/modallar/hizli_urun_modali.html' %}
 
-  <!-- 5. MODÜLER MOBİL JAVASCRIPT MOTORU -->
+  <!-- 5. MODÜLER MOBİL JAVASCRIPT MOTORLARI -->
+  <script src="/frontend/js/mobil/mobil_core.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_kamera.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_fiyat_gor.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_pos.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_kuyruk.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_hizli_urun.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_yetki.js?v={{ cache_bust }}"></script>
+  <script src="/frontend/js/mobil/mobil_sayim.js?v={{ cache_bust }}"></script>
   <script src="/frontend/js/mobil/mobile_app.js?v={{ cache_bust }}"></script>
 </body>
 </html>

@@ -1,0 +1,50 @@
+<!-- =========================================================
+     MODAL: BARKODSUZ ÜRÜNLER SIRALAMA & YÖNETİM MODALI
+     ========================================================= -->
+<div id="modal-barkodsuz-manager" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.88); backdrop-filter: blur(8px); z-index: 99999999; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1.5px solid rgba(168,85,247,0.4); border-radius: 16px; width: 620px; max-width: 96%; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.85); padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 14px; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px; background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.35); border-radius: 8px; padding: 4px 8px;">📑</span>
+        <div>
+          <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #f8fafc;">
+            Barkodsuz Ürünleri Sırala & Düzenle
+          </h3>
+          <small style="color: #94a3b8; font-size: 12px;">Ürünlerin sırasını yukarı/aşağı butonlarıyla ayarlayabilir, yeni ürün ekleyebilirsiniz.</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeBarkodsuzManagerModal()" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #94a3b8; font-size: 16px; cursor: pointer; padding: 4px 10px; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Hızlı Yeni Ürün Ekleme Çubuğu -->
+    <div style="background: #070d1e; border: 1px dashed rgba(168,85,247,0.4); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; flex-shrink: 0;">
+      <div style="font-size: 11.5px; font-weight: 700; color: #d8b4fe; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+        <span>➕</span> <span>Listeye Yeni Barkodsuz Ürün Ekle</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 8px; align-items: center;">
+        <input type="text" id="inp-bs-new-title" placeholder="Ürün Adı (Örn: Çakmak, Poşet)" style="padding: 7px 10px; background: #0f172a; border: 1.5px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12px; outline: none;">
+        <input type="number" id="inp-bs-new-price" step="0.5" placeholder="Fiyat (TL)" style="padding: 7px 10px; background: #0f172a; border: 1.5px solid #334155; border-radius: 6px; color: #10b981; font-weight: 800; font-size: 12px; outline: none;">
+        <button type="button" onclick="submitAddNewBarkodsuzItem()" style="padding: 7px 14px; font-size: 12px; font-weight: 800; background: #a855f7; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap;">
+          ➕ Ekle
+        </button>
+      </div>
+    </div>
+
+    <!-- Kayıtlı Ürünler Sıralama Listesi -->
+    <div id="barkodsuz-items-sort-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; margin-bottom: 14px;">
+      <!-- JS dinamik dolduracak -->
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; flex-shrink: 0;">
+      <small style="color: #64748b; font-size: 11px;">💡 Her sayfada 10 ürün gösterilir. 10'dan fazla ürün otomatik olarak 2. ve sonraki sayfalara aktarılır.</small>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" onclick="closeBarkodsuzManagerModal()" style="padding: 7px 14px; font-size: 12px; font-weight: 700; background: #1e293b; border: 1px solid #475569; color: #cbd5e1; border-radius: 6px; cursor: pointer;">Kapat</button>
+        <button type="button" onclick="saveBarkodsuzOrderChanges()" style="padding: 7px 18px; font-size: 12px; font-weight: 800; background: #10b981; border: none; color: #000; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">💾 Sıralamayı Kaydet</button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -5,97 +5,25 @@
   <div class="market-container" style="display: flex; flex-direction: column; gap: 16px; max-width: 1400px; margin: 0 auto; box-sizing: border-box;">
     
     <!-- Üst Başlık & Hızlı Butonlar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #0b1329; border: 1.5px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 12px 18px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 14px 20px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 26px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; padding: 4px 8px;">🏢</span>
+        <span style="font-size: 22px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 10px;">🏢</span>
         <div>
-          <h2 style="margin: 0; font-size: 17px; font-weight: 800; color: #f8fafc;">Market Profili, Çalışanlar & Çalışma Alanları</h2>
-          <small style="color: #94a3b8; font-size: 12px;">Şube bilgileri, personel kadrosu, kasap/manav reyonları ve dinamik yetki matrisi</small>
+          <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Market Profili & Çalışanlar</h2>
+          <small style="color: var(--text-muted); font-size: 11.5px;">Şube bilgileri, personel kadrosu ve çalışma alanları</small>
         </div>
       </div>
       <div id="mkt-header-action-btns" style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" id="btn-mkt-add-role" class="btn-primary" onclick="openAddRoleModal()" style="background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; color: #ffffff; padding: 7px 14px; font-weight: 800; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          <span>➕</span>
-          <span>Yeni Çalışma Alanı</span>
-        </button>
-        <button type="button" id="btn-mkt-add-employee" class="btn-primary" onclick="openAddEmployeeModal()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #ffffff; padding: 7px 14px; font-weight: 800; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <button type="button" id="btn-mkt-add-employee" class="btn-primary" onclick="openAddEmployeeModal()" style="background: #3b82f6; border: none; color: #ffffff; padding: 8px 16px; font-weight: 600; font-size: 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
           <span>👤</span>
           <span>Yeni Çalışan Ekle</span>
         </button>
       </div>
     </div>
 
-    <!-- 🏪 İşletme Çalışma & Personel Yetki Modu Seçim Kartı -->
-    <div class="card" style="background: linear-gradient(135deg, #090e1a, #0f172a); border: 1.5px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px;">
-            ⚙️
-          </div>
-          <div>
-            <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
-              İşletme Çalışma & Personel Yetki Modu
-              <span id="mkt-current-mode-badge" style="font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 800; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4);">🏪 Tek Kişilik Bakkal (Aktif)</span>
-            </h4>
-            <small style="color: #94a3b8; font-size: 11.5px;">Marketin büyüklüğüne ve çalışan sayısına göre yetki ve şifre sistemini tek tıkla yapılandırın</small>
-          </div>
-        </div>
-      </div>
 
-      <!-- 3 Mod Seçim Kartı -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
-        
-        <!-- Mod 1: SOLO (Bakkal) -->
-        <div id="card-mode-solo" onclick="setMarketOperatingMode('SOLO')" style="cursor: pointer; background: rgba(15,23,42,0.9); border: 2px solid #10b981; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 13px; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 6px;">
-              <span>🏪</span> Tek Kişilik Bakkal
-            </span>
-            <span id="radio-mode-solo" style="width: 16px; height: 16px; border-radius: 50%; background: #10b981; border: 3px solid #0f172a; display: inline-block;"></span>
-          </div>
-          <p style="margin: 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.4;">
-            <strong>Çalışan yok / 1 kişi yönetiyor.</strong> PIN, şifre veya yetki kısıtlaması olmadan tüm ekranlar doğrudan tam yetkiyle açılır.
-          </p>
-        </div>
 
-        <!-- Mod 2: FULL_TRUST (Güven Modu) -->
-        <div id="card-mode-full-trust" onclick="setMarketOperatingMode('FULL_TRUST')" style="cursor: pointer; background: rgba(15,23,42,0.6); border: 1.5px solid #334155; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 13px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
-              <span>🤝</span> Tüm Çalışanlar Tam Yetkili
-            </span>
-            <span id="radio-mode-full-trust" style="width: 16px; height: 16px; border-radius: 50%; background: transparent; border: 2px solid #64748b; display: inline-block;"></span>
-          </div>
-          <p style="margin: 0; font-size: 11.5px; color: #94a3b8; line-height: 1.4;">
-            <strong>Birden fazla personel var ancak hepsi yetkili.</strong> Personel seçimi yapılabilir ama PIN veya yetki engeli çıkarılmaz.
-          </p>
-        </div>
 
-        <!-- Mod 3: STRICT_RBAC (Rol Bazlı) -->
-        <div id="card-mode-strict-rbac" onclick="setMarketOperatingMode('STRICT_RBAC')" style="cursor: pointer; background: rgba(15,23,42,0.6); border: 1.5px solid #334155; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 13px; font-weight: 800; color: #c084fc; display: flex; align-items: center; gap: 6px;">
-              <span>🔒</span> Çok Çalışanlı / Rol Bazlı
-            </span>
-            <span id="radio-mode-strict-rbac" style="width: 16px; height: 16px; border-radius: 50%; background: transparent; border: 2px solid #64748b; display: inline-block;"></span>
-          </div>
-          <p style="margin: 0; font-size: 11.5px; color: #94a3b8; line-height: 1.4;">
-            <strong>Gelişmiş personel yetkilendirme.</strong> Kasiyer, Kasap, Manav vb. PIN şifresiyle girer ve sadece izinli alanlara erişebilir.
-          </p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- 2 Ana Alt Sekme Navigasyonu -->
-    <div style="display: flex; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-      <button type="button" id="mkt-subtab-btn-team" onclick="switchMarketSubTab('team')" class="btn-primary" style="padding: 9px 22px; font-weight: 800; font-size: 13px; background: #0284c7; color: #fff; border-radius: 8px; display: flex; align-items: center; gap: 7px;">
-        <span>👥</span> Çalışanlar & Performans
-      </button>
-      <button type="button" id="mkt-subtab-btn-roles" onclick="switchMarketSubTab('roles')" class="btn-secondary" style="padding: 9px 22px; font-weight: 700; font-size: 13px; background: transparent; color: #94a3b8; border-radius: 8px; display: flex; align-items: center; gap: 7px;">
-        <span>🏢</span> Market Profili & Çalışma Alanları (Reyonlar)
-      </button>
-    </div>
 
     <!-- =========================================================
          ALT PANEL 1: ÇALIŞANLAR & PERFORMANS (CANLI ARAMA & DETAY)
@@ -113,7 +41,7 @@
             </div>
             <div>
               <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #f8fafc;">Çalışan Kadrosu, Performans & Yetkiler</h3>
-              <small style="color: #94a3b8; font-size: 12px;">Personel PIN şifreleri, anlık satış ciroları, mola süreleri ve yetki yönetimi</small>
+              <small style="color: #94a3b8; font-size: 12px;">Personel PIN şifreleri, anlık satış ciroları ve yetki yönetimi</small>
             </div>
           </div>
 
@@ -121,15 +49,6 @@
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <span id="market-stat-total" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #f8fafc; font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 6px;">
               👥 0 Personel
-            </span>
-            <span id="market-stat-active" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); color: #34d399; font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 6px;">
-              🟢 0 Görevde
-            </span>
-            <span id="market-stat-break" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.35); color: #fbbf24; font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 6px;">
-              ☕ 0 Molada
-            </span>
-            <span id="market-stat-custom" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c084fc; font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 6px;">
-              ⭐ 0 Özel İzinli
             </span>
           </div>
         </div>
@@ -153,94 +72,6 @@
       </div>
 
     </div>
-
-    <!-- =========================================================
-         ALT PANEL 2: MARKET PROFİLİ & ÇALIŞMA ALANLARI (REYONLAR)
-         ========================================================= -->
-    <div id="mkt-subpane-roles" style="display: none; flex-direction: column; gap: 16px;">
-      
-      <!-- 2 Sütunlu Düzen: Market Profil Bilgileri & Reyon Yönetimi -->
-      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px;">
-        
-        <!-- 1. Market Profil Bilgileri Formu -->
-        <div class="card" style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 14px;">
-            <h3 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
-              <span>🏪</span> Market Profil Bilgileri
-            </h3>
-            <small style="color: #64748b; font-size: 11.5px;">Fiş ve etiket başlıklarında kullanılır</small>
-          </div>
-
-          <form id="market-profile-form" onsubmit="event.preventDefault(); saveMarketProfile();" style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Market Adı</label>
-                <input type="text" id="mkt-inp-name" required placeholder="Market Adı" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; font-weight: 700; outline: none; box-sizing: border-box;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Şube Adı</label>
-                <input type="text" id="mkt-inp-branch" placeholder="Merkez Şube" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Yetkili Kişi</label>
-                <input type="text" id="mkt-inp-authorized" placeholder="Yetkili Adı Soyadı" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">İletişim Telefonu</label>
-                <input type="text" id="mkt-inp-phone" placeholder="0212 000 00 00" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Vergi Dairesi</label>
-                <input type="text" id="mkt-inp-tax-office" placeholder="Vergi Dairesi" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-              </div>
-              <div>
-                <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Vergi Kimlik No / TCKN</label>
-                <input type="text" id="mkt-inp-tax-no" placeholder="Vergi No" style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-              </div>
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Adres</label>
-              <input type="text" id="mkt-inp-address" placeholder="Açık adres..." style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12.5px; outline: none; box-sizing: border-box;">
-            </div>
-
-            <div>
-              <label style="display: block; font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; margin-bottom: 4px;">Fiş Altı Teşekkür Mesajı</label>
-              <input type="text" id="mkt-inp-footer-note" placeholder="Bizi tercih ettiğiniz için teşekkür ederiz." style="width: 100%; padding: 7px 10px; background: #070d1e; border: 1px solid rgba(52,211,153,0.3); border-radius: 6px; color: #34d399; font-size: 12.5px; font-weight: 700; outline: none; box-sizing: border-box;">
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-              <button type="submit" style="background: #0284c7; border: none; color: #fff; padding: 8px 18px; font-size: 12.5px; font-weight: 800; border-radius: 6px; cursor: pointer;">
-                💾 Bilgileri Kaydet
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- 2. Çalışma Alanları & Reyonlar Yönetimi -->
-        <div class="card" style="background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 12px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 20px;">🥩</span>
-              <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #a855f7;">Market Reyonları & Roller</h3>
-            </div>
-            <button type="button" class="btn-primary" onclick="openAddRoleModal()" style="background: linear-gradient(135deg, #a855f7, #7c3aed); border: none; color: #ffffff; padding: 6px 14px; font-weight: 800; font-size: 11.5px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-              <span>➕</span> Yeni Reyon Ekle
-            </button>
-          </div>
-
-          <div id="market-roles-container" style="display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 480px; padding-right: 4px;">
-            <!-- JS tarafından dinamik doldurulur -->
-          </div>
-        </div>
-
-      </div>
 
     </div>
 
@@ -447,7 +278,7 @@
     </div>
 
     <!-- Özet KPI Kartları -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px;">
       <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px;">
         <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">💰 Kasa Cirosu</div>
         <div id="emp-detail-kpi-turnover" style="font-size: 14px; font-weight: 900; color: #34d399; font-family: monospace;">0,00 TL</div>
@@ -456,20 +287,12 @@
         <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">🧾 Satış / Fiş</div>
         <div id="emp-detail-kpi-sales" style="font-size: 14px; font-weight: 900; color: #38bdf8; font-family: monospace;">0 Fiş</div>
       </div>
-      <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px;">
-        <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">☕ Mola Sayısı</div>
-        <div id="emp-detail-kpi-breaks" style="font-size: 14px; font-weight: 900; color: #fbbf24; font-family: monospace;">0 Kez</div>
-      </div>
-      <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px;">
-        <div style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">⏱️ Toplam Mola</div>
-        <div id="emp-detail-kpi-breaktime" style="font-size: 14px; font-weight: 900; color: #c084fc; font-family: monospace;">0 Dk</div>
-      </div>
     </div>
 
     <!-- Faaliyet ve Hareket Geçmişi Tablosu -->
     <div style="background: #070d1e; border: 1px solid #1e293b; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0;">
       <div style="padding: 8px 12px; background: rgba(255,255,255,0.03); border-bottom: 1px solid #1e293b;">
-        <strong style="color: #f8fafc; font-size: 12px;">📜 Vardiya, Mola & Giriş-Çıkış Zaman Çizelgesi</strong>
+        <strong style="color: #f8fafc; font-size: 12px;">📜 Satış ve Faaliyet Zaman Çizelgesi</strong>
       </div>
       <div style="overflow-y: auto; max-height: 280px;">
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11.5px;">

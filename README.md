@@ -1,160 +1,133 @@
-# ⚡ CORTEX POS - Gelişmiş Market Kasa, Terazi, Raf Etiketi & Fatura Yönetim Sistemi
+<div align="center">
 
-[![Python Version](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0%2B-000000.svg?logo=flask&logoColor=white)](https://palletsprojects.com/p/flask/)
-[![ZPL II](https://img.shields.io/badge/ZPL--II-Engine-22c55e.svg)](https://www.zebra.com/)
-[![DIGI SM-100](https://img.shields.io/badge/DIGI-SM--100%20Scale-0284c7.svg)]()
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Web%20%7C%20Mobile-f59e0b.svg)]()
-[![License](https://img.shields.io/badge/License-Proprietary-ef4444.svg)]()
+## 🌟 Öne Çıkan Temel Yetenekler
 
-**CORTEX POS**, modern perakende marketler, süpermarketler, şarküteriler ve manavlar için geliştirilmiş; **Hızlı Kasa (POS) Satışı**, **ZPL II Termal Raf Etiketi Baskısı**, **DIGI SM-100 Ağ Terazi Entegrasyonu**, **Akıllı Fatura Okuma (OCR / UBL-TR XML)**, **Gelir / Gider Muhasebesi**, **Müşteri Veresiye Defteri**, **İş Zekası & Isı Haritası (Heatmap)** ve **Mobil El Terminali** içeren tam donanımlı, sıfır harici veritabanı bağımlılıklı perakende otomasyon sistemidir.
+### ⚡ 1. Ultra Hızlı Kasa Terminali (POS)
 
-> 📖 **Sistemin tüm teknik ve işlevsel yeteneklerinin ayrıntılı listesi için [YETKINLIKLER.md](file:///c:/Users/User/Desktop/Etiket%20%C3%87%C4%B1kar%C4%B1c%C4%B1/YETKINLIKLER.md) dokümanını inceleyebilirsiniz.**
+* **Klavye & Numpad Odaklı İş Akışı:** Mouse'a dokunmadan sadece klavye (`Enter`, `Adet*Barkod`, `F1-F12`) ile saniyeler içinde sepet oluşturma ve tahsilat.
+* **Akıllı Barkod Deşifre:** Standart EAN-13, EAN-8 ve terazilerden basılan **27/28 prefixli gramaj/fiyat barkodlarını** anında gram-fiyat olarak parçalama.
+* **Çoklu Ödeme & Parçalı Tahsilat:** Aynı fiş içinde Nakit, Kredi Kartı ve Veresiye parçalı ödeme desteği; otomatik para üstü hesabı.
+* **Askıya Alma & Çağırma:** Kasada bekleyen müşterilerin fişlerini askıya alıp sıradaki müşteriye geçebilme.
+
+### 🏷️ 2. ZPL II Akıllı Termal Raf Etiketi & Baskı Motoru
+
+* **Yasal Standartlara %100 Uyumlu:** Birim Fiyatı (TL/Kg - TL/Lt), Yerli Üretim Logosu, Üretim Yeri ve Değişiklik Tarihi otomatik hesaplanır.
+* **Windows RAW Spooler:** Sürücü gecikmesi olmadan termal yazıcılara (Xprinter, Zebra, Argox vb.) doğrudan ham ZPL II kodu basımı.
+* **Toplu Etiket Havuzu:** Fiyatı değişen ürünleri tek tıkla baskı kuyruğuna atıp seri etiket çıkarma.
+
+### ⚖️ 3. Terazi Entegrasyonu & Manav Yönetimi
+
+* **PLU Tuş Matrisi:** Manav, şarküteri ve kasap ürünleri için renkli, resimli hızlı seçim butonları.
+* **Terazi Fiyat Senkronizasyonu:** DIGI ve Perkon barkodlu terazilere tek tıkla ağ üzerinden fiyat ve PLU yükleme.
+
+### 📱 4. Mobil El Terminali (Kamera Barkod Okuyucu)
+
+* **Reyon Gezerek Fiyat/Stok Kontrolü:** Kasiyer veya mağaza sorumlusu telefon/tablet kamerasıyla HTTPS üzerinden barkod okutarak reyonda anında etiket basabilir veya fiyat güncelleyebilir.
+* **Sıfır Ek Cihaz Maliyeti:** Pahalı el terminalleri yerine personelin kendi akıllı telefonları tam teşekküllü el terminaline dönüşür.
+
+### 💼 5. Ön Muhasebe, Veresiye & Raporlama
+
+* **Veresiye Defteri (Cari):** Müşteri bazında borç/alacak takibi, limit kontrolleri ve WhatsApp ile tek tıkla hesap özeti/bilgi fişi gönderimi.
+* **Kâr & Ciro Analizi:** Günlük/Aylık net kâr, satılan ürün adetleri, maliyet analizi ve yazdırılabilir X/Z Raporları.
+* **7x24 Yoğunluk Haritası:** Mağazanın gün ve saat bazında müşteri trafiğini gösteren renkli ısı haritası.
 
 ---
 
-## 🌟 Öne Çıkan Temel Özellikler
-
-* ⚡ **Milisaniyelik Hızlı Kasa (POS):** Optik barkod okuma, terazi barkodu (27/28 prefix) çözme, hızlı butonlar, çoklu miktar çarpımı (`F5`), nakit/kredi kartı/veresiye tahsilat ve para üstü hesaplama.
-* 🏷️ **ZPL II Canlı Raf Etiketi Tasarımı & Baskısı:** WYSIWYG görsel etiket tasarımcısı, yasal mevzuata uygun birim fiyat (TL/Kg) hesaplama, yerli üretim logosu, kuruş vurgulu fiyatlar ve Windows RAW Spooler ile toplu baskı kuyruğu.
-* ⚖️ **DIGI SM-100 Canlı Terazi Senkronizasyonu:** Ağ üzerinden çift yönlü canlı fiyat gönderme ve alma, PLU yönetimi, `PLU.CSV/DAT` dışa aktarma.
-* 🧾 **Akıllı Fatura Okuma (OCR, PDF & UBL-TR XML):** e-Fatura XML ve kağıt fatura fotoğraflarını tarayarak stokları otomatik artırma, matematiksel sağlama yapma ve firmalara göre görsel arşivleme.
-* 👥 **Müşteri Cari & Veresiye Defteri:** Kasadan doğrudan müşteriye veresiye satış, tahsilat girişi, bakiye takibi ve detaylı hesap ekstresi.
-* 📊 **İş Analitiği, Z Raporu & Isı Haritası (Heatmap):** Aylık interaktif takvim, 24 saatlik satış analizi ve zirve saat tespiti, reyon ve kasiyer mutabakatı, yazdırılabilir Z raporu ve 7x24 haftalık yoğunluk ısı haritası.
-* 💼 **Ön Muhasebe & Kârlılık Takibi:** Aylık ciro, gider kalemleri (Kira, Fatura, Personel, Toptancı vb.), POS komisyon hesabı ve anlık Net Kâr / Kâr Marjı analizi.
-* 📱 **Mobil El Terminali & Kablosuz Barkod Okuyucu:** Akıllı telefon veya tabletten yerel ağ ve HTTPS kamera ile reyon aralarında anında barkod okuma ve fiyat güncelleme.
-* 🛡️ **Kategorik Yedekleme & Çökme Koruması:** Ürün, fatura ve sistem verilerini tek tıkla kategorik yedekleme/geri yükleme ve global hata izolasyonu ile kesintisiz çalışma.
-
----
-
-## 🏛️ Modüler Sistem Mimarisi
+## 🏛️ Mimari & Dosya Düzeni
 
 ```text
-Etiket Çıkarıcı/
+OYMAPOS/
 │
-├── main.py                               # Flask Ana Sunucusu & Modül Blueprint Tescilleri
-├── requirements.txt                      # Python Paket Bağımlılıkları
-├── README.md                             # Ana Tanıtım ve Kurulum Dokümantasyonu
-├── YETKINLIKLER.md                       # Detaylı Sistem Yetkinlikleri Kataloğu
-├── SISTEMI_BASLAT_VE_KORU.bat            # Otomatik Başlatma ve Çökme Koruma Betiği
+├── main.py                               # Flask Backend & API Sunucusu
+├── desktop_app.py                        # PyWebview Kiosk Masaüstü Sarmalayıcı
+├── oymapos_installer.py                  # Bağımsız Kurulum & Güncelleme Sihirbazı
 │
-├── backend/                              # 🐍 PYTHON / FLASK BACKEND MODÜLLERİ
-│   ├── ayarlar.py                        # Sabit Dosya ve 6 Çekirdek Dizin Yolları
-│   ├── araclar/                          # Excel izleyici, SSL sertifikaları, Port yöneticisi
-│   ├── kasa/                             # Hızlı Satış (POS), Kasiyerler & Sepet Motoru
-│   ├── katalog/                          # Ürün Kataloğu, Faaliyet Geçmişi, Toplu Zam & Özel Barkod
-│   ├── terazi/                           # Manav, DIGI SM-100 Ağ Protokolü & PLU Motoru
-│   ├── musteri/                          # Müşteri Cari & Veresiye Defteri Servisi
-│   ├── raporlama/                        # Aylık Raporlar, Gün Detayı, Z Raporu & Isı Haritası
-│   ├── muhasebe/                         # Gelir/Gider, Kasa Cirosu & Net Kâr Servisi
-│   ├── fatura/                           # Akıllı Fatura Okuma, UBL-TR XML, OCR & Matematiksel Denetim
-│   ├── tasarim/                          # Canlı Etiket Tasarımı, Şablonlar & ZPL Kodlayıcı
-│   ├── yazdirma/                         # Windows RAW Spooler & Termal Yazıcı Kalibrasyonu
-│   └── yedekleme/                        # Kategorik Yedekleme ve Geri Yükleme Servisi
+├── backend/                              # 🐍 Çekirdek Python Servisleri
+│   ├── ayarlar.py                        # Dinamik Dizin ve Yapılandırma
+│   ├── araclar/                          # SQLite, Excel Senkronizasyon ve Setup Servisi
+│   ├── kasa/                             # POS Motoru, Askı ve Satış API'leri
+│   ├── katalog/                          # Ürün Kataloğu, Tohum Veriler & Filtreler
+│   ├── terazi/                           # Manav PLU ve Terazi İletişim Servisi
+│   ├── musteri/                          # Cari Hesap & Veresiye Modülü
+│   ├── raporlama/                        # Z Raporu, Isı Haritası ve İstatistikler
+│   ├── muhasebe/                         # Gelir/Gider ve Kâr Analizi Servisi
+│   └── yazdirma/                         # Windows RAW Spooler & ZPL Üretici
 │
-├── frontend/                             # 🌐 İSTEMCİ ARAYÜZÜ (HTML / CSS / JS)
-│   ├── js/                               # Modüler Javascript Kontrolörleri
-│   │   ├── app.js                        # Bootstrap & Sekme Yaşam Döngüsü
-│   │   ├── masaustu/                     # Modül JS Dosyaları (Kasa, Katalog, Rapor, Fatura...)
-│   │   └── mobil/                        # Mobil Barkod Tarayıcı JS
-│   │
-│   ├── sayfalar/                         # Jinja2 HTML Şablonları & Sök-Çıkar Modallar
-│   │   ├── masaustu/                     # Masaüstü Yönetim Paneli ve 16+ Modüler Modal
-│   │   └── mobil/                        # Mobil El Terminali Sayfaları
-│   │
-│   └── stiller/                          # CSS Tema & Tasarım Sistemleri
-│       ├── style.css                     # Masaüstü Dark Glassmorphism Tasarımı
-│       └── mobile.css                    # Mobil Terminal Tasarımı
+├── frontend/                             # 🌐 Arayüz Katmanı (Vanilla HTML5 / CSS3 / ES6)
+│   ├── js/masaustu/                      # Modüler Kontrolörler (Kasa, Katalog, Raporlar...)
+│   ├── sayfalar/masaustu/                # Jinja2 Modüler HTML Şablonları
+│   └── stiller/masaustu/                 # Dark Glassmorphism Stil Sayfaları
 │
-├── data/                                 # 💾 KALICI VERİTABANI (6 ÇEKİRDEK DİZİN)
-│   ├── urunler/                          # Ürün Kataloğu, Manav PLU, Özel Barkodlar & Faaliyetler
-│   ├── satis_ve_kasa/                    # Yıl/Ay Hiyerarşik Satış Fişleri, Günlük Raporlar & Hızlı Butonlar
-│   ├── faturalar/                        # 29+ Şirket Klasöründe Fatura Görselleri & Verileri
-│   ├── sistem_ve_ayarlar/                # Mağaza Ayarları, Kasiyerler, Giderler, Müşteriler, Terazi, SSL
-│   ├── sablonlar/                        # ZPL Termal Etiket Şablonları & Canlı Taslak Önbelleği
-│   └── yedekler/                         # Kategorize Edilmiş (.zip / .json) Sistem Yedekleri
+├── build_tools/                          # 🛠️ Derleme & Setup Araçları
+│   ├── OYMAPOS.spec                      # PyInstaller Masaüstü Derleme Şablonu
+│   ├── OYMAPOS_Setup.spec                # Setup Paketi Derleme Şablonu
+│   ├── oymapos_installer.py              # Bağımsız Kurulum Motoru Kaynak Kodu
+│   └── logo.ico                          # Uygulama İkon Dosyası
 │
-└── taslak/                               # 📚 SİSTEM BİLGİ BANKASI & KILAVUZLAR
-    ├── PROJE_MIMARISI_VE_REHBER.md       # Detaylı Mimari & Geliştirme Kuralları
-    ├── KISAYOLLAR_VE_IS_AKISLARI.md      # Kasa ve Klavye Kısayolları Kılavuzu
-    ├── KASA_ALT_BUTONLARI_CALISMA_PRENSIBI.md # 10'lu Kasa Butonu ve Durum Çubuğu Kılavuzu
-    ├── VERI_MODELLERI_VE_APILER.md       # Veri Şemaları ve API Uç Noktaları
-    └── FATURA_OKUMA_SISTEMI_PLANI.md     # Fatura Okuma ve OCR Kılavuzu
+└── dist/                                 # 📦 Dağıtıma Hazır Paketler
+    ├── OYMAPOS_Setup.exe                 # Tek Tıkla Kurulum Sihirbazı
+    ├── OYMAPOS.exe                       # Bağımsız Çalıştırılabilir Masaüstü Uygulaması
+    └── 1_Eylul_Fiyatlari.xlsx            # 4.500+ Hazır Market & Manav Fiyat Şablonu
 ```
 
 ---
 
-## 🚀 Hızlı Başlangıç
+## 🚀 Hızlı Başlangıç & Kurulum
 
-### 1. Gereksinimler
-* **İşletim Sistemi:** Windows 10 / 11 veya Windows Server
-* **Python:** Python 3.10 veya üzeri
-* **Yazıcı:** ZPL II uyumlu Termal Etiket Yazıcı ve/veya ESC/POS Termal Fiş Yazıcı
+### Seçenek 1: Hazır Kurulum Sihirbazı (Önerilen)
 
-### 2. Kurulum
-Terminal veya PowerShell üzerinden proje klasöründe bağımlılıkları yükleyin:
+1. `dist/OYMAPOS_Setup.exe` dosyasını çalıştırın.
+2. Kurulum sihirbazı masaüstü kısayollarını, Windows Güvenlik Duvarı kurallarını ve veritabanını otomatik olarak yapılandıracaktır.
+
+### Seçenek 2: Kaynak Koddan Geliştirici Modunda Çalıştırma
+
 ```bash
+# 1. Depoyu klonlayın
+git clone https://github.com/oguztasdemir/Market-Raf-Etiketi---Fiyat-Bask--Sistemi.git
+cd Market-Raf-Etiketi---Fiyat-Bask--Sistemi
+
+# 2. Bağımlılıkları yükleyin
 pip install -r requirements.txt
+
+# 3. Masaüstü uygulamasını veya Web sunucusunu başlatın
+python desktop_app.py   # Native Masaüstü Kiosk Modu
+# VEYA
+python main.py          # Web & Mobil Ağ Modu (Port 5000 / 5001)
 ```
-
-### 3. Sistemi Başlatma Seçenekleri
-
-#### A. Web & Mobil Sunucu Modu (Tarayıcıda Çalıştırma)
-```bash
-python main.py
-```
-> Web sunucusunu (`0.0.0.0:5000` / `5001`) başlatır ve varsayılan tarayıcınızı otomatik açar.
-
-#### B. Masaüstü GUI & Standalone EXE Modu (Pencereli Uygulama)
-```bash
-python web_gui.py
-```
-> PyWebView ile bağımsız masaüstü penceresinde çalıştırır. PyInstaller ile `.exe` derlemek için ana giriş noktasıdır:
-> ```bash
-> pyinstaller --noconsole --onefile web_gui.py
-> ```
-
-#### C. 7/24 Kesintisiz Arka Plan Koruma Servisi
-```bash
-SISTEMI_BASLAT_VE_KORU.bat
-```
-
-### 4. Erişim Adresleri
-* **Masaüstü Web Paneli:** `http://127.0.0.1:5000`
-* **Yerel Ağ / Diğer Bilgisayarlar:** `http://[YEREL_IP]:5000`
-* **Mobil El Terminali (HTTP):** `http://[YEREL_IP]:5000/mobile`
-* **Mobil Canlı Kamera Tarayıcı (HTTPS):** `https://[YEREL_IP]:5001/mobile`
 
 ---
 
 ## 🔌 Donanım Entegrasyonları
 
-| Donanım | Standart / Protokol | Açıklama |
-| :--- | :--- | :--- |
-| **Etiket Yazıcı** | ZPL II (Zebra, Argox, Xprinter vb.) | Windows RAW Spooler üzerinden ham ZPL etiket basımı. |
-| **Fiş Yazıcı** | ESC/POS (58mm / 80mm) | Satış fişleri ve Z raporu dökümü; RJ11 çekmece tetikleme. |
-| **Elektronik Terazi** | DIGI SM-100 / SM-500 | TCP/IP ağ üzerinden çift yönlü canlı fiyat aktarımı. |
-| **Barkod Okuyucu** | 1D / 2D USB & Kablosuz Okuyucular | Klavye emülasyonu ile anında sepete ürün aktarımı. |
-| **Mobil Kamera** | HTML5 BarcodeDetector / ZXing | Telefon kamerası ile reyon içi kablosuz tarama. |
+| Donanım                         | Protokol / Bağlantı    | Desteklenen Modeller & Açıklama                                      |
+| :------------------------------- | :----------------------- | :--------------------------------------------------------------------- |
+| **Termal Etiket Yazıcı** | ZPL II / RAW Spooler     | Zebra, Xprinter, Argox, Godex, TSC vb. (Tüm ebatlar)                  |
+| **Termal Fiş Yazıcı**   | ESC/POS (USB/LAN)        | 58mm & 80mm fiş yazıcılar, otomatik kağıt kesici ve RJ11 çekmece |
+| **Barkodlu Terazi**        | TCP/IP & Seri Port       | DIGI, Bizerba, Perkon, CAS, Aclas ve uyumlu terazi modelleri           |
+| **Barkod Okuyucu**         | USB / Bluetooth HID      | 1D/2D Optik Okuyucular, Kablosuz El Okuyucuları                       |
+| **Mobil Kamera**           | WebRTC / BarcodeDetector | iOS Safari & Android Chrome üzerinden sıfır gecikmeli kamera okuma  |
 
 ---
 
-## ⌨️ Hızlı Kasa Klavye Kısayolları
+## ⌨️ Kasa Klavye Kısayolları
 
-| Tuş | İşlem | Tuş | İşlem |
-| :---: | :--- | :---: | :--- |
-| **`Enter`** | Barkod Okut / Sepete Ekle | **`F6`** | 🔍 Fiyat Gör Modalı |
-| **`F1`** | 📱 Mobil QR / Hızlı Menü | **`F7`** | 🗄️ Para Çekmecesini Aç / 1 TL Ekle |
-| **`F2`** | 💳 Kredi Kartı ile Ödeme Al | **`F8`** | ⏸️ Askıdaki Fişler & Eski Satışlar |
-| **`F3`** | 🗑️ Sepeti Temizle (İptal) | **`F9`** | ↩️ Ürün İade Girişi |
-| **`F4`** | 💵 Nakit Satış & Para Üstü | **`F10`** | 🎁 İkram / %100 Promosyon |
-| **`F5`** | ✖️ Miktar Çarpımı (`Adet*Barkod`) | **`Esc`** | Pencereleri Kapat / İptal |
+|         Kısayol         | Fonksiyon                               |        Kısayol        | Fonksiyon                                 |
+| :-----------------------: | :-------------------------------------- | :--------------------: | :---------------------------------------- |
+|    **`Enter`**    | Barkod Okut / Hızlı Sepete Ekle       |    **`F7`**    | 🗄️ Para Çekmecesini Aç / 1 TL Ekle    |
+|     **`F1`**     | 📱 Mobil QR / Hızlı Bağlantı        |    **`F8`**    | ⏸️ Eski Satışlar & Askıdaki Fişler  |
+|     **`F2`**     | 💳 Kredi Kartı ile Tek Tuş Tahsilat   |    **`F9`**    | ↩️ Müşteri Ürün İade Modalı       |
+|     **`F3`**     | 🗑️ Sepeti / Fişi İptal Et           |   **`F10`**   | 💾 Hızlı Ürün Tanımla & Kaydet       |
+|     **`F4`**     | 💵 Nakit Ödeme & Para Üstü Hesabı   |   **`F11`**   | 📒 Veresiye Cari Defterine Yaz            |
+| **`Alt + Enter`** | 🖥️ Tam Ekran (Fullscreen) Aç / Kapat | **`Alt + F4`** | 🚪 Güvenli Kasa Kapatma (Onay Korumalı) |
 
 ---
 
-## 📚 Dokümantasyon ve Rehberler
+## 🔒 Güvenlik, Veri Gizliliği & Dayanıklılık
 
-* 📖 **[Tüm Sistem Yetkinlikleri (YETKINLIKLER.md)](file:///c:/Users/User/Desktop/Etiket%20%C3%87%C4%B1kar%C4%B1c%C4%B1/YETKINLIKLER.md):** 13 ana başlıkta uygulamanın tüm fonksiyonel ve teknik yetkinlikleri.
-* 🏗️ **[Proje Mimarisi ve Geliştirici Rehberi (PROJE_MIMARISI_VE_REHBER.md)](file:///c:/Users/User/Desktop/Etiket%20%C3%87%C4%B1kar%C4%B1c%C4%B1/taslak/PROJE_MIMARISI_VE_REHBER.md):** Veri akışı, klasör hiyerarşisi ve geliştirme kuralları.
-* ⌨️ **[Kısayollar ve İş Akışları (KISAYOLLAR_VE_IS_AKISLARI.md)](file:///c:/Users/User/Desktop/Etiket%20%C3%87%C4%B1kar%C4%B1c%C4%B1/taslak/KISAYOLLAR_VE_IS_AKISLARI.md):** Kasa adımları ve hızlı kullanım rehberi.
-* 🛒 **[Kasa Alt Butonları Çalışma Prensibi (KASA_ALT_BUTONLARI_CALISMA_PRENSIBI.md)](file:///c:/Users/User/Desktop/Etiket%20%C3%87%C4%B1kar%C4%B1c%C4%B1/taslak/KASA_ALT_BUTONLARI_CALISMA_PRENSIBI.md):** 10'lu eylem butonu ve 7 sütunlu alt durum çubuğunun detayları.
+* **Sıfır Bulut Bağımlılığı:** İnternet bağlantınız kesilse dahi kasanız ve etiket basımınız aksamadan çalışmaya devam eder.
+* **SQLite ACID Standartları:** Ani elektrik kesintilerinde veritabanı kilitlenmez, veri kaybı yaşanmaz.
+* **Otomatik Yedekleme:** Her günün sonunda ve kurulum güncellemelerinde otomatik yedek arşivi oluşturulur.
+
+---
+
+<div align="center">

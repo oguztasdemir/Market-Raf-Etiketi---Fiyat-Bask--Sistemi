@@ -1,5 +1,5 @@
-<!-- KASA ALT EYLEM BUTONLARI (9 TEMEL BUTON - SIRALI VE NET DİZİLİM: F1, F2, F3, F4, F6, F7, F8, F9, F11) -->
-<div class="pos-actions-bar">
+<!-- KASA ALT EYLEM BUTONLARI (10 TEMEL BUTON - TEK SATIR TAM EKRAN DİZİLİMİ) -->
+<div class="pos-actions-bar" style="grid-template-columns: repeat(10, minmax(0, 1fr)) !important;">
   
   <!-- 1. HIZLI ÜRÜN (F10) -->
   <button id="btn-pos-action-quick-prod" type="button" class="pos-action-btn pos-btn-amber" onclick="openPosQuickProductModal()" title="Hızlı Ürün Tanımla ve Sepete Ekle [F10 / Insert]">
@@ -22,42 +22,49 @@
     <div class="pos-action-badge">[F3]</div>
   </button>
 
-  <!-- 4. ÖDEME AL (F4 - MERKEZİ BUTON) -->
-  <button id="btn-pos-action-pay" type="button" class="pos-action-btn pos-btn-emerald" onclick="openPosPaymentModal()" title="Ödemeyi Al / Satışı Tamamla (Nakit / Kart) [F4]" style="background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(5,150,105,0.45)); border: 1.5px solid #10b981; box-shadow: 0 0 16px rgba(16,185,129,0.35); transform: scale(1.02);">
-    <div class="pos-action-icon">💳</div>
-    <div class="pos-action-text" style="color: #34d399; font-weight: 900;">ÖDEME AL</div>
-    <div class="pos-action-badge" style="color: #34d399;">[F4]</div>
+  <!-- 4. ÖDEME AL (F4 - YEŞİL BUTON) -->
+  <button id="btn-pos-direct-pay-nofish" type="button" class="pos-action-btn pos-btn-emerald" onclick="executeDirectPayment(false)" title="Hemen Ödeme Al (Fişsiz Satış) [F4]" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border-color: #34d399 !important; box-shadow: 0 2px 10px rgba(16,185,129,0.35);">
+    <div class="pos-action-icon">💵</div>
+    <div class="pos-action-text" style="color: #ffffff; font-weight: 900;">ÖDEME AL</div>
+    <div class="pos-action-badge" style="color: #d1fae5; font-weight: 800;">[F4]</div>
   </button>
 
-  <!-- 5. FİŞ BEKLET (F6) -->
+  <!-- 5. ÖDEME AL & YAZDIR (F12 - MAVİ BUTON) -->
+  <button id="btn-pos-direct-pay-print" type="button" class="pos-action-btn pos-btn-blue" onclick="executeDirectPayment(true)" title="Ödeme Al ve Fiş Yazdır [F12]" style="background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important; border-color: #38bdf8 !important; box-shadow: 0 2px 10px rgba(56,189,248,0.35);">
+    <div class="pos-action-icon">🖨️</div>
+    <div class="pos-action-text" style="color: #ffffff; font-weight: 900;">YAZDIR</div>
+    <div class="pos-action-badge" style="color: #e0f2fe; font-weight: 800;">[F12]</div>
+  </button>
+
+  <!-- 6. FİŞ BEKLET (F6) -->
   <button id="btn-pos-action-hold" type="button" class="pos-action-btn pos-btn-amber" onclick="parkCurrentReceipt()" title="Mevcut Sepeti Askıya Al / Beklet [F6]" style="background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.45);">
     <div class="pos-action-icon">⏳</div>
     <div class="pos-action-text" style="color: #fbbf24;">FİŞ BEKLET</div>
     <div class="pos-action-badge" style="color: #fbbf24;">[F6]</div>
   </button>
 
-  <!-- 6. KASA ÇIKIŞ (F7) -->
+  <!-- 7. KASA ÇIKIŞ (F7) -->
   <button id="btn-pos-action-cash-movement" type="button" class="pos-action-btn" onclick="openPosCashMovementModal()" title="Kasadan Para Çıkışı Yap (Toptancı, Fırın, Gider vb.) [F7]" style="background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.45);">
     <div class="pos-action-icon">💸</div>
-    <div class="pos-action-text" style="color: #f87171;">KASA ÇIKIŞ</div>
+    <div class="pos-action-text" style="color: #f87171;">ÇIKIŞ</div>
     <div class="pos-action-badge" style="color: #f87171;">[F7]</div>
   </button>
 
-  <!-- 7. İADE (F8) -->
+  <!-- 8. İADE (F8) -->
   <button id="btn-pos-action-return" type="button" class="pos-action-btn pos-btn-crimson" onclick="openPosReturnModal()" title="Ürün İadesi Al / Sepete Eksi Tutar Ekle [F8]">
     <div class="pos-action-icon">↩️</div>
     <div class="pos-action-text">İADE</div>
     <div class="pos-action-badge">[F8]</div>
   </button>
 
-  <!-- 8. ESKİ SATIŞ (F9) -->
+  <!-- 9. ESKİ SATIŞ (F9) -->
   <button id="btn-pos-action-recent" type="button" class="pos-action-btn pos-btn-purple" onclick="openPosRecentSalesModal()" title="Bekleyen Fişler ve Günün Satışları [F9]">
     <div class="pos-action-icon">📜</div>
-    <div class="pos-action-text">ESKİ SATIŞ</div>
+    <div class="pos-action-text">ESKİ FİŞ</div>
     <div class="pos-action-badge">[F9]</div>
   </button>
 
-  <!-- 9. VERESİYE (F11 - EN SAĞDA) -->
+  <!-- 10. VERESİYE (F11) -->
   <button id="btn-pos-action-credit" type="button" class="pos-action-btn pos-btn-sky" onclick="openPosCreditModal()" title="Veresiye Satış & Veresiye Tahsilatı Al [F11]" style="background: rgba(2,132,199,0.2); border-color: rgba(56,189,248,0.4);">
     <div class="pos-action-icon">📒</div>
     <div class="pos-action-text" style="color: #38bdf8; font-weight: 800;">VERESİYE</div>
@@ -65,3 +72,4 @@
   </button>
 
 </div>
+

@@ -13,6 +13,32 @@ import threading
 import logging
 from flask import Flask, render_template, send_from_directory, request
 
+# KÜRESEL ÇÖKME KORUMASI (GLOBAL CRASH PREVENTER)
+def global_exception_handler(exctype, value, tb):
+    import traceback
+    import datetime
+    err_msg = "".join(traceback.format_exception(exctype, value, tb))
+    print(f"!!! [KÜRESEL HATA KORUMASI] Beklenmedik hata yakalandı:\n{err_msg}")
+    try:
+        with open("global_crash_preventer.log", "a", encoding="utf-8") as f:
+            f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [SYS] {err_msg}\n")
+    except Exception:
+        pass
+
+def global_thread_exception_handler(args):
+    import traceback
+    import datetime
+    err_msg = "".join(traceback.format_exception(args.exc_type, args.exc_value, args.exc_traceback))
+    print(f"!!! [KÜRESEL THREAD KORUMASI] {args.thread.name} içinde hata:\n{err_msg}")
+    try:
+        with open("global_crash_preventer.log", "a", encoding="utf-8") as f:
+            f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [THREAD: {args.thread.name}] {err_msg}\n")
+    except Exception:
+        pass
+
+sys.excepthook = global_exception_handler
+threading.excepthook = global_thread_exception_handler
+
 # Windows terminal Türkçe karakter desteği
 if sys.platform.startswith('win'):
     try:
@@ -26,7 +52,7 @@ if sys.platform.startswith('win'):
 # Proje dizinini Python yoluna ekle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from backend.ayarlar import STATIC_DIR, TEMPLATES_DIR
+from backend.ayarlar import STATIC_DIR, TEMPLATES_DIR, DATA_DIR
 from backend.araclar.excel_dosya_izleyici import get_local_ip, ensure_ssl_certs, free_port, start_code_watcher
 from backend.katalog.excel_katalog_servisi import clear_diff_cache
 
@@ -38,10 +64,9 @@ from backend.yazdirma.yazdirma_rotalari import print_bp
 from backend.raporlama.rapor_rotalari import report_bp
 from backend.terazi.terazi_rotalari import scale_bp
 from backend.kasa.hizli_satis_rotalari import pos_bp
-from backend.muhasebe.muhasebe_rotalari import accounting_bp
-from backend.fatura.fatura_rotalari import invoice_bp
 from backend.musteri.musteri_rotalari import customer_bp
 from backend.market.market_rotalari import market_bp
+from backend.muhasebe.muhasebe_rotalari import accounting_bp
 
 # Ham Werkzeug HTTP erişim loglarını sustur
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -61,10 +86,9 @@ app.register_blueprint(print_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(scale_bp)
 app.register_blueprint(pos_bp)
-app.register_blueprint(accounting_bp)
-app.register_blueprint(invoice_bp)
 app.register_blueprint(customer_bp)
 app.register_blueprint(market_bp)
+app.register_blueprint(accounting_bp)
 
 def get_device_label(ip):
     """İstemci IP adresini anlaşılır cihaz ismine dönüştürür."""
@@ -111,10 +135,6 @@ def log_user_action_and_headers(response):
             action_msg = "Manav Ürün / Fiyat Listesini Güncelledi"
         elif path == "/api/pos/checkout":
             action_msg = "Hızlı Kasa (POS) Satışını Tamamladı"
-        elif path == "/api/invoice/commit":
-            action_msg = "Fatura Girişini Onayladı ve Kataloğa İşledi"
-        elif path.startswith("/api/accounting/expense"):
-            action_msg = "Muhasebe Gider Kaydı Ekledi/Güncelledi"
         elif path.startswith("/api/print"):
             action_msg = "Barkod / Raf Etiketi Baskısı Gönderdi"
         elif path.startswith("/api/sync"):
@@ -157,13 +177,59 @@ def handle_global_exception(e):
         }), 500
     return render_template("masaustu/index.html", cache_bust=int(time.time()))
 
+from backend.araclar.sistem_kurtarma_servisi import check_and_repair_system
+
+# Sunucu başlangıcında sistem ve eksik dosya bütünlük kontrolü
+try:
+    _repair_report = check_and_repair_system()
+    if _repair_report.get("status") != "healthy" or _repair_report.get("directories_created") or _repair_report.get("seed_restored"):
+        print(f"[*] [SİSTEM KORUMASI] Dosya ve Veritabanı Bütünlüğü Tarandı: {_repair_report}")
+except Exception as _ex:
+    print(f"[UYARI] Sistem ön kontrol uyarısı: {_ex}")
+
+@app.route("/api/system/health_check", methods=["GET", "POST"])
+def api_system_health_check():
+    """Tüm sistem dosyalarını, tabloları ve ayarları tarayıp eksikleri onarır."""
+    from flask import jsonify
+    report = check_and_repair_system()
+    return jsonify(report)
+
+@app.before_request
+def check_installation():
+    marker_path = os.path.join(DATA_DIR, "installed.marker")
+    if not os.path.exists(marker_path):
+        # Otomatik onarım çalıştır
+        try:
+            check_and_repair_system()
+        except Exception:
+            pass
+
+        if not os.path.exists(marker_path):
+            allowed_paths = [
+                "/setup",
+                "/api/setup/execute",
+                "/favicon.ico"
+            ]
+            path = request.path
+            if path.startswith("/frontend/") or path.startswith("/static/"):
+                return
+            if path not in allowed_paths:
+                from flask import redirect
+                return redirect("/setup")
+
+
+@app.route("/setup")
+def setup_page():
+    return render_template("kurulum/setup.html")
+
 @app.route("/favicon.ico")
 def favicon():
     return ('', 204)
 
 @app.route("/")
 def index():
-    return render_template("masaustu/index.html", cache_bust=int(time.time()))
+    local_ip = get_local_ip()
+    return render_template("masaustu/index.html", cache_bust=int(time.time()), local_ip=local_ip)
 
 @app.route("/mobile")
 def mobile_terminal():
@@ -228,12 +294,6 @@ def main():
     start_backend_server(port)
     time.sleep(0.6)
 
-    # 2. Ödeal e-Fatura Otomatik Senkronizasyonunu Arka Planda Başlat
-    try:
-        from backend.fatura.odeal_fatura_servisi import start_odeal_auto_sync_background
-        start_odeal_auto_sync_background(interval_seconds=60)
-    except Exception as e:
-        print(f"[UYARI] Ödeal otomatik senkronizasyon başlatılamadı: {e}")
 
     # 3. Varsayılan Web Tarayıcısını Aç
     try:

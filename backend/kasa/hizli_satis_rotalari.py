@@ -180,14 +180,71 @@ def delete_quick_button():
     res = remove_quick_button(btn_id)
     return jsonify(res)
 
-from backend.kasa.hizli_satis_servisi import get_quick_category_products
+from backend.kasa.hizli_satis_servisi import get_quick_category_products, get_barkodsuz_products, save_barkodsuz_products
 
 @pos_bp.route('/api/pos/quick_category_items', methods=['GET'])
 def list_quick_category_items():
-    """Seçili kategoriye ait (MANAV veya BARKODSUZ) alfabetik ürünleri döner."""
+    """Seçili kategoriye ait (MANAV veya BARKODSUZ) ürünleri döner."""
     cat = request.args.get('cat', 'manav')
     items = get_quick_category_products(cat)
     return jsonify({"status": "success", "category": cat, "items": items})
+
+@pos_bp.route('/api/pos/barkodsuz_items', methods=['GET'])
+def get_barkodsuz_items_api():
+    """Barkodsuz ürünlerin tam listesini döner."""
+    items = get_barkodsuz_products()
+    return jsonify({"status": "success", "items": items})
+
+@pos_bp.route('/api/pos/barkodsuz_items/save_order', methods=['POST'])
+def save_barkodsuz_order_api():
+    """Barkodsuz ürünlerin yeni sırasını veya güncel halini kaydeder."""
+    data = request.get_json(silent=True) or {}
+    items = data.get('items', [])
+    saved = save_barkodsuz_products(items)
+    return jsonify({"status": "success", "message": "Barkodsuz ürün sırası kaydedildi.", "items": saved})
+
+@pos_bp.route('/api/pos/barkodsuz_items/add', methods=['POST'])
+def add_barkodsuz_item_api():
+    """Barkodsuz ürün listesine yeni ürün ekler."""
+    data = request.get_json(silent=True) or {}
+    title = str(data.get('title') or '').strip()
+    price = float(data.get('price') or 0.0)
+    barcode = str(data.get('barcode') or '').strip()
+    unit = str(data.get('unit') or 'Adet').strip()
+    
+    if not title:
+        return jsonify({"status": "error", "message": "Ürün adı zorunludur."}), 400
+
+    items = get_barkodsuz_products()
+    new_id = f"bs_{int(time.time() * 1000)}"
+    new_item = {
+        "id": new_id,
+        "title": title,
+        "price": price,
+        "price_str": f"{price:,.2f} TL".replace(",", "X").replace(".", ",").replace("X", "."),
+        "unit": unit,
+        "barcode": barcode or "BARKODSUZ",
+        "is_scale_item": False
+    }
+    items.append(new_item)
+    save_barkodsuz_products(items)
+    return jsonify({"status": "success", "message": f"'{title}' barkodsuz listeye eklendi.", "item": new_item, "items": items})
+
+@pos_bp.route('/api/pos/barkodsuz_items/delete', methods=['POST'])
+def delete_barkodsuz_item_api():
+    """Barkodsuz listeden bir ürünü çıkarır."""
+    data = request.get_json(silent=True) or {}
+    item_id = str(data.get('id') or '').strip()
+    barcode = str(data.get('barcode') or '').strip()
+    
+    items = get_barkodsuz_products()
+    if item_id:
+        items = [x for x in items if str(x.get('id')) != item_id]
+    elif barcode:
+        items = [x for x in items if str(x.get('barcode')) != barcode]
+    
+    save_barkodsuz_products(items)
+    return jsonify({"status": "success", "message": "Ürün barkodsuz listeden kaldırıldı.", "items": items})
 
 import threading
 import time

@@ -89,12 +89,17 @@
     <!-- Alt Eylem Butonları -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #334155; padding-top: 14px; margin-top: 16px; gap: 8px;">
       <button type="button" onclick="closePosQuickProductModal()" style="padding: 9px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">
-        İptal (Esc)
+        Kapat / İptal (Esc)
       </button>
       
-      <button type="button" id="btn-save-quick-prod" onclick="submitQuickProductSave(false)" style="padding: 9px 24px; font-size: 13px; font-weight: 800; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; opacity: 0.5; pointer-events: none;" title="Ürünü Kataloğa Kaydet">
-        Kaydet (Enter)
-      </button>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" id="btn-save-quick-prod-stay" onclick="submitQuickProductSave(false, false)" style="padding: 9px 16px; font-size: 13px; font-weight: 700; background: #1e40af; color: #ffffff; border: 1px solid #3b82f6; border-radius: 6px; cursor: pointer; transition: all 0.15s;" title="Kaydet ve yeni ürün için açık tut">
+          ➕ Seri Kaydet
+        </button>
+        <button type="button" id="btn-save-quick-prod" onclick="submitQuickProductSave(false, true)" style="padding: 9px 22px; font-size: 13px; font-weight: 800; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; transition: all 0.15s; opacity: 0.5; pointer-events: none;" title="Ürünü Kaydet ve Pencereyi Kapat">
+          💾 Kaydet ve Kapat (Enter)
+        </button>
+      </div>
     </div>
 
   </div>

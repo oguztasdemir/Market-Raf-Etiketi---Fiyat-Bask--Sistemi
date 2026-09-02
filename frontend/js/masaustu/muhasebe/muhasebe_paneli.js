@@ -82,15 +82,15 @@ function renderAccountingCategories(categories, totalExpenses) {
 
   // Kategori Kartları
   gridEl.innerHTML = categories.map(cat => `
-    <div style="background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.06); border-left: 3px solid ${cat.color}; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-left: 3px solid ${cat.color}; border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
       <div style="display: flex; align-items: center; gap: 8px;">
         <span style="font-size: 16px;">${cat.icon}</span>
         <div>
-          <div style="font-weight: 700; color: #f8fafc; font-size: 11.5px;">${cat.category}</div>
-          <small style="color: #94a3b8; font-size: 10px;">%${cat.percentage} Gider Payı</small>
+          <div style="font-weight: 600; color: var(--text-main); font-size: 12px;">${cat.category}</div>
+          <small style="color: var(--text-muted); font-size: 10.5px;">%${cat.percentage} Gider Payı</small>
         </div>
       </div>
-      <div style="font-family: monospace; font-size: 12.5px; font-weight: 800; color: ${cat.color};">${cat.total_str}</div>
+      <div style="font-family: monospace; font-size: 13px; font-weight: 700; color: ${cat.color};">${cat.total_str}</div>
     </div>
   `).join('');
 }
@@ -183,7 +183,8 @@ function switchAccountingSubTab(tabKey) {
     if (b) {
       b.className = 'btn-secondary';
       b.style.background = 'transparent';
-      b.style.color = '#94a3b8';
+      b.style.borderColor = 'transparent';
+      b.style.color = 'var(--text-muted)';
     }
   });
 
@@ -194,23 +195,26 @@ function switchAccountingSubTab(tabKey) {
   if (tabKey === 'breakdown') {
     if (btnBreakdown) {
       btnBreakdown.className = 'btn-primary';
-      btnBreakdown.style.background = '#0284c7';
-      btnBreakdown.style.color = '#fff';
+      btnBreakdown.style.background = 'rgba(255,255,255,0.04)';
+      btnBreakdown.style.borderColor = 'var(--border-color)';
+      btnBreakdown.style.color = 'var(--text-main)';
     }
     if (paneBreakdown) paneBreakdown.style.display = 'flex';
   } else if (tabKey === 'categories') {
     if (btnCategories) {
       btnCategories.className = 'btn-primary';
-      btnCategories.style.background = '#0284c7';
-      btnCategories.style.color = '#fff';
+      btnCategories.style.background = 'rgba(255,255,255,0.04)';
+      btnCategories.style.borderColor = 'var(--border-color)';
+      btnCategories.style.color = 'var(--text-main)';
     }
     if (paneCategories) paneCategories.style.display = 'flex';
     renderCustomCategoriesList();
   } else {
     if (btnExpenses) {
       btnExpenses.className = 'btn-primary';
-      btnExpenses.style.background = '#0284c7';
-      btnExpenses.style.color = '#fff';
+      btnExpenses.style.background = 'rgba(255,255,255,0.04)';
+      btnExpenses.style.borderColor = 'var(--border-color)';
+      btnExpenses.style.color = 'var(--text-main)';
     }
     if (paneExpenses) paneExpenses.style.display = 'flex';
   }
@@ -232,15 +236,15 @@ function renderCustomCategoriesList() {
   const categories = currentAccountingData.all_categories || [];
 
   container.innerHTML = categories.map(cat => `
-    <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 18px;">${cat.icon || '🏷️'}</span>
+        <span style="font-size: 16px;">${cat.icon || '🏷️'}</span>
         <div>
-          <strong style="color: #f8fafc; font-size: 12.5px;">${cat.name}</strong>
-          <small style="display: block; color: #94a3b8; font-size: 10px;">Kod: ${cat.code}</small>
+          <strong style="color: var(--text-main); font-size: 12.5px;">${cat.name}</strong>
+          <small style="display: block; color: var(--text-muted); font-size: 10.5px;">Kod: ${cat.code}</small>
         </div>
       </div>
-      <span style="font-size: 11px; background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">Aktif</span>
+      <span style="font-size: 10.5px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); padding: 2px 6px; border-radius: 4px;">Aktif</span>
     </div>
   `).join('');
 

@@ -588,13 +588,68 @@ def api_send_automated_whatsapp():
         "text": text,
         "receipt_no": receipt_no,
         "pdf_url": pdf_url,
-        "status": "sent",
+        "status": "pending",
         "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     })
     save_json(queue_file, queue[-200:])
 
+    # Autostart daemon if not running to process the message
+    from backend.araclar.whatsapp_bot import wp_bot
+    if wp_bot.check_setup_status() and not wp_bot.is_running:
+        wp_bot.start_daemon()
+
     return jsonify({
         "status": "success",
-        "message": "WhatsApp mesajı ve fiş PDF'i otomatik olarak müşteriye iletildi.",
+        "message": "Mesaj otomatik gönderim kuyruğuna eklendi (Arka planda gönderilecek).",
+        "is_bot_active": wp_bot.is_running,
         "pdf_url": pdf_url
+    })
+
+
+@customer_bp.route("/api/whatsapp/status", methods=["GET"])
+def api_whatsapp_status():
+    from backend.araclar.whatsapp_bot import wp_bot, QUEUE_FILE
+    setup_ok = wp_bot.check_setup_status()
+    queue = load_json(QUEUE_FILE, [])
+    pending_count = len([x for x in queue if x.get("status") == "pending"])
+    return jsonify({
+        "status": "success",
+        "is_setup": setup_ok,
+        "is_running": wp_bot.is_running,
+        "status_message": wp_bot.status_msg,
+        "pending_messages": pending_count,
+        "total_queue": len(queue)
+    })
+
+
+@customer_bp.route("/api/whatsapp/setup", methods=["POST"])
+def api_whatsapp_setup():
+    from backend.araclar.whatsapp_bot import wp_bot
+    import threading
+    # Run setup in a background thread so the request returns immediately
+    thread = threading.Thread(target=wp_bot.run_setup, daemon=True)
+    thread.start()
+    return jsonify({
+        "status": "success",
+        "message": "QR kod ekranı sunucu masaüstünde açılıyor. Lütfen telefonunuzdan taratın."
+    })
+
+
+@customer_bp.route("/api/whatsapp/start", methods=["POST"])
+def api_whatsapp_start():
+    from backend.araclar.whatsapp_bot import wp_bot
+    success, msg = wp_bot.start_daemon()
+    return jsonify({
+        "status": "success" if success else "error",
+        "message": msg
+    })
+
+
+@customer_bp.route("/api/whatsapp/stop", methods=["POST"])
+def api_whatsapp_stop():
+    from backend.araclar.whatsapp_bot import wp_bot
+    success, msg = wp_bot.stop_daemon()
+    return jsonify({
+        "status": "success" if success else "error",
+        "message": msg
     })

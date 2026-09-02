@@ -15,6 +15,7 @@ let currentPermEmp = null;
 let currentPermWorkingSet = new Set();
 let currentRoleWorkingPerms = new Set();
 let currentEmployeeShiftState = { status: "working" };
+let employeeShiftStates = {};
 
 /**
  * Market Panelini Başlatır
@@ -83,73 +84,12 @@ async function loadMarketOperatingMode() {
 }
 
 function renderMarketOperatingModeUI(mode) {
-  currentOperatingMode = mode;
-  const badge = document.getElementById('mkt-current-mode-badge');
-  const cardSolo = document.getElementById('card-mode-solo');
-  const cardFull = document.getElementById('card-mode-full-trust');
-  const cardStrict = document.getElementById('card-mode-strict-rbac');
-
-  const radioSolo = document.getElementById('radio-mode-solo');
-  const radioFull = document.getElementById('radio-mode-full-trust');
-  const radioStrict = document.getElementById('radio-mode-strict-rbac');
-
+  currentOperatingMode = 'STRICT_RBAC';
   const btnTeam = document.getElementById('mkt-subtab-btn-team');
   const btnAddEmp = document.getElementById('btn-mkt-add-employee');
 
-  if (badge) {
-    if (mode === 'SOLO') {
-      badge.innerText = '🏪 Tek Kişilik Bakkal (Aktif)';
-      badge.style.background = 'rgba(16,185,129,0.2)';
-      badge.style.color = '#34d399';
-      badge.style.borderColor = 'rgba(16,185,129,0.4)';
-
-      // Tek kişilik bakkalda çalışan ve kadro butonlarını gizle
-      if (btnTeam) btnTeam.style.display = 'none';
-      if (btnAddEmp) btnAddEmp.style.display = 'none';
-
-      // Doğrudan Market Profili & Şube Bilgilerine odaklan
-      switchMarketSubTab('roles');
-    } else if (mode === 'FULL_TRUST') {
-      badge.innerText = '🤝 Tüm Çalışanlar Tam Yetkili (Aktif)';
-      badge.style.background = 'rgba(56,189,248,0.2)';
-      badge.style.color = '#38bdf8';
-      badge.style.borderColor = 'rgba(56,189,248,0.4)';
-
-      if (btnTeam) btnTeam.style.display = 'flex';
-      if (btnAddEmp) btnAddEmp.style.display = 'flex';
-    } else {
-      badge.innerText = '🔒 Çok Çalışanlı / Rol Bazlı (Aktif)';
-      badge.style.background = 'rgba(168,85,247,0.2)';
-      badge.style.color = '#c084fc';
-      badge.style.borderColor = 'rgba(168,85,247,0.4)';
-
-      if (btnTeam) btnTeam.style.display = 'flex';
-      if (btnAddEmp) btnAddEmp.style.display = 'flex';
-    }
-  }
-
-  const applyCardStyle = (card, radio, isActive, activeColor) => {
-    if (!card || !radio) return;
-    if (isActive) {
-      card.style.background = 'rgba(15,23,42,0.95)';
-      card.style.borderColor = activeColor;
-      card.style.boxShadow = `0 0 15px ${activeColor}33`;
-      radio.style.background = activeColor;
-      radio.style.borderColor = '#0f172a';
-      radio.style.borderWidth = '3px';
-    } else {
-      card.style.background = 'rgba(15,23,42,0.5)';
-      card.style.borderColor = '#334155';
-      card.style.boxShadow = 'none';
-      radio.style.background = 'transparent';
-      radio.style.borderColor = '#64748b';
-      radio.style.borderWidth = '2px';
-    }
-  };
-
-  applyCardStyle(cardSolo, radioSolo, mode === 'SOLO', '#10b981');
-  applyCardStyle(cardFull, radioFull, mode === 'FULL_TRUST', '#38bdf8');
-  applyCardStyle(cardStrict, radioStrict, mode === 'STRICT_RBAC', '#a855f7');
+  if (btnTeam) btnTeam.style.display = 'flex';
+  if (btnAddEmp) btnAddEmp.style.display = 'flex';
 }
 
 async function setMarketOperatingMode(newMode) {
@@ -260,21 +200,21 @@ function renderMarketRoles() {
   const container = document.getElementById('market-roles-container');
   if (container) {
     if (marketRolesList.length === 0) {
-      container.innerHTML = `<div style="color: #64748b; font-size: 12px; padding: 10px;">Rol tanımı bulunamadı.</div>`;
+      container.innerHTML = `<div style="color: var(--text-muted); font-size: 12px; padding: 10px;">Rol tanımı bulunamadı.</div>`;
     } else {
       container.innerHTML = marketRolesList.map(r => {
         const permCount = r.permissions ? r.permissions.length : 0;
         const isActive = r.is_active !== false;
         return `
-          <div style="background: #070d1e; border: 1px solid #1e293b; border-left: 3.5px solid ${r.color || '#38bdf8'}; border-radius: 8px; padding: 9px 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-left: 3px solid ${r.color || '#38bdf8'}; border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px;">${r.icon || '💼'}</span>
+              <span style="font-size: 18px;">${r.icon || '💼'}</span>
               <div>
-                <strong style="color: ${isActive ? '#f8fafc' : '#64748b'}; font-size: 13px; display: block;">${r.name} ${!isActive ? '<small style="color:#ef4444;">(Pasif)</small>' : ''}</strong>
-                <small style="color: #94a3b8; font-size: 11px;">${r.description || ''}</small>
+                <strong style="color: ${isActive ? 'var(--text-main)' : 'var(--text-muted)'}; font-size: 12.5px; display: block;">${r.name} ${!isActive ? '<small style="color:#ef4444; font-weight:normal;">(Pasif)</small>' : ''}</strong>
+                <small style="color: var(--text-muted); font-size: 11px;">${r.description || ''}</small>
               </div>
             </div>
-            <span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: ${r.color || '#38bdf8'}; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px;">
+            <span style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: ${r.color || '#38bdf8'}; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">
               ${permCount} Yetki
             </span>
           </div>
@@ -412,21 +352,21 @@ function renderRoleFormPermissions() {
     tbody.innerHTML = permissionsCatalog.map(p => {
       const isChecked = currentRoleWorkingPerms.has(p.key);
       return `
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: ${isChecked ? 'rgba(56,189,248,0.05)' : 'transparent'}; cursor: pointer; transition: background 0.15s ease;" onclick="toggleRolePermCheckbox('${p.key}')">
+        <tr style="border-bottom: 1px solid var(--border-color); background: ${isChecked ? 'rgba(255,255,255,0.01)' : 'transparent'}; cursor: pointer; transition: background 0.15s ease;" onclick="toggleRolePermCheckbox('${p.key}')">
           <td style="text-align: center; padding: 10px 14px;">
-            <input type="checkbox" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #a855f7;" onclick="event.stopPropagation(); toggleRolePermCheckbox('${p.key}')">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer; accent-color: #3b82f6;" onclick="event.stopPropagation(); toggleRolePermCheckbox('${p.key}')">
           </td>
           <td style="padding: 10px 14px;">
-            <strong style="color: ${isChecked ? '#f8fafc' : '#cbd5e1'}; font-size: 12.5px; display: flex; align-items: center; gap: 6px;">
+            <strong style="color: ${isChecked ? 'var(--text-main)' : 'var(--text-muted)'}; font-size: 12.5px; display: flex; align-items: center; gap: 6px;">
               <span>${p.icon || '🔑'}</span>
               <span>${p.title}</span>
             </strong>
           </td>
-          <td style="padding: 10px 14px; color: #94a3b8; font-size: 11.5px;">
+          <td style="padding: 10px 14px; color: var(--text-muted); font-size: 11.5px;">
             ${p.description || '-'}
           </td>
           <td style="padding: 10px 14px;">
-            <span style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); color: #c084fc; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+            <span style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">
               ${p.category || 'Genel'}
             </span>
           </td>
@@ -652,7 +592,6 @@ function renderMarketEmployees() {
     "unlu_mamul_module": "🥖 Fırın & Unlu Mamül",
     "manav_scale": "⚖️ Manav & Terazi",
     "accounting_access": "📈 Muhasebe",
-    "invoice_access": "📄 Fatura Arşivi",
     "customer_ledger": "📒 Cari & Veresiye"
   };
 
@@ -682,19 +621,19 @@ function renderMarketEmployees() {
     const turnoverFormatted = (perf.total_turnover || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     return `
-      <div class="market-employee-card-row" style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 18px; display: grid; grid-template-columns: 240px 160px 1.4fr 260px; gap: 14px; align-items: center; transition: all 0.2s ease;">
+      <div class="market-employee-card-row" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 20px; display: grid; grid-template-columns: 240px 160px 1.4fr 260px; gap: 14px; align-items: center; transition: all 0.2s ease;">
         
         <!-- 1. SÜTUN: Personel Kimlik & Avatar -->
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56,189,248,0.12); border: 1.5px solid ${roleObj.color || '#38bdf8'}; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
             ${roleObj.icon || '👤'}
           </div>
           <div style="overflow: hidden;">
-            <div style="font-size: 14px; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${emp.name}
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 11px; color: #94a3b8;">
-              <span style="font-family: monospace; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px;">ID: ${emp.id}</span>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 11px; color: var(--text-muted);">
+              <span style="font-family: monospace; background: rgba(255,255,255,0.03); padding: 1px 5px; border-radius: 3px;">ID: ${emp.id}</span>
               ${emp.phone ? `<span>📞 ${emp.phone}</span>` : ''}
             </div>
           </div>
@@ -702,43 +641,39 @@ function renderMarketEmployees() {
 
         <!-- 2. SÜTUN: Reyon / Çalışma Alanı & PIN Güvenliği -->
         <div style="display: flex; flex-direction: column; gap: 5px;">
-          <span style="background: rgba(255,255,255,0.06); border: 1px solid ${roleObj.color || '#334155'}; color: ${roleObj.color || '#f8fafc'}; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; width: fit-content;">
+          <span style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; width: fit-content;">
             <span>${roleObj.icon || '💼'}</span>
             <span>${roleObj.name}</span>
           </span>
           <div>
             ${hasPin 
-              ? `<span style="color: #fbbf24; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;">🔒 PIN Korumalı</span>` 
-              : `<span style="color: #34d399; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px;">🔓 Şifresiz Kasa</span>`
+              ? `<span style="color: #fbbf24; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">🔒 PIN Korumalı</span>` 
+              : `<span style="color: #34d399; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">🔓 Şifresiz Kasa</span>`
             }
           </div>
         </div>
 
         <!-- 3. SÜTUN: Canlı Performans & Yetki Özeti -->
-        <div style="display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+        <div style="display: flex; flex-direction: column; gap: 6px; background: rgba(255,255,255,0.01); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
           <!-- Performans Sayaçları -->
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 11.5px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 4px; color: #34d399; font-weight: 800; font-family: monospace;">
-              <span>💰 Ciro:</span> ₺${turnoverFormatted}
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 4px; color: #34d399; font-weight: 700; font-family: monospace;">
+              <span>Ciro:</span> ₺${turnoverFormatted}
             </div>
-            <div style="color: rgba(255,255,255,0.2);">|</div>
-            <div style="display: flex; align-items: center; gap: 4px; color: #38bdf8; font-weight: 700;">
-              <span>🧾 ${perf.sales_count || 0} Satış</span>
-            </div>
-            <div style="color: rgba(255,255,255,0.2);">|</div>
-            <div style="display: flex; align-items: center; gap: 4px; color: #fbbf24; font-weight: 700;">
-              <span>☕ ${perf.break_count || 0} Mola (${perf.total_break_minutes || 0} dk)</span>
+            <div style="color: rgba(255,255,255,0.1);">|</div>
+            <div style="display: flex; align-items: center; gap: 4px; color: var(--text-main); font-weight: 600;">
+              <span>${perf.sales_count || 0} Satış</span>
             </div>
           </div>
 
           <!-- Yetki Çipleri -->
-          <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-top: 2px;">
             ${hasCustomPerms 
-              ? `<span style="background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.45); color: #c084fc; font-size: 10.5px; font-weight: 800; padding: 1px 6px; border-radius: 4px;">⭐ Özel</span>` 
+              ? `<span style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: #c084fc; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px;">⭐ Özel</span>` 
               : ''
             }
             ${permChipsHtml}
-            ${extraPermCount ? `<span style="font-size: 10px; color: #94a3b8; font-weight: 800;">${extraPermCount} diğer</span>` : ''}
+            ${extraPermCount ? `<span style="font-size: 10px; color: var(--text-muted); font-weight: 700;">${extraPermCount} diğer</span>` : ''}
           </div>
         </div>
 
@@ -748,20 +683,20 @@ function renderMarketEmployees() {
             ${statusHtml}
           </div>
           <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
-            <button type="button" class="btn-primary" onclick="openEmployeeReportDetailModal('${emp.id}')" style="padding: 5px 9px; font-size: 11px; font-weight: 800; background: linear-gradient(135deg, #059669, #047857); border: none; color: #ffffff; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Performans, Ciro & Mola Detayları">
+            <button type="button" class="btn-primary" onclick="openEmployeeReportDetailModal('${emp.id}')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: #10b981; border: none; color: #ffffff; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Performans & Mola Detayları">
               <span>📊</span> Detay
             </button>
-            <button type="button" class="btn-secondary" onclick="openEmployeeQrModal('${emp.id}')" style="padding: 5px 9px; font-size: 11px; font-weight: 800; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Kişisel Mobil QR Bağlantı Ekranı">
-              <span>📱</span> Mobil QR
+            <button type="button" class="btn-secondary" onclick="openEmployeeQrModal('${emp.id}')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Mobil QR">
+              <span>📱</span> QR
             </button>
-            <button type="button" class="btn-secondary" onclick="openEmployeePermissionsModal('${emp.id}')" style="padding: 5px 8px; font-size: 11px; font-weight: 800; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #c084fc; border-radius: 6px; cursor: pointer;" title="İzin Matrisini Düzenle">
-              🔑 İzinler
+            <button type="button" class="btn-secondary" onclick="openEmployeePermissionsModal('${emp.id}')" style="padding: 5px 10px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; cursor: pointer;" title="İzin Matrisi">
+              🔑 Yetki
             </button>
-            <button type="button" class="btn-secondary" onclick="openEditEmployeeModal('${emp.id}')" style="padding: 5px 8px; font-size: 11.5px; font-weight: 700; background: #1e293b; border: 1px solid #334155; color: #38bdf8; border-radius: 6px; cursor: pointer;" title="Bilgileri Düzenle">
+            <button type="button" class="btn-secondary" onclick="openEditEmployeeModal('${emp.id}')" style="padding: 5px 8px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; cursor: pointer;" title="Bilgileri Düzenle">
               ✏️
             </button>
             ${emp.id !== 'admin' ? `
-              <button type="button" class="btn-secondary" onclick="deleteEmployee('${emp.id}')" style="padding: 5px 8px; font-size: 11.5px; font-weight: 700; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; border-radius: 6px; cursor: pointer;" title="Çalışanı Sil">
+              <button type="button" class="btn-secondary" onclick="deleteEmployee('${emp.id}')" style="padding: 5px 8px; font-size: 11px; font-weight: 600; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; border-radius: 4px; cursor: pointer;" title="Çalışanı Sil">
                 🗑️
               </button>
             ` : ''}
@@ -1118,13 +1053,8 @@ async function openEmployeeReportDetailModal(empId) {
       // KPI Kartlarını Doldur
       const turnoverEl = document.getElementById('emp-detail-kpi-turnover');
       const salesEl = document.getElementById('emp-detail-kpi-sales');
-      const breaksEl = document.getElementById('emp-detail-kpi-breaks');
-      const breakTimeEl = document.getElementById('emp-detail-kpi-breaktime');
-
       if (turnoverEl) turnoverEl.innerText = `${Number(empReport.total_sales_turnover || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2 })} TL`;
       if (salesEl) salesEl.innerText = `${empReport.total_sales_count || 0} Fiş`;
-      if (breaksEl) breaksEl.innerText = `${empReport.break_count || 0} Kez`;
-      if (breakTimeEl) breakTimeEl.innerText = `${empReport.total_break_minutes || 0} Dk`;
 
       // Log Çizelgesini Doldur
       const logsTbody = document.getElementById('emp-detail-modal-logs-tbody');

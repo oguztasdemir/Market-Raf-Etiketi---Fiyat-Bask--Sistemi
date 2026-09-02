@@ -1,18 +1,18 @@
-<div id="modal-app-prompt" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 8, 16, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 999999;">
-    <div class="modal-card" style="max-width: 440px; width: 92%; border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.85); background: #0c121e; border-radius: 14px; padding: 20px;">
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-        <h3 id="app-prompt-title" style="font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--text-main); margin: 0;">
-          <span>✏️</span> <span id="app-prompt-title-text">Bilgi Girişi</span>
+<div id="modal-app-prompt" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 8, 16, 0.88); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 99999999;">
+    <div class="modal-card" style="max-width: 560px; width: 94%; border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 24px 70px rgba(0,0,0,0.95); background: #0b1324; border-radius: 16px; padding: 24px; box-sizing: border-box; animation: fadeIn 0.15s ease;">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="app-prompt-title" style="font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #f8fafc; margin: 0;">
+          <span style="font-size: 20px;">✏️</span> <span id="app-prompt-title-text">Bilgi Girişi</span>
         </h3>
-        <button class="modal-close-btn" onclick="_resolveAppPrompt(null)" style="background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer;">✕</button>
+        <button class="modal-close-btn" onclick="_resolveAppPrompt(null)" style="background: none; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1;" title="Kapat">&times;</button>
       </div>
-      <div class="modal-body" style="padding: 16px 0 10px 0; display: flex; flex-direction: column; gap: 10px;">
-        <label id="app-prompt-msg" style="font-size: 13px; color: #cbd5e1; line-height: 1.4; margin: 0;"></label>
-        <input type="text" id="app-prompt-input" class="form-control" style="width: 100%; background: #090d16; border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px;" onkeydown="if(event.key==='Enter') _resolveAppPrompt(this.value)">
+      <div class="modal-body" style="padding: 20px 0 16px 0; display: flex; flex-direction: column; gap: 12px;">
+        <label id="app-prompt-msg" style="font-size: 14.5px; font-weight: 500; color: #e2e8f0; line-height: 1.5; margin: 0;"></label>
+        <input type="text" id="app-prompt-input" class="form-control" style="width: 100%; background: #070d1e; border: 1.5px solid #38bdf8; color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 15px; font-weight: 600; outline: none; box-sizing: border-box;" onkeydown="if(event.key==='Enter') _resolveAppPrompt(this.value)">
       </div>
-      <div class="modal-footer" style="gap: 8px; display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
-        <button class="btn-secondary" onclick="_resolveAppPrompt(null)" style="font-size: 12px; padding: 6px 14px; border-radius: 6px; cursor: pointer;">İptal</button>
-        <button class="btn-primary" onclick="_resolveAppPrompt(document.getElementById('app-prompt-input').value)" style="font-size: 12px; padding: 6px 16px; font-weight: 700; border-radius: 6px; cursor: pointer;">Kaydet</button>
+      <div class="modal-footer" style="gap: 12px; display: flex; justify-content: flex-end; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <button class="btn-secondary" onclick="_resolveAppPrompt(null)" style="font-size: 13.5px; font-weight: 700; padding: 9px 20px; border-radius: 8px; cursor: pointer; background: #1e293b; color: #cbd5e1; border: 1px solid #475569;">İptal</button>
+        <button class="btn-primary" onclick="_resolveAppPrompt(document.getElementById('app-prompt-input').value)" style="font-size: 13.5px; font-weight: 800; padding: 9px 24px; border-radius: 8px; cursor: pointer; background: linear-gradient(135deg, #0284c7, #2563eb); border: none; color: #ffffff; box-shadow: 0 4px 14px rgba(37,99,235,0.4);">Kaydet</button>
       </div>
     </div>
   </div>

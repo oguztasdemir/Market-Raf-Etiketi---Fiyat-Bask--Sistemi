@@ -1,23 +1,23 @@
-<div id="modal-pos-exit-confirm" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 999999; align-items: center; justify-content: center;">
-  <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; width: 440px; max-width: 90%; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box;">
+<div id="modal-pos-exit-confirm" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999999; align-items: center; justify-content: center;">
+  <div style="background: #0b1324; border: 1.5px solid rgba(239, 68, 68, 0.4); border-radius: 14px; width: 540px; max-width: 94%; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.9); padding: 24px; box-sizing: border-box;">
     
-    <h3 style="color: #f8fafc; font-size: 15px; font-weight: 700; margin: 0 0 10px 0;">
-      Bekleyen Satışlar Var
+    <h3 style="color: #f8fafc; font-size: 17px; font-weight: 800; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+      <span style="color: #ef4444; font-size: 20px;">⚠️</span> <span>Bekleyen Satışlar Var</span>
     </h3>
     
-    <div id="pos-exit-confirm-summary" style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 10px 12px; margin: 12px 0; font-size: 12.5px; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px;">
+    <div id="pos-exit-confirm-summary" style="background: #070d1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 14px; margin: 12px 0; font-size: 13.5px; color: #cbd5e1; display: flex; flex-direction: column; gap: 6px;">
       <!-- JS ile doldurulur -->
     </div>
 
-    <p style="color: #94a3b8; font-size: 13px; line-height: 1.5; margin: 0 0 16px 0;">
-      Kasada henüz tamamlanmamış satışlar bulunmaktadır. Yine de kapatmak istiyor musunuz?
+    <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+      Kasada henüz tamamlanmamış veya askıda bekleyen satışlar bulunmaktadır. Yine de kapatmak istiyor musunuz?
     </p>
 
-    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-      <button type="button" onclick="cancelPosExitModal()" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #334155; border: 1px solid #475569; color: #e2e8f0; border-radius: 6px; cursor: pointer;">
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button type="button" onclick="cancelPosExitModal()" style="padding: 10px 20px; font-size: 13.5px; font-weight: 700; background: #1e293b; border: 1px solid #475569; color: #e2e8f0; border-radius: 8px; cursor: pointer;">
         İptal (Esc)
       </button>
-      <button type="button" onclick="forceClosePosApp()" style="padding: 8px 18px; font-size: 13px; font-weight: 600; background: #dc2626; color: #ffffff; border: none; border-radius: 6px; cursor: pointer;">
+      <button type="button" onclick="forceClosePosApp()" style="padding: 10px 22px; font-size: 13.5px; font-weight: 800; background: #dc2626; color: #ffffff; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(220,38,38,0.4);">
         Yine de Kapat
       </button>
     </div>

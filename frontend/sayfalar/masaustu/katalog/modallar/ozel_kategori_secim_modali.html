@@ -1,0 +1,87 @@
+<!-- =========================================================
+     MODAL: ÖZEL KATEGORİ SEÇİM & EKLEME MODALI
+     ========================================================= -->
+<div id="modal-special-cat-picker" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.85); backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; padding: 15px; box-sizing: border-box;">
+  <div style="background: #0f172a; border: 1.5px solid rgba(168,85,247,0.4); border-radius: 16px; width: 540px; max-width: 96%; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.85); padding: 22px; box-sizing: border-box;">
+    
+    <!-- Başlık & Kapat Butonu -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 22px; background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.35); border-radius: 8px; padding: 4px 8px;">⭐</span>
+        <div>
+          <h3 style="margin: 0; font-size: 15.5px; font-weight: 800; color: #f8fafc;">
+            Özel Kategori Seçimi & Ekleme
+          </h3>
+          <small id="special-picker-prod-title" style="color: #94a3b8; font-size: 11.5px;">Bu ürünün atanacağı özel kategoriyi seçin</small>
+        </div>
+      </div>
+      <button type="button" onclick="closeSpecialCategoryPickerModal()" style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #94a3b8; font-size: 15px; cursor: pointer; padding: 4px 10px; line-height: 1;">✕</button>
+    </div>
+
+    <!-- Mevcut Hızlı Kategori Seçenekleri -->
+    <div style="margin-bottom: 16px;">
+      <label style="font-size: 11px; font-weight: 800; color: #d8b4fe; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">
+        📌 Standart & Tanımlı Özel Kategoriler
+      </label>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;" id="special-picker-default-categories">
+        
+        <!-- 1. BARKODSUZ ÜRÜNLER -->
+        <button type="button" onclick="assignProductToSpecialCategory('barkodsuz', 'BARKODSUZ')" style="background: #1e293b; border: 1.5px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.borderColor='#38bdf8'; this.style.background='rgba(56,189,248,0.1)';" onmouseout="this.style.borderColor='rgba(56,189,248,0.3)'; this.style.background='#1e293b';">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 18px;">🛒</span>
+            <span style="font-size: 10px; background: rgba(56,189,248,0.2); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 800;">POS LİSTESİ</span>
+          </div>
+          <strong style="color: #f8fafc; font-size: 13px;">Barkodsuz Ürünler</strong>
+          <span style="color: #94a3b8; font-size: 10.5px;">Hızlı satışta 'BARKODSUZ' sekmesine ekler</span>
+        </button>
+
+        <!-- 2. MANAV & TERAZİ PLU -->
+        <button type="button" onclick="assignProductToSpecialCategory('manav', 'OZEL-MANAV')" style="background: #1e293b; border: 1.5px solid rgba(52,211,153,0.3); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer; transition: all 0.15s;" onmouseover="this.style.borderColor='#34d399'; this.style.background='rgba(52,211,153,0.1)';" onmouseout="this.style.borderColor='rgba(52,211,153,0.3)'; this.style.background='#1e293b';">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 18px;">🥬</span>
+            <span style="font-size: 10px; background: rgba(52,211,153,0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-weight: 800;">MANAV / PLU</span>
+          </div>
+          <strong style="color: #f8fafc; font-size: 13px;">Manav / Terazi Ürünleri</strong>
+          <span style="color: #94a3b8; font-size: 10.5px;">Manav paneli ve terazi PLU listesine bağlar</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Tanımlı Özel Barkodlar (Varsa) -->
+    <div id="special-picker-custom-barcodes-section" style="margin-bottom: 16px; display: none;">
+      <label style="font-size: 11px; font-weight: 800; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">
+        🏷️ Diğer Özel Barkod Alanları
+      </label>
+      <div id="special-picker-custom-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto;">
+        <!-- JS ile doldurulur -->
+      </div>
+    </div>
+
+    <!-- Yeni Özel Alan / Kategori Oluşturma Bölümü -->
+    <div style="background: #070d1e; border: 1px dashed rgba(168,85,247,0.45); border-radius: 10px; padding: 12px; margin-bottom: 16px;">
+      <div style="font-size: 11.5px; font-weight: 800; color: #d8b4fe; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+        <span>✨</span> <span>Veya Yeni Bir Özel Alan / Kategori Tanımla</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr auto; gap: 8px; align-items: center;">
+        <input type="text" id="special-picker-new-name" placeholder="Kategori Adı (Örn: ÇEREZ, ŞARKÜTERİ)" style="padding: 7px 10px; background: #0f172a; border: 1px solid #334155; border-radius: 7px; color: #f8fafc; font-size: 12px; font-weight: 700; outline: none; box-sizing: border-box;">
+        <input type="text" id="special-picker-new-code" placeholder="Özel Kod (Örn: OZEL-CEREZ)" style="padding: 7px 10px; background: #0f172a; border: 1px solid rgba(168,85,247,0.4); border-radius: 7px; color: #38bdf8; font-family: monospace; font-size: 11.5px; font-weight: 800; outline: none; box-sizing: border-box;">
+        <button type="button" onclick="submitCreateAndAssignSpecialCategory()" style="padding: 7px 14px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, #a855f7, #7c3aed); color: #ffffff; border: none; border-radius: 7px; cursor: pointer; white-space: nowrap;">
+          Oluştur & Ata
+        </button>
+      </div>
+    </div>
+
+    <!-- Alt Butonlar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+      <button type="button" onclick="removeProductFromSpecialCategory()" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); color: #f87171; font-weight: 700; font-size: 11.5px; padding: 6px 12px; border-radius: 7px; cursor: pointer;">
+        ✕ Özel Kategoriden Çıkar
+      </button>
+      <button type="button" onclick="closeSpecialCategoryPickerModal()" style="background: #1e293b; border: 1px solid #475569; color: #cbd5e1; font-weight: 700; font-size: 12px; padding: 6px 16px; border-radius: 7px; cursor: pointer;">
+        Vazgeç
+      </button>
+    </div>
+
+  </div>
+</div>

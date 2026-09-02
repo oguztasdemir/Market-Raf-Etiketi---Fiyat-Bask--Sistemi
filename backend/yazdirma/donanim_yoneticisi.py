@@ -254,35 +254,27 @@ def generate_esc_pos_receipt_bytes(receipt_data: dict, paper_size: str = "80mm",
     # 4. Bilgi Satırları (Sola Yaslı)
     b.extend(b'\x1b\x61\x00') # ESC a 0 (Left)
     now_str = to_thermal_clean_tr(receipt_data.get("date") or datetime.datetime.now().strftime("%d.%m.%Y %H:%M"))
-    receipt_no = to_thermal_clean_tr(receipt_data.get("receipt_no", "FIS-0001"))
-    cashier_name = to_thermal_clean_tr(receipt_data.get("cashier_name", "Kasiyer"))
+    receipt_no = to_thermal_clean_tr(receipt_data.get("receipt_no", "A000.000.001"))
 
     b.extend(f"Tarih : {now_str}\n".encode('ascii', errors='replace'))
-    b.extend(f"Fis No: {receipt_no:<12} Kasiyer: {cashier_name}\n".encode('ascii', errors='replace'))
+    b.extend(f"Fis No: {receipt_no}\n".encode('ascii', errors='replace'))
     b.extend(f"{'=' * cols}\n".encode('ascii'))
 
-    # 5. Ürün Tablosu (KDV Sütunu Kaldırıldı, Genişletilmiş Alan ve Çoklu Satır Başlık)
+    # 5. Ürün Tablosu (Sade ve Ferah)
     import textwrap
-    from backend.ayarlar import SETTINGS_FILE
-    from backend.araclar.depolama_araclari import load_json
-    settings = load_json(SETTINGS_FILE, {})
-    show_kdv = settings.get("receipt_show_kdv", True)
-    vat_mode = settings.get("receipt_vat_mode", "INCLUSIVE")
-
     items = receipt_data.get("items", [])
     if paper_size == "80mm":
         # 80mm: Ürün Adı (21 char) + Miktar (6 char) + Fiyat (7 char) + Tutar (8 char)
         b.extend(f"{'URUN ADI':<21}{'MIKTAR':>6}{'FIYAT':>7}{'TUTAR':>8}\n".encode('ascii'))
         name_max_w = 21
     else:
-        # 58mm: Ürün Adı (15 char) + Miktar (4 char) + Tutar (11 char)
-        b.extend(f"{'URUN ADI':<15}{'ADET':>5}{'TUTAR':>11}\n".encode('ascii'))
+        # 58mm: Ürün Adı (15 char) + Miktar (5 char) + Tutar (12 char)
+        b.extend(f"{'URUN ADI':<15}{'ADET':>5}{'TUTAR':>12}\n".encode('ascii'))
         name_max_w = 15
 
     b.extend(f"{'-' * cols}\n".encode('ascii'))
 
-    vat_sums = {1: {"matrah": 0.0, "kdv": 0.0, "tot": 0.0}, 10: {"matrah": 0.0, "kdv": 0.0, "tot": 0.0}, 20: {"matrah": 0.0, "kdv": 0.0, "tot": 0.0}}
-    total_raw_sum = 0.0
+    total_amount = float(receipt_data.get("total_amount") or 0.0)
 
     for it in items:
         name = to_thermal_clean_tr(str(it.get("title") or it.get("name") or "Urun")).strip()
@@ -291,22 +283,6 @@ def generate_esc_pos_receipt_bytes(receipt_data: dict, paper_size: str = "80mm",
         qty_str = f"{qty:g}{unit[:2]}"
         price = float(it.get("unit_price") or 0)
         total = float(it.get("total_price") or (qty * price))
-        kdv_rate = int(it.get("kdv") or it.get("vat_rate") or (1 if (unit.lower() == "kg" or it.get("is_scale_item")) else 10))
-        if kdv_rate not in vat_sums:
-            vat_sums[kdv_rate] = {"matrah": 0.0, "kdv": 0.0, "tot": 0.0}
-
-        total_raw_sum += total
-        if vat_mode == "INCLUSIVE":
-            m = total / (1.0 + (kdv_rate / 100.0))
-            k = total - m
-            vat_sums[kdv_rate]["matrah"] += m
-            vat_sums[kdv_rate]["kdv"] += k
-            vat_sums[kdv_rate]["tot"] += total
-        else:
-            k = total * (kdv_rate / 100.0)
-            vat_sums[kdv_rate]["matrah"] += total
-            vat_sums[kdv_rate]["kdv"] += k
-            vat_sums[kdv_rate]["tot"] += (total + k)
 
         # Uzun ürün isimlerini alt satıra güvenle bölme
         name_lines = textwrap.wrap(name, width=name_max_w)
@@ -315,63 +291,33 @@ def generate_esc_pos_receipt_bytes(receipt_data: dict, paper_size: str = "80mm",
         if paper_size == "80mm":
             b.extend(f"{first_line:<21}{qty_str:>6}{price:>7.2f}{total:>8.2f}\n".encode('ascii', errors='replace'))
         else:
-            b.extend(f"{first_line:<15}{qty_str:>5}{total:>11.2f}\n".encode('ascii', errors='replace'))
+            b.extend(f"{first_line:<15}{qty_str:>5}{total:>12.2f}\n".encode('ascii', errors='replace'))
 
         # Eğer ürün adı 1 satırdan uzunsa kalan satırları aşağıya yazdır
         if len(name_lines) > 1:
             for extra_line in name_lines[1:]:
                 b.extend(f"  {extra_line}\n".encode('ascii', errors='replace'))
 
-    b.extend(f"{'-' * cols}\n".encode('ascii'))
-
-    # 6. Genel Toplam & KDV Kırılımı
-    total_amount = float(receipt_data.get("total_amount") or 0.0)
-    calculated_kdv_sum = sum(v["kdv"] for v in vat_sums.values())
-    grand_total = (total_raw_sum + calculated_kdv_sum) if vat_mode == "EXCLUSIVE" else total_amount
-
-    if vat_mode == "EXCLUSIVE":
-        b.extend(f"{'ARA TOPLAM (KDV HARIC):':<24}{total_raw_sum:>14.2f} TL\n".encode('ascii'))
-    else:
-        b.extend(f"{'ARA TOPLAM:':<24}{total_amount:>14.2f} TL\n".encode('ascii'))
-
-    b.extend(b'\x1b\x45\x01') # Bold ON
-    lbl_total = "GENEL TOPLAM:" if vat_mode == "EXCLUSIVE" else "TOPLAM TUTAR:"
-    b.extend(f"{lbl_total:<18}{grand_total:>14.2f} TL\n".encode('ascii'))
-    b.extend(b'\x1b\x45\x00') # Bold OFF
-
-    # 7. KDV Kırılım Tablosu (Opsiyonel)
-    if show_kdv:
-        b.extend(f"{'-' * cols}\n".encode('ascii'))
-        for r in sorted(vat_sums.keys()):
-            if vat_sums[r]["kdv"] > 0 or vat_sums[r]["tot"] > 0:
-                kdv_str = f"KDV (%{r}): {vat_sums[r]['kdv']:.2f} TL"
-                mat_str = f"Matrah: {vat_sums[r]['matrah']:.2f} TL"
-                b.extend(f"{kdv_str:<22}{mat_str:>18}\n".encode('ascii'))
-        kdv_toplam_label = "TOPLAM EKLENEN KDV:" if vat_mode == "EXCLUSIVE" else "TOPLAM KDV (Dahil):"
-        b.extend(f"{kdv_toplam_label:<24}{calculated_kdv_sum:>14.2f} TL\n".encode('ascii'))
-
-    b.extend(f"{'-' * cols}\n".encode('ascii'))
-
-    # 7. Ödeme & Para Üstü
-    payment_type = to_thermal_clean_tr(str(receipt_data.get("payment_type", "Nakit")).upper())
-    received_cash = float(receipt_data.get("received_cash") or 0.0)
-    change_amount = float(receipt_data.get("change_amount") or 0.0)
-
-    b.extend(f"Odeme Turu: {payment_type}\n".encode('ascii'))
-    if payment_type == "NAKIT" and received_cash > 0:
-        b.extend(f"Alinan Nakit: {received_cash:.2f} TL\n".encode('ascii'))
-        b.extend(f"Para Ustu:    {change_amount:.2f} TL\n".encode('ascii'))
-
     b.extend(f"{'=' * cols}\n".encode('ascii'))
 
-    # 8. Alt Bilgi & Teşekkür Notu (Ortalı)
+    # 6. Genel Toplam
+    b.extend(b'\x1b\x45\x01') # Bold ON
+    if paper_size == "80mm":
+        b.extend(f"{'TOPLAM TUTAR:':<24}{total_amount:>14.2f} TL\n".encode('ascii'))
+    else:
+        b.extend(f"{'TOPLAM:':<16}{total_amount:>13.2f} TL\n".encode('ascii'))
+    b.extend(b'\x1b\x45\x00') # Bold OFF
+
+    b.extend(f"{'-' * cols}\n".encode('ascii'))
+
+    # 7. Alt Bilgi & Teşekkür Notu (Ortalı)
     b.extend(b'\x1b\x61\x01') # Center
     footer_note = to_thermal_clean_tr(receipt_data.get("receipt_footer_note") or "Bizi tercih ettiginiz icin tesekkur ederiz!")
     b.extend(f"{footer_note}\n".encode('ascii', errors='replace'))
     b.extend(b"BILGI FISIDIR - MALI DEGERI YOKTUR\n")
 
-    # 9. Kağıt İlerletme & Kesme
-    b.extend(b'\x1b\x64\x05') # ESC d 5 (Feed 5 lines)
+    # 8. Kağıt İlerletme & Kesme
+    b.extend(b'\x1b\x64\x04') # ESC d 4 (Feed 4 lines)
     if auto_cut:
         b.extend(b'\x1d\x56\x00') # GS V 0 (Full Cut)
         b.extend(b'\x1d\x56\x01') # GS V 1 (Partial Cut fallback)

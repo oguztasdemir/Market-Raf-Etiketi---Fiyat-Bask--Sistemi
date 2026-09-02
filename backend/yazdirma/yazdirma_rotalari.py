@@ -7,8 +7,9 @@ import datetime
 import math
 import base64
 from flask import Blueprint, jsonify, request
-from backend.ayarlar import DRAFT_CACHE_FILE, SETTINGS_FILE, CASHIERS_FILE
+from backend.ayarlar import DRAFT_CACHE_FILE, SETTINGS_FILE
 from backend.araclar.depolama_araclari import load_json, save_json
+from backend.kasa.kasiyer_servisi import get_cashiers, save_cashiers, add_cashier
 from backend.araclar.metin_duzenleyici import get_online_or_system_date
 from backend.araclar.excel_dosya_izleyici import get_local_ip
 from backend.yazdirma.yazdirma_servisi import (
@@ -322,7 +323,7 @@ def api_cashiers():
         if not name:
             return jsonify({"status": "error", "message": "Kasiyer adı boş olamaz."}), 400
             
-        cashiers = load_json(CASHIERS_FILE, [])
+        cashiers = get_cashiers()
         # Var olanı kontrol et
         for c in cashiers:
             if c.get("id") == cid:
@@ -331,71 +332,38 @@ def api_cashiers():
                     c["pin"] = pin
                 c["role"] = role
                 c["active"] = req.get("active", True)
-                save_json(CASHIERS_FILE, cashiers)
+                save_cashiers(cashiers)
                 return jsonify({"status": "success", "message": "Kasiyer bilgileri güncellendi.", "cashiers": cashiers})
                 
         # Yeni Kasiyer Ekle
-        new_cashier = {
-            "id": cid,
-            "name": name,
-            "pin": pin,
-            "role": role,
-            "active": True,
-            "created_at": time.strftime("%Y-%m-%d %H:%M")
-        }
-        cashiers.append(new_cashier)
-        save_json(CASHIERS_FILE, cashiers)
-        return jsonify({"status": "success", "message": f"{name} başarıyla kasiyer olarak eklendi.", "cashiers": cashiers})
+        add_cashier(name, pin, role)
+        return jsonify({"status": "success", "message": f"{name} başarıyla kasiyer olarak eklendi.", "cashiers": get_cashiers()})
     else:
-        cashiers = load_json(CASHIERS_FILE, [
-            {"id": "kasa1", "name": "Kasa 1 (Kasiyer 1)", "pin": "", "role": "cashier", "active": True},
-            {"id": "admin", "name": "Yönetici (Admin)", "pin": "", "role": "admin", "active": True}
-        ])
-        return jsonify({"status": "success", "cashiers": cashiers})
+        return jsonify({"status": "success", "cashiers": get_cashiers()})
 
 @print_bp.route("/api/cashiers/verify", methods=["POST"])
 def api_verify_cashier_pin():
-    """Kasiyer girişini ve PIN kodunu doğrular."""
+    """Kasiyer girişini doğrular (PIN zorunluluğu olmadan anında geçiş)."""
     req = request.json or {}
     cid = str(req.get("id", "")).strip()
-    given_pin = str(req.get("pin", "")).strip()
 
     if not cid:
         return jsonify({"status": "error", "message": "Lütfen bir kasiyer seçin."}), 400
 
-    cashiers = load_json(CASHIERS_FILE, [
-        {"id": "kasa1", "name": "Kasa 1 (Kasiyer 1)", "pin": "", "role": "cashier", "active": True},
-        {"id": "admin", "name": "Yönetici (Admin)", "pin": "", "role": "admin", "active": True}
-    ])
+    cashiers = get_cashiers()
 
     cashier = next((c for c in cashiers if str(c.get("id")) == cid), None)
     if not cashier:
-        return jsonify({"status": "error", "message": "Seçilen kasiyer bulunamadı."}), 404
-
-    if cashier.get("active") is False:
-        return jsonify({"status": "error", "message": "Bu kasiyer hesabı pasif durumdadır."}), 403
-
-    expected_pin = str(cashier.get("pin", "") or "").strip()
-
-    # Kasiyer şifreli mi?
-    if expected_pin:
-        if not given_pin:
-            return jsonify({"status": "error", "message": "Bu kasiyer şifrelidir. Lütfen PIN kodunuzu girin."}), 400
-        if given_pin != expected_pin:
-            return jsonify({"status": "error", "message": "Hatalı PIN kodu! Lütfen doğru şifreyi girin."}), 401
-    else:
-        # Kasiyerin şifresi YOK (boş olmalı)
-        if given_pin:
-            return jsonify({"status": "error", "message": "Bu kasiyer için şifre tanımlı değildir. Lütfen PIN alanını boş bırakın."}), 400
+        # ID eşleşmezse isimle veya varsayılanla eşleştir
+        cashier = next((c for c in cashiers if str(c.get("name")).lower() == cid.lower()), None)
+    
+    if not cashier:
+        cashier = {"id": cid, "name": cid.capitalize(), "role": "admin" if "admin" in cid.lower() else "cashier"}
 
     return jsonify({
         "status": "success",
-        "message": f"Hoş geldiniz, {cashier.get('name')}.",
-        "cashier": {
-            "id": cashier.get("id"),
-            "name": cashier.get("name"),
-            "role": cashier.get("role", "cashier")
-        }
+        "message": f"Kasiyer aktif edildi: {cashier.get('name')}",
+        "cashier": cashier
     })
 
 @print_bp.route("/api/cashiers/delete", methods=["POST"])
@@ -406,9 +374,9 @@ def api_delete_cashier():
     if not cid:
         return jsonify({"status": "error", "message": "Geçersiz kasiyer ID."}), 400
         
-    cashiers = load_json(CASHIERS_FILE, [])
+    cashiers = get_cashiers()
     cashiers = [c for c in cashiers if c.get("id") != cid]
-    save_json(CASHIERS_FILE, cashiers)
+    save_cashiers(cashiers)
     return jsonify({"status": "success", "message": "Kasiyer sistemden silindi.", "cashiers": cashiers})
 
 @print_bp.route("/api/cashiers/toggle-active", methods=["POST"])
@@ -416,12 +384,12 @@ def api_toggle_cashier_active():
     """Kasiyer aktif/pasif durumunu değiştirir."""
     req = request.json or {}
     cid = req.get("id")
-    cashiers = load_json(CASHIERS_FILE, [])
+    cashiers = get_cashiers()
     for c in cashiers:
         if c.get("id") == cid:
             c["active"] = not c.get("active", True)
             break
-    save_json(CASHIERS_FILE, cashiers)
+    save_cashiers(cashiers)
     return jsonify({"status": "success", "message": "Kasiyer durumu güncellendi.", "cashiers": cashiers})
 
 @print_bp.route("/api/preview/zpl", methods=["POST"])

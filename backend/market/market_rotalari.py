@@ -9,7 +9,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from backend.ayarlar import (
     MARKET_PROFILE_FILE, EMPLOYEES_FILE, EMPLOYEE_LOGS_FILE, ROLES_FILE,
-    CASHIERS_FILE, SETTINGS_FILE, SALES_DIR, REPORTS_FILE, PRODUCT_ACTIVITIES_FILE
+    SETTINGS_FILE, SALES_DIR, REPORTS_FILE, PRODUCT_ACTIVITIES_FILE
 )
 from backend.araclar.depolama_araclari import load_json, save_json, list_all_sales_files
 
@@ -24,7 +24,6 @@ DEFAULT_PERMISSIONS = [
     {"key": "perm_print_labels", "title": "Etiket Basma", "category": "Etiketler", "desc": "Tekli ve toplu raf etiketi yazdırma"},
     {"key": "perm_batch_price", "title": "Toplu Zam Motoru", "category": "Etiketler", "desc": "Marka/kategoriye toplu fiyat artışı yapma"},
     {"key": "perm_manav_plu", "title": "Manav & Terazi", "category": "Terazi", "desc": "Terazi PLU fiyatlarını yönetme"},
-    {"key": "perm_invoice", "title": "Fatura Okuma", "category": "Stok", "desc": "Fatura okuma ve stok eşleştirme"},
     {"key": "perm_customers", "title": "Cari & Veresiye", "category": "Müşteriler", "desc": "Müşteri hesaplarını görme ve tahsilat yapma"},
     {"key": "perm_reports", "title": "Günlük Raporlar", "category": "Finans", "desc": "Ciro ve günlük satış raporlarını görme"},
     {"key": "perm_accounting", "title": "Muhasebe", "category": "Finans", "desc": "Market giderleri ve kasa durumuna erişim"},
@@ -39,7 +38,7 @@ DEFAULT_ROLES = [
         "color": "#38bdf8",
         "is_active": True,
         "description": "Tüm sistem, kasa, katalog ve muhasebe üzerinde tam yetkili.",
-        "permissions": ["perm_pos", "perm_pos_discount", "perm_pos_cancel", "perm_catalog_view", "perm_catalog_edit", "perm_print_labels", "perm_batch_price", "perm_manav_plu", "perm_invoice", "perm_customers", "perm_reports", "perm_accounting", "perm_settings"]
+        "permissions": ["perm_pos", "perm_pos_discount", "perm_pos_cancel", "perm_catalog_view", "perm_catalog_edit", "perm_print_labels", "perm_batch_price", "perm_manav_plu", "perm_customers", "perm_reports", "perm_accounting", "perm_settings"]
     },
     {
         "id": "kasiyer",
@@ -92,8 +91,8 @@ DEFAULT_ROLES = [
         "icon": "📦",
         "color": "#f59e0b",
         "is_active": True,
-        "description": "Fatura okuma, irsaliye kontrolü, ürün eşleştirme ve stok kontrolü.",
-        "permissions": ["perm_catalog_view", "perm_invoice"]
+        "description": "Mal kabul ve stok kontrolü.",
+        "permissions": ["perm_catalog_view"]
     }
 ]
 
@@ -149,80 +148,31 @@ def get_effective_permissions(emp, roles_map):
 # 1. MARKET PROFİLİ & ÇALIŞMA / YETKİ MODU API
 # =========================================================
 def get_current_operating_mode():
-    profile = load_json(MARKET_PROFILE_FILE, {})
-    mode = profile.get("operating_mode")
-    if not mode:
-        employees = load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
-        active_staff = [e for e in employees if e.get("active") != False and e.get("role_id") != "admin" and str(e.get("id")) != "admin"]
-        mode = "SOLO" if len(active_staff) == 0 else "SOLO"
-    return mode
+    return "SOLO"
 
 @market_bp.route("/api/market/operating-mode", methods=["GET", "POST"])
 def api_market_operating_mode():
     """Market çalışma ve yetki modunu getirir / günceller:
-    - 'SOLO': Tek Kişilik Bakkal / Çalışan Yok (PIN/Şifre Yok, %100 Tam Yetki)
-    - 'FULL_TRUST': Tüm Çalışanlar Tam Yetkili (Serbest Geçiş, Kısıtlama Yok)
-    - 'STRICT_RBAC': Çok Çalışanlı / Rol Bazlı Yetki Modu (PIN Şifreli, Yetki Matrisi)
+    Her zaman 'SOLO' (Tek Kişilik Bakkal / Çalışan Yok Modu) döner.
     """
-    profile = load_json(MARKET_PROFILE_FILE, {
-        "market_name": "YARENLER SÜPERMARKET",
-        "branch": "Merkez Şube",
-        "authorized_person": "Ahmet Yılmaz",
-        "phone": "0212 000 00 00",
-        "email": "info@yarenlermarket.com",
-        "address": "Atatürk Cad. No: 123",
-        "tax_office": "Kadıköy",
-        "tax_number": "1234567890",
-        "receipt_footer_note": "Bizi tercih ettiğiniz için teşekkür ederiz.",
-        "operating_mode": "SOLO"
-    })
-    
     if request.method == "POST":
-        req = request.json or {}
-        new_mode = str(req.get("operating_mode", "")).strip().upper()
-        if new_mode in ["SOLO", "FULL_TRUST", "STRICT_RBAC"]:
-            profile["operating_mode"] = new_mode
-            save_json(MARKET_PROFILE_FILE, profile)
-            mode_labels = {
-                "SOLO": "Tek Kişilik Bakkal / Çalışan Yok (Tam Yetki, Şifresiz)",
-                "FULL_TRUST": "Tüm Çalışanlar Tam Yetkili (Güven Modu)",
-                "STRICT_RBAC": "Çok Çalışanlı / Rol Bazlı Yetki Modu (PIN Korumalı)"
-            }
-            return jsonify({
-                "status": "success",
-                "message": f"İşletme çalışma modu '{mode_labels.get(new_mode)}' olarak güncellendi.",
-                "operating_mode": new_mode
-            })
-        return jsonify({"status": "error", "message": "Geçersiz çalışma modu."}), 400
-
-    current_mode = profile.get("operating_mode") or get_current_operating_mode()
+        return jsonify({
+            "status": "success",
+            "message": "İşletme çalışma modu 'Tek Kişilik Bakkal / Çalışan Yok' olarak güncellendi.",
+            "operating_mode": "SOLO"
+        })
+        
     return jsonify({
         "status": "success",
-        "operating_mode": current_mode,
+        "operating_mode": "SOLO",
         "modes": [
             {
                 "id": "SOLO",
                 "name": "Tek Kişilik Bakkal / Çalışan Yok",
                 "badge": "🏪 Bakkal Modu",
-                "desc": "Market tek kişi tarafından yönetiliyor. Şifre, PIN veya yetki kısıtlaması olmadan tüm ekranlar (Masaüstü & Mobil) doğrudan tam yetkiyle açılır.",
+                "desc": "PIN veya yetki kısıtlaması olmadan doğrudan tam yetkiyle çalışılır.",
                 "color": "#10b981",
                 "icon": "🏪"
-            },
-            {
-                "id": "FULL_TRUST",
-                "name": "Tüm Çalışanlar Tam Yetkili",
-                "badge": "🤝 Güven Modu",
-                "desc": "Birden fazla personel var ancak hepsi tam yetkili. Personel seçimi yapılabilir fakat PIN veya yetki engeli çıkarılmaz.",
-                "color": "#38bdf8",
-                "icon": "🤝"
-            },
-            {
-                "id": "STRICT_RBAC",
-                "name": "Çok Çalışanlı / Rol Bazlı Yetki",
-                "badge": "🔒 Gelişmiş Kadro",
-                "desc": "Personeller PIN şifresiyle giriş yapar ve sadece kendi reyon ve rollerine izin verilen alanlara erişebilir.",
-                "color": "#a855f7",
-                "icon": "🔒"
             }
         ]
     })
@@ -416,7 +366,6 @@ def api_market_employees():
             })
 
         save_json(EMPLOYEES_FILE, employees)
-        sync_cashiers_from_employees(employees)
 
         return jsonify({"status": "success", "message": f"{name} çalışan kaydı güncellendi.", "employees": employees})
     else:
@@ -444,7 +393,6 @@ def api_market_employee_delete():
     employees = load_json(EMPLOYEES_FILE, DEFAULT_EMPLOYEES)
     employees = [e for e in employees if str(e.get("id")) != eid]
     save_json(EMPLOYEES_FILE, employees)
-    sync_cashiers_from_employees(employees)
     return jsonify({"status": "success", "message": "Çalışan kaydı silindi.", "employees": employees})
 
 @market_bp.route("/api/market/employees/permissions", methods=["POST"])
@@ -803,18 +751,3 @@ def api_market_employee_detail_logs():
         "employee": emp,
         "logs": emp_logs[:100]
     })
-
-def sync_cashiers_from_employees(employees):
-    """Çalışanları kasa kasiyer listesiyle eşitler."""
-    cashiers = []
-    for emp in employees:
-        if emp.get("active") is not False:
-            cashiers.append({
-                "id": emp.get("id"),
-                "name": emp.get("name"),
-                "pin": emp.get("pin", ""),
-                "role": "admin" if emp.get("role_id") == "admin" else "cashier",
-                "role_name": emp.get("role_name", "Kasiyer"),
-                "active": True
-            })
-    save_json(CASHIERS_FILE, cashiers)

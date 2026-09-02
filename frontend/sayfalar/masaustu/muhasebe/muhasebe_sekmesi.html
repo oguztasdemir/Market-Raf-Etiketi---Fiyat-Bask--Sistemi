@@ -1,31 +1,31 @@
 <div id="tab-accounting" class="tab-content" style="padding: 16px; box-sizing: border-box; overflow-y: auto; max-height: calc(100vh - 65px);">
 
   <!-- 1. ÜST BAŞLIK VE AY KONTROLLERİ -->
-  <div style="display: flex; justify-content: space-between; align-items: center; background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 20px; margin-bottom: 16px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+      <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 18px;">
         💼
       </div>
       <div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <h2 style="margin: 0; font-size: 16px; font-weight: 900; color: #f8fafc;">Market Gelir / Gider Muhasebesi</h2>
-          <span id="acc-period-badge" style="font-size: 11.5px; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 800;">Ağustos 2026</span>
+          <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Market Gelir / Gider Muhasebesi</h2>
+          <span id="acc-period-badge" style="font-size: 11px; background: rgba(255,255,255,0.04); color: var(--text-main); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; font-weight: 700;">Ağustos 2026</span>
         </div>
-        <small style="color: #94a3b8; font-size: 11.5px;">Aylık kasa cirosu, gider takibi, net kâr analizi ve harcama dökümleri</small>
+        <small style="color: var(--text-muted); font-size: 11.5px;">Aylık kasa cirosu, gider takibi ve net kâr analizi</small>
       </div>
     </div>
 
     <!-- Hızlı Aksiyon Butonları -->
     <div style="display: flex; align-items: center; gap: 8px;">
-      <div style="display: flex; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 2px;">
-        <button type="button" onclick="navigateAccountingMonth(-1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent;" title="Önceki Ay">◀</button>
-        <button type="button" onclick="goToCurrentAccountingMonth()" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent; font-weight: 700;">Bu Ay</button>
-        <button type="button" onclick="navigateAccountingMonth(1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent;" title="Sonraki Ay">▶</button>
+      <div style="display: flex; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px;">
+        <button type="button" onclick="navigateAccountingMonth(-1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent; color: var(--text-main); cursor: pointer;" title="Önceki Ay">◀</button>
+        <button type="button" onclick="goToCurrentAccountingMonth()" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent; font-weight: 700; color: var(--text-main); cursor: pointer;">Bu Ay</button>
+        <button type="button" onclick="navigateAccountingMonth(1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px; border: none; background: transparent; color: var(--text-main); cursor: pointer;" title="Sonraki Ay">▶</button>
       </div>
-      <button type="button" onclick="openNewExpenseModal()" class="btn-primary" style="padding: 7px 16px; font-size: 11.5px; font-weight: 800; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(239,68,68,0.25);">
+      <button type="button" onclick="openNewExpenseModal()" class="btn-primary" style="padding: 8px 16px; font-size: 12px; font-weight: 600; background: #ef4444; border: none; border-radius: 6px; color: #fff; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: opacity 0.2s;">
         ➕ Yeni Gider Ekle
       </button>
-      <button type="button" onclick="exportAccountingToExcel()" class="btn-secondary" style="padding: 7px 14px; font-size: 11.5px; font-weight: 700; background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: #38bdf8; display: flex; align-items: center; gap: 5px;">
+      <button type="button" onclick="exportAccountingToExcel()" class="btn-secondary" style="padding: 8px 14px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); display: flex; align-items: center; gap: 5px; border-radius: 6px; cursor: pointer;">
         📊 Excel İndir
       </button>
     </div>
@@ -35,38 +35,38 @@
   <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px;">
     
     <!-- Gelir Kartı -->
-    <div style="background: #0b1329; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px 16px; border-left: 4px solid #10b981;">
-      <div style="font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">💰 Aylık Toplam Satış Geliri (Ciro)</div>
-      <div id="acc-kpi-income" style="font-size: 22px; font-weight: 900; color: #34d399; font-family: monospace; margin: 4px 0;">0,00 TL</div>
-      <div id="acc-kpi-income-sub" style="font-size: 11px; color: #94a3b8;">💵 Nakit: 0,00 TL • 💳 Kart: 0,00 TL</div>
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 3px solid #10b981; border-radius: 8px; padding: 14px 16px;">
+      <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">💰 Aylık Toplam Satış (Ciro)</div>
+      <div id="acc-kpi-income" style="font-size: 20px; font-weight: 800; color: #10b981; font-family: monospace; margin: 4px 0;">0,00 TL</div>
+      <div id="acc-kpi-income-sub" style="font-size: 11px; color: var(--text-muted);">Nakit: 0,00 TL • Kart: 0,00 TL</div>
     </div>
 
     <!-- Gider Kartı -->
-    <div style="background: #0b1329; border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 16px; border-left: 4px solid #ef4444;">
-      <div style="font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">💸 Aylık Toplam Giderler</div>
-      <div id="acc-kpi-expense" style="font-size: 22px; font-weight: 900; color: #f87171; font-family: monospace; margin: 4px 0;">0,00 TL</div>
-      <div id="acc-kpi-expense-sub" style="font-size: 11px; color: #94a3b8;">Kira • Maaş • Faturalar • Toptancı</div>
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 3px solid #ef4444; border-radius: 8px; padding: 14px 16px;">
+      <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">💸 Aylık Toplam Giderler</div>
+      <div id="acc-kpi-expense" style="font-size: 20px; font-weight: 800; color: #ef4444; font-family: monospace; margin: 4px 0;">0,00 TL</div>
+      <div id="acc-kpi-expense-sub" style="font-size: 11px; color: var(--text-muted);">Kira • Maaş • Faturalar • Toptancı</div>
     </div>
 
     <!-- Net Kâr Kartı -->
-    <div style="background: #0b1329; border: 1px solid rgba(245,158,11,0.3); border-radius: 10px; padding: 14px 16px; border-left: 4px solid #f59e0b;">
-      <div style="font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">🪙 Net Kâr & Kasa Durumu</div>
-      <div id="acc-kpi-profit" style="font-size: 22px; font-weight: 900; color: #fbbf24; font-family: monospace; margin: 4px 0;">0,00 TL</div>
-      <div id="acc-kpi-profit-margin" style="font-size: 11px; color: #cbd5e1; font-weight: 700;">%0.0 Kâr Marjı</div>
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 3px solid #f59e0b; border-radius: 8px; padding: 14px 16px;">
+      <div style="font-size: 10.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">🪙 Net Kâr & Kasa Durumu</div>
+      <div id="acc-kpi-profit" style="font-size: 20px; font-weight: 800; color: #fbbf24; font-family: monospace; margin: 4px 0;">0,00 TL</div>
+      <div id="acc-kpi-profit-margin" style="font-size: 11px; color: var(--text-main); font-weight: 600;">%0.0 Kâr Marjı</div>
     </div>
 
   </div>
 
   <!-- 3. ANA ALT SEKMELER (SADELEŞTİRİLMİŞ 3 PANEL) -->
-  <div style="display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px;">
-    <button type="button" id="acc-subtab-btn-expenses" onclick="switchAccountingSubTab('expenses')" class="btn-primary" style="padding: 7px 18px; font-weight: 800; font-size: 12px; background: #0284c7; color: #fff;">
-      📋 Gider Hareketleri Tablosu
+  <div style="display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+    <button type="button" id="acc-subtab-btn-expenses" onclick="switchAccountingSubTab('expenses')" class="btn-primary" style="padding: 8px 16px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; cursor: pointer;">
+      📋 Gider Hareketleri
     </button>
-    <button type="button" id="acc-subtab-btn-breakdown" onclick="switchAccountingSubTab('breakdown')" class="btn-secondary" style="padding: 7px 18px; font-weight: 700; font-size: 12px; background: transparent; color: #94a3b8;">
-      📑 Harcama Kategori Dağılımı
+    <button type="button" id="acc-subtab-btn-breakdown" onclick="switchAccountingSubTab('breakdown')" class="btn-secondary" style="padding: 8px 16px; font-weight: 600; font-size: 12px; background: transparent; border: 1px solid transparent; color: var(--text-muted); border-radius: 6px; cursor: pointer;">
+      📑 Kategori Dağılımı
     </button>
-    <button type="button" id="acc-subtab-btn-categories" onclick="switchAccountingSubTab('categories')" class="btn-secondary" style="padding: 7px 18px; font-weight: 700; font-size: 12px; background: transparent; color: #94a3b8;">
-      ⚙️ Gider Kategorilerini Özelleştir
+    <button type="button" id="acc-subtab-btn-categories" onclick="switchAccountingSubTab('categories')" class="btn-secondary" style="padding: 8px 16px; font-weight: 600; font-size: 12px; background: transparent; border: 1px solid transparent; color: var(--text-muted); border-radius: 6px; cursor: pointer;">
+      ⚙️ Kategorileri Yönet
     </button>
   </div>
 
@@ -75,25 +75,25 @@
        ========================================================= -->
   <div id="acc-subpane-expenses" style="display: flex; flex-direction: column; gap: 14px;">
     
-    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <strong style="color: #f8fafc; font-size: 13.5px; font-weight: 800;">📋 Gelir & Gider Kayıtları</strong>
-          <span id="acc-table-count-badge" style="font-size: 11px; background: rgba(255,255,255,0.08); color: #cbd5e1; padding: 2px 7px; border-radius: 4px; font-weight: 700;">0 Kayıt</span>
+          <strong style="color: var(--text-main); font-size: 13px; font-weight: 700;">📋 Gelir & Gider Kayıtları</strong>
+          <span id="acc-table-count-badge" style="font-size: 10.5px; background: rgba(255,255,255,0.03); color: var(--text-main); border: 1px solid var(--border-color); padding: 2px 7px; border-radius: 4px; font-weight: 600;">0 Kayıt</span>
         </div>
         
         <div style="display: flex; gap: 8px; align-items: center;">
-          <select id="acc-filter-category" onchange="filterAccountingByCategory(this.value)" style="padding: 6px 10px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
+          <select id="acc-filter-category" onchange="filterAccountingByCategory(this.value)" style="padding: 6px 10px; font-size: 11.5px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); outline: none;">
             <option value="all">Tüm Kategoriler</option>
           </select>
-          <input type="text" id="acc-search-inp" placeholder="🔍 Başlık veya Alacaklı Ara..." oninput="filterAccountingTable(this.value)" style="width: 220px; padding: 6px 12px; font-size: 11.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; box-sizing: border-box;">
+          <input type="text" id="acc-search-inp" placeholder="🔍 Başlık veya Alacaklı Ara..." oninput="filterAccountingTable(this.value)" style="width: 220px; padding: 6px 12px; font-size: 11.5px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); box-sizing: border-box; outline: none;">
         </div>
       </div>
 
       <div style="overflow-y: auto; max-height: 440px;">
         <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px;">
           <thead>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 11px; text-transform: uppercase; position: sticky; top: 0; background: #0b1329; z-index: 5;">
+            <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 11px; text-transform: uppercase; position: sticky; top: 0; background: var(--bg-card); z-index: 5;">
               <th style="padding: 10px 12px;">Tarih / Saat</th>
               <th style="padding: 10px 12px;">Kategori</th>
               <th style="padding: 10px 12px;">Gider / Harcama Açıklaması</th>
@@ -117,14 +117,14 @@
        ========================================================= -->
   <div id="acc-subpane-breakdown" style="display: none; flex-direction: column; gap: 14px;">
     
-    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 13px; font-weight: 800; color: #38bdf8; text-transform: uppercase;">📑 Aylık Gider Dağılımı ve Kalemleri</span>
-        <small style="color: #94a3b8; font-size: 11px;">Toplam <strong id="acc-expense-count-text" style="color:#fff;">0</strong> Gider Kaydı</small>
+        <span style="font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase;">📑 Aylık Gider Dağılımı</span>
+        <small style="color: var(--text-muted); font-size: 11px;">Toplam <strong id="acc-expense-count-text" style="color: var(--text-main);">0</strong> Gider Kaydı</small>
       </div>
 
       <!-- Çoklu Kategori Segment Çubuğu -->
-      <div id="acc-category-progressbar" style="height: 14px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 7px; overflow: hidden; display: flex;">
+      <div id="acc-category-progressbar" style="height: 10px; width: 100%; background: rgba(255,255,255,0.03); border-radius: 5px; overflow: hidden; display: flex;">
         <!-- JS Dinamik Dolduracak -->
       </div>
 
@@ -141,20 +141,20 @@
        ========================================================= -->
   <div id="acc-subpane-categories" style="display: none; flex-direction: column; gap: 14px;">
     
-    <div style="background: #0b1329; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <h3 style="margin: 0; font-size: 14px; font-weight: 800; color: #f8fafc;">⚙️ Gider Kategorilerini Yönet</h3>
-          <small style="color: #94a3b8; font-size: 11px;">Marketinize özel harcama ve masraf kategorileri tanımlayın veya düzenleyin.</small>
+          <h3 style="margin: 0; font-size: 13.5px; font-weight: 700; color: var(--text-main);">⚙️ Gider Kategorilerini Yönet</h3>
+          <small style="color: var(--text-muted); font-size: 11px;">Marketinize özel harcama ve masraf kategorileri tanımlayın veya düzenleyin.</small>
         </div>
       </div>
 
       <!-- Kategori Ekleme Formu -->
-      <div style="background: rgba(15,23,42,0.6); border: 1px dashed rgba(56,189,248,0.3); border-radius: 8px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <input type="text" id="inp-new-category-icon" placeholder="İkon (örn: 🛵)" style="width: 80px; padding: 8px 10px; font-size: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff; text-align: center;">
-        <input type="text" id="inp-new-category-name" placeholder="Kategori Adı (örn: Kurye & Yakıt Masrafı)" style="flex: 1; min-width: 220px; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #fff;">
-        <input type="color" id="inp-new-category-color" value="#0284c7" style="width: 44px; height: 36px; padding: 0; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
-        <button type="button" class="btn-primary" onclick="addNewCustomExpenseCategory()" style="padding: 8px 18px; font-size: 12px; font-weight: 800;">
+      <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="text" id="inp-new-category-icon" placeholder="İkon (örn: 🛵)" style="width: 80px; padding: 8px 10px; font-size: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); text-align: center; outline: none;">
+        <input type="text" id="inp-new-category-name" placeholder="Kategori Adı (örn: Kurye & Yakıt Masrafı)" style="flex: 1; min-width: 220px; padding: 8px 10px; font-size: 12.5px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); outline: none;">
+        <input type="color" id="inp-new-category-color" value="#0284c7" style="width: 40px; height: 32px; padding: 0; border: none; border-radius: 6px; cursor: pointer; background: transparent;">
+        <button type="button" class="btn-primary" onclick="addNewCustomExpenseCategory()" style="padding: 8px 16px; font-size: 12px; font-weight: 600; background: #3b82f6; border: none; border-radius: 6px; color: #fff; cursor: pointer;">
           ➕ Kategori Ekle
         </button>
       </div>

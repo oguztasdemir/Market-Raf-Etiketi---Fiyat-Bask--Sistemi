@@ -29,21 +29,11 @@
 
               <!-- Sağ: Hızlı İşlem Butonları & Tema -->
               <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <button type="button" class="btn-secondary" onclick="openCustomBarcodesManageModal()" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-weight: 800; font-size: 12px; border-color: rgba(168,85,247,0.5); color: #d8b4fe; background: rgba(168,85,247,0.14); border-radius: 8px; white-space: nowrap;" title="Özel Barkodları Yönet (Maksimum 6 Adet)">
-                  <span>🏷️</span>
-                  <span>Özel Barkodlar</span>
-                </button>
 
-                <!-- ⚡ TOPLU ZAM MOTORU BUTONU -->
-                <button type="button" onclick="openBatchPriceModal()" style="background: linear-gradient(135deg, #0284c7, #0f766e); border: none; color: #ffffff; padding: 6px 14px; font-weight: 900; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 4px 12px rgba(2,132,199,0.35);" title="Marka veya Kategoriye Toplu Fiyat Güncelle & Zam Yap">
-                  <span>⚡</span>
-                  <span>Toplu Zam</span>
-                </button>
-
-                <!-- 📲 TOPTANCIYA WHATSAPP SİPARİŞ LİSTESİ -->
-                <button type="button" onclick="sendSupplierWhatsAppOrder()" style="background: linear-gradient(135deg, #25D366, #128C7E); border: none; color: #ffffff; padding: 6px 12px; font-weight: 800; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; box-shadow: 0 4px 12px rgba(37,211,102,0.3);" title="Azalan / Seçili Ürünleri Toptancıya WhatsApp Siparişi Olarak Gönder">
-                  <span>📲</span>
-                  <span>Sipariş Gönder</span>
+                <!-- 📊 DIŞA AKTAR BUTONU (MARKET + MANAV / KURULUM UYUMLU EXCEL) -->
+                <button type="button" onclick="exportCatalogFullExcel()" style="background: rgba(14,165,233,0.16); border: 1.5px solid #0ea5e9; color: #38bdf8; padding: 6px 12px; font-weight: 800; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; transition: all 0.15s;" onmouseover="this.style.background='#0284c7'; this.style.color='#fff';" onmouseout="this.style.background='rgba(14,165,233,0.16)'; this.style.color='#38bdf8';" title="Tüm Market ve Manav/Terazi Ürünlerini Kurulum & Fiyat Aktarımı İçin Excel Olarak İndir">
+                  <span>📊</span>
+                  <span>Dışa Aktar</span>
                 </button>
 
                 <!-- 🖨️ BUGÜN DEĞİŞENLERİ BAS BUTONU & SAYAÇ -->
@@ -80,9 +70,6 @@
                   </button>
                   <button type="button" class="btn-status-pill" id="pill-filter-low-stock" onclick="setCatalogStatusFilter('LOW_STOCK')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px; color: #f87171; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1);" title="Stoğu 5 ve daha az olan kritik ürünleri listeler">
                     📉 Azalan Stok <span id="count-pill-low-stock" class="pill-count" style="background: rgba(239,68,68,0.3); color: #fee2e2;">0</span>
-                  </button>
-                  <button type="button" class="btn-status-pill" id="pill-filter-expiring" onclick="setCatalogStatusFilter('EXPIRING')" style="padding: 4px 10px; font-size: 11.5px; font-weight: 800; border-radius: 6px; color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.1);" title="Son kullanma tarihi yaklaşan (SKT) ürünleri listeler">
-                    📅 SKT Alarmları <span id="count-pill-expiring" class="pill-count" style="background: rgba(245,158,11,0.3); color: #fef3c7;">0</span>
                   </button>
                 </div>
               </div>

@@ -1,15 +1,10 @@
 <main class="container" id="section-scan" style="display: none;">
 
-    <!-- 📷 Canlı Kamera & ⚡ Hızlı Ürün Ekle Butonları -->
-    <div class="scan-actions-grid">
-      <button class="btn-action-camera" onclick="openFullscreenCamera()">
-        <span style="font-size: 20px;">📷</span>
-        <span>Kamera Aç</span>
-      </button>
-
-      <button class="btn-action-gallery" onclick="openMobileQuickProductModal()" style="background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(217,119,6,0.25)); border-color: rgba(245,158,11,0.5); color: #f59e0b;">
-        <span style="font-size: 20px;">⚡</span>
-        <span>Hızlı Ürün</span>
+    <!-- 📷 Canlı Kamera Düğmesi -->
+    <div style="margin-bottom: 12px;">
+      <button class="btn-action-camera" onclick="openFullscreenCamera()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; padding: 16px;">
+        <span style="font-size: 24px;">📷</span>
+        <span style="font-size: 16px;">BARKOD OKUT / TARA</span>
       </button>
     </div>
 
@@ -28,11 +23,15 @@
       <div class="empty-title" id="added-success-title" style="color: #34d399; font-size: 15.5px; font-weight: 800;">Ürün başarıyla listeye eklendi!</div>
       <div class="empty-desc" id="added-success-desc" style="color: #e2e8f0; margin-top: 4px; font-size: 12.5px;"></div>
       <div style="margin-top: 14px; display: flex; gap: 8px; width: 100%;">
-        <button class="btn-action-camera" style="flex: 1; padding: 11px 8px; font-size: 13px;" onclick="openFullscreenCamera()">
+        <button class="btn-action-camera" style="flex: 1.2; padding: 11px 6px; font-size: 12.5px;" onclick="openFullscreenCamera()">
           <span>📷</span>
-          <span>Sıradaki Barkodu Oku</span>
+          <span>Sıradaki Barkod</span>
         </button>
-        <button class="btn-action-gallery" style="flex: 1; padding: 11px 8px; font-size: 13px;" onclick="switchMobileTab('queue')">
+        <button class="btn-action-gallery" style="flex: 0.9; padding: 11px 6px; font-size: 12.5px; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;" onclick="editLastAddedProduct()">
+          <span>✏️</span>
+          <span>Düzenle</span>
+        </button>
+        <button class="btn-action-gallery" style="flex: 1.1; padding: 11px 6px; font-size: 12.5px;" onclick="switchMobileTab('queue')">
           <span>📋</span>
           <span id="added-badge-count-text">Listeyi Gör</span>
         </button>
@@ -43,7 +42,7 @@
     <div id="empty-state" class="empty-state-card">
       <div class="empty-icon">🏷️</div>
       <div class="empty-title">Barkod Okutulması Bekleniyor</div>
-      <div class="empty-desc"><strong>"Kamera Aç"</strong> butonuna basın; tam ekran kamera açılacak ve barkodu kırmızı çizgiye getirdiğiniz anda <strong>fotoğraf çekmeden</strong> fiyatı ekrana getirecektir.</div>
+      <div class="empty-desc"><strong>"Barkod Okut / Tara"</strong> butonuna basın veya yukarıdaki arama kutusuna yazın. Kamera açılınca barkodu kırmızı çizgiye getirin.</div>
     </div>
 
     <!-- Okunan Ürün Kartı -->
@@ -58,12 +57,26 @@
         <input type="text" id="inp-title" class="inp-title-box" placeholder="Ürün adını girin...">
       </div>
 
-      <div class="price-edit-box">
-        <div class="price-label-row">
-          <span>🏷️ SATIŞ FİYATI</span>
-          <small style="color:var(--text-muted); font-size:10.5px;">(Değiştirebilirsiniz)</small>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="field-group">
+          <label class="field-label">Marka</label>
+          <input type="text" id="inp-brand" class="inp-title-box" placeholder="Marka girin..." style="padding: 9px 12px; font-size: 13px;">
         </div>
-        <input type="text" id="inp-price" class="price-input-large" placeholder="0,00 TL">
+        <div class="field-group">
+          <label class="field-label">KDV Oranı (%)</label>
+          <input type="number" id="inp-vat" class="inp-title-box" placeholder="10" style="padding: 9px 12px; font-size: 13px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="field-group">
+          <label class="field-label">Alış Fiyatı</label>
+          <input type="text" id="inp-buy-price" class="inp-title-box" placeholder="0,00" style="padding: 9px 12px; font-size: 13px; color: #fbbf24; font-weight: 700;">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Satış Fiyatı</label>
+          <input type="text" id="inp-price" class="inp-title-box" placeholder="0,00" style="padding: 9px 12px; font-size: 13px; color: #34d399; font-weight: 700;">
+        </div>
       </div>
 
       <!-- LİSTEYE EKLE BUTONU -->

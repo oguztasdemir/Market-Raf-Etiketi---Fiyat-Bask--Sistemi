@@ -156,60 +156,58 @@ function renderMonthlyDaysTable(days) {
     const weekdaysTr = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
     const weekdayName = weekdaysTr[d.weekday] || '';
 
-    let rowBg = d.is_today 
-      ? 'background: rgba(16,185,129,0.08);' 
-      : (hasSales ? 'background: rgba(15,23,42,0.4);' : 'background: transparent;');
+    const rowClass = d.is_today ? 'report-row-today' : (hasSales ? 'report-row-active' : 'report-row-idle');
 
     return `
-      <tr onclick="openDayDetailModal('${d.date}')" style="${rowBg} cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.06); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='${d.is_today ? 'rgba(16,185,129,0.08)' : (hasSales ? 'rgba(15,23,42,0.4)' : 'transparent')}'">
+      <tr class="report-day-row ${rowClass}" onclick="openDayDetailModal('${d.date}')" style="cursor: pointer; transition: background 0.15s ease;">
         
         <!-- Tarih / Gün -->
-        <td style="padding: 12px 12px; font-weight: 700; color: #f8fafc; white-space: nowrap;">
+        <td class="report-date-cell" style="padding: 12px 12px; font-weight: 700; white-space: nowrap;">
           <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="font-size: 13px; font-weight: 800; color: ${d.is_today ? '#34d399' : '#f8fafc'};">📅 ${formattedDate}</span>
-            <small style="color: #94a3b8; font-size: 11px; font-weight: 600;">${weekdayName}</small>
+            <span class="report-date-text" style="font-size: 13px; font-weight: 800; color: ${d.is_today ? '#059669' : ''};">📅 ${formattedDate}</span>
+            <small class="report-weekday-text" style="font-size: 11px; font-weight: 600;">${weekdayName}</small>
             ${d.is_today ? '<span style="background: #10b981; color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 4px;">BUGÜN</span>' : ''}
           </div>
         </td>
 
         <!-- Günlük Ciro -->
-        <td style="padding: 12px 12px; text-align: right; font-family: monospace; font-weight: 900; font-size: 14px; color: ${hasSales ? '#10b981' : '#64748b'}; white-space: nowrap;">
+        <td style="padding: 12px 12px; text-align: right; font-family: monospace; font-weight: 900; font-size: 14px; color: ${hasSales ? '#059669' : '#64748b'}; white-space: nowrap;">
           ${d.sales_total_str}
         </td>
 
         <!-- Fiş Sayısı -->
-        <td style="padding: 12px 12px; text-align: center; font-weight: 700; color: ${d.receipt_count > 0 ? '#38bdf8' : '#64748b'};">
-          ${d.receipt_count > 0 ? `<span style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 3px 8px; border-radius: 4px; font-size: 11.5px;">🧾 ${d.receipt_count} Fiş</span>` : '<span style="color:#475569;">0 Fiş</span>'}
+        <td style="padding: 12px 12px; text-align: center; font-weight: 700;">
+          ${d.receipt_count > 0 ? `<span style="background: rgba(2,132,199,0.12); color: #0284c7; padding: 3px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 800;">🧾 ${d.receipt_count} Fiş</span>` : '<span style="color:#64748b;">0 Fiş</span>'}
         </td>
 
         <!-- Satılan Ürün (Adet & Kg Ayrımı) -->
         <td style="padding: 12px 12px; text-align: center; white-space: nowrap;">
           ${(d.sold_adet > 0 || d.sold_kg > 0) ? `
             <div style="display: inline-flex; gap: 5px; align-items: center; justify-content: center;">
-              ${d.sold_adet > 0 ? `<span style="background: rgba(168,85,247,0.15); color: #c084fc; padding: 2px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 800;">📦 ${d.sold_adet} Adet</span>` : ''}
-              ${d.sold_kg > 0 ? `<span style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 800;">⚖️ ${d.sold_kg} Kg</span>` : ''}
+              ${d.sold_adet > 0 ? `<span style="background: rgba(168,85,247,0.12); color: #9333ea; padding: 2px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 800;">📦 ${d.sold_adet} Adet</span>` : ''}
+              ${d.sold_kg > 0 ? `<span style="background: rgba(2,132,199,0.12); color: #0284c7; padding: 2px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 800;">⚖️ ${d.sold_kg} Kg</span>` : ''}
             </div>
-          ` : '<span style="color:#475569;">-</span>'}
+          ` : '<span style="color:#64748b;">-</span>'}
         </td>
 
         <!-- Günün En Çok Satanı -->
         <td style="padding: 12px 12px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          ${d.day_top_item_str ? `<span style="color: #fbbf24; font-weight: 700; font-size: 12px;" title="${d.day_top_item_str}">🥇 ${d.day_top_item_str}</span>` : '<span style="color: #475569; font-size: 11.5px;">-</span>'}
+          ${d.day_top_item_str ? `<span style="color: #d97706; font-weight: 700; font-size: 12px;" title="${d.day_top_item_str}">🥇 ${d.day_top_item_str}</span>` : '<span style="color: #64748b; font-size: 11.5px;">-</span>'}
         </td>
 
         <!-- Fiyat Değişiklikleri -->
         <td style="padding: 12px 12px; text-align: center;">
-          ${d.price_changes_count > 0 ? `<span style="background: rgba(59,130,246,0.2); color: #60a5fa; font-weight: 800; padding: 3px 8px; border-radius: 4px; font-size: 11.5px;">✏️ ${d.price_changes_count} Fiyat</span>` : '<span style="color: #475569;">-</span>'}
+          ${d.price_changes_count > 0 ? `<span style="background: rgba(59,130,246,0.12); color: #2563eb; font-weight: 800; padding: 3px 8px; border-radius: 4px; font-size: 11.5px;">✏️ ${d.price_changes_count} Fiyat</span>` : '<span style="color: #64748b;">-</span>'}
         </td>
 
         <!-- Basılan Etiketler -->
         <td style="padding: 12px 12px; text-align: center;">
-          ${d.printed_barcodes_count > 0 ? `<span style="background: rgba(245,158,11,0.2); color: #fbbf24; font-weight: 800; padding: 3px 8px; border-radius: 4px; font-size: 11.5px;">🖨️ ${d.printed_barcodes_count} Etiket</span>` : '<span style="color: #475569;">-</span>'}
+          ${d.printed_barcodes_count > 0 ? `<span style="background: rgba(245,158,11,0.15); color: #d97706; font-weight: 800; padding: 3px 8px; border-radius: 4px; font-size: 11.5px;">🖨️ ${d.printed_barcodes_count} Etiket</span>` : '<span style="color: #64748b;">-</span>'}
         </td>
 
         <!-- Eylem Butonu -->
         <td style="padding: 12px 12px; text-align: right; white-space: nowrap;">
-          <button class="btn-sm btn-secondary" style="padding: 4px 10px; font-size: 11px; font-weight: 700; background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: #38bdf8;">
+          <button class="btn-sm btn-secondary" style="padding: 4px 10px; font-size: 11px; font-weight: 700;">
             🔍 Gün Detayı
           </button>
         </td>

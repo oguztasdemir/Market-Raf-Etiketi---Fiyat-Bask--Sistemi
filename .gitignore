@@ -1,9 +1,39 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
-*.png
+
+# C/C++ ve binary derleme artıkları
+*.so
+*.pyd
+
+# Dağıtım ve Derleme Klasörleri (Büyük dosyalar Git'e yüklenmemeli)
+build/
+dist/
+*.spec.bak
+
+# Log ve geçici dosyalar
+*.log
+global_crash_preventer.log
+
+# Ortam ve IDE dosyaları
 .env
 .venv/
 env/
+venv/
 .idea/
 .vscode/
+
+# Yerel Kullanıcı ve Sistem Veritabanı
 data/
+*.sqlite3
+*.db
+
+# Geçici Excel / Zip dosyaları
+*.zip
+*.rar
+*.tar.gz
+~*.xlsx
+~*.xls
+

@@ -32,14 +32,12 @@ function setCatalogStatusFilter(filterType) {
   const pillMatched = document.getElementById('pill-filter-matched');
   const pillSpecial = document.getElementById('pill-filter-special');
   const pillLowStock = document.getElementById('pill-filter-low-stock');
-  const pillExpiring = document.getElementById('pill-filter-expiring');
 
   if (pillAll) pillAll.classList.toggle('active', filterType === 'ALL');
   if (pillOutdated) pillOutdated.classList.toggle('active', filterType === 'OUTDATED');
   if (pillMatched) pillMatched.classList.toggle('active', filterType === 'MATCHED');
   if (pillSpecial) pillSpecial.classList.toggle('active', filterType === 'SPECIAL');
   if (pillLowStock) pillLowStock.classList.toggle('active', filterType === 'LOW_STOCK');
-  if (pillExpiring) pillExpiring.classList.toggle('active', filterType === 'EXPIRING');
 
   onCatalogFilterChange();
 }
@@ -1057,14 +1055,15 @@ async function printFromDetailModal() {
 async function submitCatalogProductDetail() {
   if (!currentDetailProduct) return;
   
-  const barcode = currentDetailProduct.barcode || document.getElementById('cat-detail-inp-barcode')?.value.trim();
+  const barcode = document.getElementById('cat-detail-inp-barcode')?.value.trim();
+  const oldBarcode = currentDetailProduct.barcode;
   const title = document.getElementById('cat-detail-inp-title')?.value.trim().toUpperCase();
   const brand = document.getElementById('cat-detail-inp-brand')?.value.trim().toUpperCase() || 'DİĞER';
   const rawPrice = document.getElementById('cat-detail-inp-price')?.value.trim();
   const origin = document.getElementById('cat-detail-inp-origin')?.value.trim().toUpperCase() || 'TÜRKİYE';
   const stock = parseInt(document.getElementById('cat-detail-inp-stock')?.value || '0', 10) || 0;
   const kdv = parseInt(document.getElementById('cat-detail-inp-kdv')?.value || '10', 10);
-  const barcodes = currentDetailProduct.barcodes || [barcode];
+  const barcodes = [barcode];
 
   if (!barcode || !title || !rawPrice) {
     showToast("Lütfen tüm alanları eksiksiz doldurun.", "warning");
@@ -1081,6 +1080,7 @@ async function submitCatalogProductDetail() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         barcode: barcode,
+        old_barcode: oldBarcode,
         barcodes: barcodes,
         alternate_barcodes: barcodes,
         title: title,
@@ -1097,6 +1097,7 @@ async function submitCatalogProductDetail() {
     });
     const data = await res.json();
     if (data.status === 'success') {
+      currentDetailProduct.barcode = barcode;
       currentDetailProduct.title = title;
       currentDetailProduct.title1 = title;
       currentDetailProduct.barcodes = barcodes;
@@ -1624,11 +1625,11 @@ function renderCatalogTable(reset = true) {
       </td>
       <td><span class="barcode-text" style="font-size: 11px;">${p.barcode || ''}</span></td>
       <td style="text-align: center;">${customBarcodeBadge}</td>
-      <td style="font-weight: 700; color: #f8fafc; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Detayı Görüntüle ve Düzenle: ${p.title}"><span style="border-bottom: 1px dashed rgba(56,189,248,0.4);">${p.title}</span></td>
+      <td class="catalog-item-title-cell" style="font-weight: 700; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Detayı Görüntüle ve Düzenle: ${p.title}"><span class="catalog-item-title-link">${p.title}</span></td>
       <td style="text-align: center; font-weight: 800; font-family: monospace; font-size: 11.5px; color: ${stockColor};">${stockNum}</td>
-      <td style="text-align: right; color: #94a3b8; font-weight: 600; font-family: monospace; font-size: 11px;">${buyingPriceDisp}</td>
+      <td style="text-align: right; font-weight: 600; font-family: monospace; font-size: 11px;" class="date-text">${buyingPriceDisp}</td>
       <td style="text-align: right;"><span class="price-text" style="font-size: 12.5px;">${p.price}</span></td>
-      <td style="text-align: center;"><span style="color: ${marginColor}; font-weight: 800; font-size: 10.5px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px;">${marginText}</span></td>
+      <td style="text-align: center;"><span style="color: ${marginColor}; font-weight: 800; font-size: 10.5px; background: rgba(148,163,184,0.12); padding: 1px 5px; border-radius: 4px;">${marginText}</span></td>
       <td style="text-align: right;">${labelPriceBadge}</td>
       <td style="text-align: center;"><span class="date-text" style="font-size: 11px;">${displayDate}</span></td>
       <td style="text-align: center;">${statusBadge}</td>
@@ -2232,6 +2233,32 @@ async function submitProductManualActivityNote() {
   }
 }
 
+async function deleteCatalogProductFromDetail() {
+  if (!currentDetailProduct) return;
+  const barcode = currentDetailProduct.barcode;
+  const title = currentDetailProduct.title || 'Bu ürün';
+  
+  const confirmed = confirm(`⚠️ "${title}" (${barcode}) ürününü katalogdan tamamen silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz!`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/products/${encodeURIComponent(barcode)}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(`🗑️ "${title}" katalogdan silindi.`, "success");
+      closeCatalogProductDetailModal();
+      await loadCatalog();
+    } else {
+      showToast(`❌ Silme işlemi başarısız: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`❌ Silme hatası: ${err.message}`, "error");
+  }
+}
+
+window.deleteCatalogProductFromDetail = deleteCatalogProductFromDetail;
 window.loadCatalog = loadCatalog;
 window.handleCatalogRowClick = handleCatalogRowClick;
 window.openCatalogProductDetailModal = openCatalogProductDetailModal;
@@ -2374,31 +2401,155 @@ function updateDetailSpecialCatButtonUI(isSpecial) {
 
 async function toggleDetailProductSpecialCategory() {
   if (!currentDetailProduct) return;
-  const isSpecialInp = document.getElementById('cat-detail-inp-is-special');
-  const currentVal = (isSpecialInp ? isSpecialInp.value === 'true' : false) || currentDetailProduct.is_special === true;
-  const newVal = !currentVal;
+  openSpecialCategoryPickerModal();
+}
 
-  if (isSpecialInp) isSpecialInp.value = newVal ? 'true' : 'false';
-  currentDetailProduct.is_special = newVal;
-  currentDetailProduct.special_category = newVal;
-  updateDetailSpecialCatButtonUI(newVal);
+async function openSpecialCategoryPickerModal() {
+  if (!currentDetailProduct) return;
+  const modal = document.getElementById('modal-special-cat-picker');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('special-picker-prod-title');
+  if (titleEl) {
+    titleEl.innerText = `Ürün: ${currentDetailProduct.title || currentDetailProduct.title1 || currentDetailProduct.barcode}`;
+  }
+
+  // Tanımlı Özel Barkodları Yükle ve Listele
+  await loadCustomBarcodes();
+  const customSection = document.getElementById('special-picker-custom-barcodes-section');
+  const customList = document.getElementById('special-picker-custom-list');
+
+  if (cachedCustomBarcodes && cachedCustomBarcodes.length > 0) {
+    if (customSection) customSection.style.display = 'block';
+    if (customList) {
+      customList.innerHTML = cachedCustomBarcodes.map(cb => `
+        <button type="button" onclick="assignProductToSpecialCategory('${cb.code}', '${cb.code}', '${cb.name}')" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #1e293b; border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; color: #f8fafc; cursor: pointer; text-align: left; transition: all 0.15s;" onmouseover="this.style.borderColor='#a855f7'; this.style.background='rgba(168,85,247,0.12)';" onmouseout="this.style.borderColor='rgba(168,85,247,0.3)'; this.style.background='#1e293b';">
+          <div>
+            <strong style="color: #d8b4fe; font-size: 12px;">🏷️ ${cb.name}</strong>
+            <div style="color: #94a3b8; font-size: 10px;">Özel Kısayol Grubu</div>
+          </div>
+          <span style="color: #38bdf8; font-family: monospace; font-size: 11px; font-weight: 800; background: #0f172a; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">${cb.code}</span>
+        </button>
+      `).join('');
+    }
+  } else {
+    if (customSection) customSection.style.display = 'none';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeSpecialCategoryPickerModal() {
+  const modal = document.getElementById('modal-special-cat-picker');
+  if (modal) modal.style.display = 'none';
+}
+
+async function assignProductToSpecialCategory(categoryKey, categoryCode, categoryName = '') {
+  if (!currentDetailProduct) return;
+  const barcode = currentDetailProduct.barcode;
+  const title = currentDetailProduct.title || currentDetailProduct.title1 || barcode;
 
   try {
     const res = await fetch(`${API_BASE}/api/catalog/batch-special-category`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        barcodes: [currentDetailProduct.barcode],
-        is_special: newVal
+        barcodes: [barcode],
+        is_special: true,
+        category: categoryKey,
+        custom_barcode: categoryCode,
+        custom_barcode_name: categoryName || categoryKey
       })
     });
     const data = await res.json();
     if (data.status === 'success') {
+      currentDetailProduct.is_special = true;
+      currentDetailProduct.special_category = true;
+      currentDetailProduct.custom_barcode = categoryCode;
+      currentDetailProduct.custom_barcode_name = categoryName || categoryKey;
+
+      const isSpecialInp = document.getElementById('cat-detail-inp-is-special');
+      if (isSpecialInp) isSpecialInp.value = 'true';
+      updateDetailSpecialCatButtonUI(true);
+
+      closeSpecialCategoryPickerModal();
       onCatalogFilterChange();
-      showToast(newVal ? `✓ '${currentDetailProduct.title}' Özel Kategoriye eklendi.` : `✓ '${currentDetailProduct.title}' Özel Kategoriden çıkarıldı.`, "success");
+      showToast(`✓ '${title}' başarıyla '${categoryName || categoryKey.toUpperCase()}' kategorisine eklendi.`, "success");
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
     }
   } catch (err) {
     showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+async function removeProductFromSpecialCategory() {
+  if (!currentDetailProduct) return;
+  const barcode = currentDetailProduct.barcode;
+  const title = currentDetailProduct.title || currentDetailProduct.title1 || barcode;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/catalog/batch-special-category`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        barcodes: [barcode],
+        is_special: false
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      currentDetailProduct.is_special = false;
+      currentDetailProduct.special_category = false;
+      currentDetailProduct.custom_barcode = null;
+      currentDetailProduct.custom_barcode_name = null;
+
+      const isSpecialInp = document.getElementById('cat-detail-inp-is-special');
+      if (isSpecialInp) isSpecialInp.value = 'false';
+      updateDetailSpecialCatButtonUI(false);
+
+      closeSpecialCategoryPickerModal();
+      onCatalogFilterChange();
+      showToast(`✓ '${title}' Özel Kategoriden çıkarıldı.`, "info");
+    } else {
+      showToast(`Hata: ${data.message}`, "error");
+    }
+  } catch (err) {
+    showToast(`Bağlantı hatası: ${err.message}`, "error");
+  }
+}
+
+async function submitCreateAndAssignSpecialCategory() {
+  if (!currentDetailProduct) return;
+  const nameInp = document.getElementById('special-picker-new-name');
+  const codeInp = document.getElementById('special-picker-new-code');
+  const name = (nameInp?.value || '').trim();
+  const code = (codeInp?.value || '').trim().toUpperCase();
+
+  if (!name || !code) {
+    showToast("Lütfen yeni kategori adı ve kodunu girin.", "warning");
+    return;
+  }
+
+  try {
+    // 1. Önce Yeni Özel Barkodu Kaydet
+    const saveRes = await fetch(`${API_BASE}/api/custom_barcodes/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, code })
+    });
+    const saveData = await saveRes.json();
+    if (saveData.status !== 'success') {
+      showToast(saveData.message || "Özel barkod oluşturulamadı.", "error");
+      return;
+    }
+
+    // 2. Ürünü bu yeni alana ata
+    await assignProductToSpecialCategory(code, code, name);
+    if (nameInp) nameInp.value = '';
+    if (codeInp) codeInp.value = '';
+  } catch (err) {
+    showToast("İşlem başarısız: " + err.message, "error");
   }
 }
 
@@ -2465,6 +2616,25 @@ function sendSupplierWhatsAppOrder() {
   window.open(url, '_blank');
 }
 
+// ==========================================
+// KATALOG & MANAV TÜM ÜRÜNLER EXCEL DIŞA AKTAR
+// ==========================================
+function exportCatalogFullExcel() {
+  if (typeof showToast === 'function') {
+    showToast('Tüm Market ve Manav ürünleri Excel formatında hazırlanıyor...', 'info');
+  }
+  
+  // Doğrudan indirme bağlantısını tetikle
+  const downloadUrl = '/api/katalog/export_excel';
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = 'OYMAPOS_Urun_ve_Fiyat_Katalogu.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+window.exportCatalogFullExcel = exportCatalogFullExcel;
 window.updateDetailSpecialCatButtonUI = updateDetailSpecialCatButtonUI;
 window.toggleDetailProductSpecialCategory = toggleDetailProductSpecialCategory;
 window.toggleSingleProductSpecialCategory = toggleSingleProductSpecialCategory;

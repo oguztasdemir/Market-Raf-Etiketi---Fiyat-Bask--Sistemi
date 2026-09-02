@@ -93,16 +93,7 @@ def free_port(port=5000):
 def start_code_watcher(on_change_callback=None):
     """Proje kodlarını (.py, .js, .html, .css) arka planda izler ve değişiklik olduğunda terminale anlık bildirim basar."""
     def watch_worker():
-        watch_dirs = [
-            BASE_DIR,
-            os.path.join(BASE_DIR, 'frontend'),
-            os.path.join(BASE_DIR, 'frontend', 'js'),
-            os.path.join(BASE_DIR, 'frontend', 'stiller'),
-            os.path.join(BASE_DIR, 'frontend', 'sayfalar'),
-            os.path.join(BASE_DIR, 'src'),
-            os.path.join(BASE_DIR, 'static'),
-            os.path.join(BASE_DIR, 'templates')
-        ]
+        watch_dirs = [BASE_DIR]
         valid_exts = ('.py', '.js', '.html', '.css')
         mtimes = {}
 
@@ -110,7 +101,9 @@ def start_code_watcher(on_change_callback=None):
             files = []
             for d in watch_dirs:
                 if os.path.exists(d):
-                    for root, _, filenames in os.walk(d):
+                    for root, dirs, filenames in os.walk(d):
+                        # Prune unwanted and large directories in place to save CPU and disk performance
+                        dirs[:] = [dir_name for dir_name in dirs if dir_name not in ('.git', '__pycache__', 'data', 'yedekler', '.gemini', 'taslak')]
                         for f in filenames:
                             if f.lower().endswith(valid_exts):
                                 files.append(os.path.join(root, f))

@@ -527,46 +527,49 @@ function renderPosCart() {
         }
 
         return `
-          <tr style="border-bottom: 1px solid rgba(255,255,255,0.07); animation: fadeIn 0.15s ease;">
+          <tr class="pos-cart-row" style="border-bottom: 1px solid rgba(255,255,255,0.07); animation: fadeIn 0.15s ease;">
             <!-- 1. Ürün Adı -->
-            <td style="padding: 6px 10px; font-weight: 700; color: #f8fafc; border-right: 1px solid rgba(255,255,255,0.06);">
-              <span style="color: #60a5fa; font-size: 10.5px; margin-right: 4px;">#${idx+1}</span>
-              ${item.title}
-              ${item.is_scale_item ? '<span style="background: rgba(16,185,129,0.15); color: #34d399; font-size: 9.5px; padding: 1px 4px; border-radius: 4px; margin-left: 4px;">Terazi</span>' : ''}
+            <td class="pos-cart-title-cell" style="padding: 6px 10px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.06);">
+              <span style="color: #0284c7; font-size: 10.5px; font-weight: 800; margin-right: 4px;">#${idx+1}</span>
+              <span class="pos-cart-item-title">${item.title}</span>
+              ${item.is_scale_item ? '<span style="background: rgba(16,185,129,0.15); color: #059669; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">Terazi</span>' : ''}
             </td>
 
             <!-- 2. Miktar -->
             <td style="padding: 4px 6px; text-align: center; border-right: 1px solid rgba(255,255,255,0.06);">
               <input type="text" inputmode="decimal" id="cart-qty-${item.id}" value="${item.quantity}"
+                     class="pos-cart-input-qty"
                      onfocus="setPosActiveInput(this); this.select();"
                      oninput="onPosCartQtyChange('${item.id}', this.value)"
                      onkeydown="handlePosRowInputKey(event, '${item.id}')"
-                     style="width: 68px; padding: 5px 6px; background: #070d1e; border: 1.5px solid #38bdf8; border-radius: 6px; color: #38bdf8; font-weight: 900; font-size: 13.5px; text-align: center; outline: none; box-sizing: border-box;">
+                     style="width: 68px; padding: 5px 6px; border-radius: 6px; font-weight: 900; font-size: 13.5px; text-align: center; outline: none; box-sizing: border-box;">
             </td>
 
             <!-- 3. Birim Adı -->
-            <td style="padding: 6px 8px; text-align: center; color: #cbd5e1; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.06); font-size: 12px;">
+            <td class="pos-cart-unit-cell" style="padding: 6px 8px; text-align: center; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.06); font-size: 12px;">
               ${item.unit}
             </td>
 
             <!-- 4. Birim Fiyat -->
             <td style="padding: 4px 6px; text-align: right; border-right: 1px solid rgba(255,255,255,0.06);">
               <input type="text" inputmode="decimal" id="cart-price-${item.id}" value="${item.unit_price.toFixed(2)}"
+                     class="pos-cart-input-price"
                      onfocus="setPosActiveInput(this); this.select();"
                      oninput="onPosCartPriceChange('${item.id}', this.value)"
                      onkeydown="handlePosRowInputKey(event, '${item.id}')"
-                     style="width: 75px; padding: 5px 6px; background: #070d1e; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #f8fafc; font-weight: 800; font-size: 13px; text-align: right; outline: none; box-sizing: border-box; font-family: monospace;">
+                     style="width: 75px; padding: 5px 6px; border-radius: 6px; font-weight: 800; font-size: 13px; text-align: right; outline: none; box-sizing: border-box; font-family: monospace;">
             </td>
 
             <!-- 5. Ürün Tutarı -->
-            <td style="padding: 6px 8px; text-align: right; font-weight: 900; font-family: monospace; font-size: 14px; color: #10b981; border-right: 1px solid rgba(255,255,255,0.06);" id="row-total-${item.id}">
+            <td style="padding: 6px 8px; text-align: right; font-weight: 900; font-family: monospace; font-size: 14px; color: #059669; border-right: 1px solid rgba(255,255,255,0.06);" id="row-total-${item.id}">
               ${item.total_price.toFixed(2).replace('.', ',')} TL
             </td>
 
             <!-- 6. Sil İşlemi -->
             <td style="padding: 4px 4px; text-align: center;">
               <button type="button" onclick="removePosCartItem('${item.id}')" 
-                      style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #f87171; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;" title="Sil">
+                      class="pos-cart-delete-btn"
+                      style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;" title="Sil">
                 ✕
               </button>
             </td>
@@ -592,11 +595,17 @@ function renderPosCart() {
 // =========================================================
 // 4. SAĞ PANEL KATEGORİ SEÇİMİ & ADET/KG/BARKODSUZ GRİDİ
 // =========================================================
+window.posQuickCurrentPage = 1;
+window.posQuickPageSize = 10;
+window.posQuickAllItems = [];
+
 function selectPosQuickCategory(category) {
   window.currentPosQuickCategory = category;
+  window.posQuickCurrentPage = 1;
 
   const btnAdet = document.getElementById('btn-cat-manav-adet');
   const btnBarkodsuz = document.getElementById('btn-cat-barkodsuz');
+  const btnCustomize = document.getElementById('btn-customize-barkodsuz');
   const headingEl = document.getElementById('pos-quick-cat-heading');
 
   [btnAdet, btnBarkodsuz].forEach(btn => {
@@ -615,7 +624,8 @@ function selectPosQuickCategory(category) {
       btnBarkodsuz.style.color = '#ffffff';
       btnBarkodsuz.style.boxShadow = '0 4px 12px rgba(2,132,199,0.35)';
     }
-    if (headingEl) headingEl.innerText = 'BARKODSUZ & MUHTELİF';
+    if (headingEl) headingEl.innerText = 'BARKODSUZ ÜRÜNLER';
+    if (btnCustomize) btnCustomize.style.display = 'block';
   } else {
     if (btnAdet) {
       btnAdet.style.background = '#0284c7';
@@ -623,7 +633,8 @@ function selectPosQuickCategory(category) {
       btnAdet.style.color = '#ffffff';
       btnAdet.style.boxShadow = '0 4px 12px rgba(2,132,199,0.35)';
     }
-    if (headingEl) headingEl.innerText = 'MANAV ADET (A-Z)';
+    if (headingEl) headingEl.innerText = 'MANAV ADET';
+    if (btnCustomize) btnCustomize.style.display = 'none';
   }
 
   loadPosQuickGrid(category);
@@ -632,6 +643,7 @@ function selectPosQuickCategory(category) {
 async function loadPosQuickGrid(category) {
   const gridContainer = document.getElementById('pos-quick-3col-grid');
   const countEl = document.getElementById('pos-quick-items-count');
+  const paginationControls = document.getElementById('pos-quick-pagination-controls');
   if (!gridContainer) return;
 
   gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Yükleniyor...</div>';
@@ -641,35 +653,81 @@ async function loadPosQuickGrid(category) {
     const data = await res.json();
 
     if (data.status === 'success' && Array.isArray(data.items)) {
-      const items = data.items;
-      window.posQuickItemsList = items;
-      if (countEl) countEl.innerText = `${items.length} Ürün`;
+      window.posQuickAllItems = data.items;
+      if (countEl) countEl.innerText = `${data.items.length} Ürün`;
 
-      if (items.length === 0) {
-        gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Ürün bulunamadı.</div>';
-        return;
-      }
-
-      gridContainer.innerHTML = items.map((item, idx) => {
-        const pVal = Number(item.price || 0);
-        const pText = pVal > 0 ? pVal.toFixed(2).replace('.', ',') + ' TL' : 'Tutar Gir';
-        return `
-          <button type="button" onclick="addPosQuickItemByIndex(${idx})"
-                  style="background: #0f1c38; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 54px; cursor: pointer; transition: all 0.12s ease; user-select: none; box-sizing: border-box; gap: 3px;"
-                  onmouseover="this.style.borderColor='#38bdf8'; this.style.background='#13264d';"
-                  onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.background='#0f1c38';">
-            <span style="font-size: 11.5px; font-weight: 800; color: #f8fafc; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-height: 26px; pointer-events: none;">
-              ${item.title}
-            </span>
-            <strong style="color: #10b981; font-size: 12px; font-family: monospace; font-weight: 900; pointer-events: none;">
-              ${pText}
-            </strong>
-          </button>
-        `;
-      }).join('');
+      renderCurrentPosQuickPage();
+    } else {
+      gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Ürün bulunamadı.</div>';
+      if (paginationControls) paginationControls.style.display = 'none';
     }
   } catch (e) {
     gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #f87171; padding: 20px;">Ürünler yüklenemedi.</div>';
+    if (paginationControls) paginationControls.style.display = 'none';
+  }
+}
+
+function renderCurrentPosQuickPage() {
+  const gridContainer = document.getElementById('pos-quick-3col-grid');
+  const paginationControls = document.getElementById('pos-quick-pagination-controls');
+  const pageIndicator = document.getElementById('pos-quick-page-indicator');
+  const btnPrev = document.getElementById('btn-pos-quick-prev-page');
+  const btnNext = document.getElementById('btn-pos-quick-next-page');
+
+  if (!gridContainer) return;
+
+  const allItems = window.posQuickAllItems || [];
+  const pageSize = window.posQuickPageSize || 10;
+  const totalPages = Math.ceil(allItems.length / pageSize) || 1;
+
+  if (window.posQuickCurrentPage > totalPages) window.posQuickCurrentPage = totalPages;
+  if (window.posQuickCurrentPage < 1) window.posQuickCurrentPage = 1;
+
+  const startIndex = (window.posQuickCurrentPage - 1) * pageSize;
+  const pageItems = allItems.slice(startIndex, startIndex + pageSize);
+  window.posQuickItemsList = pageItems;
+
+  if (totalPages > 1) {
+    if (paginationControls) paginationControls.style.display = 'flex';
+    if (pageIndicator) pageIndicator.innerText = `${window.posQuickCurrentPage} / ${totalPages}`;
+    if (btnPrev) btnPrev.disabled = (window.posQuickCurrentPage === 1);
+    if (btnNext) btnNext.disabled = (window.posQuickCurrentPage === totalPages);
+  } else {
+    if (paginationControls) paginationControls.style.display = 'none';
+  }
+
+  if (pageItems.length === 0) {
+    gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Bu sayfada ürün yok.</div>';
+    return;
+  }
+
+  gridContainer.innerHTML = pageItems.map((item, idx) => {
+    const pVal = Number(item.price || 0);
+    const pText = pVal > 0 ? pVal.toFixed(2).replace('.', ',') + ' TL' : 'Tutar Gir';
+    return `
+      <button type="button" onclick="addPosQuickItemByIndex(${idx})"
+              class="pos-quick-item-card"
+              style="border-radius: 8px; padding: 8px 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 54px; cursor: pointer; transition: all 0.12s ease; user-select: none; box-sizing: border-box; gap: 3px;">
+        <span class="pos-quick-item-title" style="font-size: 11.5px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-height: 26px; pointer-events: none;">
+          ${item.title}
+        </span>
+        <strong class="pos-quick-item-price" style="color: #10b981; font-size: 12px; font-family: monospace; font-weight: 900; pointer-events: none;">
+          ${pText}
+        </strong>
+      </button>
+    `;
+  }).join('');
+}
+
+function changePosQuickPage(delta) {
+  const allItems = window.posQuickAllItems || [];
+  const pageSize = window.posQuickPageSize || 10;
+  const totalPages = Math.ceil(allItems.length / pageSize) || 1;
+
+  const newPage = window.posQuickCurrentPage + delta;
+  if (newPage >= 1 && newPage <= totalPages) {
+    window.posQuickCurrentPage = newPage;
+    renderCurrentPosQuickPage();
   }
 }
 
@@ -700,6 +758,139 @@ function addPosQuickItemByIndex(idx) {
     unit: item.unit || 'Adet',
     is_scale_item: item.is_scale_item || false
   });
+}
+
+// =========================================================
+// 4.1. BARKODSUZ ÜRÜNLER SIRALAMA & ÖZELLEŞTİRME YÖNETİMİ
+// =========================================================
+window.barkodsuzManagerItems = [];
+
+async function openBarkodsuzManagerModal() {
+  const modal = document.getElementById('modal-barkodsuz-manager');
+  if (!modal) return;
+
+  try {
+    const res = await fetch('/api/pos/barkodsuz_items');
+    const data = await res.json();
+    if (data.status === 'success' && Array.isArray(data.items)) {
+      window.barkodsuzManagerItems = JSON.parse(JSON.stringify(data.items));
+      renderBarkodsuzManagerList();
+      showPosModal(modal);
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') showToast('Barkodsuz ürünler yüklenemedi.', 'error');
+  }
+}
+
+function closeBarkodsuzManagerModal() {
+  hidePosModal('modal-barkodsuz-manager');
+}
+
+function renderBarkodsuzManagerList() {
+  const container = document.getElementById('barkodsuz-items-sort-list');
+  if (!container) return;
+
+  const items = window.barkodsuzManagerItems || [];
+  if (items.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">Henüz barkodsuz ürün kaydı yok. Yukarıdan ekleyebilirsiniz.</div>';
+    return;
+  }
+
+  container.innerHTML = items.map((item, idx) => {
+    const pageNum = Math.floor(idx / 10) + 1;
+    const slotInPage = (idx % 10) + 1;
+    const pVal = Number(item.price || 0);
+    const pText = pVal > 0 ? pVal.toFixed(2).replace('.', ',') + ' TL' : '0,00 TL';
+
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; background: #070d1e; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 11px; font-weight: 800; background: #1e293b; color: #38bdf8; padding: 2px 7px; border-radius: 4px; min-width: 45px; text-align: center;">
+            S${pageNum}-${slotInPage}
+          </span>
+          <div>
+            <strong style="color: #f8fafc; font-size: 12.5px; display: block;">${item.title}</strong>
+            <small style="color: #10b981; font-weight: 800; font-size: 11px;">${pText}</small>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button type="button" onclick="moveBarkodsuzItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} style="background: #1e293b; border: 1px solid #334155; color: #cbd5e1; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 11px; font-weight: 800;" title="Yukarı Taşı">▲</button>
+          <button type="button" onclick="moveBarkodsuzItem(${idx}, 1)" ${idx === items.length - 1 ? 'disabled' : ''} style="background: #1e293b; border: 1px solid #334155; color: #cbd5e1; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 11px; font-weight: 800;" title="Aşağı Taşı">▼</button>
+          <button type="button" onclick="deleteBarkodsuzItemFromModal(${idx})" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #f87171; border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 11px;" title="Listeden Çıkar">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function moveBarkodsuzItem(index, direction) {
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= window.barkodsuzManagerItems.length) return;
+
+  const temp = window.barkodsuzManagerItems[index];
+  window.barkodsuzManagerItems[index] = window.barkodsuzManagerItems[targetIndex];
+  window.barkodsuzManagerItems[targetIndex] = temp;
+
+  renderBarkodsuzManagerList();
+}
+
+function deleteBarkodsuzItemFromModal(index) {
+  window.barkodsuzManagerItems.splice(index, 1);
+  renderBarkodsuzManagerList();
+}
+
+async function submitAddNewBarkodsuzItem() {
+  const titleInp = document.getElementById('inp-bs-new-title');
+  const priceInp = document.getElementById('inp-bs-new-price');
+
+  const title = (titleInp?.value || '').trim();
+  const price = parseFloat(priceInp?.value || 0.0);
+
+  if (!title) {
+    if (typeof showToast === 'function') showToast('Lütfen ürün adını girin.', 'warning');
+    return;
+  }
+
+  const newItem = {
+    id: `bs_${Date.now()}`,
+    title: title,
+    price: price,
+    price_str: (price > 0 ? price.toFixed(2).replace('.', ',') : '0,00') + ' TL',
+    unit: 'Adet',
+    barcode: 'BARKODSUZ',
+    is_scale_item: false
+  };
+
+  window.barkodsuzManagerItems.push(newItem);
+  if (titleInp) titleInp.value = '';
+  if (priceInp) priceInp.value = '';
+
+  renderBarkodsuzManagerList();
+  if (typeof showToast === 'function') showToast(`'${title}' listeye eklendi. Sıralamayı Kaydet butonuna basmayı unutmayın.`, 'info');
+}
+
+async function saveBarkodsuzOrderChanges() {
+  try {
+    const res = await fetch('/api/pos/barkodsuz_items/save_order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: window.barkodsuzManagerItems })
+    });
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      if (typeof showToast === 'function') showToast('✅ Barkodsuz ürünler ve sıralama başarıyla kaydedildi.', 'success');
+      closeBarkodsuzManagerModal();
+      if (window.currentPosQuickCategory === 'barkodsuz') {
+        loadPosQuickGrid('barkodsuz');
+      }
+    } else {
+      if (typeof showToast === 'function') showToast(`Hata: ${data.message}`, 'error');
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') showToast(`Kayıt hatası: ${err.message}`, 'error');
+  }
 }
 
 // =========================================================
@@ -988,7 +1179,7 @@ function recalcQuickProdMargin() {
   }
 }
 
-async function submitQuickProductSave(addToCart = false) {
+async function submitQuickProductSave(addToCart = false, closeOnSave = true) {
   const bcInp = document.getElementById('quick-prod-barcode');
   const titleInp = document.getElementById('quick-prod-title');
   const salePriceInp = document.getElementById('quick-prod-sale-price');
@@ -1047,7 +1238,7 @@ async function submitQuickProductSave(addToCart = false) {
 
     if (data.status === 'success') {
       if (typeof showToast === 'function') {
-        showToast(`✅ ${title} kaydedildi! Sıradaki barkodu okutunuz.`, 'success');
+        showToast(`✅ ${title} kaydedildi!`, 'success');
       }
 
       if (addToCart) {
@@ -1060,8 +1251,11 @@ async function submitQuickProductSave(addToCart = false) {
           unit: unit
         });
         closePosQuickProductModal();
+      } else if (closeOnSave) {
+        // Kaydedip pencereyi hemen kapat ve barkod alanına odaklan
+        closePosQuickProductModal();
       } else {
-        // Formu temizle ve imleci doğrudan yeni barkod okuma alanına odakla
+        // Formu temizle ve imleci doğrudan yeni barkod okuma alanına odakla (Seri Kayıt modu)
         if (bcInp) {
           bcInp.value = '';
           bcInp.focus();
@@ -1085,7 +1279,7 @@ async function submitQuickProductSave(addToCart = false) {
 
         const btnSave = document.getElementById('btn-save-quick-prod');
         if (btnSave) {
-          btnSave.innerText = 'Kaydet (Enter)';
+          btnSave.innerText = '💾 Kaydet ve Kapat (Enter)';
           btnSave.style.background = '#2563eb';
         }
 
@@ -2270,7 +2464,8 @@ function openPosReceiptConfirmModal(paymentType, receivedCash = 0, changeAmount 
 
   const now = new Date();
   const dateStr = `${now.toLocaleDateString('tr-TR')} ${now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
-  const receiptNo = `FİŞ: #${Math.floor(1000 + Math.random() * 9000)}`;
+  const counterVal = document.getElementById('pos-lifetime-sales-count')?.innerText?.trim() || 'A000.000.001';
+  const receiptNo = `FİŞ: ${counterVal}`;
 
   if (prevDate) prevDate.innerText = dateStr;
   if (prevNo) prevNo.innerText = receiptNo;
@@ -2311,7 +2506,44 @@ function executePendingPosCheckout(shouldPrintReceipt = true) {
   directPosCheckout(p.paymentType, p.receivedCash, p.changeAmount, shouldPrintReceipt);
 }
 
+function executeDirectPayment(shouldPrintReceipt = false) {
+  if (!posCart || posCart.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ Sepette ürün bulunmuyor. Lütfen önce barkod okutun.', 'warning');
+    }
+    const barcodeInp = document.getElementById('pos-barcode-input');
+    if (barcodeInp) {
+      barcodeInp.focus();
+      barcodeInp.style.boxShadow = '0 0 16px rgba(239,68,68,0.6)';
+      barcodeInp.style.borderColor = '#ef4444';
+      setTimeout(() => {
+        barcodeInp.style.boxShadow = '0 0 12px rgba(56,189,248,0.12)';
+        barcodeInp.style.borderColor = '#38bdf8';
+      }, 800);
+    }
+    return;
+  }
+
+  // Barkod kutusunda girilmiş nakit para varsa para üstünü hesapla
+  const barcodeInp = document.getElementById('pos-barcode-input');
+  const typedVal = (barcodeInp?.value || '').trim();
+  const parsedAmt = parseFloat(typedVal.replace(',', '.'));
+  if (barcodeInp) barcodeInp.value = '';
+
+  const grandTotal = getPosCartGrandTotal();
+  let changeAmt = 0;
+  let receivedCash = grandTotal;
+
+  if (!isNaN(parsedAmt) && parsedAmt > grandTotal && typedVal.length <= 6 && !typedVal.includes('*')) {
+    receivedCash = parsedAmt;
+    changeAmt = parsedAmt - grandTotal;
+  }
+
+  directPosCheckout('Nakit', receivedCash, changeAmt, shouldPrintReceipt);
+}
+
 async function directPosCheckout(paymentType = 'Nakit', receivedCash = 0, changeAmount = 0, shouldPrintReceipt = true) {
+
   if (posCart.length === 0) {
     if (typeof showToast === 'function') showToast('⚠️ Sepette ürün bulunmuyor.', 'warning');
     return;
@@ -2713,11 +2945,6 @@ function checkOnlineServerStatus() {
 let loadedCashiersCache = [];
 
 async function openCashierSwitchModal() {
-  const pinInp = document.getElementById('cashier-pin-input');
-  if (pinInp) {
-    pinInp.value = '';
-  }
-
   const select = document.getElementById('cashier-select-dropdown');
   if (select) {
     try {
@@ -2728,53 +2955,21 @@ async function openCashierSwitchModal() {
         select.innerHTML = loadedCashiersCache
           .map(c => `<option value="${c.id}" ${c.id === activeCashier.id ? 'selected' : ''}>${c.name} (${c.role === 'admin' ? 'Müdür' : 'Kasiyer'})</option>`)
           .join('');
-        onCashierDropdownChange();
       }
     } catch (e) {}
   }
   showPosModal('modal-cashier-switch');
   setTimeout(() => {
-    const pin = document.getElementById('cashier-pin-input');
-    if (pin) {
-      pin.value = '';
-      pin.focus();
-    }
+    if (select) select.focus();
   }, 100);
 }
 
-function onCashierDropdownChange() {
-  const select = document.getElementById('cashier-select-dropdown');
-  const pinInp = document.getElementById('cashier-pin-input');
-  const hintEl = document.getElementById('cashier-pin-hint');
-  if (pinInp) pinInp.value = '';
-
-  if (select && select.value) {
-    const cashier = loadedCashiersCache.find(c => String(c.id) === String(select.value));
-    if (cashier && cashier.pin && cashier.pin.trim()) {
-      if (hintEl) {
-        hintEl.innerText = '🔒 Bu hesap şifrelidir. Giriş için PIN kodunuzu yazın.';
-        hintEl.style.color = '#fbbf24';
-      }
-      if (pinInp) pinInp.placeholder = 'PIN kodunuzu girin';
-    } else {
-      if (hintEl) {
-        hintEl.innerText = '🔓 Bu hesap şifresizdir. PIN alanını boş bırakarak Enter yapın.';
-        hintEl.style.color = '#34d399';
-      }
-      if (pinInp) pinInp.placeholder = 'Şifresiz hesap (boş bırakın)';
-    }
-  }
-}
-
 function closeCashierSwitchModal() {
-  const pinInp = document.getElementById('cashier-pin-input');
-  if (pinInp) pinInp.value = '';
   hidePosModal('modal-cashier-switch');
 }
 
 async function submitCashierSwitch() {
   const select = document.getElementById('cashier-select-dropdown');
-  const pinInp = document.getElementById('cashier-pin-input');
   if (!select || select.selectedIndex < 0) {
     closeCashierSwitchModal();
     return;
@@ -2782,19 +2977,18 @@ async function submitCashierSwitch() {
 
   const opt = select.options[select.selectedIndex];
   const cid = opt.value;
-  const pin = (pinInp ? pinInp.value : '').trim();
 
   const submitBtn = document.getElementById('btn-cashier-submit');
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerText = 'Doğrulanıyor...';
+    submitBtn.innerText = 'Aktarılıyor...';
   }
 
   try {
     const res = await fetch('/api/cashiers/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: cid, pin })
+      body: JSON.stringify({ id: cid, pin: '' })
     });
     const data = await res.json();
 
@@ -2805,64 +2999,32 @@ async function submitCashierSwitch() {
 
       const el1 = document.getElementById('header-active-cashier-name');
       if (el1) el1.innerText = cname;
-      const el2 = document.getElementById('pos-header-cashier-name');
-      if (el2) el2.innerText = cname;
 
-      if (pinInp) pinInp.value = '';
+      const el2 = document.getElementById('btn-pos-footer-admin');
+      if (el2) {
+        const shortName = cname.split(' ')[0].toUpperCase();
+        el2.innerHTML = `<span>👤</span> ${shortName}`;
+      }
+
       closeCashierSwitchModal();
-
-      // Moladaysa otomatik olarak bitir ve göreve başlat
-      try {
-        fetch('/api/market/shift/action', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: data.cashier.id, name: cname, action: 'end_break' })
-        }).catch(() => {});
-      } catch (e) {}
-
-      if (typeof currentEmployeeShiftState !== 'undefined') {
-        currentEmployeeShiftState = { status: "working" };
-      }
-      if (typeof updateHeaderShiftUI === 'function') updateHeaderShiftUI();
-      if (typeof updateSidebarNavVisibility === 'function') updateSidebarNavVisibility();
-
       if (typeof showToast === 'function') {
-        showToast(`🟢 Kasa Açıldı / Aktif Kasiyer: ${cname} (${data.cashier.role === 'admin' ? 'Müdür' : 'Kasiyer'})`, 'success');
-      }
-
-      // Kasa kilitliyken okutulan barkod veya tıklanan ürün varsa hemen sepete aktar
-      if (window.pendingPosBarcodeAfterUnlock) {
-        const pendingBc = window.pendingPosBarcodeAfterUnlock;
-        window.pendingPosBarcodeAfterUnlock = null;
-        setTimeout(() => addPosItemByQuery(pendingBc.query, pendingBc.qty), 120);
-      } else if (window.pendingPosItemAfterUnlock) {
-        const pendingProd = window.pendingPosItemAfterUnlock;
-        window.pendingPosItemAfterUnlock = null;
-        setTimeout(() => addItemToPosCart(pendingProd), 120);
-      } else {
-        const posInp = document.getElementById('pos-barcode-input');
-        if (posInp) setTimeout(() => posInp.focus(), 100);
+        showToast(`👤 Aktif Kasiyer Değiştirildi: ${cname}`, 'success');
       }
     } else {
       if (typeof showToast === 'function') {
-        showToast(`❌ ${data.message || 'Kasiyer girişi başarısız.'}`, 'error');
-      }
-      if (pinInp) {
-        pinInp.value = '';
-        pinInp.focus();
+        showToast(`⚠️ ${data.message || 'Kasiyer seçilemedi'}`, 'error');
       }
     }
   } catch (e) {
-    if (typeof showToast === 'function') {
-      showToast('❌ Bağlantı hatası, kasiyer doğrulanamadı.', 'error');
-    }
+    closeCashierSwitchModal();
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>↵</span> <span>Giriş Yap / Seç (Enter)</span>';
+      submitBtn.innerHTML = `<span>✓</span><span>Kasiyeri Seç ve Başla (Enter)</span>`;
     }
   }
 }
+
 
 function exitPosToHome() {
   switchTab('tab-home');
@@ -2886,7 +3048,9 @@ async function loadActiveCashier() {
       const data = await res.json();
       if (data.status === 'success' && data.cashiers && data.cashiers.length > 0) {
         const first = data.cashiers.find(c => c.active !== false) || data.cashiers[0];
-        activeCashier = { id: first.id, name: first.name };
+        activeCashier = { id: first.id, name: first.name, role: first.role || 'admin' };
+      } else {
+        activeCashier = { id: 'admin', name: 'Yönetici', role: 'admin' };
       }
     }
     const el1 = document.getElementById('header-active-cashier-name');
@@ -2899,6 +3063,7 @@ async function loadActiveCashier() {
     }
   } catch (e) {}
 }
+
 
 async function loadDashboardSummary() {
   try {
@@ -3362,9 +3527,18 @@ window.addEventListener('keydown', async (e) => {
         '⚠️'
       );
       if (ok) {
-        window.close();
+        if (typeof exitDesktopApp === 'function') {
+          exitDesktopApp();
+        } else {
+          window.close();
+        }
       }
       return;
+    } else {
+      // Sepet boşsa doğrudan kapat
+      if (typeof exitDesktopApp === 'function') {
+        exitDesktopApp();
+      }
     }
   }
 
@@ -3380,7 +3554,7 @@ window.addEventListener('keydown', async (e) => {
     } else if (e.key === 'F3') {
       confirmClearPosCart(); // FİŞ İPTAL [F3]
     } else if (e.key === 'F4') {
-      openPosPaymentModal(); // ÖDEME AL [F4]
+      executeDirectPayment(false); // ÖDEME AL (FİŞSİZ) [F4]
     } else if (e.key === 'F6') {
       parkCurrentReceipt(); // FİŞ BEKLET [F6]
     } else if (e.key === 'F7') {
@@ -3393,7 +3567,10 @@ window.addEventListener('keydown', async (e) => {
       openPosQuickProductModal(); // HIZLI ÜRÜN [F10 / Insert]
     } else if (e.key === 'F11') {
       openPosCreditModal(); // VERESİYE [F11]
+    } else if (e.key === 'F12') {
+      executeDirectPayment(true); // ÖDEME AL & YAZDIR [F12]
     }
+
     return;
   }
 
@@ -4207,3 +4384,10 @@ window.submitReturnItemsConfirmation = submitReturnItemsConfirmation;
 window.submitPosCashMovement = submitPosCashMovement;
 window.loadTodayCashMovements = loadTodayCashMovements;
 window.deleteCashMovementItem = deleteCashMovementItem;
+window.changePosQuickPage = changePosQuickPage;
+window.openBarkodsuzManagerModal = openBarkodsuzManagerModal;
+window.closeBarkodsuzManagerModal = closeBarkodsuzManagerModal;
+window.moveBarkodsuzItem = moveBarkodsuzItem;
+window.deleteBarkodsuzItemFromModal = deleteBarkodsuzItemFromModal;
+window.submitAddNewBarkodsuzItem = submitAddNewBarkodsuzItem;
+window.saveBarkodsuzOrderChanges = saveBarkodsuzOrderChanges;
