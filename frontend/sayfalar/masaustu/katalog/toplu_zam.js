@@ -5,7 +5,7 @@
 let priceChangedTodayList = [];
 let lowStockList = [];
 
-async function openBatchPriceModal() {
+async function openBrandZamMotorModal() {
   const brandSelect = document.getElementById('batch-price-brand');
   if (brandSelect && typeof allSortedBrandsList !== 'undefined') {
     const currentVal = brandSelect.value;
@@ -153,7 +153,7 @@ async function refreshLowStockAlerts() {
   }
 }
 
-window.openBatchPriceModal = openBatchPriceModal;
+window.openBrandZamMotorModal = openBrandZamMotorModal;
 window.closeBatchPriceModal = closeBatchPriceModal;
 window.executeBatchPriceUpdate = executeBatchPriceUpdate;
 window.refreshPriceChangedQueue = refreshPriceChangedQueue;

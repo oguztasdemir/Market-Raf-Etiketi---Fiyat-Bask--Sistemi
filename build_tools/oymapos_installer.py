@@ -577,6 +577,44 @@ class OymaposInstallerApp:
             if os.path.exists(source_ico):
                 shutil.copy2(source_ico, os.path.join(dest_dir, "logo.ico"))
 
+            # Windows 7 / Legacy DLL Shim (api-ms-win-core-path-l1-1-0.dll) Kopyalama
+            source_shim = get_resource_path("api-ms-win-core-path-l1-1-0.dll")
+            if not os.path.exists(source_shim):
+                source_shim = get_resource_path(os.path.join("redist", "api-ms-win-core-path-l1-1-0.dll"))
+            if os.path.exists(source_shim):
+                shutil.copy2(source_shim, os.path.join(dest_dir, "api-ms-win-core-path-l1-1-0.dll"))
+
+            # Kurulum sihirbazının (veya ZIP klasörünün) yanında bir Excel (.xlsx) fiyat listesi varsa hedef sisteme aktar
+            try:
+                installer_dir = os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__))
+                excel_files = [f for f in os.listdir(installer_dir) if f.lower().endswith(('.xlsx', '.xls')) and not f.startswith('~$')]
+                if excel_files:
+                    target_excel_dir = os.path.join(dest_dir, "data", "sistem_exceli")
+                    os.makedirs(target_excel_dir, exist_ok=True)
+                    for ef in excel_files:
+                        src_ef = os.path.join(installer_dir, ef)
+                        dst_ef = os.path.join(target_excel_dir, ef)
+                        shutil.copy2(src_ef, dst_ef)
+                        print(f"Otomatik Fiyat Listesi Entegre Edildi: {ef}")
+            except Exception as excel_err:
+                print(f"Fiyat listesi kopyalama uyarısı: {excel_err}")
+
+            # Gerekli Sistem Kütüphanelerini (VC++ Redistributable & WebView2) Sessizce Yükleme
+            try:
+                self.update_status(45, "Sistem kütüphaneleri yapılandırılıyor...", "Visual C++ ve Çalışma Zamanı paketleri kuruluyor...")
+                vc_installer = get_resource_path(os.path.join("redist", "vc_redist.x64.exe"))
+                if os.path.exists(vc_installer):
+                    subprocess.run([vc_installer, "/install", "/quiet", "/norestart"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception as vc_err:
+                print("VC Redist yükleme uyarısı:", vc_err)
+
+            try:
+                wv_installer = get_resource_path(os.path.join("redist", "MicrosoftEdgeWebview2Setup.exe"))
+                if os.path.exists(wv_installer):
+                    subprocess.run([wv_installer, "/silent", "/install"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception as wv_err:
+                print("WebView2 yükleme uyarısı:", wv_err)
+
             # Kendi installer kopyasını uninstaller olarak hedef dizine bırak
             current_installer_exe = sys.executable if getattr(sys, 'frozen', False) else None
             if current_installer_exe and os.path.exists(current_installer_exe):
@@ -598,23 +636,34 @@ class OymaposInstallerApp:
                     shell = None
 
             try:
+                shortcuts_to_create = [
+                    {"name": "OYMAPOS - Ana Sistem", "args": "", "desc": "OYMAPOS Market Raf Etiketi, POS ve Yönetim Sistemi"},
+                    {"name": "OYMAPOS - Barkodlu Terazi", "args": "--module=manav", "desc": "OYMAPOS Terazi Fiyat ve Manav Yönetimi"},
+                    {"name": "OYMAPOS - Toplu Stok & Katalog", "args": "--module=catalog", "desc": "OYMAPOS Ürün Kataloğu ve Stok Yönetimi"},
+                    {"name": "OYMAPOS - Hızlı Fiyat & Ürün", "args": "--module=sync", "desc": "OYMAPOS Hızlı Fiyat Değiştirme ve Senkronizasyon"}
+                ]
+
                 # Masaüstü
                 if self.create_desktop_shortcut.get():
                     desktop_dir = shell.SpecialFolders("Desktop") if shell else os.path.join(os.path.expanduser("~"), "Desktop")
-                    lnk_path = os.path.join(desktop_dir, "OYMAPOS.lnk")
-                    self.create_lnk(shell, target_exe, lnk_path, dest_dir)
+                    for s in shortcuts_to_create:
+                        lnk_path = os.path.join(desktop_dir, f"{s['name']}.lnk")
+                        self.create_lnk(shell, target_exe, lnk_path, dest_dir, args=s['args'], desc=s['desc'])
                     
                 # Başlat Menüsü
                 if self.create_start_menu_shortcut.get():
                     programs_dir = shell.SpecialFolders("Programs") if shell else os.path.join(os.environ.get("APPDATA", ""), r"Microsoft\Windows\Start Menu\Programs")
-                    lnk_path = os.path.join(programs_dir, "OYMAPOS.lnk")
-                    self.create_lnk(shell, target_exe, lnk_path, dest_dir)
+                    start_menu_app_dir = os.path.join(programs_dir, "OYMAPOS")
+                    os.makedirs(start_menu_app_dir, exist_ok=True)
+                    for s in shortcuts_to_create:
+                        lnk_path = os.path.join(start_menu_app_dir, f"{s['name']}.lnk")
+                        self.create_lnk(shell, target_exe, lnk_path, dest_dir, args=s['args'], desc=s['desc'])
                     
                 # Başlangıçta Çalıştır
                 if self.launch_startup_var.get():
                     startup_dir = shell.SpecialFolders("Startup") if shell else os.path.join(os.environ.get("APPDATA", ""), r"Microsoft\Windows\Start Menu\Programs\Startup")
                     lnk_path = os.path.join(startup_dir, "OYMAPOS.lnk")
-                    self.create_lnk(shell, target_exe, lnk_path, dest_dir)
+                    self.create_lnk(shell, target_exe, lnk_path, dest_dir, args="", desc=APP_DISPLAY_NAME)
             finally:
                 if HAS_WIN32COM and shell:
                     try:
@@ -638,15 +687,17 @@ class OymaposInstallerApp:
         except Exception as e:
             self.root.after(50, lambda: self.show_error_screen(str(e)))
 
-    def create_lnk(self, shell, target, link_path, working_dir):
+    def create_lnk(self, shell, target, link_path, working_dir, args="", desc=""):
         """Windows .lnk kısayolu oluşturur (win32com veya PowerShell fallback ile)."""
+        description = desc or APP_DISPLAY_NAME
         if shell:
             try:
                 shortcut = shell.CreateShortCut(link_path)
                 shortcut.TargetPath = target
                 shortcut.WorkingDirectory = working_dir
+                shortcut.Arguments = args
                 shortcut.IconLocation = target
-                shortcut.Description = APP_DISPLAY_NAME
+                shortcut.Description = description
                 shortcut.save()
                 return
             except Exception as e:
@@ -658,9 +709,10 @@ class OymaposInstallerApp:
             $WScriptShell = New-Object -ComObject WScript.Shell
             $Shortcut = $WScriptShell.CreateShortcut("{link_path}")
             $Shortcut.TargetPath = "{target}"
+            $Shortcut.Arguments = "{args}"
             $Shortcut.WorkingDirectory = "{working_dir}"
             $Shortcut.IconLocation = "{target}"
-            $Shortcut.Description = "{APP_DISPLAY_NAME}"
+            $Shortcut.Description = "{description}"
             $Shortcut.Save()
             '''
             subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0)

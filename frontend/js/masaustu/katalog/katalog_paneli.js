@@ -1271,17 +1271,7 @@ function openBatchPriceModal() {
   batchPriceTargetProducts = allCatalogProducts.filter(p => selectedBarcodes.has(p.barcode));
   if (batchPriceTargetProducts.length === 0) return;
 
-  const badgeEl = document.getElementById('batch-price-selected-badge');
-  if (badgeEl) badgeEl.innerText = `${batchPriceTargetProducts.length} Ürün Seçildi`;
-  
-  const countEl = document.getElementById('batch-price-count-info');
-  if (countEl) countEl.innerText = `${batchPriceTargetProducts.length} Ürün`;
-
-  const sumCountEl = document.getElementById('batch-summary-count');
-  if (sumCountEl) sumCountEl.innerText = `${batchPriceTargetProducts.length} Ürün`;
-
-  const sumPriceEl = document.getElementById('batch-summary-price');
-  if (sumPriceEl) sumPriceEl.innerText = "-";
+  updateBatchPriceModalCounters();
   
   const commonInp = document.getElementById('batch-common-price-inp');
   if (commonInp) commonInp.value = "";
@@ -1289,7 +1279,48 @@ function openBatchPriceModal() {
   renderBatchPriceItemsList("");
 
   const modal = document.getElementById('modal-catalog-batch-price');
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      if (commonInp) {
+        commonInp.focus();
+        commonInp.select();
+      }
+    }, 60);
+  }
+}
+
+function updateBatchPriceModalCounters() {
+  const count = batchPriceTargetProducts.length;
+  const badgeEl = document.getElementById('batch-price-selected-badge');
+  if (badgeEl) badgeEl.innerText = `${count} Ürün Seçildi`;
+  
+  const countEl = document.getElementById('batch-price-count-info');
+  if (countEl) countEl.innerText = `${count} Ürün`;
+
+  const sumCountEl = document.getElementById('batch-summary-count');
+  if (sumCountEl) sumCountEl.innerText = `${count} Ürün`;
+}
+
+function removeBatchPriceTargetItem(barcode) {
+  batchPriceTargetProducts = batchPriceTargetProducts.filter(p => p.barcode !== barcode);
+  selectedBarcodes.delete(barcode);
+  
+  if (typeof updateBatchBar === 'function') {
+    updateBatchBar();
+  }
+  
+  if (batchPriceTargetProducts.length === 0) {
+    closeBatchPriceModal();
+    showToast("Tüm ürünler seçimden çıkarıldı.", "info");
+    return;
+  }
+  
+  updateBatchPriceModalCounters();
+  const commonInp = document.getElementById('batch-common-price-inp');
+  const cleanVal = (commonInp?.value || '').trim();
+  const displayVal = cleanVal ? formatPriceInput(cleanVal) : '';
+  renderBatchPriceItemsList(displayVal);
 }
 
 function renderBatchPriceItemsList(newPriceStr = "") {
@@ -1297,18 +1328,26 @@ function renderBatchPriceItemsList(newPriceStr = "") {
   if (!container) return;
   container.innerHTML = "";
 
+  if (batchPriceTargetProducts.length === 0) {
+    container.innerHTML = `<div style="text-align: center; color: #94a3b8; padding: 20px; font-size: 13px;">Seçili ürün kalmadı.</div>`;
+    return;
+  }
+
   batchPriceTargetProducts.forEach(p => {
     const row = document.createElement('div');
-    row.className = 'batch-price-item-row';
+    row.style.cssText = "display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px; transition: all 0.15s ease;";
     row.innerHTML = `
-      <div class="batch-price-item-info">
-        <div class="batch-price-item-title" title="${p.title}">${p.title}</div>
-        <div class="batch-price-item-barcode">${p.barcode} | ${p.brand || 'DİĞER'}</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 12.5px; font-weight: 800; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.title}">${p.title}</div>
+        <div style="font-size: 11px; color: #94a3b8; font-family: monospace; margin-top: 2px;">${p.barcode} | ${p.brand || 'DİĞER'}</div>
       </div>
-      <div style="text-align: right;">
-        <div class="batch-price-item-old-price">Eski: ${p.price || '-'}</div>
-        ${newPriceStr ? `<div class="batch-price-item-new-price">➔ ${newPriceStr}</div>` : ''}
+      <div style="text-align: right; min-width: 90px;">
+        <div style="font-size: 12px; font-weight: 700; color: #cbd5e1;">Eski: <span style="color: #94a3b8;">${p.price || '-'}</span></div>
+        ${newPriceStr ? `<div style="font-size: 12px; font-weight: 900; color: #4ade80;">➔ ${newPriceStr}</div>` : ''}
       </div>
+      <button type="button" onclick="removeBatchPriceTargetItem('${p.barcode}')" title="Bu ürünü toplu fiyat listesinden çıkar" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; border-radius: 6px; width: 26px; height: 26px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; flex-shrink: 0;">
+        ✕
+      </button>
     `;
     container.appendChild(row);
   });
@@ -1337,11 +1376,30 @@ async function submitBatchPriceUpdate() {
   const rawPrice = document.getElementById('batch-common-price-inp')?.value.trim();
   if (!rawPrice) {
     showToast("Lütfen tümüne uygulanacak yeni bir fiyat girin.", "warning");
+    const inp = document.getElementById('batch-common-price-inp');
+    if (inp) {
+      inp.focus();
+      inp.style.borderColor = '#ef4444';
+      setTimeout(() => { inp.style.borderColor = '#38bdf8'; }, 800);
+    }
     return;
   }
 
   const formattedPrice = formatPriceInput(rawPrice);
   const barcodes = batchPriceTargetProducts.map(p => p.barcode);
+
+  if (barcodes.length === 0) {
+    showToast("Güncellenecek ürün bulunamadı.", "warning");
+    return;
+  }
+
+  const submitBtn = document.getElementById('btn-submit-batch-price');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Kaydediliyor...';
+    submitBtn.style.opacity = '0.7';
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/catalog/batch-price-update`, {
@@ -1353,18 +1411,48 @@ async function submitBatchPriceUpdate() {
       })
     });
     const data = await res.json();
+    
     if (data.status === 'success') {
-      batchPriceTargetProducts.forEach(p => {
-        p.price = formattedPrice;
+      // 1. Ana ürün listesinde fiyatları güncelle
+      allCatalogProducts.forEach(p => {
+        if (barcodes.includes(p.barcode)) {
+          p.price = formattedPrice;
+          p.updated_at = new Date().toISOString();
+        }
       });
-      onCatalogFilterChange();
+
+      // 2. Modalı kapat
       closeBatchPriceModal();
-      showToast(`✓ ${data.message}`, "success");
+
+      // 3. Seçimleri temizle ve tabloyu yeniden çiz
+      if (typeof clearCatalogSelection === 'function') {
+        clearCatalogSelection();
+      } else {
+        selectedBarcodes.clear();
+      }
+      
+      if (typeof onCatalogFilterChange === 'function') {
+        onCatalogFilterChange();
+      }
+
+      // 4. Net Bilgilendirme Ekranı / Toast
+      showToast(`🎉 ${data.message || `${barcodes.length} ürünün fiyatı ${formattedPrice} olarak güncellendi.`}`, "success");
+      
+      // 5. Arka planda tam güncel kataloğu yeniden çek
+      if (typeof loadCatalog === 'function') {
+        loadCatalog(false);
+      }
     } else {
-      showToast(`Hata: ${data.message}`, "error");
+      showToast(`❌ Hata: ${data.message}`, "error");
     }
   } catch (err) {
-    showToast(`Bağlantı hatası: ${err.message}`, "error");
+    showToast(`❌ Bağlantı hatası: ${err.message}`, "error");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnHtml || '💾 Fiyatları Uygula ve Kaydet';
+      submitBtn.style.opacity = '1';
+    }
   }
 }
 
@@ -2015,6 +2103,7 @@ window.openQuickTitleEdit = openQuickTitleEdit;
 window.openQuickBrandEdit = openQuickBrandEdit;
 window.openBatchPriceModal = openBatchPriceModal;
 window.closeBatchPriceModal = closeBatchPriceModal;
+window.removeBatchPriceTargetItem = removeBatchPriceTargetItem;
 window.onBatchPriceCommonInput = onBatchPriceCommonInput;
 window.applyCommonPriceToPreview = applyCommonPriceToPreview;
 window.submitBatchPriceUpdate = submitBatchPriceUpdate;

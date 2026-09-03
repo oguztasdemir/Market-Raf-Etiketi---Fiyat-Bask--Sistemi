@@ -8,7 +8,9 @@ ROOT_DIR = os.path.abspath(os.path.join(SPECDIR, '..'))
 a = Analysis(
     [os.path.join(ROOT_DIR, 'desktop_app.py')],
     pathex=[ROOT_DIR],
-    binaries=[],
+    binaries=[
+        (os.path.join(SPECDIR, 'redist', 'api-ms-win-core-path-l1-1-0.dll'), '.')
+    ] if os.path.exists(os.path.join(SPECDIR, 'redist', 'api-ms-win-core-path-l1-1-0.dll')) else [],
     datas=[
         (os.path.join(ROOT_DIR, 'frontend'), 'frontend'),
         (os.path.join(ROOT_DIR, 'backend', 'katalog', 'seed_urunler.json'), 'backend/katalog'),

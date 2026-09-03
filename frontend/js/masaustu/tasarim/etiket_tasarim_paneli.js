@@ -14,7 +14,14 @@ async function loadTemplates() {
     }
   } catch (e) {}
   renderTemplateList();
-  applyTemplate(activeTemplateId);
+  
+  const currentTpl = templatesList.find(t => t.id === (editingTemplateId || 'default')) || templatesList[0];
+  if (currentTpl) {
+    openTemplateInEditor(currentTpl);
+  } else {
+    updateEditorPreview();
+  }
+  
   checkDesignStudioPrintersStatus();
   applyEditorScale();
 }
@@ -76,9 +83,12 @@ function renderTemplateList() {
         ${isDefault ? '<span style="background: rgba(251,191,36,0.18); border: 1px solid #fbbf24; color: #fbbf24; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 3px;">🔒 Sabit Varsayılan</span>' : ''}
       </div>
       <p style="margin: 0; font-size: 10px; color: #94a3b8; line-height: 1.3;">${tpl.description || 'Özel raf etiketi modeli.'}</p>
-      <div style="display: flex; justify-content: flex-end; margin-top: 2px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06);">
+        <button type="button" onclick="event.stopPropagation(); duplicateTemplateById('${tpl.id}')" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 4px; cursor: pointer;" title="Bu Modeli Kopyala & Yeni Tasarım Yap">
+          📋 Kopyala
+        </button>
         <span style="font-size: 10px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 3px;">
-          <span>Tasarımı Aç & Düzenle</span> <span>➔</span>
+          <span>Aç & Düzenle</span> <span>➔</span>
         </span>
       </div>
     `;
@@ -493,6 +503,9 @@ async function saveTemplateFromEditor() {
     });
     const data = await res.json();
     if (data.status === 'success') {
+      if (data.template && data.template.id) {
+        editingTemplateId = data.template.id;
+      }
       await loadTemplates();
       if (typeof showToast === 'function') {
         showToast(`✅ "${tplName}" ayarları ve tasarımı başarıyla kaydedildi!`, "success");
@@ -626,22 +639,64 @@ async function submitNewModelModal() {
   }
 
   try {
-    const res = await fetch('/api/templates/create', {
+    const res = await fetch(`${API_BASE}/api/templates/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name })
+      body: JSON.stringify({ 
+        name: name,
+        description: `Özel oluşturulan ${name} etiketi.`
+      })
     });
     const data = await res.json();
     if (data.status === 'success') {
       if (typeof showToast === 'function') showToast(`✨ "${name}" modeli başarıyla oluşturuldu.`, 'success');
       closeNewModelModal();
-      if (typeof loadTemplates === 'function') loadTemplates();
+      await loadTemplates();
+      if (data.template && data.template.id) {
+        selectAndEditTemplate(data.template.id);
+      }
     } else {
       if (typeof showToast === 'function') showToast(`⚠️ ${data.message || 'Model oluşturulamadı'}`, 'error');
     }
   } catch (e) {
     closeNewModelModal();
-    if (typeof showToast === 'function') showToast('Model oluşturuldu.', 'success');
+    if (typeof showToast === 'function') showToast('Model oluşturulamadı.', 'error');
+  }
+}
+
+async function duplicateCurrentTemplate() {
+  const tplId = editingTemplateId || 'default';
+  await duplicateTemplateById(tplId);
+}
+
+async function duplicateTemplateById(sourceTplId) {
+  const sourceTpl = templatesList.find(t => t.id === sourceTplId);
+  const srcName = sourceTpl ? sourceTpl.name : 'Model';
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/templates/${sourceTplId}/duplicate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: `${srcName} (Kopya)`
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.template) {
+      if (typeof showToast === 'function') {
+        showToast(`📋 "${data.template.name}" tasarımı kopyalandı ve düzenlemeye hazır!`, 'success');
+      }
+      await loadTemplates();
+      selectAndEditTemplate(data.template.id);
+    } else {
+      if (typeof showToast === 'function') {
+        showToast(`⚠️ ${data.message || 'Kopyalama işlemi başarısız.'}`, 'error');
+      }
+    }
+  } catch (e) {
+    if (typeof showToast === 'function') {
+      showToast('Tasarım kopyalanırken bir hata oluştu.', 'error');
+    }
   }
 }
 
@@ -682,6 +737,7 @@ function switchDesignStudioTab(tabKey) {
     }
     if (paneLabel) paneLabel.style.display = 'grid';
     if (paneReceipt) paneReceipt.style.display = 'none';
+    updateEditorPreview();
   }
 }
 
@@ -780,75 +836,9 @@ function updateReceiptPreviewLive() {
     `).join('');
   }
 
-  // 2. KDV Dahil / Hariç ve Toplam Hesaplamaları
-  const subtotalLabel = document.getElementById('rec-prev-subtotal-label');
-  const subtotalVal = document.getElementById('rec-prev-subtotal-val');
-  const totalLabel = document.getElementById('rec-prev-total-label');
+  // 2. Toplam Hesaplamaları (KDV ve Ödeme Türü Kaldırılmış Sade Bilgi Fişi)
   const totalVal = document.getElementById('rec-prev-total-val');
-  const kdvEl = document.getElementById('rec-prev-kdv-area');
-
-  const rawSum = 100.00; // 20.00 + 36.50 + 43.50
-  
-  if (vatMode === 'INCLUSIVE') {
-    // KDV Dahil Modu (Standart Perakende)
-    const matrah1 = 80.00 / 1.01;
-    const kdv1 = 80.00 - matrah1;
-    const matrah10 = 20.00 / 1.10;
-    const kdv10 = 20.00 - matrah10;
-    const totalKdv = kdv1 + kdv10;
-
-    if (subtotalLabel) subtotalLabel.innerText = "ARA TOPLAM:";
-    if (subtotalVal) subtotalVal.innerText = "100,00 TL";
-    if (totalLabel) totalLabel.innerText = "TOPLAM TUTAR:";
-    if (totalVal) totalVal.innerText = "100,00 TL";
-
-    if (kdvEl) {
-      kdvEl.style.display = showKdv ? 'block' : 'none';
-      kdvEl.innerHTML = `
-        <div style="display: flex; justify-content: space-between; color: #475569; margin-bottom: 2px;">
-          <span>%1 KDV (Matrah: ${matrah1.toFixed(2).replace('.', ',')} TL):</span>
-          <strong>${kdv1.toFixed(2).replace('.', ',')} TL</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; color: #475569; margin-bottom: 3px;">
-          <span>%10 KDV (Matrah: ${matrah10.toFixed(2).replace('.', ',')} TL):</span>
-          <strong>${kdv10.toFixed(2).replace('.', ',')} TL</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 3px; font-weight: 800; color: #1e293b;">
-          <span>TOPLAM KDV (Dahil):</span>
-          <span>${totalKdv.toFixed(2).replace('.', ',')} TL</span>
-        </div>
-      `;
-    }
-  } else {
-    // KDV Hariç Modu (Toptan / Kurumsal - KDV Üzerine Eklenir)
-    const kdv1 = 80.00 * 0.01; // 0.80 TL
-    const kdv10 = 20.00 * 0.10; // 2.00 TL
-    const totalKdv = kdv1 + kdv10; // 2.80 TL
-    const grandTotal = rawSum + totalKdv; // 102.80 TL
-
-    if (subtotalLabel) subtotalLabel.innerText = "ARA TOPLAM (KDV HARİÇ):";
-    if (subtotalVal) subtotalVal.innerText = `${rawSum.toFixed(2).replace('.', ',')} TL`;
-    if (totalLabel) totalLabel.innerText = "GENEL TOPLAM (KDV DAHİL):";
-    if (totalVal) totalVal.innerText = `${grandTotal.toFixed(2).replace('.', ',')} TL`;
-
-    if (kdvEl) {
-      kdvEl.style.display = showKdv ? 'block' : 'none';
-      kdvEl.innerHTML = `
-        <div style="display: flex; justify-content: space-between; color: #475569; margin-bottom: 2px;">
-          <span>%1 HESAPLANAN KDV (+):</span>
-          <strong>${kdv1.toFixed(2).replace('.', ',')} TL</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; color: #475569; margin-bottom: 3px;">
-          <span>%10 HESAPLANAN KDV (+):</span>
-          <strong>${kdv10.toFixed(2).replace('.', ',')} TL</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 3px; font-weight: 800; color: #0284c7;">
-          <span>TOPLAM EKLENEN KDV:</span>
-          <span>+${totalKdv.toFixed(2).replace('.', ',')} TL</span>
-        </div>
-      `;
-    }
-  }
+  if (totalVal) totalVal.innerText = "100,00 TL";
 }
 
 async function saveReceiptDesignSettings() {
@@ -965,23 +955,16 @@ function populateStudioPrintersDropdown(discoveredPrinters, selectedLabel, selec
 
 async function onStudioPrinterSelected(printerName) {
   if (!printerName) return;
-  const labelDot = document.getElementById('label-printer-dot');
-  const labelText = document.getElementById('label-printer-status-text');
 
   try {
-    const res = await fetch(`${API_BASE}/api/devices/config`, {
+    await fetch(`${API_BASE}/api/devices/config`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         label_printer: { name: printerName, connection_type: 'usb' }
       })
     });
-    const data = await res.json();
-    if (labelDot) labelDot.innerText = '🟢';
-    if (labelText) {
-      labelText.innerText = `'${printerName}' seçildi ve hazır`;
-      labelText.style.color = '#34d399';
-    }
+    await checkDesignStudioPrintersStatus();
     if (typeof showToast === 'function') {
       showToast(`🖨️ Etiket yazıcısı '${printerName}' olarak ayarlandı!`, 'success');
     }
@@ -1098,30 +1081,44 @@ async function checkDesignStudioPrintersStatus() {
     const labelPrinterName = settings.printer || devData.selected_printer || (installedPrinters.length > 0 ? (installedPrinters[0].name || installedPrinters[0]) : 'Termal Etiket Yazici');
     const receiptPrinterName = settings.receipt_printer || devData.selected_receipt_printer || 'Termal Etiket Yazici';
 
-    // Dropdown'ları doldur
-    populateStudioPrintersDropdown(installedPrinters, labelPrinterName, receiptPrinterName);
+    // Seçili yazıcının gerçek durumunu bul
+    const activeLabelObj = (devData.printer_details || []).find(p => p.name === labelPrinterName);
+    const isLabelOnline = activeLabelObj ? (activeLabelObj.is_online && !activeLabelObj.is_offline) : false;
 
     const labelDot = document.getElementById('label-printer-dot');
     const labelText = document.getElementById('label-printer-status-text');
     const labelBtn = document.getElementById('btn-studio-test-print');
 
-    if (labelDot) labelDot.innerText = '🟢';
+    if (labelDot) labelDot.innerText = isLabelOnline ? '🟢' : '🔴';
     if (labelText) {
-      labelText.innerText = 'Bağlı / Hazır';
-      labelText.style.color = '#34d399';
+      if (isLabelOnline) {
+        labelText.innerText = 'Bağlı / Hazır';
+        labelText.style.color = '#34d399';
+      } else {
+        labelText.innerText = 'Çevrimdışı (Cihaz Takılı Değil)';
+        labelText.style.color = '#f87171';
+      }
     }
     if (labelBtn) {
-      labelBtn.disabled = false;
-      labelBtn.style.opacity = '1';
-      labelBtn.title = `'${labelPrinterName}' yazıcısına test etiketi gönder`;
+      labelBtn.disabled = !isLabelOnline;
+      labelBtn.style.opacity = isLabelOnline ? '1' : '0.6';
+      labelBtn.title = isLabelOnline ? `'${labelPrinterName}' yazıcısına test etiketi gönder` : `'${labelPrinterName}' bağlı değil`;
     }
+
+    const activeRecObj = (devData.printer_details || []).find(p => p.name === receiptPrinterName);
+    const isRecOnline = activeRecObj ? (activeRecObj.is_online && !activeRecObj.is_offline) : false;
 
     const receiptDot = document.getElementById('receipt-printer-dot');
     const receiptText = document.getElementById('receipt-printer-status-text');
-    if (receiptDot) receiptDot.innerText = '🟢';
+    if (receiptDot) receiptDot.innerText = isRecOnline ? '🟢' : '🔴';
     if (receiptText) {
-      receiptText.innerText = 'Bağlı / Hazır';
-      receiptText.style.color = '#34d399';
+      if (isRecOnline) {
+        receiptText.innerText = 'Bağlı / Hazır';
+        receiptText.style.color = '#34d399';
+      } else {
+        receiptText.innerText = 'Çevrimdışı (Cihaz Takılı Değil)';
+        receiptText.style.color = '#f87171';
+      }
     }
 
   } catch (err) {

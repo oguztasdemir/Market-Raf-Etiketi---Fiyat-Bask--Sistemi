@@ -42,16 +42,31 @@ Name: "firewallrule"; Description: "Windows Güvenlik Duvarında Yerel Ağ İzni
 [Files]
 Source: "dist\OYMAPOS.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "logo.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build_tools\redist\api-ms-win-core-path-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build_tools\redist\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
+Source: "build_tools\redist\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Kaynak dosyalar ve seed katalogları
 Source: "backend\katalog\seed_urunler.json"; DestDir: "{app}\backend\katalog"; Flags: ignoreversion onlyifdoesntexist
 Source: "backend\katalog\seed_manav_urunleri.json"; DestDir: "{app}\backend\katalog"; Flags: ignoreversion onlyifdoesntexist
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\logo.ico"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\logo.ico"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}\OYMAPOS - Ana Sistem"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\logo.ico"
+Name: "{autoprograms}\{#MyAppName}\OYMAPOS - Barkodlu Terazi"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=manav"; IconFilename: "{app}\logo.ico"
+Name: "{autoprograms}\{#MyAppName}\OYMAPOS - Toplu Stok & Katalog"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=catalog"; IconFilename: "{app}\logo.ico"
+Name: "{autoprograms}\{#MyAppName}\OYMAPOS - Hızlı Fiyat & Ürün"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=sync"; IconFilename: "{app}\logo.ico"
+
+Name: "{autodesktop}\OYMAPOS - Ana Sistem"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\logo.ico"; Tasks: desktopicon
+Name: "{autodesktop}\OYMAPOS - Barkodlu Terazi"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=manav"; IconFilename: "{app}\logo.ico"; Tasks: desktopicon
+Name: "{autodesktop}\OYMAPOS - Toplu Stok & Katalog"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=catalog"; IconFilename: "{app}\logo.ico"; Tasks: desktopicon
+Name: "{autodesktop}\OYMAPOS - Hızlı Fiyat & Ürün"; Filename: "{app}\{#MyAppExeName}"; Parameters: "--module=sync"; IconFilename: "{app}\logo.ico"; Tasks: desktopicon
+
 Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\logo.ico"; Tasks: startupicon
 
 [Run]
+; VC++ Redistributable 2015-2022 Sessiz Kurulumu
+Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Microsoft Visual C++ Kütüphaneleri kuruluyor..."; Flags: runhidden
+; WebView2 Evergreen Runtime Sessiz Kurulumu
+Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Microsoft WebView2 Çalışma Zamanı kuruluyor..."; Flags: runhidden
 ; Güvenlik duvarı kuralını ekle
 Filename: "netsh"; Parameters: "advfirewall firewall add rule name=""OYMAPOS Local Server"" dir=in action=allow protocol=TCP localport=5000,5001 profile=any"; StatusMsg: "Windows Güvenlik Duvarı ayarlanıyor..."; Tasks: firewallrule; Flags: runhidden
 ; Kurulum bitince uygulamayı çalıştırma seçeneği

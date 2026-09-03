@@ -981,6 +981,24 @@ input:focus, select:focus {
   padding: 2mm 2.2mm 2mm 2.2mm;
 }
 
+.size-40x20 {
+  width: 40mm;
+  height: 20mm;
+  padding: 1.2mm 1.5mm 1.2mm 1.5mm;
+}
+
+.size-80x40 {
+  width: 80mm;
+  height: 40mm;
+  padding: 2.2mm 2.8mm 2.2mm 2.8mm;
+}
+
+.size-100x50 {
+  width: 100mm;
+  height: 50mm;
+  padding: 3mm 3.5mm 3mm 3.5mm;
+}
+
 .size-85x45 {
   width: 85mm;
   height: 45mm;
@@ -2720,44 +2738,65 @@ body.light-theme .pos-actions-bar {
 }
 
 body.light-theme .pos-action-btn {
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border: 1.5px solid #38bdf8 !important;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.08) !important;
+  color: #0369a1 !important;
 }
 
-body.light-theme .pos-btn-amber {
-  background: #fffbeb !important;
-  border-color: #fde68a !important;
-  color: #d97706 !important;
+body.light-theme .pos-action-btn:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25) !important;
 }
 
-body.light-theme .pos-btn-indigo {
-  background: #eef2ff !important;
-  border-color: #c7d2fe !important;
-  color: #4f46e5 !important;
+body.light-theme .pos-action-btn .pos-action-text {
+  color: #0369a1 !important;
 }
 
-body.light-theme .pos-btn-rose {
-  background: #fff1f2 !important;
-  border-color: #fecdd3 !important;
-  color: #e11d48 !important;
+body.light-theme .pos-action-btn:hover .pos-action-text {
+  color: #ffffff !important;
 }
 
-body.light-theme .pos-btn-crimson {
-  background: #fef2f2 !important;
-  border-color: #fecaca !important;
-  color: #dc2626 !important;
-}
-
-body.light-theme .pos-btn-purple {
-  background: #faf5ff !important;
-  border-color: #e9d5ff !important;
-  color: #9333ea !important;
-}
-
-body.light-theme .pos-btn-sky {
-  background: #f0f9ff !important;
-  border-color: #bae6fd !important;
+body.light-theme .pos-action-btn .pos-action-badge {
   color: #0284c7 !important;
+  opacity: 1 !important;
+}
+
+body.light-theme .pos-action-btn:hover .pos-action-badge {
+  color: #e0f2fe !important;
+}
+
+/* Beyaz ekranda renk renk olmak yerine hepsi uyumlu mavi */
+body.light-theme .pos-btn-amber,
+body.light-theme .pos-btn-indigo,
+body.light-theme .pos-btn-rose,
+body.light-theme .pos-btn-crimson,
+body.light-theme .pos-btn-purple,
+body.light-theme .pos-btn-sky {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%) !important;
+  border-color: #38bdf8 !important;
+  color: #0369a1 !important;
+}
+
+/* Ana ödeme ve yazdırma butonları beyaz ekranda canlı kurumsal mavi */
+body.light-theme #btn-pos-direct-pay-nofish,
+body.light-theme #btn-pos-direct-pay-print {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.3) !important;
+}
+
+body.light-theme #btn-pos-direct-pay-nofish .pos-action-text,
+body.light-theme #btn-pos-direct-pay-print .pos-action-text {
+  color: #ffffff !important;
+}
+
+body.light-theme #btn-pos-direct-pay-nofish .pos-action-badge,
+body.light-theme #btn-pos-direct-pay-print .pos-action-badge {
+  color: #bae6fd !important;
 }
 
 body.light-theme .pos-footer-status-bar {
@@ -4758,6 +4797,51 @@ body.light-theme .link-copy-row input {
   border-color: rgba(56, 189, 248, 0.35);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   transform: translateY(-1.5px);
+}
+
+/* =========================================================
+   GENEL VE PANELLER İÇİN GENİŞ & KOLAY TUTULABİLİR KAYDIRMA ÇUBUĞU
+   ========================================================= */
+::-webkit-scrollbar {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6 !important;
+  border-radius: 8px;
+  border: 3px solid #0f172a !important;
+  min-height: 40px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #60a5fa !important;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #93c5fd !important;
+}
+
+/* Sağ Hızlı Dokunmatik Panel & Toplu Fiyat Modalı İçin Ekstra Belirgin Kaydırma */
+#pos-quick-3col-grid::-webkit-scrollbar,
+#batch-price-items-container::-webkit-scrollbar,
+.pos-cart-table-wrapper::-webkit-scrollbar {
+  width: 16px !important;
+}
+
+#pos-quick-3col-grid::-webkit-scrollbar-thumb,
+#batch-price-items-container::-webkit-scrollbar-thumb,
+.pos-cart-table-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #38bdf8, #0284c7) !important;
+  border-radius: 8px;
+  border: 3px solid #070d1e !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
 
 

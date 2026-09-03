@@ -8,12 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Tema ve Aktif Sekmeyi Geri Yükle (F5 Yenileme Kalıcılığı)
   initAppTheme();
 
-  // F5 yapıldığında mevcut sekmede kalır; ilk açılışta veya hash yoksa Ana Sayfa gelir
+  // URL parametresi (?tab=tab-manav veya ?page=manav veya ?tab=manav) veya hash (#tab-manav)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramTab = urlParams.get('tab') || urlParams.get('page') || urlParams.get('module');
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const sessionTab = sessionStorage.getItem('active_tab');
 
   let targetTab = 'tab-home';
-  if (hashTab && document.getElementById(hashTab) && hashTab !== 'tab-print') {
+  if (paramTab) {
+    const formattedTab = paramTab.startsWith('tab-') ? paramTab : `tab-${paramTab}`;
+    if (document.getElementById(formattedTab)) {
+      targetTab = formattedTab;
+    }
+  } else if (hashTab && document.getElementById(hashTab) && hashTab !== 'tab-print') {
     targetTab = hashTab;
   } else if (sessionTab && document.getElementById(sessionTab) && sessionTab !== 'tab-print') {
     targetTab = sessionTab;

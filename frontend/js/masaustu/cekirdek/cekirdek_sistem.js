@@ -95,7 +95,13 @@ function showCustomPrompt(message, defaultValue = "", title = "Bilgi Girişi", o
     const input = document.getElementById('app-prompt-input');
 
     if (tEl) tEl.innerText = title;
-    if (mEl) mEl.innerText = message;
+    if (mEl) {
+      if (typeof message === 'string' && (message.includes('<') && message.includes('>'))) {
+        mEl.innerHTML = message;
+      } else {
+        mEl.innerText = message;
+      }
+    }
     if (input) input.value = defaultValue;
 
     modal.style.display = 'flex';
@@ -1367,6 +1373,54 @@ window.addEventListener('keydown', (e) => {
     toggleFullScreenMode();
   }
 }, true);
+
+// ==========================================
+// AKILLI KAYDIRMA ALANI KLAVYE DESTEĞİ (AŞAĞI / YUKARI OK TUŞLARI)
+// ==========================================
+let _lastClickedScrollContainer = null;
+
+// Tıklanan kaydırılabilir alanı veya scrollbarı hatırla
+window.addEventListener('mousedown', (e) => {
+  let target = e.target;
+  while (target && target !== document.body) {
+    if (target.id === 'pos-quick-3col-grid' || 
+        target.id === 'batch-price-items-container' || 
+        target.classList?.contains('pos-cart-table-wrapper') || 
+        target.classList?.contains('catalog-table-wrapper') ||
+        (target.scrollHeight > target.clientHeight && target.clientHeight > 100)) {
+      _lastClickedScrollContainer = target;
+      break;
+    }
+    target = target.parentElement;
+  }
+}, true);
+
+// Klavyede Aşağı (ArrowDown) / Yukarı (ArrowUp) tuşlarına basıldığında seçili alanda aşağı in
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'PageDown' && e.key !== 'PageUp') return;
+
+  // Eğer kullanıcı bir metin kutusunda (input/textarea) yazıyorsa engelleme
+  const activeEl = document.activeElement;
+  const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable);
+  
+  // Eğer input içinde değilse veya doğrudan scroll alanına odaklanıldıysa
+  if (!isTyping || activeEl.id === 'pos-quick-3col-grid' || activeEl.id === 'batch-price-items-container') {
+    const container = _lastClickedScrollContainer || 
+                      document.getElementById('pos-quick-3col-grid') || 
+                      document.getElementById('batch-price-items-container');
+    
+    if (container && (container.scrollHeight > container.clientHeight)) {
+      e.preventDefault();
+      const scrollStep = (e.key === 'PageDown' || e.key === 'PageUp') ? 220 : 75;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        container.scrollBy({ top: scrollStep, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ top: -scrollStep, behavior: 'smooth' });
+      }
+    }
+  }
+}, false);
+
 // ==========================================
 // UYGULAMA GÜVENLİ KAPATMA (ALT + F4 & API)
 // ==========================================

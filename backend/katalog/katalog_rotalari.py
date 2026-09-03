@@ -25,12 +25,17 @@ def invalidate_product_cache():
 def get_indexed_products():
     """Ürünleri hafızada indeksli ve O(1) arama haritasıyla hazır tutar."""
     global _INDEX_CACHE
+    try:
+        cur_mtime = os.path.getmtime(PRODUCTS_FILE) if os.path.exists(PRODUCTS_FILE) else 0
+    except Exception:
+        cur_mtime = 0
+
+    if _INDEX_CACHE.get("products") and _INDEX_CACHE.get("mtime") == cur_mtime and cur_mtime > 0:
+        return _INDEX_CACHE["products"], _INDEX_CACHE["barcode_map"]
+
     products = load_json(PRODUCTS_FILE, [])
     if not products:
         return [], {}
-
-    if _INDEX_CACHE.get("products") and len(_INDEX_CACHE["products"]) == len(products):
-        return _INDEX_CACHE["products"], _INDEX_CACHE["barcode_map"]
 
     bc_map = {}
     for p in products:
@@ -41,7 +46,7 @@ def get_indexed_products():
             c_alt = clean_barcode(alt_bc)
             if c_alt and c_alt not in bc_map:
                 bc_map[c_alt] = p
-    _INDEX_CACHE = {"products": products, "barcode_map": bc_map}
+    _INDEX_CACHE = {"mtime": cur_mtime, "products": products, "barcode_map": bc_map}
     return products, bc_map
 
 def find_product_by_barcode(barcode: str):
@@ -479,7 +484,27 @@ def api_catalog_batch_price_update():
     if updated_count > 0:
         create_products_backup(f"Toplu Fiyat Güncelleme ({updated_count} Ürün)")
         save_json(PRODUCTS_FILE, products)
+        invalidate_product_cache()
         clear_diff_cache()
+        
+        # SQLite Senkronizasyonu
+        try:
+            from backend.araclar.sqlite_servisi import db_session
+            from backend.araclar.metin_duzenleyici import parse_price_val
+            with db_session() as conn:
+                for bc_raw in (barcodes or [it.get("barcode") for it in items]):
+                    bc = clean_barcode(bc_raw)
+                    if bc and bc in prod_map:
+                        p_item = prod_map[bc]
+                        p_price = p_item.get("price", "")
+                        p_num = parse_price_val(p_price)
+                        conn.execute("""
+                            UPDATE urunler 
+                            SET price = ?, price_num = ?, date = ?, updated_at = ?
+                            WHERE barcode = ?
+                        """, (p_price, p_num, now_datetime, now_datetime, bc))
+        except Exception as e:
+            print(f"[UYARI] SQLite toplu fiyat güncelleme hatası: {e}")
 
     return jsonify({
         "status": "success",

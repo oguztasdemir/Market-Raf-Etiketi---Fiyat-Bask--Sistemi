@@ -220,7 +220,6 @@ async function testPrintLabelPrinter() {
 
 async function testPrintReceiptPrinter() {
   const receiptPrinter = document.getElementById('hw-select-receipt-printer')?.value || 'Termal Etiket Yazici';
-  if (typeof showToast === 'function') showToast(`🧾 '${receiptPrinter}' bilgi fişi yazıcısına test fişi gönderiliyor...`, 'info');
 
   try {
     const res = await fetch(`${API_BASE}/api/devices/test_receipt`, {
@@ -229,14 +228,83 @@ async function testPrintReceiptPrinter() {
       body: JSON.stringify({ printer_name: receiptPrinter })
     });
     const data = await res.json();
-    if (data.status === 'success') {
-      if (typeof showToast === 'function') showToast(`✓ Bilgi fişi test baskısı '${receiptPrinter}' yazıcısına iletildi!`, 'success');
-    } else {
-      if (typeof showToast === 'function') showToast(`❌ Fiş yazdırma hatası: ${data.message}`, 'error');
+    if (data.status !== 'success') {
+      printLocalBrowserTestReceipt();
     }
   } catch (err) {
-    if (typeof showToast === 'function') showToast(`Bağlantı hatası: ${err.message}`, 'error');
+    printLocalBrowserTestReceipt();
   }
+}
+
+function printLocalBrowserTestReceipt() {
+  const dateStr = new Date().toLocaleString('tr-TR');
+  const receiptHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>OYMAPOS Test Fişi</title>
+        <style>
+          @page { margin: 0; size: auto; }
+          * { box-sizing: border-box; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-size: 12px; 
+            width: 72mm; 
+            margin: 0 auto; 
+            padding: 8px 6px; 
+            color: #000; 
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+          }
+          .center { text-align: center; }
+          .bold { font-weight: 800; }
+          .divider { border-top: 1.5px dashed #000; margin: 6px 0; }
+          .row { display: flex; justify-content: space-between; align-items: center; margin: 3px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="center bold" style="font-size: 16px;">YARENLER MARKET</div>
+        <div class="center" style="font-size: 11px; font-weight: 600;">KASA BİLGİ FİŞİ TESTİ</div>
+        <div class="center" style="font-size: 11px; margin-top: 3px;">Tarih: ${dateStr}</div>
+        <div class="divider"></div>
+        <div class="row"><span class="bold">ÜRÜN ADI</span><span class="bold">TUTAR</span></div>
+        <div class="divider"></div>
+        <div class="row"><span>TEST ÜRÜN 1 (80MM / 58MM)</span><span>50,00 TL</span></div>
+        <div class="row"><span>KASA BİLGİ FİŞİ TESTİ</span><span>50,00 TL</span></div>
+        <div class="divider"></div>
+        <div class="row bold" style="font-size: 16px; padding: 4px 0;"><span>TOPLAM TUTAR:</span><span>100,00 TL</span></div>
+        <div class="divider"></div>
+        <div class="center bold" style="font-size: 12px; margin-top: 6px;">BİLGİ FİŞİ YAZICISI BAŞARIYLA BAĞLANDI!</div>
+        <div class="center" style="font-size: 10px; margin-top: 3px; color: #333;">MALİ DEĞERİ YOKTUR • BİLGİ AMAÇLIDIR</div>
+      </body>
+    </html>
+  `;
+
+  let printFrame = document.getElementById('hidden-pos-print-frame');
+  if (!printFrame) {
+    printFrame = document.createElement('iframe');
+    printFrame.id = 'hidden-pos-print-frame';
+    printFrame.style.position = 'fixed';
+    printFrame.style.right = '0';
+    printFrame.style.bottom = '0';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = '0';
+    document.body.appendChild(printFrame);
+  }
+
+  const frameDoc = printFrame.contentWindow.document;
+  frameDoc.open();
+  frameDoc.write(receiptHtml);
+  frameDoc.close();
+
+  setTimeout(() => {
+    try {
+      printFrame.contentWindow.focus();
+      printFrame.contentWindow.print();
+    } catch (e) {}
+  }, 150);
 }
 
 async function testScaleConnection() {

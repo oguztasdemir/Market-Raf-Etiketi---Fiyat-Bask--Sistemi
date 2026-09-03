@@ -137,14 +137,20 @@ def scan_all_system_devices() -> dict:
                     elif any(w in p_name_lower or w in driver_lower for w in ['label', 'etiket', 'barcode', 'zebra', 'tsc', 'xprinter', 'argox', 'godex', 'hprt']):
                         suggested_role = "label"
 
+                    from backend.yazdirma.yazici_baglanti_servisi import get_printer_status
+                    st = get_printer_status(p_name)
+                    is_online = st.get("is_online", False)
+                    status_text = st.get("status", "Bilinmiyor")
+
                     discovered_printers.append({
                         "name": p_name,
                         "driver": driver,
                         "port": port,
                         "connection_type": conn_type,
-                        "is_offline": is_offline,
+                        "is_offline": not is_online,
+                        "is_online": is_online,
                         "status_code": status,
-                        "status_text": "🟢 Hazır (Bağlı)" if (not is_offline and status == 0 and conn_type != "virtual") else ("🟡 Sanal Yazıcı" if conn_type == "virtual" else "🔴 Çevrimdışı"),
+                        "status_text": status_text,
                         "suggested_role": suggested_role
                     })
                 except Exception as ex:
@@ -153,8 +159,9 @@ def scan_all_system_devices() -> dict:
                         "driver": "Bilinmiyor",
                         "port": "USB",
                         "connection_type": "usb",
-                        "is_offline": False,
-                        "status_text": "Hazır",
+                        "is_offline": True,
+                        "is_online": False,
+                        "status_text": "🔴 Bağlı Değil",
                         "suggested_role": "both"
                     })
         except Exception as e:
@@ -302,10 +309,15 @@ def generate_esc_pos_receipt_bytes(receipt_data: dict, paper_size: str = "80mm",
 
     # 6. Genel Toplam
     b.extend(b'\x1b\x45\x01') # Bold ON
+    tot_str = f"{total_amount:.2f} TL"
     if paper_size == "80mm":
-        b.extend(f"{'TOPLAM TUTAR:':<24}{total_amount:>14.2f} TL\n".encode('ascii'))
+        # 80mm: 40-42 kolon
+        rem_w = max(10, 40 - len("TOPLAM TUTAR:"))
+        b.extend(f"{'TOPLAM TUTAR:'}{tot_str:>{rem_w}}\n".encode('ascii'))
     else:
-        b.extend(f"{'TOPLAM:':<16}{total_amount:>13.2f} TL\n".encode('ascii'))
+        # 58mm: 30-32 kolon
+        rem_w = max(8, 30 - len("TOPLAM:"))
+        b.extend(f"{'TOPLAM:'}{tot_str:>{rem_w}}\n".encode('ascii'))
     b.extend(b'\x1b\x45\x00') # Bold OFF
 
     b.extend(f"{'-' * cols}\n".encode('ascii'))
@@ -340,31 +352,50 @@ def send_receipt_to_printer(receipt_data: dict, target_printer_name: str = None)
 
     # 1. Windows Spooler Üzerinden Gönderim
     if platform.system() == "Windows":
+        import win32print
+        
+        target_printers = []
+        if target_printer_name:
+            target_printers.append(target_printer_name)
+        if rec_cfg.get("name") and rec_cfg.get("name") not in target_printers:
+            target_printers.append(rec_cfg.get("name"))
         try:
-            import win32print
-            hPrinter = win32print.OpenPrinter(printer_name)
-            try:
-                hJob = win32print.StartDocPrinter(hPrinter, 1, (f"Fis_{receipt_data.get('receipt_no', 'Job')}", None, "RAW"))
-                try:
-                    win32print.StartPagePrinter(hPrinter)
-                    win32print.WritePrinter(hPrinter, raw_bytes)
-                    win32print.EndPagePrinter(hPrinter)
-                finally:
-                    win32print.EndDocPrinter(hPrinter)
-            finally:
-                win32print.ClosePrinter(hPrinter)
+            def_p = win32print.GetDefaultPrinter()
+            if def_p and def_p not in target_printers:
+                target_printers.append(def_p)
+        except Exception:
+            pass
+        if "Termal Etiket Yazici" not in target_printers:
+            target_printers.append("Termal Etiket Yazici")
 
-            return {
-                "status": "success",
-                "message": f"Bilgi fişi başarıyla '{printer_name}' yazıcısına gönderildi.",
-                "printer": printer_name
-            }
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Yazıcıya gönderim başarısız ({printer_name}): {str(e)}",
-                "printer": printer_name
-            }
+        last_error = None
+        for p_name in target_printers:
+            try:
+                hPrinter = win32print.OpenPrinter(p_name)
+                try:
+                    hJob = win32print.StartDocPrinter(hPrinter, 1, (f"Fis_{receipt_data.get('receipt_no', 'Job')}", None, "RAW"))
+                    try:
+                        win32print.StartPagePrinter(hPrinter)
+                        win32print.WritePrinter(hPrinter, raw_bytes)
+                        win32print.EndPagePrinter(hPrinter)
+                    finally:
+                        win32print.EndDocPrinter(hPrinter)
+                finally:
+                    win32print.ClosePrinter(hPrinter)
+
+                return {
+                    "status": "success",
+                    "message": f"Bilgi fişi başarıyla '{p_name}' yazıcısına doğrudan iletildi.",
+                    "printer": p_name
+                }
+            except Exception as e:
+                last_error = e
+
+        return {
+            "status": "error",
+            "message": f"Yazıcıya gönderim başarısız: {str(last_error)}",
+            "printer": printer_name
+        }
     else:
         return {
             "status": "success",

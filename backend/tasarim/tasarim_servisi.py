@@ -11,29 +11,31 @@ DEFAULT_FACTORY_TEMPLATE = {
     "id": "default",
     "name": "Varsayılan Standart Model",
     "is_locked": True,
+    "description": "Görsel 2 standart fabrika raf etiketi. Kilitli fabrika başlangıç tasarımıdır.",
+    "label_size": "size-76x40",
     "top_right_mode": "empty",
     "top_right_text": "",
-    "elements": [
-        {"id": "title1", "type": "text", "x": 10, "y": 8, "fontSize": 16, "fontWeight": "800", "content": "{{title1}}"},
-        {"id": "title2", "type": "text", "x": 10, "y": 28, "fontSize": 14, "fontWeight": "700", "content": "{{title2}}"},
-        {"id": "brand_box", "type": "box", "x": 10, "y": 48, "width": 120, "height": 22},
-        {"id": "brand_text", "type": "text", "x": 14, "y": 52, "fontSize": 11, "fontWeight": "800", "content": "ÜRETİCİ: {{brand}}"},
-        {"id": "origin_box", "type": "box", "x": 140, "y": 48, "width": 130, "height": 22},
-        {"id": "origin_text", "type": "text", "x": 144, "y": 52, "fontSize": 11, "fontWeight": "800", "content": "ÜRETİM YERİ: {{origin}}"},
-        {"id": "date_box", "type": "box", "x": 280, "y": 48, "width": 140, "height": 22},
-        {"id": "date_text", "type": "text", "x": 284, "y": 52, "fontSize": 11, "fontWeight": "800", "content": "DEĞ. TARİHİ: {{date}}"},
-        {"id": "unit_price", "type": "text", "x": 10, "y": 76, "fontSize": 10, "fontWeight": "700", "content": "{{unit_price}}"},
-        {"id": "barcode", "type": "barcode", "x": 10, "y": 92, "width": 200, "height": 45, "content": "{{barcode}}"},
-        {"id": "price", "type": "text", "x": 240, "y": 80, "fontSize": 44, "fontWeight": "900", "content": "{{price}}"}
-    ]
+    "price_font_size": 38,
+    "title_font_size": 13,
+    "show_barcode": True,
+    "show_unit_price": True,
+    "show_origin": True,
+    "show_date": True,
+    "custom_layers": []
 }
 
 def get_all_templates() -> list:
     """Tüm şablonları döner, yoksa varsayılanı oluşturur."""
     templates = load_json(TEMPLATES_FILE, [])
     if not templates:
-        templates = [DEFAULT_FACTORY_TEMPLATE]
+        templates = [dict(DEFAULT_FACTORY_TEMPLATE)]
         save_json(TEMPLATES_FILE, templates)
+    else:
+        # Default modelin her zaman mevcut ve kilitli olduğunu garanti et
+        has_default = any(t.get('id') == 'default' for t in templates)
+        if not has_default:
+            templates.insert(0, dict(DEFAULT_FACTORY_TEMPLATE))
+            save_json(TEMPLATES_FILE, templates)
     return templates
 
 def get_template_by_id(tpl_id: str) -> dict:
@@ -42,7 +44,7 @@ def get_template_by_id(tpl_id: str) -> dict:
     for t in templates:
         if t.get('id') == tpl_id:
             return t
-    return templates[0] if templates else DEFAULT_FACTORY_TEMPLATE
+    return templates[0] if templates else dict(DEFAULT_FACTORY_TEMPLATE)
 
 def save_or_update_template(tpl_data: dict) -> dict:
     """Şablon oluşturur veya günceller."""
@@ -50,9 +52,22 @@ def save_or_update_template(tpl_data: dict) -> dict:
     tpl_id = tpl_data.get('id')
     now_str = datetime.datetime.now().strftime("%d %b %Y %H:%M")
 
+    # Kilitli varsayılan model düzenlenmeye çalışılırsa yeni bir kopya oluştur
+    if tpl_id == 'default':
+        tpl_id = str(uuid.uuid4())[:8]
+        tpl_data['id'] = tpl_id
+        tpl_data['is_locked'] = False
+        tpl_data['name'] = f"{tpl_data.get('name', 'Model')} (Özel)"
+        tpl_data['created_at'] = now_str
+        tpl_data['updated_at'] = now_str
+        templates.append(tpl_data)
+        save_json(TEMPLATES_FILE, templates)
+        return tpl_data
+
     if not tpl_id or tpl_id == 'new':
         tpl_id = str(uuid.uuid4())[:8]
         tpl_data['id'] = tpl_id
+        tpl_data['is_locked'] = False
         tpl_data['created_at'] = now_str
         tpl_data['updated_at'] = now_str
         templates.append(tpl_data)
@@ -60,14 +75,14 @@ def save_or_update_template(tpl_data: dict) -> dict:
         found = False
         for i, t in enumerate(templates):
             if t.get('id') == tpl_id:
-                if t.get('is_locked') and tpl_id == 'default':
-                    pass
                 tpl_data['updated_at'] = now_str
+                tpl_data['is_locked'] = False
                 templates[i] = tpl_data
                 found = True
                 break
         if not found:
             tpl_data['id'] = tpl_id
+            tpl_data['is_locked'] = False
             tpl_data['created_at'] = now_str
             tpl_data['updated_at'] = now_str
             templates.append(tpl_data)

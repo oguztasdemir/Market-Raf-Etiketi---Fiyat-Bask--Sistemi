@@ -377,7 +377,7 @@ function addItemToPosCart(prod) {
 
   if (isOneLira) {
     const countOneLira = posCart.filter(i => i.is_one_lira || i.barcode === '1' || (i.title && i.title.startsWith('1TL'))).length + 1;
-    itemTitle = `1TL (Terazi / Barkodsuz) #${countOneLira}`;
+    itemTitle = `1TL #${countOneLira}`;
   }
 
   const uPrice = parseFloat(prod.unit_price) || 0.0;
@@ -532,7 +532,6 @@ function renderPosCart() {
             <td class="pos-cart-title-cell" style="padding: 6px 10px; font-weight: 700; border-right: 1px solid rgba(255,255,255,0.06);">
               <span style="color: #0284c7; font-size: 10.5px; font-weight: 800; margin-right: 4px;">#${idx+1}</span>
               <span class="pos-cart-item-title">${item.title}</span>
-              ${item.is_scale_item ? '<span style="background: rgba(16,185,129,0.15); color: #059669; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">Terazi</span>' : ''}
             </td>
 
             <!-- 2. Miktar -->
@@ -670,45 +669,26 @@ async function loadPosQuickGrid(category) {
 function renderCurrentPosQuickPage() {
   const gridContainer = document.getElementById('pos-quick-3col-grid');
   const paginationControls = document.getElementById('pos-quick-pagination-controls');
-  const pageIndicator = document.getElementById('pos-quick-page-indicator');
-  const btnPrev = document.getElementById('btn-pos-quick-prev-page');
-  const btnNext = document.getElementById('btn-pos-quick-next-page');
 
   if (!gridContainer) return;
+  if (paginationControls) paginationControls.style.display = 'none';
 
   const allItems = window.posQuickAllItems || [];
-  const pageSize = window.posQuickPageSize || 10;
-  const totalPages = Math.ceil(allItems.length / pageSize) || 1;
+  window.posQuickItemsList = allItems;
 
-  if (window.posQuickCurrentPage > totalPages) window.posQuickCurrentPage = totalPages;
-  if (window.posQuickCurrentPage < 1) window.posQuickCurrentPage = 1;
-
-  const startIndex = (window.posQuickCurrentPage - 1) * pageSize;
-  const pageItems = allItems.slice(startIndex, startIndex + pageSize);
-  window.posQuickItemsList = pageItems;
-
-  if (totalPages > 1) {
-    if (paginationControls) paginationControls.style.display = 'flex';
-    if (pageIndicator) pageIndicator.innerText = `${window.posQuickCurrentPage} / ${totalPages}`;
-    if (btnPrev) btnPrev.disabled = (window.posQuickCurrentPage === 1);
-    if (btnNext) btnNext.disabled = (window.posQuickCurrentPage === totalPages);
-  } else {
-    if (paginationControls) paginationControls.style.display = 'none';
-  }
-
-  if (pageItems.length === 0) {
-    gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Bu sayfada ürün yok.</div>';
+  if (allItems.length === 0) {
+    gridContainer.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #64748b; padding: 20px;">Ürün bulunamadı.</div>';
     return;
   }
 
-  gridContainer.innerHTML = pageItems.map((item, idx) => {
+  gridContainer.innerHTML = allItems.map((item, idx) => {
     const pVal = Number(item.price || 0);
     const pText = pVal > 0 ? pVal.toFixed(2).replace('.', ',') + ' TL' : 'Tutar Gir';
     return `
       <button type="button" onclick="addPosQuickItemByIndex(${idx})"
               class="pos-quick-item-card"
-              style="border-radius: 8px; padding: 8px 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 54px; cursor: pointer; transition: all 0.12s ease; user-select: none; box-sizing: border-box; gap: 3px;">
-        <span class="pos-quick-item-title" style="font-size: 11.5px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-height: 26px; pointer-events: none;">
+              style="border-radius: 8px; padding: 6px 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 52px; cursor: pointer; transition: all 0.12s ease; user-select: none; box-sizing: border-box; gap: 2px;">
+        <span class="pos-quick-item-title" style="font-size: 11.5px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-height: 28px; pointer-events: none;">
           ${item.title}
         </span>
         <strong class="pos-quick-item-price" style="color: #10b981; font-size: 12px; font-family: monospace; font-weight: 900; pointer-events: none;">
@@ -2574,9 +2554,17 @@ async function directPosCheckout(paymentType = 'Nakit', receivedCash = 0, change
 
     if (data.status === 'success') {
       const changeMsg = changeAmount > 0 ? ` • 💵 Para Üstü: ${changeAmount.toFixed(2)} TL` : '';
-      const printMsg = shouldPrintReceipt ? ' • 🧾 Fiş Yazdırıldı' : ' • 📴 Fişsiz';
       if (typeof showToast === 'function') {
-        showToast(`✅ ${paymentType} Satışı Tamamlandı (${grandTotal.toFixed(2)} TL)${changeMsg}${printMsg}`, 'success');
+        showToast(`✅ ${paymentType} Satışı Tamamlandı (${grandTotal.toFixed(2)} TL)${changeMsg}`, 'success');
+      }
+
+      // Bilgi fişi istendiğinde: 2. bilgisayardaysak yerel yazıcısına basar
+      if (shouldPrintReceipt) {
+        const isRemoteClient = window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost';
+        const pStatus = data.receipt_print_status;
+        if (isRemoteClient || !pStatus || pStatus.status !== 'success') {
+          printLocalClientSaleReceipt(data.receipt || payload, paymentType, grandTotal, receivedCash, changeAmount);
+        }
       }
 
       clearPosCart();
@@ -2597,6 +2585,112 @@ async function directPosCheckout(paymentType = 'Nakit', receivedCash = 0, change
   } catch (e) {
     if (typeof showToast === 'function') showToast('Satış tamamlanırken sunucu bağlantı hatası oluştu.', 'error');
   }
+}
+
+function printLocalClientSaleReceipt(receiptData, paymentType, grandTotal, receivedCash, changeAmount) {
+  const items = receiptData.items || [];
+  const recNo = receiptData.receipt_no || `FİŞ-${Date.now().toString().slice(-6)}`;
+  const dateStr = receiptData.date || new Date().toLocaleString('tr-TR');
+
+  let itemsHtml = items.map(it => {
+    const qty = it.quantity || 1;
+    const unit = it.unit || 'Ad';
+    const price = (it.unit_price || it.price || 0).toFixed(2);
+    const tot = (it.total_price || (qty * price)).toFixed(2);
+    return `
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+        <span style="font-weight: 700; font-size: 13px; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 190px;">${it.title}</span>
+        <span style="font-weight: 700; font-size: 13px; color: #000;">${tot} TL</span>
+      </div>
+      <div style="font-size: 11px; color: #333; margin-bottom: 5px;">
+        ${qty} ${unit} x ${price} TL
+      </div>
+    `;
+  }).join('');
+
+  const receiptHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Bilgi Fişi - ${recNo}</title>
+        <style>
+          @page { margin: 0; size: auto; }
+          * { box-sizing: border-box; }
+          body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-size: 12px; 
+            width: 68mm; 
+            margin: 0 auto; 
+            padding: 8px 10px 8px 6px; 
+            color: #000; 
+            background: #fff;
+            -webkit-print-color-adjust: exact;
+          }
+          .center { text-align: center; }
+          .bold { font-weight: 800; }
+          .divider { border-top: 1.5px dashed #000; margin: 6px 0; }
+          .row { display: flex; justify-content: space-between; align-items: center; margin: 3px 0; padding-right: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="center bold" style="font-size: 16px; letter-spacing: 0.5px;">YARENLER MARKET</div>
+        <div class="center" style="font-size: 11px; font-weight: 600;">BİLGİ VE SATIŞ FİŞİ</div>
+        <div class="center" style="font-size: 11px; margin-top: 3px;">Tarih: ${dateStr}</div>
+        <div class="center" style="font-size: 11px;">Fiş No: ${recNo}</div>
+        <div class="divider"></div>
+        ${itemsHtml}
+        <div class="divider"></div>
+        <div class="row bold" style="font-size: 15px; padding: 4px 0;">
+          <span>TOPLAM TUTAR:</span>
+          <span>${grandTotal.toFixed(2)} TL</span>
+        </div>
+        ${changeAmount > 0 ? `<div class="row bold" style="font-size: 13px; color: #000;"><span>Para Üstü:</span><span>${changeAmount.toFixed(2)} TL</span></div>` : ''}
+        <div class="divider"></div>
+        <div class="center bold" style="font-size: 12px; margin-top: 6px;">TEŞEKKÜR EDER, İYİ GÜNLER DİLERİZ!</div>
+        <div class="center" style="font-size: 10px; margin-top: 3px; color: #333;">MALİ DEĞERİ YOKTUR • BİLGİ AMAÇLIDIR</div>
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            }, 100);
+          };
+        <\/script>
+      </body>
+    </html>
+  `;
+
+  // Görünmez tünel iframe ile arka planda doğrudan yazdır
+  let printFrame = document.getElementById('hidden-pos-print-frame');
+  if (printFrame) {
+    try { printFrame.remove(); } catch(e) {}
+  }
+  
+  printFrame = document.createElement('iframe');
+  printFrame.id = 'hidden-pos-print-frame';
+  printFrame.style.position = 'fixed';
+  printFrame.style.left = '-9999px';
+  printFrame.style.top = '-9999px';
+  printFrame.style.width = '100px';
+  printFrame.style.height = '100px';
+  printFrame.style.border = 'none';
+  document.body.appendChild(printFrame);
+
+  const frameDoc = printFrame.contentWindow.document;
+  frameDoc.open();
+  frameDoc.write(receiptHtml);
+  frameDoc.close();
+
+  // Iframe render edildiğinde yazdır
+  setTimeout(() => {
+    try {
+      printFrame.contentWindow.focus();
+      printFrame.contentWindow.print();
+    } catch (e) {
+      console.warn("Otomatik fiş basım hatası:", e);
+    }
+  }, 250);
 }
 
 function openPosPaymentModal() {
@@ -2631,7 +2725,8 @@ function openPosPaymentModal() {
     changeAmt = parsedAmt - grandTotal;
   }
 
-  openPosReceiptConfirmModal('Nakit', receivedCash, changeAmt);
+  // Fiş onay pop-up modalını beklemeden doğrudan satışı ve otomatik fişi bas
+  directPosCheckout('Nakit', receivedCash, changeAmt, true);
 }
 
 let posPartialPaymentsList = [];

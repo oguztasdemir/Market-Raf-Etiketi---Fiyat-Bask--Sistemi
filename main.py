@@ -52,7 +52,7 @@ if sys.platform.startswith('win'):
 # Proje dizinini Python yoluna ekle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from backend.ayarlar import STATIC_DIR, TEMPLATES_DIR, DATA_DIR
+from backend.ayarlar import STATIC_DIR, TEMPLATES_DIR, DATA_DIR, BASE_DIR
 from backend.araclar.excel_dosya_izleyici import get_local_ip, ensure_ssl_certs, free_port, start_code_watcher
 from backend.katalog.excel_katalog_servisi import clear_diff_cache
 
@@ -235,6 +235,232 @@ def index():
 def mobile_terminal():
     return render_template("mobil/mobile.html", cache_bust=int(time.time()))
 
+@app.route("/indir", methods=["GET", "POST"])
+@app.route("/download", methods=["GET", "POST"])
+@app.route("/setup-indir", methods=["GET", "POST"])
+def download_setup():
+    """Aynı Wi-Fi ağındaki diğer bilgisayarlardan Setup/EXE dosyasını sadece yetkili şifreyle indirmeyi sağlar."""
+    import datetime
+    from flask import send_file, render_template_string
+    from backend.kasa.kasiyer_servisi import get_cashiers
+    from backend.araclar.depolama_araclari import load_json
+    from backend.ayarlar import SETTINGS_FILE
+
+    # İzinli şifreler: Kullanıcının belirlediği 1234567 ve sistem ayarlarındaki özel şifreler
+    valid_pins = {"1234567"}
+    settings = load_json(SETTINGS_FILE, {})
+    if settings.get("admin_pin"):
+        valid_pins.add(str(settings.get("admin_pin")).strip())
+    if settings.get("security_pin"):
+        valid_pins.add(str(settings.get("security_pin")).strip())
+
+    try:
+        cashiers = get_cashiers()
+        for c in cashiers:
+            if c.get("role") == "admin" and c.get("pin"):
+                valid_pins.add(str(c.get("pin")).strip())
+    except Exception:
+        pass
+
+    # GET ile URL parametresinde (?pin=1234567) veya POST ile formdan şifre kontrolü
+    provided_pin = request.values.get("pin", "").strip() or request.values.get("password", "").strip()
+    
+    if provided_pin and provided_pin in valid_pins:
+        import io, zipfile, openpyxl
+        from backend.ayarlar import PRODUCTS_FILE, MANAV_PRODUCTS_FILE
+        
+        dist_dir = os.path.join(BASE_DIR, "dist")
+        setup_file = os.path.join(dist_dir, "OYMAPOS_Setup.exe")
+        app_file = os.path.join(dist_dir, "OYMAPOS.exe")
+        
+        target_installer = setup_file if os.path.exists(setup_file) else (app_file if os.path.exists(app_file) else None)
+        if not target_installer:
+            return "İndirilebilir kurulum dosyası sunucuda bulunamadı. Lütfen önce derleme yapın.", 404
+
+        # 1. O anki güncel ürünleri bellekte Excel (.xlsx) olarak oluştur
+        products = load_json(PRODUCTS_FILE, [])
+        manav_products = load_json(MANAV_PRODUCTS_FILE, [])
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Guncel_Fiyat_Listesi"
+        
+        headers = ["Stok Kodu", "Barkod", "Ürün Adı", "Kategori", "Marka", "Birim", "KDV Oranı (%)", "Satış Fiyatı (TL)", "Eski Fiyat (TL)", "Son Güncelleme"]
+        ws.append(headers)
+        
+        for p in products:
+            ws.append([
+                str(p.get("stock_code") or ""),
+                str(p.get("barcode") or ""),
+                str(p.get("title") or p.get("title1") or ""),
+                str(p.get("category") or "Genel"),
+                str(p.get("brand") or ""),
+                str(p.get("unit") or "Adet"),
+                str(p.get("vat_rate") or 1),
+                str(p.get("price") or 0.0),
+                str(p.get("old_price") or ""),
+                str(p.get("price_updated_at") or p.get("updated_at") or "")
+            ])
+
+        # Manav sayfası varsa ekle
+        if manav_products:
+            ws_manav = wb.create_sheet(title="Manav_Terazi_PLU")
+            ws_manav.append(["PLU No", "Barkod", "Ürün Adı", "Kategori", "Fiyat (TL)", "Birim"])
+            for m in manav_products:
+                ws_manav.append([
+                    str(m.get("plu") or ""),
+                    str(m.get("barcode") or ""),
+                    str(m.get("name") or m.get("title") or ""),
+                    str(m.get("category") or "Manav"),
+                    str(m.get("price") or 0.0),
+                    str(m.get("unit") or "Kg")
+                ])
+
+        excel_buf = io.BytesIO()
+        wb.save(excel_buf)
+        excel_buf.seek(0)
+        
+        now_str = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+        excel_filename = f"Guncel_Fiyat_Listesi_{now_str}.xlsx"
+
+        # 2. Setup EXE ve Excel'i tek bir ZIP paketi haline getir (Stream)
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            installer_name = os.path.basename(target_installer)
+            zf.write(target_installer, arcname=installer_name)
+            zf.writestr(excel_filename, excel_buf.getvalue())
+            
+            # Gerekli Sistem DLL ve Çalışma Zamanı (Runtime) Kurucularını ZIP'e Ekle ve Doğrula
+            redist_dir = os.path.join(BASE_DIR, "build_tools", "redist")
+            
+            # Gerekli kritik DLL'ler
+            essential_dlls = [
+                "api-ms-win-core-path-l1-1-0.dll",
+                "vcruntime140.dll",
+                "msvcp140.dll",
+                "vcruntime140_1.dll"
+            ]
+            dll_check_results = {}
+            
+            # 1. Visual C++ Çalışma DLL'lerini topla (vcruntime140, msvcp140, vcruntime140_1)
+            for dll_name in ["vcruntime140.dll", "msvcp140.dll", "vcruntime140_1.dll"]:
+                src_candidate = None
+                r_cand = os.path.join(redist_dir, dll_name)
+                dist_cand = os.path.join(dist_dir, dll_name)
+                sys32_cand = os.path.join(os.environ.get("WINDIR", "C:\\Windows"), "System32", dll_name)
+                
+                if os.path.exists(r_cand):
+                    src_candidate = r_cand
+                elif os.path.exists(dist_cand):
+                    src_candidate = dist_cand
+                elif os.path.exists(sys32_cand):
+                    src_candidate = sys32_cand
+                
+                if src_candidate and os.path.exists(src_candidate):
+                    zf.write(src_candidate, arcname=dll_name)
+                    zf.write(src_candidate, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", dll_name))
+                    dll_check_results[dll_name] = "MEVCUT - PAKETE EKLENDİ"
+                else:
+                    dll_check_results[dll_name] = "SİSTEM STANDARDI (GEREKİRSE VC_REDIST İLE KURULACAK)"
+
+            # 2. Çalışma Zamanı (Runtime) EXE Kurucularını Ekle
+            # NOT: api-ms-win-core-path-l1-1-0.dll sadece Win7 için gerekirse özel klasörde tutulmalı, kök dizine konmamalıdır!
+            if os.path.exists(redist_dir):
+                for rf in ["vc_redist.x64.exe", "MicrosoftEdgeWebview2Setup.exe"]:
+                    r_path = os.path.join(redist_dir, rf)
+                    if os.path.exists(r_path):
+                        zf.write(r_path, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", rf))
+                
+                # Win7 özel DLL'ini sadece gerekirse alt klasöre ekle
+                legacy_dll = os.path.join(redist_dir, "api-ms-win-core-path-l1-1-0.dll")
+                if os.path.exists(legacy_dll):
+                    zf.write(legacy_dll, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", "Windows7_Ozel_Yama_DLL", "api-ms-win-core-path-l1-1-0.dll"))
+            
+            # 3. DLL Doğrulama Raporu ve Kurulum Rehberi
+            dll_status_lines = "\n".join([f"  [OK] {k}: {v}" for k, v in dll_check_results.items()])
+            readme_text = f"""OYMAPOS Market Raf Etiketi, Kasa & Terazi Sistemi
+Paket Doğrulama ve Oluşturulma Tarihi: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}
+
+SİSTEM DLL & ÇALIŞMA ZAMANI SAĞLIK RAPORU:
+{dll_status_lines}
+
+İÇERİK VE KURULUM ADIMLARI:
+1. {installer_name} -> Kurulum Sihirbazı (Çift tıklayarak kurun)
+2. {excel_filename} -> Sistemde kayıtlı en güncel {len(products)} adet ürün ve fiyat listesi
+3. api-ms-win-core-path-l1-1-0.dll -> Eski Windows sürümleri için hazır DLL kütüphanesi
+4. Sistem_Kutuphaneleri_Gereksinimler/ -> Windows 7/8/10/11 eksik DLL ve çalışma kütüphaneleri:
+   * vc_redist.x64.exe -> Visual C++ Redistributable (Tüm Windows sürümleri için)
+   * MicrosoftEdgeWebview2Setup.exe -> WebView2 Çalışma Zamanı (Masaüstü kasa arayüzü motoru)
+
+ÖZET TALİMAT:
+- Kurulum sihirbazı çalışırken yanındaki bu Excel dosyasını otomatik olarak algılar ve tüm fiyatları sisteme aktarır.
+- Başka bir bilgisayara kurarken 'DLL bulunamadı' hatası alırsanız, ZIP içindeki 'Sistem_Kutuphaneleri_Gereksinimler' klasöründeki 'vc_redist.x64.exe' dosyasını çalıştırınız.
+"""
+            zf.writestr("KULLANIM_VE_DLL_DOGRULAMA.txt", readme_text)
+
+        zip_buf.seek(0)
+        zip_filename = f"OYMAPOS_Kurulum_Ve_Guncel_Fiyatlar_{now_str}.zip"
+        
+        return send_file(
+            zip_buf,
+            as_attachment=True,
+            download_name=zip_filename,
+            mimetype="application/zip"
+        )
+
+    # Şifre girilmemişse veya hatalıysa şık güvenlik şifre ekranını göster
+    error_msg = "⚠️ Hatalı Yönetici Şifresi! Lütfen tekrar deneyin." if provided_pin else None
+    html_page = f"""
+    <!DOCTYPE html>
+    <html lang="tr">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>OYMAPOS - Güvenli Kurulum İndirme</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+      <style>
+        * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }}
+        body {{ background: #030712; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }}
+        .card {{ background: #0b1329; border: 1.5px solid #1e293b; border-radius: 16px; width: 100%; max-width: 440px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); text-align: center; }}
+        .icon {{ font-size: 48px; margin-bottom: 12px; }}
+        h2 {{ font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 6px; }}
+        p {{ font-size: 13px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }}
+        .inp-group {{ margin-bottom: 20px; text-align: left; }}
+        label {{ font-size: 11.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; display: block; }}
+        input {{ width: 100%; padding: 12px 16px; font-size: 16px; font-weight: 800; background: #060b17; border: 1.5px solid #334155; border-radius: 10px; color: #38bdf8; letter-spacing: 2px; text-align: center; outline: none; transition: 0.15s; }}
+        input:focus {{ border-color: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,0.25); }}
+        .btn {{ width: 100%; padding: 14px; font-size: 14px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(2,132,199,0.35); transition: 0.15s; }}
+        .btn:hover {{ transform: translateY(-1px); box-shadow: 0 6px 20px rgba(2,132,199,0.45); }}
+        .err {{ background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); color: #f87171; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }}
+        .footer-note {{ margin-top: 20px; font-size: 11px; color: #64748b; }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="icon">🛡️</div>
+        <h2>Güvenli Wi-Fi Kurulum İndirme</h2>
+        <p>İzinsiz kopyalama ve indirmeleri önlemek için lütfen <strong>Yönetici / Kasiyer PIN Kodunu</strong> girin.</p>
+        
+        {f'<div class="err">{error_msg}</div>' if error_msg else ''}
+        
+        <form method="POST" action="/indir">
+          <div class="inp-group">
+            <label for="pin">Yönetici Şifresi / PIN Kodu:</label>
+            <input type="password" id="pin" name="pin" autofocus placeholder="••••" required autocomplete="off">
+          </div>
+          <button type="submit" class="btn">
+            <span>📥</span>
+            <span>Doğrula ve Setup İndir</span>
+          </button>
+        </form>
+        
+        <div class="footer-note">OYMAPOS Market Raf Etiketi & POS Güvenlik Sistemi</div>
+      </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html_page)
+
 @app.route("/frontend/<path:filename>")
 @app.route("/static/<path:filename>")
 def serve_static(filename):
@@ -295,11 +521,30 @@ def main():
     time.sleep(0.6)
 
 
-    # 3. Varsayılan Web Tarayıcısını Aç
-    try:
-        webbrowser.open(f"http://127.0.0.1:{port}")
-    except Exception as e:
-        print(f"[UYARI] Tarayıcı otomatik açılamadı: {e}")
+    # 3. Kiosk Printing Moduyla Tarayıcıyı Başlat (Sıfır Önizleme, Doğrudan Yazdırma)
+    app_url = f"http://127.0.0.1:{port}"
+    chrome_paths = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+    ]
+    browser_launched = False
+    for b_path in chrome_paths:
+        if os.path.exists(b_path):
+            try:
+                subprocess.Popen([b_path, "--kiosk-printing", app_url])
+                browser_launched = True
+                print(f"[*] Kiosk Yazdırma Moduyla Tarayıcı Başlatıldı: {b_path}")
+                break
+            except Exception:
+                pass
+
+    if not browser_launched:
+        try:
+            webbrowser.open(app_url)
+        except Exception as e:
+            print(f"[UYARI] Tarayıcı otomatik açılamadı: {e}")
 
     print("\n[BİLGİ] Sunucu çalışıyor. Durdurmak için CTRL+C tuşlarına basınız.\n")
 

@@ -144,7 +144,10 @@
         <div style="display: flex; flex-direction: column; gap: 4px; margin-top: auto; padding-top: 4px;">
           <div style="display: flex; gap: 4px;">
             <button type="button" class="btn-primary" onclick="saveTemplateFromEditor()" style="flex: 1; padding: 7px; font-size: 11px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); border-radius: 4px;">
-              💾 Bu Tasarımı Kaydet
+              💾 Tasarımı Kaydet
+            </button>
+            <button type="button" class="btn-secondary" id="btn-sidebar-duplicate-tpl" onclick="duplicateCurrentTemplate()" style="padding: 5px 8px; font-size: 10px; font-weight: 700; color: #10b981; border-color: rgba(16,185,129,0.3); border-radius: 4px;" title="Bu Tasarımı Kopyala & Yeni Model Yap">
+              📋 Kopyala
             </button>
             <button type="button" class="btn-secondary" id="btn-sidebar-rename-tpl" onclick="openRenameModal()" style="display: none; padding: 5px 8px; font-size: 10px; font-weight: 700; color: #38bdf8; border-radius: 4px;" title="Model Adını Değiştir">
               ✏️
@@ -191,6 +194,7 @@
 
         <!-- Sağ Aksiyonlar -->
         <div class="tool-group-actions" style="display: flex; gap: 5px; align-items: center;">
+          <button class="btn-sm btn-secondary" id="btn-duplicate-template" onclick="duplicateCurrentTemplate()" title="Bu Tasarımı Kopyala & Yeni Model Oluştur" style="font-size: 10.5px; color: #10b981; border-color: rgba(16,185,129,0.3);">📋 Tasarımı Kopyala</button>
           <button class="btn-sm btn-secondary" id="btn-rename-template" onclick="openRenameModal()" title="Model Adını Değiştir" style="display: none; font-size: 10.5px;">✏️ Adı Değiştir</button>
           <button class="btn-sm btn-danger" id="btn-delete-template" onclick="deleteCurrentTemplate()" title="Bu Modeli Sil" style="display: none; font-size: 10.5px;">🗑️ Sil</button>
           <button class="btn-sm btn-primary" onclick="saveTemplateFromEditor()" style="font-size: 11px; font-weight: 800;">💾 Şablonu Kaydet</button>
@@ -298,11 +302,10 @@
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
-            <label style="font-size: 10px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">Fiyatlandırma Modu</label>
-            <select id="rec-design-vat-mode" onchange="updateReceiptPreviewLive()" style="width: 100%; padding: 5px 7px; font-size: 11px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #fff; box-sizing: border-box; outline: none; font-weight: 600;">
-              <option value="INCLUSIVE">🟢 KDV Dahil (Perakende)</option>
-              <option value="EXCLUSIVE">🔵 KDV Hariç (+KDV Eklenir)</option>
-            </select>
+            <label style="font-size: 10px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">Fiş Türü</label>
+            <div style="width: 100%; padding: 5px 7px; font-size: 11px; background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #34d399; font-weight: 700;">
+              🧾 Standart Bilgi Fişi
+            </div>
           </div>
         </div>
 
@@ -346,14 +349,10 @@
         </div>
 
         <!-- 6. Satır: Fiş Ekstra Checkboxları (Yan Yana) -->
-        <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.2); border-radius: 5px; padding: 6px 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+        <div style="background: rgba(15,23,42,0.8); border: 1px solid rgba(56,189,248,0.2); border-radius: 5px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between;">
           <label style="display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #cbd5e1; cursor: pointer;">
-            <input type="checkbox" id="rec-design-show-kdv" checked onchange="updateReceiptPreviewLive()" style="width: 13px; height: 13px; accent-color: #0284c7;">
-            <span>📊 KDV Kırılım Tablosu</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #cbd5e1; cursor: pointer;">
-            <input type="checkbox" id="rec-design-show-qr" checked onchange="updateReceiptPreviewLive()" style="width: 13px; height: 13px; accent-color: #0284c7;">
-            <span>📱 Dijital QR / Barkod</span>
+            <input type="checkbox" id="rec-design-show-qr" onchange="updateReceiptPreviewLive()" style="width: 13px; height: 13px; accent-color: #0284c7;">
+            <span>📱 Dijital QR / Barkod Alanı</span>
           </label>
         </div>
       </div>
@@ -423,24 +422,11 @@
           </div>
 
           <!-- Toplam Satırları -->
-          <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-bottom: 6px;">
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
-              <span id="rec-prev-subtotal-label">ARA TOPLAM:</span>
-              <strong id="rec-prev-subtotal-val">100,00 TL</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
-              <span>ÖDEME TÜRÜ:</span>
-              <strong>NAKİT</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; margin-top: 2px;">
-              <span id="rec-prev-total-label">TOPLAM TUTAR:</span>
+          <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 6px 0; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 900;">
+              <span>TOPLAM TUTAR:</span>
               <span id="rec-prev-total-val">100,00 TL</span>
             </div>
-          </div>
-
-          <!-- KDV Tablosu -->
-          <div id="rec-prev-kdv-area" style="font-size: 9px; border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 6px;">
-            <!-- JS tarafından dinamik doldurulur -->
           </div>
 
           <!-- Fiş Altı Teşekkür Notu -->
