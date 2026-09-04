@@ -16,7 +16,7 @@
 
   <!-- Üst Sağ -->
   <div class="topbar-actions" style="display: flex; align-items: center; gap: 8px;">
-    <button type="button" onclick="startSecureWifiDownload()" style="display: flex; align-items: center; gap: 5px; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: #34d399; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;" title="Kurulum Dosyasını ve Güncel Fiyat Listesini (ZIP) Şifre ile İndir">
+    <button type="button" onclick="openWifiDownloadModal()" style="display: flex; align-items: center; gap: 5px; background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4); color: #34d399; font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;" title="Kurulum Dosyasını ve Kullanım Rehberini Aç">
       <span>📥</span>
       <span>Wi-Fi'dan Setup İndir</span>
     </button>
@@ -26,39 +26,93 @@
   </div>
 </header>
 
-<script>
-async function startSecureWifiDownload() {
-  const localIp = "{{ local_ip or '127.0.0.1' }}";
-  const downloadUrl = `http://${localIp}:5000/indir`;
-  
-  const promptHtml = `
-    <div style="font-size: 13.5px; line-height: 1.5; color: #cbd5e1; margin-bottom: 8px;">
-      Kurulum dosyası ve güncel fiyat listesini (ZIP) indirmek için lütfen <b>Yönetici Şifresini</b> girin:
-    </div>
-    <div style="background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 8px; padding: 10px 12px; margin: 8px 0 10px 0; font-size: 12px;">
-      <div style="color: #38bdf8; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
-        <span>🌐</span> <span>Diğer PC / Tarayıcı İndirme Linki:</span>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.35); padding: 5px 8px; border-radius: 6px;">
-        <a href="${downloadUrl}" target="_blank" style="color: #f8fafc; font-family: monospace; font-size: 12.5px; font-weight: 700; text-decoration: underline; word-break: break-all;">${downloadUrl}</a>
-        <button type="button" onclick="navigator.clipboard.writeText('${downloadUrl}'); showToast('İndirme linki kopyalandı!', 'success');" style="background: #1e293b; border: 1px solid #475569; color: #38bdf8; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; cursor: pointer; white-space: nowrap;">📋 Kopyala</button>
-      </div>
-    </div>
-  `;
+<!-- Uygulama İçi İndirme & Kurulum Rehberi Modalı -->
+<div id="wifiDownloadModal" class="no-print" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(3, 7, 18, 0.82); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #0b1329; border: 1.5px solid #1e293b; border-radius: 20px; width: 100%; max-width: 620px; padding: 28px; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.85); color: #f8fafc; position: relative; animation: modalFadeIn 0.2s ease-out;">
+    
+    <!-- Kapatma Butonu -->
+    <button type="button" onclick="closeWifiDownloadModal()" style="position: absolute; top: 18px; right: 18px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; width: 32px; height: 32px; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s;">✕</button>
 
-  if (typeof showCustomPrompt === 'function') {
-    const pin = await showCustomPrompt(
-      promptHtml,
-      "",
-      "🔐 Güvenli İndirme Doğrulaması",
-      "Doğrula ve İndir",
-      "Vazgeç"
-    );
-    if (pin) {
-      window.location.href = `/indir?pin=${encodeURIComponent(pin.trim())}`;
-    }
-  } else {
-    window.location.href = '/indir';
+    <!-- Başlık -->
+    <div style="text-align: center; margin-bottom: 22px;">
+      <span style="display: inline-block; background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.35); font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px;">🚀 Taşınabilir & Kurulumsuz Paket</span>
+      <h2 style="font-size: 20px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff;">OYMAPOS İndirme ve Başlatma Rehberi</h2>
+      <p style="font-size: 12.5px; color: #94a3b8; margin: 0;">Windows 7, 8, 10 ve 11 destekli hazır paket.</p>
+    </div>
+
+    <!-- İndirme Kartı -->
+    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1.5px solid #334155; border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px;">
+      <div>
+        <div style="font-size: 14.5px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+          <span>📦</span> <span>OYMAPOS_Windows7_Kurulumsuz.zip</span>
+        </div>
+        <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">Hazır Python 3.8 motoru &bull; Tüm UCRT DLL'leri dahil &bull; Şifresiz</div>
+      </div>
+      <a href="/indir/dosya" onclick="showToast('İndirme başlatıldı!', 'success')" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #ffffff; text-decoration: none; font-weight: 700; font-size: 13.5px; padding: 10px 18px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); white-space: nowrap;">
+        <span>⬇️</span>
+        <span>Hemen İndir</span>
+      </a>
+    </div>
+
+    <!-- Kurulum Adımları -->
+    <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #cbd5e1; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+      <span>📋</span> <span>Nasıl Çalıştırılır? (Sadece 2 Adım)</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+      <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(51, 65, 85, 0.6); border-radius: 10px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px;">
+        <div style="background: #0284c7; color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0;">1</div>
+        <div>
+          <strong style="font-size: 13px; color: #f1f5f9; display: block; margin-bottom: 2px;">İndirilen Zip Dosyasını Masaüstüne Çıkartın</strong>
+          <p style="font-size: 12px; color: #94a3b8; margin: 0; line-height: 1.4;">İndirdiğiniz zip dosyasına sağ tıklayıp <em>"Tümünü Ayıkla"</em> veya <em>"Buraya Ayıkla"</em> diyerek klasöre çıkarın.</p>
+        </div>
+      </div>
+
+      <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(51, 65, 85, 0.6); border-radius: 10px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px;">
+        <div style="background: #0284c7; color: #ffffff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; flex-shrink: 0;">2</div>
+        <div>
+          <strong style="font-size: 13px; color: #f1f5f9; display: block; margin-bottom: 2px;">Setup.exe Dosyasına Çift Tıklayın</strong>
+          <p style="font-size: 12px; color: #94a3b8; margin: 0; line-height: 1.4;">Klasörün içindeki <span style="background: #090e1a; border: 1px solid #334155; padding: 1px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace; font-weight: 700;">Setup.exe</span> kurulum sihirbazını çalıştırın. Sistemi otomatik olarak kuracak ve Masaüstü kısayolunu oluşturacaktır!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- İpucu Notu -->
+    <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #34d399; display: flex; align-items: center; gap: 8px;">
+      <span>💡</span>
+      <span><strong>Bilgi:</strong> Programı istediğiniz zaman bir USB belleğe kopyalayıp dilediğiniz bilgisayarda kurulum yapmadan çalıştırabilirsiniz.</span>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+</style>
+
+<script>
+function openWifiDownloadModal() {
+  const modal = document.getElementById('wifiDownloadModal');
+  if (modal) {
+    modal.style.display = 'flex';
   }
 }
+
+function closeWifiDownloadModal() {
+  const modal = document.getElementById('wifiDownloadModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Modal dışına tıklandığında kapat
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('wifiDownloadModal');
+  if (modal && e.target === modal) {
+    closeWifiDownloadModal();
+  }
+});
 </script>

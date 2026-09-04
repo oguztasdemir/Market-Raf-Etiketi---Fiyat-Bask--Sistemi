@@ -42,7 +42,7 @@ Name: "firewallrule"; Description: "Windows Güvenlik Duvarında Yerel Ağ İzni
 [Files]
 Source: "dist\OYMAPOS.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "logo.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "build_tools\redist\api-ms-win-core-path-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build_tools\redist\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "build_tools\redist\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "build_tools\redist\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Kaynak dosyalar ve seed katalogları
@@ -77,11 +77,41 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 Filename: "netsh"; Parameters: "advfirewall firewall delete rule name=""OYMAPOS Local Server"""; Flags: runhidden
 
 [Code]
-// Kurulum öncesi açık OYMAPOS sürecini kontrol et ve kapat
+// Windows 7 / 2008 R2 sistemlerde kernel32.dll AddDllDirectory kontrolü (KB2533623 / KB3063858)
 function InitializeSetup(): Boolean;
 var
   ResultCode: Integer;
+  Version: TWindowsVersion;
+  KernelModule: THandle;
+  ProcAddr: FarProc;
 begin
   Result := True;
+  
+  // 1. Varsa açık OYMAPOS sürecini kapat
   Exec('taskkill', '/F /IM OYMAPOS.exe /T', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  
+  // 2. Windows Sürüm ve AddDllDirectory Uyumluluk Denetimi
+  GetWindowsVersionEx(Version);
+  // Windows 7 / Server 2008 R2 (Major: 6, Minor: 1)
+  if (Version.Major = 6) and (Version.Minor = 1) then
+  begin
+    KernelModule := LoadDLL('kernel32.dll');
+    if KernelModule <> 0 then
+    begin
+      ProcAddr := GetProcAddress(KernelModule, 'AddDllDirectory');
+      FreeDLL(KernelModule);
+      
+      if ProcAddr = 0 then
+      begin
+        SuppressibleMsgBox(
+          'DİKKAT: Bilgisayarınızda (Windows 7) Microsoft KB2533623 / KB3063858 güvenlik güncellemesi eksik!' + #13#10 + #13#10 +
+          'Bu güncelleme eksik olduğunda program açılırken "AddDllDirectory yordam giriş noktası bulunamadı" hatası verecektir.' + #13#10 + #13#10 +
+          'Lütfen Microsoft''un resmi sitesinden Windows 7 için KB3063858 x64 güncellemesini kurunuz.' + #13#10 +
+          'Kuruluma yine de devam ediliyor...',
+          mbInformation, MB_OK, MB_OK
+        );
+      end;
+    end;
+  end;
 end;
+

@@ -180,4 +180,15 @@ def check_and_repair_system() -> dict:
         except Exception:
             pass
 
+    # 7. Günlük Sessiz Veritabanı Yedeği (Elektrik kesintisi veya veri kaybına karşı zırh)
+    try:
+        from backend.yedekleme.yedekleme_servisi import create_products_backup, get_backups_list
+        today_prefix = datetime.datetime.now().strftime("%Y-%m-%d")
+        existing_today = [b for b in get_backups_list() if today_prefix in b.get("filename", "")]
+        if not existing_today and os.path.exists(DB_PATH):
+            create_products_backup(reason="Sistem Başlangıcı Otomatik Günlük Yedek")
+            report["daily_backup_created"] = True
+    except Exception as e:
+        pass
+
     return report

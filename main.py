@@ -9,8 +9,11 @@ Flask sunucusunu (0.0.0.0:5000) arka planda kesintisiz çalıştırır.
 import os
 import sys
 import time
+import signal
 import threading
 import logging
+import subprocess
+import webbrowser
 from flask import Flask, render_template, send_from_directory, request
 
 # KÜRESEL ÇÖKME KORUMASI (GLOBAL CRASH PREVENTER)
@@ -58,6 +61,8 @@ from backend.katalog.excel_katalog_servisi import clear_diff_cache
 
 # Blueprint Rotaları
 from backend.katalog.katalog_rotalari import catalog_bp
+from backend.katalog.katalog_excel_rotalari import excel_catalog_bp
+from backend.katalog.katalog_toplu_zam_rotalari import batch_catalog_bp
 from backend.yedekleme.yedekleme_rotalari import backup_bp
 from backend.tasarim.tasarim_sablon_rotalari import template_bp
 from backend.yazdirma.yazdirma_rotalari import print_bp
@@ -80,6 +85,8 @@ app.jinja_env.auto_reload = True
 
 # Blueprint'leri kaydet
 app.register_blueprint(catalog_bp)
+app.register_blueprint(excel_catalog_bp)
+app.register_blueprint(batch_catalog_bp)
 app.register_blueprint(backup_bp)
 app.register_blueprint(template_bp)
 app.register_blueprint(print_bp)
@@ -235,231 +242,286 @@ def index():
 def mobile_terminal():
     return render_template("mobil/mobile.html", cache_bust=int(time.time()))
 
-@app.route("/indir", methods=["GET", "POST"])
-@app.route("/download", methods=["GET", "POST"])
-@app.route("/setup-indir", methods=["GET", "POST"])
-def download_setup():
-    """Aynı Wi-Fi ağındaki diğer bilgisayarlardan Setup/EXE dosyasını sadece yetkili şifreyle indirmeyi sağlar."""
-    import datetime
-    from flask import send_file, render_template_string
-    from backend.kasa.kasiyer_servisi import get_cashiers
-    from backend.araclar.depolama_araclari import load_json
-    from backend.ayarlar import SETTINGS_FILE
+@app.route("/indir/dosya")
+@app.route("/download/file")
+def download_setup_file():
+    """Doğrudan zip dosyasını indiren uç nokta."""
+    from flask import send_file
+    import os
 
-    # İzinli şifreler: Kullanıcının belirlediği 1234567 ve sistem ayarlarındaki özel şifreler
-    valid_pins = {"1234567"}
-    settings = load_json(SETTINGS_FILE, {})
-    if settings.get("admin_pin"):
-        valid_pins.add(str(settings.get("admin_pin")).strip())
-    if settings.get("security_pin"):
-        valid_pins.add(str(settings.get("security_pin")).strip())
-
-    try:
-        cashiers = get_cashiers()
-        for c in cashiers:
-            if c.get("role") == "admin" and c.get("pin"):
-                valid_pins.add(str(c.get("pin")).strip())
-    except Exception:
-        pass
-
-    # GET ile URL parametresinde (?pin=1234567) veya POST ile formdan şifre kontrolü
-    provided_pin = request.values.get("pin", "").strip() or request.values.get("password", "").strip()
-    
-    if provided_pin and provided_pin in valid_pins:
-        import io, zipfile, openpyxl
-        from backend.ayarlar import PRODUCTS_FILE, MANAV_PRODUCTS_FILE
+    dist_dir = os.path.join(BASE_DIR, "dist")
+    portable_zip = os.path.join(dist_dir, "OYMAPOS_Windows7_Kurulumsuz.zip")
+    if not os.path.exists(portable_zip):
+        portable_zip = os.path.join(dist_dir, "OYMAPOS_Windows7_Tam_Paket.zip")
         
-        dist_dir = os.path.join(BASE_DIR, "dist")
-        setup_file = os.path.join(dist_dir, "OYMAPOS_Setup.exe")
-        app_file = os.path.join(dist_dir, "OYMAPOS.exe")
-        
-        target_installer = setup_file if os.path.exists(setup_file) else (app_file if os.path.exists(app_file) else None)
-        if not target_installer:
-            return "İndirilebilir kurulum dosyası sunucuda bulunamadı. Lütfen önce derleme yapın.", 404
-
-        # 1. O anki güncel ürünleri bellekte Excel (.xlsx) olarak oluştur
-        products = load_json(PRODUCTS_FILE, [])
-        manav_products = load_json(MANAV_PRODUCTS_FILE, [])
-
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Guncel_Fiyat_Listesi"
-        
-        headers = ["Stok Kodu", "Barkod", "Ürün Adı", "Kategori", "Marka", "Birim", "KDV Oranı (%)", "Satış Fiyatı (TL)", "Eski Fiyat (TL)", "Son Güncelleme"]
-        ws.append(headers)
-        
-        for p in products:
-            ws.append([
-                str(p.get("stock_code") or ""),
-                str(p.get("barcode") or ""),
-                str(p.get("title") or p.get("title1") or ""),
-                str(p.get("category") or "Genel"),
-                str(p.get("brand") or ""),
-                str(p.get("unit") or "Adet"),
-                str(p.get("vat_rate") or 1),
-                str(p.get("price") or 0.0),
-                str(p.get("old_price") or ""),
-                str(p.get("price_updated_at") or p.get("updated_at") or "")
-            ])
-
-        # Manav sayfası varsa ekle
-        if manav_products:
-            ws_manav = wb.create_sheet(title="Manav_Terazi_PLU")
-            ws_manav.append(["PLU No", "Barkod", "Ürün Adı", "Kategori", "Fiyat (TL)", "Birim"])
-            for m in manav_products:
-                ws_manav.append([
-                    str(m.get("plu") or ""),
-                    str(m.get("barcode") or ""),
-                    str(m.get("name") or m.get("title") or ""),
-                    str(m.get("category") or "Manav"),
-                    str(m.get("price") or 0.0),
-                    str(m.get("unit") or "Kg")
-                ])
-
-        excel_buf = io.BytesIO()
-        wb.save(excel_buf)
-        excel_buf.seek(0)
-        
-        now_str = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-        excel_filename = f"Guncel_Fiyat_Listesi_{now_str}.xlsx"
-
-        # 2. Setup EXE ve Excel'i tek bir ZIP paketi haline getir (Stream)
-        zip_buf = io.BytesIO()
-        with zipfile.ZipFile(zip_buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
-            installer_name = os.path.basename(target_installer)
-            zf.write(target_installer, arcname=installer_name)
-            zf.writestr(excel_filename, excel_buf.getvalue())
-            
-            # Gerekli Sistem DLL ve Çalışma Zamanı (Runtime) Kurucularını ZIP'e Ekle ve Doğrula
-            redist_dir = os.path.join(BASE_DIR, "build_tools", "redist")
-            
-            # Gerekli kritik DLL'ler
-            essential_dlls = [
-                "api-ms-win-core-path-l1-1-0.dll",
-                "vcruntime140.dll",
-                "msvcp140.dll",
-                "vcruntime140_1.dll"
-            ]
-            dll_check_results = {}
-            
-            # 1. Visual C++ Çalışma DLL'lerini topla (vcruntime140, msvcp140, vcruntime140_1)
-            for dll_name in ["vcruntime140.dll", "msvcp140.dll", "vcruntime140_1.dll"]:
-                src_candidate = None
-                r_cand = os.path.join(redist_dir, dll_name)
-                dist_cand = os.path.join(dist_dir, dll_name)
-                sys32_cand = os.path.join(os.environ.get("WINDIR", "C:\\Windows"), "System32", dll_name)
-                
-                if os.path.exists(r_cand):
-                    src_candidate = r_cand
-                elif os.path.exists(dist_cand):
-                    src_candidate = dist_cand
-                elif os.path.exists(sys32_cand):
-                    src_candidate = sys32_cand
-                
-                if src_candidate and os.path.exists(src_candidate):
-                    zf.write(src_candidate, arcname=dll_name)
-                    zf.write(src_candidate, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", dll_name))
-                    dll_check_results[dll_name] = "MEVCUT - PAKETE EKLENDİ"
-                else:
-                    dll_check_results[dll_name] = "SİSTEM STANDARDI (GEREKİRSE VC_REDIST İLE KURULACAK)"
-
-            # 2. Çalışma Zamanı (Runtime) EXE Kurucularını Ekle
-            # NOT: api-ms-win-core-path-l1-1-0.dll sadece Win7 için gerekirse özel klasörde tutulmalı, kök dizine konmamalıdır!
-            if os.path.exists(redist_dir):
-                for rf in ["vc_redist.x64.exe", "MicrosoftEdgeWebview2Setup.exe"]:
-                    r_path = os.path.join(redist_dir, rf)
-                    if os.path.exists(r_path):
-                        zf.write(r_path, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", rf))
-                
-                # Win7 özel DLL'ini sadece gerekirse alt klasöre ekle
-                legacy_dll = os.path.join(redist_dir, "api-ms-win-core-path-l1-1-0.dll")
-                if os.path.exists(legacy_dll):
-                    zf.write(legacy_dll, arcname=os.path.join("Sistem_Kutuphaneleri_Gereksinimler", "Windows7_Ozel_Yama_DLL", "api-ms-win-core-path-l1-1-0.dll"))
-            
-            # 3. DLL Doğrulama Raporu ve Kurulum Rehberi
-            dll_status_lines = "\n".join([f"  [OK] {k}: {v}" for k, v in dll_check_results.items()])
-            readme_text = f"""OYMAPOS Market Raf Etiketi, Kasa & Terazi Sistemi
-Paket Doğrulama ve Oluşturulma Tarihi: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}
-
-SİSTEM DLL & ÇALIŞMA ZAMANI SAĞLIK RAPORU:
-{dll_status_lines}
-
-İÇERİK VE KURULUM ADIMLARI:
-1. {installer_name} -> Kurulum Sihirbazı (Çift tıklayarak kurun)
-2. {excel_filename} -> Sistemde kayıtlı en güncel {len(products)} adet ürün ve fiyat listesi
-3. api-ms-win-core-path-l1-1-0.dll -> Eski Windows sürümleri için hazır DLL kütüphanesi
-4. Sistem_Kutuphaneleri_Gereksinimler/ -> Windows 7/8/10/11 eksik DLL ve çalışma kütüphaneleri:
-   * vc_redist.x64.exe -> Visual C++ Redistributable (Tüm Windows sürümleri için)
-   * MicrosoftEdgeWebview2Setup.exe -> WebView2 Çalışma Zamanı (Masaüstü kasa arayüzü motoru)
-
-ÖZET TALİMAT:
-- Kurulum sihirbazı çalışırken yanındaki bu Excel dosyasını otomatik olarak algılar ve tüm fiyatları sisteme aktarır.
-- Başka bir bilgisayara kurarken 'DLL bulunamadı' hatası alırsanız, ZIP içindeki 'Sistem_Kutuphaneleri_Gereksinimler' klasöründeki 'vc_redist.x64.exe' dosyasını çalıştırınız.
-"""
-            zf.writestr("KULLANIM_VE_DLL_DOGRULAMA.txt", readme_text)
-
-        zip_buf.seek(0)
-        zip_filename = f"OYMAPOS_Kurulum_Ve_Guncel_Fiyatlar_{now_str}.zip"
-        
+    if os.path.exists(portable_zip):
         return send_file(
-            zip_buf,
+            portable_zip,
             as_attachment=True,
-            download_name=zip_filename,
+            download_name="OYMAPOS_Windows7_Kurulumsuz.zip",
             mimetype="application/zip"
         )
+    return "Kurulumsuz paket sunucuda bulunamadı.", 404
 
-    # Şifre girilmemişse veya hatalıysa şık güvenlik şifre ekranını göster
-    error_msg = "⚠️ Hatalı Yönetici Şifresi! Lütfen tekrar deneyin." if provided_pin else None
-    html_page = f"""
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>OYMAPOS - Güvenli Kurulum İndirme</title>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-      <style>
-        * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }}
-        body {{ background: #030712; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }}
-        .card {{ background: #0b1329; border: 1.5px solid #1e293b; border-radius: 16px; width: 100%; max-width: 440px; padding: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); text-align: center; }}
-        .icon {{ font-size: 48px; margin-bottom: 12px; }}
-        h2 {{ font-size: 20px; font-weight: 800; color: #f8fafc; margin-bottom: 6px; }}
-        p {{ font-size: 13px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }}
-        .inp-group {{ margin-bottom: 20px; text-align: left; }}
-        label {{ font-size: 11.5px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; display: block; }}
-        input {{ width: 100%; padding: 12px 16px; font-size: 16px; font-weight: 800; background: #060b17; border: 1.5px solid #334155; border-radius: 10px; color: #38bdf8; letter-spacing: 2px; text-align: center; outline: none; transition: 0.15s; }}
-        input:focus {{ border-color: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,0.25); }}
-        .btn {{ width: 100%; padding: 14px; font-size: 14px; font-weight: 800; background: linear-gradient(135deg, #0284c7, #0369a1); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(2,132,199,0.35); transition: 0.15s; }}
-        .btn:hover {{ transform: translateY(-1px); box-shadow: 0 6px 20px rgba(2,132,199,0.45); }}
-        .err {{ background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); color: #f87171; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }}
-        .footer-note {{ margin-top: 20px; font-size: 11px; color: #64748b; }}
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <div class="icon">🛡️</div>
-        <h2>Güvenli Wi-Fi Kurulum İndirme</h2>
-        <p>İzinsiz kopyalama ve indirmeleri önlemek için lütfen <strong>Yönetici / Kasiyer PIN Kodunu</strong> girin.</p>
-        
-        {f'<div class="err">{error_msg}</div>' if error_msg else ''}
-        
-        <form method="POST" action="/indir">
-          <div class="inp-group">
-            <label for="pin">Yönetici Şifresi / PIN Kodu:</label>
-            <input type="password" id="pin" name="pin" autofocus placeholder="••••" required autocomplete="off">
-          </div>
-          <button type="submit" class="btn">
-            <span>📥</span>
-            <span>Doğrula ve Setup İndir</span>
-          </button>
-        </form>
-        
-        <div class="footer-note">OYMAPOS Market Raf Etiketi & POS Güvenlik Sistemi</div>
+@app.route("/indir", methods=["GET"])
+@app.route("/download", methods=["GET"])
+@app.route("/setup-indir", methods=["GET"])
+def download_setup():
+    """İndirmeye basınca açılan, kurulumu adım adım anlatan ve indirmeyi başlatan rehber sayfası."""
+    from flask import render_template_string
+    import os
+
+    dist_dir = os.path.join(BASE_DIR, "dist")
+    zip_path = os.path.join(dist_dir, "OYMAPOS_Windows7_Kurulumsuz.zip")
+    file_size_mb = f"{round(os.path.getsize(zip_path) / (1024 * 1024), 1)} MB" if os.path.exists(zip_path) else "170 MB"
+
+    html = f"""<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OYMAPOS - Windows 7 / 8 / 10 / 11 Hızlı Kurulum Rehberi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }}
+    body {{
+      background: radial-gradient(circle at 50% 0%, #0f172a, #020617);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }}
+    .container {{
+      max-width: 680px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+    }}
+    .header {{
+      text-align: center;
+      margin-bottom: 28px;
+    }}
+    .badge {{
+      display: inline-block;
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      font-size: 11.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 30px;
+      margin-bottom: 12px;
+    }}
+    h1 {{
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }}
+    .subtitle {{
+      font-size: 13.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }}
+    .download-action {{
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+      border: 1.5px solid #334155;
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 30px;
+    }}
+    .file-info {{
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }}
+    .file-name {{
+      font-size: 15px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+    .file-meta {{
+      font-size: 12px;
+      color: #64748b;
+    }}
+    .btn-download {{
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14.5px;
+      padding: 13px 24px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }}
+    .btn-download:hover {{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    }}
+    .steps-title {{
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #cbd5e1;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+    .step-list {{
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }}
+    .step-item {{
+      background: rgba(30, 41, 59, 0.45);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }}
+    .step-num {{
+      background: #0284c7;
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }}
+    .step-text strong {{
+      display: block;
+      font-size: 13.5px;
+      color: #f1f5f9;
+      margin-bottom: 3px;
+    }}
+    .step-text p {{
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.45;
+    }}
+    .code-tag {{
+      background: #090e1a;
+      border: 1px solid #334155;
+      padding: 2px 7px;
+      border-radius: 5px;
+      color: #38bdf8;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 12px;
+    }}
+    .tip-box {{
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px dashed rgba(16, 185, 129, 0.35);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12.5px;
+      color: #34d399;
+    }}
+    .tip-box span:first-child {{
+      font-size: 18px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="badge">🚀 Kurulumsuz & Taşınabilir Sürüm</div>
+      <h1>OYMAPOS Sistem İndirme ve Başlatma</h1>
+      <p class="subtitle">Windows 7, 8, 10 ve 11 işletim sistemlerinde hiçbir kuruluma gerek kalmadan tek tıkla çalışır.</p>
+    </div>
+
+    <div class="download-action">
+      <div class="file-info">
+        <div class="file-name">📦 OYMAPOS_Windows7_Kurulumsuz.zip</div>
+        <div class="file-meta">Boyut: {file_size_mb} &bull; Python 3.8.10 Gömülü Motor &bull; Şifresiz Doğrudan İndirme</div>
       </div>
-    </body>
-    </html>
-    """
-    return render_template_string(html_page)
+      <a href="/indir/dosya" class="btn-download" id="autoDownloadBtn">
+        <span>⬇️</span>
+        <span>Hemen İndir</span>
+      </a>
+    </div>
+
+    <div class="steps-title">
+      <span>📋</span> <span>Nasıl Çalıştırılır? (Sadece 2 Adım)</span>
+    </div>
+
+    <div class="step-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>İndirilen Dosyayı Klasöre Çıkartın</strong>
+          <p>İndirilen <span class="code-tag">OYMAPOS_Windows7_Kurulumsuz.zip</span> dosyasına sağ tıklayıp <em>"Buraya Ayıkla"</em> veya <em>"Tümünü Ayıkla"</em> diyerek Masaüstüne bir klasör olarak çıkarın.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>OYMAPOS.exe Dosyasına Çift Tıklayın</strong>
+          <p>Klasörün içindeki <span class="code-tag">OYMAPOS.exe</span> dosyasına çift tıklayın. Sistem 2 saniye içinde arkada çalışıp tarayıcınızda kasa ve etiket ekranını otomatik olarak açacaktır!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <span>💡</span>
+      <span><strong>İpucu:</strong> Herhangi bir kurulum (Setup), yönetici şifresi veya ekstra DLL yüklemenize gerek yoktur. Klasörü dilediğiniz zaman USB bellekle başka bilgisayarlara da taşıyabilirsiniz.</span>
+    </div>
+  </div>
+
+  <script>
+    // Sayfa açıldığında indirmeyi otomatik olarak da tetikle
+    window.addEventListener('load', () => {{
+      setTimeout(() => {{
+        const btn = document.getElementById('autoDownloadBtn');
+        if (btn) {{
+          window.location.href = btn.href;
+        }}
+      }}, 600);
+    }});
+  </script>
+</body>
+</html>
+"""
+    return render_template_string(html)
+
+
 
 @app.route("/frontend/<path:filename>")
 @app.route("/static/<path:filename>")
@@ -546,13 +608,19 @@ def main():
         except Exception as e:
             print(f"[UYARI] Tarayıcı otomatik açılamadı: {e}")
 
-    print("\n[BİLGİ] Sunucu çalışıyor. Durdurmak için CTRL+C tuşlarına basınız.\n")
-
+    # CTRL+C ile yanlışlıkla sunucunun kapatılmasını engelle (Arka planda kesintisiz çalışır)
     try:
-        while True:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+    except Exception:
+        pass
+
+    print("\n[BİLGİ] Sunucu kesintisiz modda arka planda çalışıyor (CTRL+C korumalı).\n")
+
+    while True:
+        try:
             time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n[BİLGİ] Sunucu kullanıcı tarafından durduruldu.")
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     main()

@@ -67,18 +67,27 @@ def save_scales_pool(pool: list) -> list:
     save_scale_settings(cfg)
     return pool
 
+def _get_plu_sort_key(item):
+    val = item.get("plu") if isinstance(item, dict) else None
+    if val is None or str(val).strip() == "" or str(val).strip().lower() == "none":
+        return 999999
+    try:
+        return int(val)
+    except Exception:
+        return 999999
+
 def get_manav_products() -> list:
     """Manav ürünlerini PLU sırasına göre yükler."""
     data = load_json(MANAV_PRODUCTS_FILE, [])
     if not isinstance(data, list):
         return []
 
-    # PLU numarasına göre sırala
-    return sorted(data, key=lambda x: int(x.get("plu", 9999)))
+    # PLU numarasına göre sırala (NoneType güvenli)
+    return sorted(data, key=_get_plu_sort_key)
 
 def save_all_manav_products(products: list):
     """Manav ürün listesini kaydeder."""
-    sorted_prods = sorted(products, key=lambda x: int(x.get("plu", 9999)))
+    sorted_prods = sorted(products, key=_get_plu_sort_key)
     save_json(MANAV_PRODUCTS_FILE, sorted_prods)
 
 def _decode_digi_name(block: str, plu: int, existing_map: dict = None) -> str:
@@ -190,17 +199,30 @@ def fetch_prices_from_scale(ip=None) -> dict:
                 price_cents = 0
                 barcode = f"27{plu:05d}"
 
-                m_price_bc = re.search(r'([0-9]{8})1105([0-9]{7})', block)
-                if m_price_bc:
-                    price_cents = int(m_price_bc.group(1))
-                    barcode = m_price_bc.group(2)
+                # 1. DIGI SM-100 Sabit 0C00 Fiyat Deseni (0C00xxxxxx)
+                m_price = re.search(r'0C00([0-9]{6})', block)
+                if m_price:
+                    price_cents = int(m_price.group(1))
                 else:
-                    m_price = re.search(r'00C0([0-9]{8})', block)
-                    if m_price:
-                        price_cents = int(m_price.group(1))
+                    m_price_bc = re.search(r'([0-9]{8})1105([0-9]{7})', block)
+                    if m_price_bc:
+                        price_cents = int(m_price_bc.group(1))
+                        barcode = m_price_bc.group(2)
+                    else:
+                        m_price_old = re.search(r'00C0([0-9]{8})', block)
+                        if m_price_old:
+                            price_cents = int(m_price_old.group(1))
 
                 name = _decode_digi_name(block, plu, existing_map)
-                price_tl = f"{price_cents / 100:.2f}".replace(".", ",") + " TL"
+                price_tl = f"{price_cents / 100:.2f}".replace(".", ",") + " TL" if price_cents > 0 else (existing_map.get(plu, {}).get("price") or "0,00 TL" if existing_map else "0,00 TL")
+
+                # Birim tespiti: Adet/Demet içeren veya mevcut veritabanında Adet olan ürünler
+                ex_unit = existing_map.get(plu, {}).get("unit", "Kg") if existing_map and plu in existing_map else "Kg"
+                u_name = name.upper()
+                if "ADET" in u_name or "DEMET" in u_name or " PK" in u_name or ex_unit.lower() == "adet":
+                    prod_unit = "Adet"
+                else:
+                    prod_unit = "Kg"
 
                 products.append({
                     "plu": plu,
@@ -209,7 +231,7 @@ def fetch_prices_from_scale(ip=None) -> dict:
                     "title": name,
                     "price": price_tl,
                     "scale_price": price_tl,
-                    "unit": "Kg",
+                    "unit": prod_unit,
                     "origin": "TÜRKİYE",
                     "sync_status": "synced"
                 })
@@ -227,10 +249,11 @@ def fetch_prices_from_scale(ip=None) -> dict:
         # Mevcut Adet / Demet ürünlerini teraziden gelen listeye dahil et (koru)
         adet_items = [x for x in existing_list if (x.get('unit') or '').lower() in ('adet', 'demet', 'paket', 'pk')]
         for a_it in adet_items:
-            if a_it.get("plu") and a_it["plu"] not in seen:
-                seen.add(a_it["plu"])
+            plu_cand = a_it.get("plu")
+            if plu_cand and plu_cand not in seen:
+                seen.add(plu_cand)
                 unique_prods.append(a_it)
-            elif not a_it.get("plu"):
+            elif not plu_cand and a_it.get("barcode") not in [x.get("barcode") for x in unique_prods]:
                 unique_prods.append(a_it)
 
         if not unique_prods:
@@ -334,17 +357,30 @@ def stream_fetch_prices_from_scale(ip=None):
                 price_cents = 0
                 barcode = f"27{plu:05d}"
 
-                m_price_bc = re.search(r'([0-9]{8})1105([0-9]{7})', block)
-                if m_price_bc:
-                    price_cents = int(m_price_bc.group(1))
-                    barcode = m_price_bc.group(2)
+                # 1. DIGI SM-100 Sabit 0C00 Fiyat Deseni (0C00xxxxxx)
+                m_price = re.search(r'0C00([0-9]{6})', block)
+                if m_price:
+                    price_cents = int(m_price.group(1))
                 else:
-                    m_price = re.search(r'00C0([0-9]{8})', block)
-                    if m_price:
-                        price_cents = int(m_price.group(1))
+                    m_price_bc = re.search(r'([0-9]{8})1105([0-9]{7})', block)
+                    if m_price_bc:
+                        price_cents = int(m_price_bc.group(1))
+                        barcode = m_price_bc.group(2)
+                    else:
+                        m_price_old = re.search(r'00C0([0-9]{8})', block)
+                        if m_price_old:
+                            price_cents = int(m_price_old.group(1))
 
                 name = _decode_digi_name(block, plu, existing_map)
-                price_tl = f"{price_cents / 100:.2f}".replace(".", ",") + " TL"
+                price_tl = f"{price_cents / 100:.2f}".replace(".", ",") + " TL" if price_cents > 0 else (existing_map.get(plu, {}).get("price") or "0,00 TL" if existing_map else "0,00 TL")
+
+                # Birim tespiti: Adet/Demet içeren veya mevcut veritabanında Adet olan ürünler
+                ex_unit = existing_map.get(plu, {}).get("unit", "Kg") if existing_map and plu in existing_map else "Kg"
+                u_name = name.upper()
+                if "ADET" in u_name or "DEMET" in u_name or " PK" in u_name or ex_unit.lower() == "adet":
+                    prod_unit = "Adet"
+                else:
+                    prod_unit = "Kg"
 
                 products.append({
                     "plu": plu,
@@ -353,7 +389,7 @@ def stream_fetch_prices_from_scale(ip=None):
                     "title": name,
                     "price": price_tl,
                     "scale_price": price_tl,
-                    "unit": "Kg",
+                    "unit": prod_unit,
                     "origin": "TÜRKİYE",
                     "sync_status": "synced"
                 })
@@ -371,10 +407,11 @@ def stream_fetch_prices_from_scale(ip=None):
         # Mevcut Adet / Demet ürünlerini teraziden gelen listeye dahil et (koru)
         adet_items = [x for x in existing_list if (x.get('unit') or '').lower() in ('adet', 'demet', 'paket', 'pk')]
         for a_it in adet_items:
-            if a_it.get("plu") and a_it["plu"] not in seen:
-                seen.add(a_it["plu"])
+            plu_cand = a_it.get("plu")
+            if plu_cand and plu_cand not in seen:
+                seen.add(plu_cand)
                 unique_prods.append(a_it)
-            elif not a_it.get("plu"):
+            elif not plu_cand and a_it.get("barcode") not in [x.get("barcode") for x in unique_prods]:
                 unique_prods.append(a_it)
 
         total = len(unique_prods)
@@ -487,136 +524,14 @@ def test_scale_connection(ip=None, port=None, timeout_sec=None) -> dict:
             "scale_model": cfg.get("scale_model")
         }
 
-def _parse_price_to_cents(price_str: str) -> int:
-    """Fiyat metnini (Örn: '69,95 TL') kuruş tamsayı değerine çevirir (6995)."""
-    if not price_str:
-        return 0
-    clean = str(price_str).replace("TL", "").replace("₺", "").replace("/Kg", "").replace("/kg", "").strip()
-    clean = clean.replace(".", "").replace(",", ".")
-    try:
-        return int(round(float(clean) * 100))
-    except:
-        return 0
 
-def format_teraoka_plu_packets(plu: int, title: str, price_str: str, barcode: str, dept: int = 1) -> list:
-    """
-    Teraoka / DIGI (SM-100 / SM-300 / SM-500 / SM-5100) teraziler için
-    tam uyumlu Türkçe (CP1254) çoklu ethernet PLU güncelleme paketleri üretir.
-    """
-    cents = _parse_price_to_cents(price_str)
-    price_val_str = f"{cents / 100:.2f}"
-    # Türkçe CP1254 uyumlu temiz ürün adı (Maks 30 karakter)
-    clean_name = str(title).strip()[:30]
-    
-    if not barcode:
-        barcode = f"27{plu:05d}"
-
-    packets = []
-
-    # 1. DIGI TWP CSV Standart Formatları (CRLF)
-    packets.append(f"{plu},{barcode},{cents},{clean_name}\r\n".encode("cp1254", errors="ignore"))
-    packets.append(f"{plu},{cents},{clean_name}\r\n".encode("cp1254", errors="ignore"))
-    packets.append(f"{plu},{price_val_str},{clean_name}\r\n".encode("cp1254", errors="ignore"))
-
-    # 2. DIGI SM-100 / SM-5100 Binary PLU Formatı (STX + 01 + 01 + PLU6 + CENTS8 + NAME30 + ETX)
-    packets.append(f"\x020101{plu:06d}{cents:08d}{clean_name:<30}\x03".encode("cp1254", errors="ignore"))
-    packets.append(f"\x020101{plu:06d}{cents:08d}{clean_name}\x03\r\n".encode("cp1254", errors="ignore"))
-
-    # 3. DIGI F-Frame Formatı (STX + F + DEPT + PLU6 + CENTS8 + NAME + ETX + CRLF)
-    packets.append(f"\x02F{dept:02d}{plu:06d}{cents:08d}{clean_name}\x03\r\n".encode("cp1254", errors="ignore"))
-    packets.append(f"\x02F00{plu:06d}{cents:08d}{clean_name}\x03\r\n".encode("cp1254", errors="ignore"))
-
-    # 4. Teraoka 0xF1 / 0xF2 Çerçeveli Paketler
-    packets.append(bytes([0xF1]) + f"0101{plu:06d}{cents:08d}{clean_name:<30}".encode("cp1254", errors="ignore") + bytes([0xF2]))
-    packets.append(bytes([0xF1]) + f"{plu},{barcode},{cents},{clean_name}\r\n".encode("cp1254", errors="ignore") + bytes([0xF2]))
-
-    # 5. Eğer PLU < 1000 ise, yaygın 1000+PLU (1001, 1002...) eşdeğerini de kapsa
-    if plu < 1000:
-        alt_plu = 1000 + plu
-        packets.append(f"{alt_plu},{barcode},{cents},{clean_name}\r\n".encode("cp1254", errors="ignore"))
-        packets.append(f"\x020101{alt_plu:06d}{cents:08d}{clean_name:<30}\x03".encode("cp1254", errors="ignore"))
-        packets.append(f"\x02F{dept:02d}{alt_plu:06d}{cents:08d}{clean_name}\x03\r\n".encode("cp1254", errors="ignore"))
-        packets.append(bytes([0xF1]) + f"0101{alt_plu:06d}{cents:08d}{clean_name:<30}".encode("cp1254", errors="ignore") + bytes([0xF2]))
-
-    return packets
-
-def export_scale_files(products: list = None) -> dict:
-    """
-    Tüm manav ürünlerini standart DIGI / Teraoka uyumlu dışa aktarım dosyalarına yazar.
-    (PLU.CSV, PLU.TXT, PLU.DAT)
-    """
-    from backend.ayarlar import SCALE_EXPORT_DIR
-    if products is None:
-        products = get_manav_products()
-
-    os.makedirs(SCALE_EXPORT_DIR, exist_ok=True)
-
-    csv_path = os.path.join(SCALE_EXPORT_DIR, "PLU.CSV")
-    txt_path = os.path.join(SCALE_EXPORT_DIR, "PLU.TXT")
-    dat_path = os.path.join(SCALE_EXPORT_DIR, "PLU.DAT")
-
-    try:
-        # 1. DIGI TWP CSV Dosyası: PLU,BARCODE,PRICE_CENTS,NAME,UNIT,DEPT
-        with open(csv_path, mode="w", encoding="cp1254", errors="ignore") as f:
-            f.write("PLU,BARCODE,PRICE,NAME,UNIT,DEPT\n")
-            for p in products:
-                plu = int(p.get("plu", 1))
-                title = str(p.get("title", "")).strip()[:30]
-                cents = _parse_price_to_cents(p.get("price", "0"))
-                bc = p.get("barcode") or f"27{plu:05d}"
-                unit = p.get("unit", "Kg")
-                f.write(f"{plu},{bc},{cents},{title},{unit},1\n")
-
-        # 2. DIGI SM-100 Text Export: PLU | FİYAT | İSİM | BARKOD
-        with open(txt_path, mode="w", encoding="cp1254", errors="ignore") as f:
-            for p in products:
-                plu = int(p.get("plu", 1))
-                title = str(p.get("title", "")).strip()[:30]
-                price = str(p.get("price", "0,00 TL"))
-                bc = p.get("barcode") or f"27{plu:05d}"
-                f.write(f"PLU:{plu:04d} | BARKOD:{bc} | FIYAT:{price:<10} | URUN:{title}\n")
-
-        # 3. DIGI SM-100 Standart DAT Dosyası
-        dat_content = generate_digi_sm100_dat(products)
-        with open(dat_path, mode="wb") as f:
-            f.write(dat_content)
-
-        return {"status": "success", "count": len(products), "dir": SCALE_EXPORT_DIR}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-def generate_digi_sm100_dat(products: list) -> bytes:
-    """
-    Manav ürünleri listesinden resmi DIGI SM-100/SM-300 uyumlu 176-byte sabit kayıtlı
-    SENDPLU.DAT / F37 ikili veri içeriğini üretir.
-    """
-    blocks = []
-    tr_map = {'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'I': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U'}
-    
-    for p in products:
-        try:
-            plu = int(p.get("plu", 1))
-        except:
-            plu = 1
-            
-        cents = _parse_price_to_cents(p.get("price", "0"))
-        title = str(p.get("title", "")).strip().upper()
-        for k, v in tr_map.items():
-            title = title.replace(k, v)
-            
-        name_bytes = title.encode('ascii', errors='ignore')[:36]
-        name_hex = ('19' + name_bytes.hex().upper()).ljust(80, '0')
-        
-        plu_f = f"{plu:08d}"
-        flags_f = "00587C004DA0"
-        price_f = f"0C00{cents:06d}"
-        barcode_f = f"11052701{plu:03d}0000000100000000000007"
-        
-        rec = (plu_f + flags_f + price_f + barcode_f + name_hex).ljust(176, '0')[:176]
-        blocks.append(rec)
-        
-    return "".join(blocks).encode('ascii')
-
+# --- Modüler DIGI Dosya & Protokol Servisi Köprüsü ---
+from backend.terazi.digi_sm100_dosya_servisi import (
+    _parse_price_to_cents,
+    format_teraoka_plu_packets,
+    export_scale_files,
+    generate_digi_sm100_dat
+)
 def send_plu_to_scale(product: dict, ip=None, port=None) -> dict:
     """
     Tek bir PLU ürününü Native DIGI Protokolüyle (Oturum Açma -> Veri -> Commit) teraziye aktarır.
@@ -674,11 +589,37 @@ def send_plu_to_scale(product: dict, ip=None, port=None) -> dict:
 
         s.close()
 
+        # F37 ve SENDPLU dosyasındaki bu PLU'nun fiyatını da kalıcı güncelle
+        try:
+            tools_dir = SCALE_TOOLS_DIR
+            f37_path = os.path.join(tools_dir, f"SM{target_ip}F37.DAT")
+            if os.path.exists(f37_path):
+                with open(f37_path, "rb") as f:
+                    f_raw = f.read().decode("ascii", errors="ignore")
+                BLOCK_SIZE = 176
+                n_blocks = len(f_raw) // BLOCK_SIZE
+                f_blocks = []
+                cents = _parse_price_to_cents(price)
+                for b_i in range(n_blocks):
+                    blk = f_raw[b_i * BLOCK_SIZE : (b_i + 1) * BLOCK_SIZE]
+                    if blk[:8].isdigit() and int(blk[:8]) == plu:
+                        blk = re.sub(r'0C00[0-9]{6}', f"0C00{cents:06d}", blk, count=1)
+                        blk = re.sub(r'[0-9]{8}(1105[0-9]{7})', f"{cents:08d}\\1", blk, count=1)
+                    f_blocks.append(blk)
+                u_raw = "".join(f_blocks).encode("ascii")
+                with open(f37_path, "wb") as f:
+                    f.write(u_raw)
+                with open(os.path.join(tools_dir, "SENDPLU.DAT"), "wb") as f:
+                    f.write(u_raw)
+        except Exception:
+            pass
+
         # Ürünün senkron durumunu güncelle
         now_str = datetime.datetime.now().strftime("%d %b %Y %H:%M")
         products = get_manav_products()
         for p in products:
             if int(p.get("plu", 0)) == plu:
+                p["price"] = price
                 p["scale_price"] = price
                 p["sync_status"] = "synced"
                 p["last_synced_at"] = now_str
@@ -778,8 +719,14 @@ def stream_all_plus_to_scale(ip=None, port=None):
                 if plu_val in prod_map:
                     p = prod_map[plu_val]
                     cents = _parse_price_to_cents(p.get("price", "0"))
-                    new_price_str = f"{cents:08d}"
-                    block = re.sub(r'[0-9]{8}(1105[0-9]{7})', f'{new_price_str}\\1', block, count=1)
+                    
+                    # 1. DIGI SM-100 Sabit 0C00 Fiyat Bloğu (0C00xxxxxx)
+                    new_price_6d = f"0C00{cents:06d}"
+                    block = re.sub(r'0C00[0-9]{6}', new_price_6d, block, count=1)
+                    
+                    # 2. Alternatif 8 Haneli Fiyat Bloğu (xxxxxxxx1105...)
+                    new_price_8d = f"{cents:08d}"
+                    block = re.sub(r'[0-9]{8}(1105[0-9]{7})', f'{new_price_8d}\\1', block, count=1)
             new_blocks.append(block)
 
         updated_raw = "".join(new_blocks).encode("ascii")

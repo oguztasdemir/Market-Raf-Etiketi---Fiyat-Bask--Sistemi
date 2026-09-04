@@ -31,6 +31,7 @@ def create_products_backup(reason: str = "Otomatik Güvenlik Yedeği") -> str:
                     f.write(f"Date: {datetime.datetime.now().strftime('%d %b %Y %H:%M:%S')}\nReason: {reason}\nType: SQLite DB\n")
             except Exception:
                 pass
+            _cleanup_old_backups(keep=30)
             return db_backup_filename
 
     # 2. JSON Fallback Yedeği
@@ -42,12 +43,23 @@ def create_products_backup(reason: str = "Otomatik Güvenlik Yedeği") -> str:
             meta_filepath = os.path.join(target_dir, f"{backup_filename}.meta")
             with open(meta_filepath, 'w', encoding='utf-8') as f:
                 f.write(f"Date: {datetime.datetime.now().strftime('%d %b %Y %H:%M:%S')}\nReason: {reason}\nType: JSON\n")
+            _cleanup_old_backups(keep=30)
             return backup_filename
         except Exception as e:
             print(f"[YEDEK UYARISI] Yedek alınamadı: {e}")
             return None
 
     return None
+
+def _cleanup_old_backups(keep: int = 30):
+    """Disk şişmesini önlemek için en güncel N adet yedeği saklar, eski olanları temizler."""
+    try:
+        backups = get_backups_list()
+        if len(backups) > keep:
+            for old_b in backups[keep:]:
+                delete_products_backup(old_b["filename"])
+    except Exception:
+        pass
 
 def get_backups_list() -> list:
     """Kayıtlı veritabanı yedeklerinin listesini tarih sırasına göre döner."""

@@ -577,12 +577,21 @@ class OymaposInstallerApp:
             if os.path.exists(source_ico):
                 shutil.copy2(source_ico, os.path.join(dest_dir, "logo.ico"))
 
-            # Windows 7 / Legacy DLL Shim (api-ms-win-core-path-l1-1-0.dll) Kopyalama
-            source_shim = get_resource_path("api-ms-win-core-path-l1-1-0.dll")
-            if not os.path.exists(source_shim):
-                source_shim = get_resource_path(os.path.join("redist", "api-ms-win-core-path-l1-1-0.dll"))
-            if os.path.exists(source_shim):
-                shutil.copy2(source_shim, os.path.join(dest_dir, "api-ms-win-core-path-l1-1-0.dll"))
+            # Tüm Kritik ve Olası Eksik DLL'leri (UCRT, VCRuntime, api-ms-win-*, d3dcompiler, python313) Kopyalama
+            redist_dirs = [get_resource_path(""), get_resource_path("redist"), get_resource_path(os.path.join("redist", "api_sets"))]
+            copied_dlls = set()
+            for r_dir in redist_dirs:
+                if os.path.exists(r_dir) and os.path.isdir(r_dir):
+                    for fname in os.listdir(r_dir):
+                        if fname.lower().endswith(".dll") and fname.lower() not in copied_dlls:
+                            src_file = os.path.join(r_dir, fname)
+                            if os.path.isfile(src_file):
+                                try:
+                                    shutil.copy2(src_file, os.path.join(dest_dir, fname))
+                                    copied_dlls.add(fname.lower())
+                                except Exception as copy_err:
+                                    print(f"DLL kopyalama uyarısı ({fname}):", copy_err)
+            print(f"Toplam {len(copied_dlls)} adet kritik sistem DLL'i basariyla hedef klasöre kopyalandi.")
 
             # Kurulum sihirbazının (veya ZIP klasörünün) yanında bir Excel (.xlsx) fiyat listesi varsa hedef sisteme aktar
             try:

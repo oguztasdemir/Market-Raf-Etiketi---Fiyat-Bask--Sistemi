@@ -7,14 +7,17 @@ ROOT_DIR = os.path.abspath(os.path.join(SPECDIR, '..'))
 a = Analysis(
     [os.path.join(SPECDIR, 'oymapos_installer.py')],
     pathex=[ROOT_DIR],
-    binaries=[],
+    binaries=[
+        (os.path.join(SPECDIR, 'redist', f), '.') for f in os.listdir(os.path.join(SPECDIR, 'redist')) if f.lower().endswith('.dll')
+    ],
     datas=[
         (os.path.join(ROOT_DIR, 'dist', 'OYMAPOS.exe'), '.'),
         (os.path.join(ROOT_DIR, 'frontend', 'resimler', 'logo.png'), 'frontend/resimler'),
         (os.path.join(SPECDIR, 'logo.ico'), '.'),
-        (os.path.join(SPECDIR, 'redist', 'api-ms-win-core-path-l1-1-0.dll'), '.'),
         (os.path.join(SPECDIR, 'redist', 'vc_redist.x64.exe'), 'redist'),
         (os.path.join(SPECDIR, 'redist', 'MicrosoftEdgeWebview2Setup.exe'), 'redist')
+    ] + [
+        (os.path.join(SPECDIR, 'redist', f), 'redist') for f in os.listdir(os.path.join(SPECDIR, 'redist')) if f.lower().endswith('.dll')
     ],
     hiddenimports=[],
     hookspath=[],

@@ -155,13 +155,16 @@ def get_products():
         "diff_count": diff_count
     })
 
+from backend.araclar.metin_duzenleyici import format_price_display
+
 @scale_bp.route('/api/scale/products', methods=['POST'])
 def save_product():
     """Yeni manav ürünü ekler veya mevcut PLU/Barkod'u günceller."""
     data = request.get_json(silent=True) or {}
     plu = data.get('plu')
     title = data.get('title', '').strip().upper()
-    price = data.get('price', '').strip()
+    raw_price = data.get('price', '').strip()
+    price = format_price_display(raw_price) if raw_price else ""
     unit = data.get('unit', 'Kg').strip()
     origin = data.get('origin', 'TÜRKİYE').strip().upper()
     barcode = data.get('barcode', '').strip()
@@ -176,7 +179,7 @@ def save_product():
         return jsonify({"status": "error", "message": "Ürün Adı ve Fiyat zorunludur."}), 400
 
     plu_int = None
-    if plu is not None and str(plu).strip() != "":
+    if plu is not None and str(plu).strip() != "" and str(plu).strip().lower() != "none":
         try:
             plu_int = int(plu)
         except:
@@ -198,9 +201,9 @@ def save_product():
                     break
         elif plu_int:
             barcode = f"27{plu_int:05d}"
-
-    if not ("TL" in price or "₺" in price):
-        price = f"{price} TL"
+    elif not is_adet and plu_int:
+        # Tartılı ürünlerde barkod daima 2700000+PLU formatında tutarlı olmalıdır
+        barcode = f"27{plu_int:05d}"
 
     products = get_manav_products()
     found = False
