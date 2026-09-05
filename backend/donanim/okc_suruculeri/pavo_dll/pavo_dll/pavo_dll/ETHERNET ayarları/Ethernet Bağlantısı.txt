@@ -1,0 +1,9 @@
+
+Ethernet kablosunu bilgisayara ve cihaz’a takiniz.
+ 
+Local Area Connection ? Properties ? Internet Protocol Version 4 (TCP/IPv4) seçilerek cihazin ip, mask, geteway bilgilerine ulasilir.   
+ 
+Cihazdan YazarkasaPos Ayarlari ? Sifre (0000) ? Baglanti Ayarlari ? Ethernet (STATIC seçilir, Pc’deki  IP, Mask ve Geteway adresleri girilir. IP adresi girilirken IP adreslerinin çakismamasi için cihazdaki IP adresinin son rakamlari degistirilir.)  Islemler yapildiktan sonra cihaz resetlenecek. 
+ 
+ 
+GDP 9.18 Release klasörün içinde DLL? Windows ? x64 ? GMP.INI dosyasinin içinde IsTcpConnection alanini 1 olarak degistiriyoruz.  IP kismina cihazin ip’sini yazilir.

@@ -1,0 +1,366 @@
+/* =========================================================
+   8. ETİKET TASARIM STÜDYOSU & MARKET RAF ETİKETİ ÖNİZLEME
+   ========================================================= */
+
+.split-view {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+  flex: 1;
+}
+
+.panel-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-right {
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.search-box {
+  position: relative;
+}
+
+.stock-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #0d1424;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none;
+  margin-top: 4px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.6);
+}
+
+.stock-item {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stock-item:hover {
+  background: #1e293b;
+}
+
+.stock-item-title {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-item-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.stock-item-price {
+  font-size: 13px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.stage-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+}
+
+.stage-info .badge {
+  background: #3b82f620;
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.badge-design {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.zoom-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zoom-actions button {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.printable-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  background: radial-gradient(circle, #1e293b 10%, #020617 90%);
+  overflow: auto;
+}
+
+/* MARKET RAF ETİKETİ STANDART BOYUTLARI */
+.market-label {
+  background: #fffef0;
+  color: #000000;
+  border: 1.5px solid #000;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+  font-family: 'Inter', -apple-system, sans-serif;
+  user-select: none;
+  transform-origin: center center;
+  transition: transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.size-76x40 { width: 76mm; height: 40mm; padding: 2.2mm 2.8mm; }
+.size-60x40 { width: 60mm; height: 40mm; padding: 2mm 2.2mm; }
+.size-40x20 { width: 40mm; height: 20mm; padding: 1.2mm 1.5mm; }
+.size-80x40 { width: 80mm; height: 40mm; padding: 2.2mm 2.8mm; }
+.size-100x50 { width: 100mm; height: 50mm; padding: 3mm 3.5mm; }
+.size-85x45 { width: 85mm; height: 45mm; padding: 2.8mm 3.2mm; }
+
+.ml-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3mm;
+  width: 100%;
+  border-bottom: 1.4px solid #000;
+  padding-bottom: 1.5mm;
+  box-sizing: border-box;
+}
+
+.ml-title-area {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  text-align: left;
+}
+
+.ml-title-area .ml-title-line1 {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.15px;
+  text-transform: uppercase;
+  word-break: break-word;
+  white-space: normal;
+  display: block;
+}
+
+.ml-title-line1.single-line-big {
+  font-size: 15.5px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  padding: 2px 0;
+}
+
+.ml-title-area .ml-title-line2 {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.15px;
+  text-transform: uppercase;
+  word-break: break-word;
+  white-space: normal;
+  display: block;
+}
+
+.ml-top-right-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tr-badge {
+  border: 1.5px solid #000;
+  padding: 2px 6px;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+  background: #fff;
+  line-height: 1.2;
+}
+
+.tr-badge-dark {
+  background: #000;
+  color: #fff;
+  border: 1.5px solid #000;
+  padding: 2px 6px;
+  font-size: 8.5px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.ml-mid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.4px solid #000;
+  padding: 1.2mm 0;
+}
+
+.ml-brand-col {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+  width: 32%;
+}
+
+.ml-legal-col {
+  width: 68%;
+  font-size: 7.2px;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.ml-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.2mm;
+}
+
+.ml-barcode-col {
+  width: 36%;
+  display: flex;
+  align-items: center;
+}
+
+.ml-barcode-col svg {
+  width: 100%;
+  height: 25px;
+}
+
+.ml-divider-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: 1.4px solid #000;
+  border-right: 1.4px solid #000;
+  padding: 0 4px;
+  font-size: 7.2px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  height: 28px;
+}
+
+.ml-price-col {
+  flex: 1;
+  text-align: right;
+  padding-right: 2px;
+}
+
+.price-val {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  font-family: 'Inter', 'Oswald', sans-serif;
+}
+
+/* Stüdyo & Editör */
+.design-studio-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  flex: 1;
+  height: calc(100vh - 120px);
+}
+
+.studio-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.studio-main {
+  display: flex;
+  flex-direction: column;
+  background: #020617;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.studio-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 20;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.tool-btn:hover {
+  background: #1e293b;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}

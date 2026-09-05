@@ -1,0 +1,355 @@
+﻿{
+  "FiscalItems": [
+    {
+      "Id": 221,
+      "Quantity": 1.0,
+      "Price": 0.75,
+      "Name": "SAKA SU 1,5LT       ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+      "NoteLine1": "HER ÜRÜNDE 5 PUAN ",
+      "NoteLine2": "100 TL ÜZERİ 50 PUAN"
+    },
+    {
+      "Id": 222,
+      "Quantity": 0.587,
+      "Price": 5.35,
+      "Name": "BULGUR İNCE KG      ",
+      "DeptId": 2,
+      "Status": 1,
+      "Adj": null,
+      "NoteLine1": "HUGIN RETAIL SOLUTIONS",
+      "NoteLine2": "HUGIN QA TEAM EKİBİ"
+    },
+    {
+      "Id": 223,
+      "Quantity": 3.250,
+      "Price": 19.95,
+      "Name": "BEYAZ PEYNİR        ",
+      "DeptId": 3,
+      "Status": 1,
+      "Adj": {
+        "Type": 3,
+        "Amount": -3.24,
+        "percentage": 5,
+        "NoteLine1": "AAAA BBBB CCC DDDD",
+        "NoteLine2": "EEEE FFF GGG HHHH"
+      }
+    },
+    {
+      "Id": 228,
+      "Quantity": 3.0,
+      "Price": 9.25,
+      "Name": "COLGATE 3ACTİON     ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "BU ÜRÜNDEN ALDINIZ",
+	  "NoteLine2": "BEDAVA ALIŞ VERŞ KAZANDINIZ"
+    },
+    {
+      "Id": 210,
+      "Quantity": 2.0,
+      "Price": 1.9,
+      "Name": "MAKARNA 500GR       ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "12345 67890",
+	  "NoteLine2": "ÇĞİŞÖÜ?"
+    },
+    {
+      "Id": 213,
+      "Quantity": 5.0,
+      "Price": 11.00,
+      "Name": "PARLIAMENT BOX      ",
+      "DeptId": 1,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -1.65,
+        "percentage": 3,
+		"NoteLine1": "54321",
+		"NoteLine2": "09876"
+      }
+    },
+    {
+      "Id": 238,
+      "Quantity": 5.500,
+      "Price": 5.95,
+      "Name": "KURUYEMİŞ           ",
+      "DeptId": 3,
+      "Status": 1,
+      "Adj": {
+        "Type": 3,
+        "Amount": -4.91,
+        "percentage": 15,
+		"NoteLine1": "HHHH IIII JJJJ KKKK",
+		"NoteLine2": "LLLL MMMM NNNN OOOO"
+      }
+    },
+    {
+      "Id": 249,
+      "Quantity": 2.0,
+      "Price": 16.65,
+      "Name": "MARET SOSİS KOKTEYL ",
+      "DeptId": 3,
+      "Status": 1,
+      "Adj": null,
+	  "NoteLine1": "PPPP RRRR SSSS TTTT",
+	  "NoteLine2": "UUUU VVVV YYYY ZZZZ"
+    },
+    {
+      "Id": 251,
+      "Quantity": 25.0,
+      "Price": 1.0,
+      "Name": "ETİ TUTKU 120GR     ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "ÇÇÇ ĞĞĞ İİİİ ÖÖÖ",
+	  "NoteLine2": "ŞŞŞŞ ÜÜÜÜ"
+    },
+    {
+      "Id": 245,
+      "Quantity": 6.0,
+      "Price": 3.90,
+      "Name": "CİF KREM 750ML      ",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -11.70,
+        "percentage": 50,
+		"NoteLine1": "12345678901234567890123456789012345678901234567890",
+		"NoteLine2": "12345678901234567890123456789012345678901234567890"
+      }
+    },
+    {
+      "Id": 242,
+      "Quantity": 24.0,
+      "Price": 1.60,
+      "Name": "COCA COLA ZERO 330ML",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -13.44,
+        "percentage": 35,
+		"NoteLine1": "HUGIN YAZILIM TEKNOLOJİLERİ A.Ş",
+		"NoteLine2": "MECLİS-İ MEBUSAN CADDESİ NO:77 KAT:3"
+      }
+    },
+    {
+      "Id": 250,
+      "Quantity": 12.0,
+      "Price": 1.00,
+      "Name": "TADIM ÇEKİRDEK 80GR ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": {
+        "Type": 1,
+        "Amount": 0.24,
+        "percentage": 2,
+		"NoteLine1": "www.hugin.com.tr",
+		"NoteLine2": "facebook.com/hugin.com.tr"
+      }
+    },
+    {
+      "Id": 251,
+      "Quantity": 1.0,
+      "Price": 1.0,
+      "Name": "ETİ TUTKU 120GR     ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "1900 1910 1920",
+	  "NoteLine2": "çğişöü ÇĞİÖÜŞ"
+    },
+    {
+      "Id": 241,
+      "Quantity": 8.569,
+      "Price": 12.75,
+      "Name": "KİRAZ NAPOLYON KG   ",
+      "DeptId": 3,
+      "Status": 1,
+      "Adj": null,
+	  "NoteLine1": "aaaaaaaaaa",
+	  "NoteLine2": "aaaaaaaaaa"
+    },
+    {
+      "Id": 276,
+      "Quantity": 1.0,
+      "Price": 2.75,
+      "Name": "ARKO KREM 80GR NATUR",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "BBBBBBBBBB",
+	  "NoteLine2": "BBBBBBBBBB"
+    },
+    {
+      "Id": 275,
+      "Quantity": 5.0,
+      "Price": 2.5,
+      "Name": "DERBY 10LU JİLET    ",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "FFFF KKK LLLL MMMM",
+	  "NoteLine2": "ÜĞİŞÇ ÜĞİŞÇ"
+    },
+    {
+      "Id": 278,
+      "Quantity": 1.0,
+      "Price": 6.75,
+      "Name": "DURU SABUN 4X200GR  ",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "BU ÜRÜNDE BOŞ YOK",
+	  "NoteLine2": "BEDAVA 1 LT PEPSİ"
+    },
+    {
+      "Id": 280,
+      "Quantity": 2.0,
+      "Price": 2.75,
+      "Name": "SABUN BRANİLLİ 120GR",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "CCCCCCCCCCCCCCC",
+	  "NoteLine2": "CCCCCCCCCCCCCCC"
+    },
+    {
+      "Id": 273,
+      "Quantity": 10.0,
+      "Price": 1.25,
+      "Name": "EKMEK 100GR TAŞFIRIN",
+      "DeptId": 2,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "DDDDDDDDDDDD",
+	  "NoteLine2": "DDDDDDDDDDDD"
+    },
+    {
+      "Id": 274,
+      "Quantity": 3.0,
+      "Price": 24.25,
+      "Name": "GİLLETTE MAC3 1UP   ",
+      "DeptId": 4,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -25.46,
+        "percentage": 35,
+		"NoteLine1": "DENEME NOT",
+		"NoteLine2": "DENEME NOT"
+      } 
+    },
+    {
+      "Id": 271,
+      "Quantity": 24.0,
+      "Price": 0.50,
+      "Name": "SADE SODA 220CC     ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": {
+        "Type": 1,
+        "Amount": 0.60,
+        "percentage": 5,
+		"NoteLine1": "TEST TEST TEST",
+		"NoteLine2": "TEST TEST TEST"
+      }
+    },
+    {
+      "Id": 285,
+      "Quantity": 3.250,
+      "Price": 9.65,
+      "Name": "YEŞİL MERCİMEK      ",
+      "DeptId": 3,
+      "Status": 1,
+      "Adj": null,
+	  "NoteLine1": "DENEME DENEME",
+	  "NoteLine2": "DENEME DENEME"
+    },
+    {
+      "Id": 225,
+      "Quantity": 12.0,
+      "Price": 3.65,
+      "Name": "FANTA 2,5 LT        ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -1.75,
+        "percentage": 4,
+		"NoteLine1": "HHHHHHHHHH",
+		"NoteLine2": "HHHHHHHHHH"
+      }
+    },
+    {
+      "Id": 224,
+      "Quantity": 24.0,
+      "Price": 11.15,
+      "Name": "ASPİRİN PLUS-C 400MG",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": {
+        "Type": 3,
+        "Amount": -13.38,
+        "percentage": 5,
+		"NoteLine1": "KKKKKKKKKK",
+		"NoteLine2": "KKKKKKKKKK"
+      }
+    },
+    {
+      "Id": 233,
+      "Quantity": 24.0,
+      "Price": 1.25,
+      "Name": "KNORR ÇORBA KREMALI ",
+      "DeptId": 3,
+      "Status": 0,
+      "Adj": null,
+	  "NoteLine1": "12345678901234567890123456789012345678901234567890",
+	  "NoteLine2": "12345678901234567890123456789012345678901234567890"
+    }
+  ],
+  "Adjustments": [
+    {
+      "Type": 3,
+      "Amount": -88.69,
+      "percentage": 10
+    }
+  ],
+  "Payments": [
+    {
+      "Type": 0,
+      "Index": 0,
+      "PaidTotal": 500.0,
+      "viaByEFT": false,
+      "SequenceNo": 0
+    },
+    {
+      "Type": 0,
+      "Index": 0,
+      "PaidTotal": 250.0,
+      "viaByEFT": false,
+      "SequenceNo": 1
+    },
+    {
+      "Type": 0,
+      "Index": 0,
+      "PaidTotal": 17.86,
+      "viaByEFT": false,
+      "SequenceNo": 2
+    }
+  ],
+  "FooterNotes": [
+    "ÜRÜN İNDİRİMİ  :   *74,69",
+    "ARATOP İNDİRİMİ:   *88,69",
+    "TOPLAM İNDİRİM :  *163,38",
+	"123456789012345678901234567890123456"
+  ]
+}

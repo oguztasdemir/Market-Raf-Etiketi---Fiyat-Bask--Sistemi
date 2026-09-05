@@ -529,20 +529,36 @@ from backend.kasa.pos_iade_servisi import (
 )
 
 def get_recent_sales_list(limit: int = 100) -> list:
-    """Bugünün ve geçmiş günlerin tamamlanan satış/iptal fişlerini en yeniden eskiye döner."""
+    """Bugünün ve son 7 günün tamamlanan satış/iptal fişlerini (ve tüm veresiye fişlerini) en yeniden eskiye döner."""
     now = datetime.datetime.now()
+    cutoff_date = (now - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
     today_str = now.strftime("%Y-%m-%d")
-    today_sales = get_sales_for_date(today_str)
     
+    today_sales = get_sales_for_date(today_str)
     # Bağımsız FIS-IADE fişlerini gösterme (artık fiş içi iade uygulanıyor)
     filtered_today = [s for s in today_sales if not str(s.get("receipt_no", "")).startswith("FIS-IADE")]
     all_sales = list(filtered_today)
+
     if len(all_sales) < limit:
         all_files = list_all_sales_files()
         for f in reversed(all_files):
             if not f.endswith(f"{today_str}.json"):
-                prev_sales = [s for s in load_json(f, []) if not str(s.get("receipt_no", "")).startswith("FIS-IADE")]
-                all_sales.extend(prev_sales)
+                f_date = os.path.basename(f).replace('.json', '')
+                prev_sales = load_json(f, [])
+                for s in prev_sales:
+                    if str(s.get("receipt_no", "")).startswith("FIS-IADE"):
+                        continue
+                    
+                    is_veresiye = (
+                        "veresiye" in str(s.get("payment_type", "")).lower() or 
+                        "cari" in str(s.get("payment_type", "")).lower() or 
+                        bool(s.get("customer_id"))
+                    )
+                    
+                    # 7 günden yeni olanlar VEYA veresiye fişleri dahil edilir
+                    if f_date >= cutoff_date or is_veresiye:
+                        all_sales.append(s)
+
                 if len(all_sales) >= limit:
                     break
     

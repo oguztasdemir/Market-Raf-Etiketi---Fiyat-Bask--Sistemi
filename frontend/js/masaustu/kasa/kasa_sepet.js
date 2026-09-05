@@ -402,6 +402,7 @@ function addItemToPosCart(prod) {
   };
 
   posCart.unshift(newItem);
+  if (typeof playPosSound === 'function') playPosSound('beep');
   renderPosCart();
 }
 

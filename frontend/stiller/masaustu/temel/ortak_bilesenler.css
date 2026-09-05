@@ -1,0 +1,169 @@
+/* =========================================================
+   3. ORTAK BİLEŞENLER (BUTONLAR, KARTLAR, FORMLAR)
+   ========================================================= */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e2e8f0;
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Butonlar */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #1e293b;
+  color: white;
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid var(--danger);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 11.5px;
+}
+
+/* Form Elemanları */
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: white;
+  font-size: 12.5px;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+}
+
+.price-highlight {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #38bdf8 !important;
+}
+
+.qty-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.qty-container input {
+  width: 44px;
+  padding: 2px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  color: white;
+}
+
+/* Tablo Ortak Stilleri */
+.table-modern {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-modern th {
+  background: #131d33;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.table-modern td {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.table-action-group {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}

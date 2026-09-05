@@ -354,6 +354,29 @@ window.addEventListener('keydown', (e) => {
 }, false);
 
 // ==========================================
+// KASA SES EFEKTLERİ (BARKOD, TAMAMLAMA, HATA)
+// ==========================================
+const POS_SOUNDS = {
+  beep: new Audio('/frontend/varliklar/sesler/but1.wav'),
+  success: new Audio('/frontend/varliklar/sesler/finished.wav'),
+  error: new Audio('/frontend/varliklar/sesler/but2.wav'),
+  warning: new Audio('/frontend/varliklar/sesler/wa4.wav')
+};
+
+function playPosSound(type = 'beep') {
+  try {
+    const snd = POS_SOUNDS[type];
+    if (snd) {
+      snd.currentTime = 0;
+      snd.play().catch(() => {});
+    }
+  } catch (e) {
+    // Ses çalma tarayıcı politikasına takılırsa sessizce devam et
+  }
+}
+window.playPosSound = playPosSound;
+
+// ==========================================
 // UYGULAMA GÜVENLİ KAPATMA (ALT + F4 & API)
 // ==========================================
 function exitDesktopApp() {

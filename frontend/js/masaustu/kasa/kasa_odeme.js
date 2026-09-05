@@ -193,6 +193,7 @@ async function directPosCheckout(paymentType = 'Nakit', receivedCash = 0, change
     const data = await res.json();
 
     if (data.status === 'success') {
+      if (typeof playPosSound === 'function') playPosSound('success');
       const changeMsg = changeAmount > 0 ? ` • 💵 Para Üstü: ${changeAmount.toFixed(2)} TL` : '';
       if (typeof showToast === 'function') {
         showToast(`✅ ${paymentType} Satışı Tamamlandı (${grandTotal.toFixed(2)} TL)${changeMsg}`, 'success');

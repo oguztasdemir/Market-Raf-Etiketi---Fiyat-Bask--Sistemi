@@ -17,11 +17,35 @@ a = Analysis(
         (os.path.join(ROOT_DIR, 'backend', 'katalog', 'seed_manav_urunleri.json'), 'backend/katalog'),
         (os.path.join(ROOT_DIR, 'backend', 'terazi', 'motor'), 'backend/terazi/motor')
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        'flask',
+        'werkzeug',
+        'werkzeug.serving',
+        'werkzeug.routing',
+        'jinja2',
+        'itsdangerous',
+        'click',
+        'blinker',
+        'selectors',
+        'socket',
+        'select',
+        'urllib3',
+        'requests',
+        'PIL',
+        'barcode',
+        'qrcode',
+        'serial',
+        'reportlab',
+        'webview',
+        'clr',
+        'pythonnet'
+    ],
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
-    excludes=['PyQt6', 'PySide6', 'PySide2', 'sqlalchemy', 'torch', 'tensorflow', 'matplotlib', 'scipy', 'ipython'],
+    runtime_hooks=[
+        os.path.join(SPECDIR, 'rthook_win7_dll.py')
+    ],
+    excludes=['multiprocessing', 'PyQt6', 'PySide6', 'PySide2', 'sqlalchemy', 'torch', 'tensorflow', 'matplotlib', 'scipy', 'ipython', 'tkinter'],
     noarchive=False,
     optimize=0,
 )

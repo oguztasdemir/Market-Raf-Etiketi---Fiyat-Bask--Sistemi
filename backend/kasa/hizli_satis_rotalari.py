@@ -87,6 +87,14 @@ def pos_recent_sales():
     sales = get_recent_sales_list(limit=limit)
     return jsonify({"status": "success", "sales": sales})
 
+@pos_bp.route('/api/pos/cleanup_old_sales', methods=['POST', 'GET'])
+def pos_cleanup_sales():
+    """1 haftadan eski veresiye olmayan fişleri temizler."""
+    from backend.araclar.sqlite_servisi import cleanup_old_sales
+    days = int(request.args.get('days', 7))
+    res = cleanup_old_sales(days_to_keep=days)
+    return jsonify(res)
+
 @pos_bp.route('/api/pos/cancel_cart', methods=['POST'])
 def pos_cancel_cart():
     """İptal edilen sepeti geçmiş fişlere iptal kaydı olarak ekler."""
@@ -340,55 +348,36 @@ def pos_print_receipt_direct():
     time_str = receipt.get('time', time.strftime('%H:%M:%S'))
     customer = receipt.get('customer_name') or receipt.get('customer', '')
 
-    lines = []
-    lines.append("\x1b\x40") # ESC @ (Initialize printer)
-    lines.append("\x1b\x61\x01") # Center align
-    lines.append("YARENLER SUPERMARKET\n")
-    lines.append("Merkez Sube\n")
-    lines.append("*** BILGI VE SATIS FISI ***\n")
-    lines.append(f"Tarih: {date_str} {time_str}\n")
-    lines.append(f"Fis No: {receipt_no}\n")
-    if customer:
-        lines.append(f"Musteri: {customer}\n")
-    lines.append("------------------------------------------\n")
-    lines.append("\x1b\x61\x00") # Left align
-
-    for it in items:
-        qty = it.get('quantity', 1)
-        name = (it.get('title') or it.get('name', 'Urun'))[:24]
-        t_price = float(it.get('total_price', 0.0))
-        lines.append(f"{qty}x {name:<22} {t_price:>8.2f} TL\n")
-
-    lines.append("------------------------------------------\n")
-    lines.append(f"TOPLAM TUTAR:                 {total_amount:>8.2f} TL\n")
-    lines.append(f"Odeme Sekli: {payment_type}\n")
-    lines.append("------------------------------------------\n")
-    lines.append("\x1b\x61\x01") # Center align
-    lines.append("Bizi tercih ettiginiz icin tesekkurler!\n")
-    lines.append("Mali degeri yoktur - Bilgi fisidir.\n\n\n\n")
-    lines.append("\x1d\x56\x00") # GS V 0 (Cut paper)
-
-    raw_bytes = "".join(lines).encode('latin5', errors='ignore')
-
-    # Yazıcıya doğrudan gönder
+    # Profesyonel donanım yöneticisi üzerinden ESC/POS fiş basımı
     try:
-        from backend.yazdirma.yazdirma_servisi import get_installed_printers, send_raw_to_printer
+        from backend.yazdirma.donanim_yoneticisi import send_receipt_to_printer, get_device_config
         from backend.ayarlar import SETTINGS_FILE
         from backend.araclar.depolama_araclari import load_json
 
         settings = load_json(SETTINGS_FILE, {})
-        printers = get_installed_printers()
-        target_printer = settings.get("receipt_printer") or settings.get("printer")
-        if not target_printer and printers:
-            target_printer = printers[0]
+        market_name = settings.get("market_name") or settings.get("store_name") or "YARENLER SUPERMARKET"
+        branch_name = settings.get("branch_name") or "Merkez Sube - Kasa 1"
+        phone = settings.get("phone") or settings.get("store_phone") or ""
 
-        if target_printer:
-            send_raw_to_printer(target_printer, raw_bytes)
-            return jsonify({"status": "success", "message": f"Fiş '{target_printer}' yazıcısına gönderildi."})
-        else:
-            return jsonify({"status": "success", "message": "Yazıcı bulunamadı ancak fiş işlendi."})
+        receipt_payload = {
+            "market_name": market_name,
+            "branch_name": branch_name,
+            "phone": phone,
+            "date": f"{date_str} {time_str}",
+            "receipt_no": receipt_no,
+            "customer_name": customer,
+            "payment_type": payment_type,
+            "items": items,
+            "total_amount": total_amount,
+            "receipt_footer_note": "Bizi tercih ettiginiz icin tesekkur ederiz!"
+        }
+
+        # Hedef yazıcı adı (ayarlardan veya donanım config'den)
+        target_p = settings.get("receipt_printer") or settings.get("printer")
+        res = send_receipt_to_printer(receipt_payload, target_printer_name=target_p)
+        return jsonify(res)
     except Exception as e:
-        return jsonify({"status": "success", "message": f"Yazdırma tamamlandı ({str(e)})"})
+        return jsonify({"status": "error", "message": f"Fiş yazdırma hatası: {str(e)}"})
 
 @pos_bp.route('/api/system/close', methods=['POST', 'GET'])
 def system_close():

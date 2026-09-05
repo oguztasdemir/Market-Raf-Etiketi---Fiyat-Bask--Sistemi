@@ -1,0 +1,61 @@
+/* =========================================================
+   4. ANA SAYFA SEKME STİLLERİ
+   ========================================================= */
+
+.home-market-title {
+  color: var(--text-main);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.home-market-subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.home-hero-icon {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  border-radius: 12px;
+  display: inline-flex;
+}
+
+.home-stats-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 18px;
+}
+
+.home-stats-title {
+  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 800;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.home-stat-box {
+  background: #090d16;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  transition: background 0.15s ease;
+}
+
+.home-stat-box:hover {
+  background: #131b2e;
+  border-color: #38bdf8;
+}
+
+.home-stat-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}

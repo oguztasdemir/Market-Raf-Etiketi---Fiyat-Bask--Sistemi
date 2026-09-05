@@ -1,13 +1,63 @@
 # -*- coding: utf-8 -*-
-"""
-Market Raf Etiketi, Kasa (POS) & Barkod Sistemi - Ana Başlatıcı (main.py)
-Canlı Güncelleme: 16:18
-Bu tek dosya hem Masaüstü GUI penceresini açar, hem de yerel ağdaki mobil
-cihazların ve diğer bilgisayarların (Web / Mobil Terminal) bağlanabilmesi için
-Flask sunucusunu (0.0.0.0:5000) arka planda kesintisiz çalıştırır.
-"""
-import os
 import sys
+import os
+
+# Windows 7 DLL Uyumluluk ve Yükleme Koruması (En başta yüklenmeli)
+if sys.platform.startswith('win'):
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.abspath(os.path.join(cur_dir, "..")) if os.path.basename(cur_dir).lower() == "app" else cur_dir
+    py_dir = os.path.join(root_dir, "python_runtime")
+    bin_dir = os.path.join(root_dir, "app", "bin")
+    
+    dll_paths = [
+        py_dir,
+        os.path.join(py_dir, "DLLs"),
+        os.path.join(py_dir, "Lib", "site-packages", "pywin32_system32"),
+        os.path.join(py_dir, "Lib", "site-packages", "win32"),
+        bin_dir,
+        root_dir
+    ]
+    for p in dll_paths:
+        if os.path.isdir(p):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+            cur_p = os.environ.get("PATH", "")
+            if p not in cur_p:
+                os.environ["PATH"] = p + ";" + cur_p
+    
+    # Win32 SetDllDirectoryW ve DLL ön-yükleme ile _socket / select çözümlemesini garantiye al
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetDllDirectoryW(py_dir)
+        ctypes.windll.kernel32.LoadLibraryW("ws2_32.dll")
+        if os.path.exists(os.path.join(py_dir, "ucrtbase.dll")):
+            ctypes.cdll.LoadLibrary(os.path.join(py_dir, "ucrtbase.dll"))
+        if os.path.exists(os.path.join(py_dir, "vcruntime140.dll")):
+            ctypes.cdll.LoadLibrary(os.path.join(py_dir, "vcruntime140.dll"))
+        if os.path.exists(os.path.join(py_dir, "api-ms-win-core-path-l1-1-0.dll")):
+            ctypes.cdll.LoadLibrary(os.path.join(py_dir, "api-ms-win-core-path-l1-1-0.dll"))
+    except Exception:
+        pass
+
+# Windows 7 select & selectors çökme koruması (Werkzeug ve Flask öncesi)
+try:
+    import select
+except Exception:
+    import types
+    mod_select = types.ModuleType('select')
+    mod_select.error = OSError
+    def dummy_select(r, w, x, t=None):
+        import time
+        if t: time.sleep(min(t, 0.05))
+        return list(r), list(w), list(x)
+    mod_select.select = dummy_select
+    sys.modules['select'] = mod_select
+
+try:
+    import selectors
+except Exception:
+    pass
+
 import time
 import signal
 import threading
@@ -51,7 +101,7 @@ if sys.platform.startswith('win'):
             sys.stderr.reconfigure(encoding='utf-8', errors='replace')
     except Exception:
         pass
-
+    
 # Proje dizinini Python yoluna ekle
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -215,10 +265,21 @@ def check_installation():
             allowed_paths = [
                 "/setup",
                 "/api/setup/execute",
-                "/favicon.ico"
+                "/favicon.ico",
+                "/indir",
+                "/download",
+                "/setup-indir",
+                "/indir/dosya",
+                "/download/file",
+                "/indir/exe",
+                "/indir/setup",
+                "/indir/vcredist",
+                "/indir/vcredist64",
+                "/indir/vcredist86",
+                "/indir/vcredist32"
             ]
             path = request.path
-            if path.startswith("/frontend/") or path.startswith("/static/"):
+            if path.startswith("/frontend/") or path.startswith("/static/") or path.startswith("/indir") or path.startswith("/download"):
                 return
             if path not in allowed_paths:
                 from flask import redirect
@@ -242,26 +303,75 @@ def index():
 def mobile_terminal():
     return render_template("mobil/mobile.html", cache_bust=int(time.time()))
 
+@app.route("/indir/exe")
+@app.route("/indir/setup")
+@app.route("/download/setup")
 @app.route("/indir/dosya")
 @app.route("/download/file")
-def download_setup_file():
-    """Doğrudan zip dosyasını indiren uç nokta."""
+def download_setup_exe():
+    """Zipsiz, doğrudan tek dosya Kurulum Setup.exe dosyasını indirir."""
     from flask import send_file
     import os
 
     dist_dir = os.path.join(BASE_DIR, "dist")
-    portable_zip = os.path.join(dist_dir, "OYMAPOS_Windows7_Kurulumsuz.zip")
-    if not os.path.exists(portable_zip):
-        portable_zip = os.path.join(dist_dir, "OYMAPOS_Windows7_Tam_Paket.zip")
-        
+    
+    # Öncelikli tek parça standalone Setup.exe
+    setup_candidates = [
+        os.path.join(dist_dir, "Setup.exe"),
+        os.path.join(dist_dir, "OYMAPOS_Setup.exe"),
+        os.path.join(dist_dir, "OYMAPOS_Windows7_Portable", "Setup.exe")
+    ]
+    for s_exe in setup_candidates:
+        if os.path.exists(s_exe):
+            return send_file(
+                s_exe,
+                as_attachment=True,
+                download_name="Setup.exe",
+                mimetype="application/vnd.microsoft.portable-executable"
+            )
+
+    # İkincil seçenek: zip paketi
+    portable_zip = os.path.join(dist_dir, "OYMAPOS_Win7_TekTik_Hazir.zip")
     if os.path.exists(portable_zip):
         return send_file(
             portable_zip,
             as_attachment=True,
-            download_name="OYMAPOS_Windows7_Kurulumsuz.zip",
+            download_name="OYMAPOS_Win7_TekTik_Hazir.zip",
             mimetype="application/zip"
         )
-    return "Kurulumsuz paket sunucuda bulunamadı.", 404
+
+    return "Kurulum Setup.exe dosyası sunucuda bulunamadı.", 404
+
+def download_setup_file():
+    return download_setup_exe()
+
+@app.route("/indir/vcredist")
+@app.route("/indir/vcredist64")
+def download_vcredist_64():
+    """Microsoft Visual C++ x64 paketini yerel ağdan doğrudan indirir."""
+    from flask import send_file, redirect
+    import os
+    dist_dir = os.path.join(BASE_DIR, "dist")
+    vc_file = os.path.join(dist_dir, "vc_redist.x64.exe")
+    if not os.path.exists(vc_file):
+        vc_file = os.path.join(dist_dir, "OYMAPOS_Windows7_Portable", "vc_redist.x64.exe")
+    if os.path.exists(vc_file):
+        return send_file(vc_file, as_attachment=True, download_name="Visual_Cpp_x64_Kurulum.exe", mimetype="application/vnd.microsoft.portable-executable")
+    return redirect("https://aka.ms/vs/17/release/vc_redist.x64.exe")
+
+@app.route("/indir/vcredist86")
+@app.route("/indir/vcredist32")
+def download_vcredist_86():
+    """Microsoft Visual C++ x86/32-bit paketini yerel ağdan doğrudan indirir."""
+    from flask import send_file, redirect
+    import os
+    dist_dir = os.path.join(BASE_DIR, "dist")
+    vc_file = os.path.join(dist_dir, "vc_redist.x86.exe")
+    if not os.path.exists(vc_file):
+        vc_file = os.path.join(dist_dir, "OYMAPOS_Windows7_Portable", "vc_redist.x86.exe")
+    if os.path.exists(vc_file):
+        return send_file(vc_file, as_attachment=True, download_name="Visual_Cpp_x86_Kurulum.exe", mimetype="application/vnd.microsoft.portable-executable")
+    return redirect("https://aka.ms/vs/17/release/vc_redist.x86.exe")
 
 @app.route("/indir", methods=["GET"])
 @app.route("/download", methods=["GET"])
@@ -272,8 +382,10 @@ def download_setup():
     import os
 
     dist_dir = os.path.join(BASE_DIR, "dist")
-    zip_path = os.path.join(dist_dir, "OYMAPOS_Windows7_Kurulumsuz.zip")
-    file_size_mb = f"{round(os.path.getsize(zip_path) / (1024 * 1024), 1)} MB" if os.path.exists(zip_path) else "170 MB"
+    setup_path = os.path.join(dist_dir, "Setup.exe")
+    if not os.path.exists(setup_path):
+        setup_path = os.path.join(dist_dir, "OYMAPOS_Setup.exe")
+    file_size_mb = f"{round(os.path.getsize(setup_path) / (1024 * 1024), 1)} MB" if os.path.exists(setup_path) else "141 MB"
 
     html = f"""<!DOCTYPE html>
 <html lang="tr">
@@ -461,59 +573,105 @@ def download_setup():
 <body>
   <div class="container">
     <div class="header">
-      <div class="badge">🚀 Kurulumsuz & Taşınabilir Sürüm</div>
-      <h1>OYMAPOS Sistem İndirme ve Başlatma</h1>
-      <p class="subtitle">Windows 7, 8, 10 ve 11 işletim sistemlerinde hiçbir kuruluma gerek kalmadan tek tıkla çalışır.</p>
+      <div class="badge">⚡ Tek Tıkla Kurulum (Zipsiz Standalone)</div>
+      <h1>OYMAPOS Kurulum Sihirbazı İndir</h1>
+      <p class="subtitle">Windows 7, 8, 10 ve 11 işletim sistemlerinde tek bir Setup.exe dosyasıyla doğrudan kurulur.</p>
     </div>
 
     <div class="download-action">
       <div class="file-info">
-        <div class="file-name">📦 OYMAPOS_Windows7_Kurulumsuz.zip</div>
-        <div class="file-meta">Boyut: {file_size_mb} &bull; Python 3.8.10 Gömülü Motor &bull; Şifresiz Doğrudan İndirme</div>
+        <div class="file-name">⚙️ Setup.exe (Her Şey Dahil Tek Dosya)</div>
+        <div class="file-meta">Boyut: {file_size_mb} &bull; Python Motoru + Windows 7/10 DLL'leri Gömülü &bull; Zip Gerekmez</div>
       </div>
-      <a href="/indir/dosya" class="btn-download" id="autoDownloadBtn">
+      <a href="/indir/setup" class="btn-download" id="autoDownloadBtn">
         <span>⬇️</span>
-        <span>Hemen İndir</span>
+        <span>Setup.exe İndir</span>
       </a>
     </div>
 
+    <!-- Otomatik Sistem Mimarisi & Tek Tık DLL Onarım Kartı -->
+    <div style="background: rgba(30, 41, 59, 0.7); border: 1.5px solid #0284c7; border-radius: 14px; padding: 18px 20px; margin-bottom: 22px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🔍</span>
+          <span style="font-size: 14px; font-weight: 800; color: #f8fafc;">Bu Bilgisayarın Sistemi Algılandı:</span>
+        </div>
+        <div id="detectedBadge" style="background: #0284c7; color: #ffffff; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
+          Tespit Ediliyor...
+        </div>
+      </div>
+      <p style="font-size: 12px; color: #cbd5e1; margin: 0 0 12px 0; line-height: 1.5;">
+        Windows 7'de sistem çalışma zamanları otomatik kurulur. İsteğe bağlı olarak Microsoft resmi paketini manuel de indirebilirsiniz:
+      </p>
+      <div id="autoVcContainer">
+        <a id="autoVcBtn" href="/indir/vcredist64" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; text-decoration: none; font-weight: 800; font-size: 13.5px; padding: 11px 20px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">
+          <span>📥</span> <span id="autoVcBtnText">Uyumlu Visual C++ Paketini İndir ve Kur</span>
+        </a>
+      </div>
+    </div>
+
     <div class="steps-title">
-      <span>📋</span> <span>Nasıl Çalıştırılır? (Sadece 2 Adım)</span>
+      <span>📋</span> <span>Nasıl Kurulur ve Başlatılır?</span>
     </div>
 
     <div class="step-list">
       <div class="step-item">
         <div class="step-num">1</div>
         <div class="step-text">
-          <strong>İndirilen Dosyayı Klasöre Çıkartın</strong>
-          <p>İndirilen <span class="code-tag">OYMAPOS_Windows7_Kurulumsuz.zip</span> dosyasına sağ tıklayıp <em>"Buraya Ayıkla"</em> veya <em>"Tümünü Ayıkla"</em> diyerek Masaüstüne bir klasör olarak çıkarın.</p>
+          <strong>İndirilen Setup.exe Dosyasına Çift Tıklayın</strong>
+          <p>Hiçbir zip çıkarma işlemine gerek yoktur. İndirilen <span class="code-tag">Setup.exe</span> dosyasına tıklamanız yeterlidir.</p>
         </div>
       </div>
 
       <div class="step-item">
         <div class="step-num">2</div>
         <div class="step-text">
-          <strong>OYMAPOS.exe Dosyasına Çift Tıklayın</strong>
-          <p>Klasörün içindeki <span class="code-tag">OYMAPOS.exe</span> dosyasına çift tıklayın. Sistem 2 saniye içinde arkada çalışıp tarayıcınızda kasa ve etiket ekranını otomatik olarak açacaktır!</p>
+          <strong>Sözleşmeyi Onaylayıp Kurulumu Başlatın</strong>
+          <p>Kurulum sihirbazı sistemi otomatik kurar, masaüstünüze tüm renkli modül kısayollarını ekler ve programı başlatır:</p>
+          <ul style="margin: 8px 0 0 18px; line-height: 1.6; color: #cbd5e1; font-size: 13px;">
+            <li>🛒 <strong style="color: #4ade80;">Kasa Satışı</strong> (Hızlı Barkodlu Kasa Satış Terminali)</li>
+            <li>⚖️ <strong style="color: #38bdf8;">Barkodlu Terazi</strong> (Manav & Terazi Yönetim Ekranı)</li>
+            <li>📦 <strong style="color: #c084fc;">Toplu Stok Kataloğu</strong> (Ürün Kataloğu ve Stok Yönetimi)</li>
+            <li>⚡ <strong style="color: #fbbf24;">Hızlı Ürün ve Fiyat</strong> (Hızlı Ürün & Fiyat Değiştirme)</li>
+            <li>🏷️ <strong style="color: #60a5fa;">OYMAPOS</strong> (Market Raf Etiketi ve Ana Yönetim Sistemi)</li>
+          </ul>
         </div>
       </div>
     </div>
 
     <div class="tip-box">
       <span>💡</span>
-      <span><strong>İpucu:</strong> Herhangi bir kurulum (Setup), yönetici şifresi veya ekstra DLL yüklemenize gerek yoktur. Klasörü dilediğiniz zaman USB bellekle başka bilgisayarlara da taşıyabilirsiniz.</span>
+      <span><strong>Veri Güvencesi:</strong> Yeniden kurulum veya güncelleme yaptığınızda ürün verileriniz ve stoklarınız (data klasörü) asla silinmez, eksiksiz korunur.</span>
     </div>
   </div>
 
   <script>
-    // Sayfa açıldığında indirmeyi otomatik olarak da tetikle
-    window.addEventListener('load', () => {{
-      setTimeout(() => {{
-        const btn = document.getElementById('autoDownloadBtn');
-        if (btn) {{
-          window.location.href = btn.href;
+    // Tarayıcı ve Sistem Mimarisi Algılama (32-bit vs 64-bit)
+    function detectSystemArch() {{
+      const ua = navigator.userAgent || "";
+      const platform = navigator.platform || "";
+      const is64 = /x86_64|x86-64|Win64|x64|WOW64|amd64/i.test(ua) || /x86_64|Win64|WOW64/i.test(platform);
+      
+      const badge = document.getElementById('detectedBadge');
+      const btn = document.getElementById('autoVcBtn');
+      const btnText = document.getElementById('autoVcBtnText');
+
+      if (is64) {{
+        if (badge) badge.innerText = "💻 64-Bit (x64) Windows";
+        if (btn) btn.href = "/indir/vcredist64";
+        if (btnText) btnText.innerText = "64-Bit Visual C++ Paketini İndir ve Kur (Önerilen)";
+      }} else {{
+        if (badge) {{
+          badge.innerText = "💻 32-Bit (x86) Windows";
+          badge.style.background = "#f59e0b";
         }}
-      }}, 600);
+        if (btn) btn.href = "/indir/vcredist86";
+        if (btnText) btnText.innerText = "32-Bit (x86) Visual C++ Paketini İndir ve Kur (Önerilen)";
+      }}
+    }}
+
+    window.addEventListener('load', () => {{
+      detectSystemArch();
     }});
   </script>
 </body>

@@ -275,12 +275,16 @@ function renderManavTable(items) {
     const pluColor = isAdet ? '#64748b' : '#38bdf8';
     const clickParam = isAdet ? `'${item.barcode}'` : (item.plu || `'${item.barcode}'`);
 
+    const imgTag = item.image 
+      ? `<img src="${item.image}" alt="" style="width: 26px; height: 26px; border-radius: 6px; object-fit: cover; vertical-align: middle; margin-right: 8px; border: 1px solid rgba(255,255,255,0.12);">`
+      : `<span style="color: ${isEmpty ? '#475569' : '#38bdf8'}; margin-right: 6px;">${isEmpty ? '➕' : '✏️'}</span>`;
+
     html += `
       <tr onclick="openEditManavModal(${clickParam})" ondblclick="${isEmpty ? '' : `openCatalogProductDetailModal('${item.barcode || item.plu}')`}" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='rgba(56,189,248,0.08)'" onmouseout="this.style.background='transparent'" title="${isEmpty ? 'Yeni Ürün Tanımlamak için Tıklayın' : 'Düzenlemek için Tıklayın, Detaylı Kart için Çift Tıklayın'}">
         <td style="font-weight: 900; color: ${pluColor}; text-align: center; font-size: 12.5px; font-family: monospace;">${pluDisplay}</td>
         <td style="font-family: monospace; color: #94a3b8; font-weight: 600;">${item.barcode || '-'}</td>
-        <td style="font-weight: 800; color: #ffffff;">
-          <span style="color: ${isEmpty ? '#475569' : '#38bdf8'}; margin-right: 6px;">${isEmpty ? '➕' : '✏️'}</span> ${cleanTitleText}
+        <td style="font-weight: 800; color: #ffffff; display: flex; align-items: center;">
+          ${imgTag} <span>${cleanTitleText}</span>
         </td>
         <td style="text-align: center; font-weight: 700; font-size: 12px;">
           <span style="background: ${isAdet ? 'rgba(192,132,252,0.15)' : 'rgba(56,189,248,0.15)'}; color: ${isAdet ? '#c084fc' : '#38bdf8'}; padding: 2px 7px; border-radius: 4px; opacity: ${isEmpty ? 0.3 : 1};">

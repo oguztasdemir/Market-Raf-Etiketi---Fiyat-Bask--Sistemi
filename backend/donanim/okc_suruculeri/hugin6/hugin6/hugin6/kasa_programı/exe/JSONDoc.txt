@@ -1,0 +1,785 @@
+ï»¿{
+  "FiscalItems": [						        {
+						        "Id" : 311,
+								"Quantity" :   1.000,
+								"Price" :   16.90,
+								"Name" : "JOHNSONS BEBEK YAGI 300 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 411,
+								"Quantity" :   1.000,
+								"Price" :    2.50,
+								"Name" : "KURDAN 400 AD",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 312,
+								"Quantity" :   1.000,
+								"Price" :   13.90,
+								"Name" : "KUYAS OZEL UR. YUMURTA 12 LI",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 313,
+								"Quantity" :   1.000,
+								"Price" :    9.90,
+								"Name" : "YUDUM AYCICEK 1 LT",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 314,
+								"Quantity" :   1.000,
+								"Price" :   11.90,
+								"Name" : "BARILLA LASEGNE 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 315,
+								"Quantity" :   1.000,
+								"Price" :   11.90,
+								"Name" : "TAH.OGLU CECIL PEY.250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 316,
+								"Quantity" :   1.000,
+								"Price" :   26.90,
+								"Name" : "TAH.OGLU KOYUN PEY.DILIMLI 525 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 317,
+								"Quantity" :   1.000,
+								"Price" :    7.49,
+								"Name" : "PINAR BEYAZ KREM PEY 200 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 318,
+								"Quantity" :   1.000,
+								"Price" :   11.90,
+								"Name" : "TAH.OGLU ORGU PEYNIRI 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 319,
+								"Quantity" :   1.000,
+								"Price" :   10.90,
+								"Name" : "NUTELLA 400 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 211,
+								"Quantity" :   1.000,
+								"Price" :    3.99,
+								"Name" : "SINANGIL UN 1 KG",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 320,
+								"Quantity" :   1.000,
+								"Price" :    4.49,
+								"Name" : "ULKER H.CEVIZLI",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 321,
+								"Quantity" :   1.000,
+								"Price" :   16.90,
+								"Name" : "LIPTON YL SIYAH CAY 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 322,
+								"Quantity" :   1.000,
+								"Price" :   15.49,
+								"Name" : "CAYKUR TIRYAKI CAY 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 323,
+								"Quantity" :   1.000,
+								"Price" :    7.95,
+								"Name" : "DOGUS TOMURCUK CAY 125 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 324,
+								"Quantity" :   1.000,
+								"Price" :    3.25,
+								"Name" : "ETI CICIBEBE 230 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 325,
+								"Quantity" :   1.000,
+								"Price" :    5.99,
+								"Name" : "ULKER HALLEY 10 LU 300 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 326,
+								"Quantity" :   1.000,
+								"Price" :    7.95,
+								"Name" : "TAT DOMATES SALCASI 720 GR CAM",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 327,
+								"Quantity" :   1.000,
+								"Price" :    5.75,
+								"Name" : "TAT BEZELYE KONS. 720 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 212,
+								"Quantity" :   1.000,
+								"Price" :   34.90,
+								"Name" : "KOMILI SIZMA 1 LT",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 328,
+								"Quantity" :   1.000,
+								"Price" :    1.50,
+								"Name" : "ULKER HAYLAYF 75 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 329,
+								"Quantity" :   1.000,
+								"Price" :    1.50,
+								"Name" : "ULKER CIZI 70 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 330,
+								"Quantity" :   1.000,
+								"Price" :    2.99,
+								"Name" : "ULKER 9KAT RULOKAT 96GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 331,
+								"Quantity" :   1.000,
+								"Price" :    3.75,
+								"Name" : "ETI HOSBES KAKAOLU 140 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 332,
+								"Quantity" :   1.000,
+								"Price" :    2.95,
+								"Name" : "ULKER BISKREM BYK BOY 190 GR     POSET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 412,
+								"Quantity" :   1.000,
+								"Price" :   12.75,
+								"Name" : "PANTENE SAMPUAN 600 ML",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 413,
+								"Quantity" :   1.000,
+								"Price" :   15.49,
+								"Name" : "PALMOLIVE DUS JELI 500 ML",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 333,
+								"Quantity" :   1.000,
+								"Price" :   15.90,
+								"Name" : "BALPARMAK SUZME CICEK BALI 225 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 334,
+								"Quantity" :   2.000,
+								"Price" :    0.75,
+								"Name" : "ULKER CBK KRK 32 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 335,
+								"Quantity" :   1.000,
+								"Price" :    2.25,
+								"Name" : "ULKER SUSAMLI CBK.KRAKER 121 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 336,
+								"Quantity" :   1.000,
+								"Price" :   16.49,
+								"Name" : "CAYKUR FILIZ CAY 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 337,
+								"Quantity" :   1.000,
+								"Price" :    6.75,
+								"Name" : "TAMEK CILEK RECELI SISE 380 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 338,
+								"Quantity" :   1.000,
+								"Price" :    2.75,
+								"Name" : "DR.OETKER PUDRA SEKERI 150 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 339,
+								"Quantity" :   1.000,
+								"Price" :    1.75,
+								"Name" : "ULKER ALBENI ATISTIRMALIK 72 GR.",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 340,
+								"Quantity" :   1.000,
+								"Price" :    1.00,
+								"Name" : "ULKER KREMALI BIS. 75 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 341,
+								"Quantity" :   1.000,
+								"Price" :    1.75,
+								"Name" : "ULKER HANIMELLER COKODAMLA 88 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 342,
+								"Quantity" :   1.000,
+								"Price" :   12.75,
+								"Name" : "TADIM KOKTEYL 200 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 343,
+								"Quantity" :   1.000,
+								"Price" :    5.95,
+								"Name" : "DR.OETKER KAKAO 100 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 344,
+								"Quantity" :   1.000,
+								"Price" :   16.90,
+								"Name" : "TADIM NATUREL 180 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 345,
+								"Quantity" :   1.000,
+								"Price" :    2.25,
+								"Name" : "DR.OETKER HAMUR KAB.TOZU 5 LI         30 LU",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 346,
+								"Quantity" :   2.000,
+								"Price" :    2.75,
+								"Name" : "SANA KLASIK 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 347,
+								"Quantity" :   1.000,
+								"Price" :    2.25,
+								"Name" : "DR.OETKER SEKER VANILIN 5 LI    30 LU",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 348,
+								"Quantity" :   1.000,
+								"Price" :    5.95,
+								"Name" : "ULUDAG SODA 6*200 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 349,
+								"Quantity" :   1.000,
+								"Price" :   13.95,
+								"Name" : "SUTAS TEREYAG 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 350,
+								"Quantity" :   1.000,
+								"Price" :    6.49,
+								"Name" : "DR.OETKER KEKBURGER",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 351,
+								"Quantity" :   1.000,
+								"Price" :    1.99,
+								"Name" : "ULUDAG GAZOZ 250 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 352,
+								"Quantity" :   1.000,
+								"Price" :    5.49,
+								"Name" : "BALKUPU GOLD 1 KG.",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 353,
+								"Quantity" :   2.000,
+								"Price" :    2.25,
+								"Name" : "ETI PETIBOR BIS. 200 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 354,
+								"Quantity" :   1.000,
+								"Price" :    3.95,
+								"Name" : "DR.OETKER PUDRA SEKERI 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 355,
+								"Quantity" :   1.000,
+								"Price" :    2.75,
+								"Name" : "DR.OETKER PIRINC UNU",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 213,
+								"Quantity" :   1.000,
+								"Price" :    3.99,
+								"Name" : "SOKE UN 1KG.",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 356,
+								"Quantity" :   1.000,
+								"Price" :    5.25,
+								"Name" : "BALKUPU TOZ SEKER 1 KG",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 214,
+								"Quantity" :   1.000,
+								"Price" :    3.99,
+								"Name" : "SINANGIL UN 1 KG",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 357,
+								"Quantity" :   1.000,
+								"Price" :    4.25,
+								"Name" : "PINAR SUT 1 LT",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 358,
+								"Quantity" :   1.000,
+								"Price" :    4.25,
+								"Name" : "PINAR SUT 1 LT",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 359,
+								"Quantity" :   1.000,
+								"Price" :    2.75,
+								"Name" : "SANA KLASIK 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 360,
+								"Quantity" :   1.000,
+								"Price" :   11.90,
+								"Name" : "NESTLE MUSLI TROP.MEYVE 350 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 361,
+								"Quantity" :   1.000,
+								"Price" :    2.00,
+								"Name" : "DR.OETKER EKSI MAYA 35 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 362,
+								"Quantity" :   1.000,
+								"Price" :    5.75,
+								"Name" : "TAT BEZELYE KONS. 720 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 363,
+								"Quantity" :   1.000,
+								"Price" :    6.95,
+								"Name" : "ETI LIFALIF YILAF EZMESI 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 364,
+								"Quantity" :   1.000,
+								"Price" :    7.95,
+								"Name" : "TAT DOMATES SALCASI 720 GR CAM",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 365,
+								"Quantity" :   4.000,
+								"Price" :    2.99,
+								"Name" : "COCA COLA SISE 250 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 366,
+								"Quantity" :   1.000,
+								"Price" :   16.90,
+								"Name" : "JOHNSONS BEBEK YAGI 300 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 367,
+								"Quantity" :   1.000,
+								"Price" :    6.95,
+								"Name" : "TAT JALAPENO BIBER 330 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 368,
+								"Quantity" :   1.000,
+								"Price" :    6.95,
+								"Name" : "SUTAS KAYMAKSIZ YOGURT 1000GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 369,
+								"Quantity" :   1.000,
+								"Price" :    5.95,
+								"Name" : "DR.OETKER KAKAO 100 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 370,
+								"Quantity" :   1.000,
+								"Price" :    2.75,
+								"Name" : "DR.OETKER BUG.NIS.150 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 371,
+								"Quantity" :   1.000,
+								"Price" :   12.90,
+								"Name" : "KEMAL KUKRER NAR EKSISI 250 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 372,
+								"Quantity" :   1.000,
+								"Price" :    6.90,
+								"Name" : "FERSAN UZUM SIRKESI 500 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 373,
+								"Quantity" :   1.000,
+								"Price" :    3.75,
+								"Name" : "BAGDAT MISIR UNU 250 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 374,
+								"Quantity" :   1.000,
+								"Price" :    5.95,
+								"Name" : "DR.OETKER KAKAO 100 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 375,
+								"Quantity" :   1.000,
+								"Price" :    4.75,
+								"Name" : "BAGDAT HIDISTAN CEVIZI",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 215,
+								"Quantity" :   1.000,
+								"Price" :    4.50,
+								"Name" : "BAGDAT SUSAM",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 376,
+								"Quantity" :   1.000,
+								"Price" :    3.75,
+								"Name" : "IPEK MAKYAJ TEM PED 70 ADET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 377,
+								"Quantity" :   2.000,
+								"Price" :    5.49,
+								"Name" : "BAGDAT SUMAK 80 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 414,
+								"Quantity" :   1.000,
+								"Price" :    4.75,
+								"Name" : "GLADE MINI JEL 70 GR",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 415,
+								"Quantity" :   1.000,
+								"Price" :    4.75,
+								"Name" : "GLADE MINI JEL 70 GR",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 111,
+								"Quantity" :   0.370,
+								"Price" :   27.50,
+								"Name" : "UZMANLAR BARBUNYA IC KG",
+								"DeptId" : 1,
+								"Status" : 1,
+								"Adj" : null 
+								},						        {
+						        "Id" : 378,
+								"Quantity" :   1.336,
+								"Price" :    9.75,
+								"Name" : "UZMANLAR KAHVALTILIK KOKTEYL KG",
+								"DeptId" : 3,
+								"Status" : 1,
+								"Adj" : null 
+								},						        {
+						        "Id" : 379,
+								"Quantity" :   1.250,
+								"Price" :   11.50,
+								"Name" : "UZMANLAR UZUM KOKTEYL KG",
+								"DeptId" : 3,
+								"Status" : 1,
+								"Adj" : null 
+								},						        {
+						        "Id" : 216,
+								"Quantity" :   1.000,
+								"Price" :    5.95,
+								"Name" : "UNDANO YUFKA",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 380,
+								"Quantity" :   1.270,
+								"Price" :    3.49,
+								"Name" : "UZMANLAR SOGAN KURU KG",
+								"DeptId" : 3,
+								"Status" : 1,
+								"Adj" : null 
+								},						        {
+						        "Id" : 381,
+								"Quantity" :   1.424,
+								"Price" :    3.99,
+								"Name" : "UZMANLAR PATATES KG",
+								"DeptId" : 3,
+								"Status" : 1,
+								"Adj" : null 
+								},						        {
+						        "Id" : 382,
+								"Quantity" :   1.000,
+								"Price" :    3.50,
+								"Name" : "UZMANLAR SOGAN TAZE DEMET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 383,
+								"Quantity" :   1.000,
+								"Price" :    2.45,
+								"Name" : "UZMANLAR MAYDANOZ DEMET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 384,
+								"Quantity" :   1.000,
+								"Price" :    2.49,
+								"Name" : "UZMANLAR DEREOTU DEMET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 385,
+								"Quantity" :   1.000,
+								"Price" :   22.90,
+								"Name" : "NESCAFE GOLD 100 GR    CAM",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 386,
+								"Quantity" :   1.000,
+								"Price" :    4.95,
+								"Name" : "MEHMET EFD.100 GR KAHVE POSET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 387,
+								"Quantity" :   1.000,
+								"Price" :    7.95,
+								"Name" : "COFFEE MATE 200 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 416,
+								"Quantity" :   1.000,
+								"Price" :   16.90,
+								"Name" : "PROTEX SIVI SAB.750 ML",
+								"DeptId" : 4,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 388,
+								"Quantity" :   1.000,
+								"Price" :    4.99,
+								"Name" : "UZMANLAR MARUL ADET",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 217,
+								"Quantity" :   1.000,
+								"Price" :    9.49,
+								"Name" : "VATAN BALDO PIRINC 1 KG",
+								"DeptId" : 2,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 389,
+								"Quantity" :   1.000,
+								"Price" :    2.25,
+								"Name" : "FILIZ KELEBEK MAKARNA",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 390,
+								"Quantity" :   1.000,
+								"Price" :    2.25,
+								"Name" : "FILIZ FIYONK MAKARNA 500 GR",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 391,
+								"Quantity" :   1.000,
+								"Price" :   21.90,
+								"Name" : "SENSODYNE DERIN TEM.75 ML",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 392,
+								"Quantity" :   1.000,
+								"Price" :    3.75,
+								"Name" : "BAGDAT NANE",
+								"DeptId" : 3,
+								"Status" : 0,
+								"Adj" : null 
+								},						        {
+						        "Id" : 112,
+								"Quantity" :   2.000,
+								"Price" :   13.00,
+								"Name" : "S.MARLBORO             *",
+								"DeptId" : 1,
+								"Status" : 0,
+								"Adj" : null 
+								}],"Payments": [                
+                    {
+					"Type" : 1,
+					"Index" : 0,
+					"PaidTotal" :  771.48
+					}	      ],
+		"FooterNotes" :["KASIYER: KASÝYER"]
+		}

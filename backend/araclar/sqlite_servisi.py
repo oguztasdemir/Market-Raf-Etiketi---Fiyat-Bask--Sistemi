@@ -306,8 +306,55 @@ def backup_sqlite_db(target_path: str) -> bool:
             print(f"[HATA] SQLite backup hatası: {e}")
             return False
 
-# İlk modül yüklendiğinde DB şemasını hazırla
+def cleanup_old_sales(days_to_keep: int = 7) -> dict:
+    """
+    1 haftadan (days_to_keep gün) eski normal fişleri temizler.
+    DİKKAT: Veresiyeye atılmış (customer_id veya veresiye/cari ödeme türü olan) fişler ASLA silinmez, korunur.
+    """
+    import datetime
+    cutoff_date = (datetime.datetime.now() - datetime.timedelta(days=days_to_keep)).strftime("%Y-%m-%d")
+    deleted_sales = 0
+    deleted_kasa = 0
+
+    try:
+        with db_session() as conn:
+            cursor = conn.cursor()
+            
+            # 1. Veresiye/Cari olmayan ve müşteri kaydı bulunmayan 7 günden eski satış fişlerini sil
+            cursor.execute("""
+                DELETE FROM satislar 
+                WHERE date < ? 
+                  AND (customer_id IS NULL OR TRIM(customer_id) = '')
+                  AND LOWER(payment_type) NOT LIKE '%veresiye%'
+                  AND LOWER(payment_type) NOT LIKE '%cari%';
+            """, (cutoff_date,))
+            deleted_sales = cursor.rowcount
+
+            # 2. 7 günden eski kasa hareketlerini temizle (veresiye tahsilatı olmayanlar)
+            cursor.execute("""
+                DELETE FROM kasa_hareketleri
+                WHERE date < ?
+                  AND LOWER(description) NOT LIKE '%veresiye%'
+                  AND LOWER(description) NOT LIKE '%cari%';
+            """, (cutoff_date,))
+            deleted_kasa = cursor.rowcount
+
+        if deleted_sales > 0 or deleted_kasa > 0:
+            print(f"[BİLGİ] Otomatik Temizlik: 1 haftadan eski {deleted_sales} adet fiş ve {deleted_kasa} adet hareket temizlendi (Veresiyeler korundu).")
+            
+        return {
+            "status": "success",
+            "deleted_sales": deleted_sales,
+            "deleted_kasa": deleted_kasa,
+            "cutoff_date": cutoff_date
+        }
+    except Exception as e:
+        print(f"[HATA] cleanup_old_sales hatası: {e}")
+        return {"status": "error", "message": str(e)}
+
+# İlk modül yüklendiğinde DB şemasını hazırla ve eski fişleri temizle
 try:
     init_db()
+    cleanup_old_sales(days_to_keep=7)
 except Exception as _e:
     print(f"[UYARI] DB Başlatma Hatası: {_e}")

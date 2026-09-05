@@ -2,42 +2,42 @@
 <div class="pos-footer-status-bar">
   
   <!-- 1. MOBİL BAĞLANTI QR (MERKEZ YERİNE) -->
-  <button id="btn-pos-footer-mobile" type="button" class="pos-footer-item pos-footer-btn" onclick="openPosMobileQrModal()" style="background: rgba(2,132,199,0.25); border: 1.5px solid #38bdf8; color: #38bdf8; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px;" title="Mobil Terminal QR Kodu Aç [F1]">
+  <button id="btn-pos-footer-mobile" type="button" class="pos-footer-item pos-footer-btn pos-footer-sky" onclick="openPosMobileQrModal()" title="Mobil Terminal QR Kodu Aç [F1]">
     <span>📱</span> MOBİL QR [F1]
   </button>
 
   <!-- 2. KASA NO (KASA 1) -->
-  <button id="btn-pos-footer-terminal" type="button" class="pos-footer-item pos-footer-btn" onclick="showTerminalInfo()" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8;" title="Terminal / Kasa No">
+  <button id="btn-pos-footer-terminal" type="button" class="pos-footer-item pos-footer-btn pos-footer-card" onclick="showTerminalInfo()" title="Terminal / Kasa No">
     <span>💻</span> KASA 1
   </button>
 
   <!-- 3. KASİYER (ADMİN) -->
-  <button id="btn-pos-footer-admin" type="button" class="pos-footer-item pos-footer-btn" onclick="openCashierSwitchModal()" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(52,211,153,0.35); color: #34d399;" title="Kasiyer Değiştir / Giriş">
+  <button id="btn-pos-footer-admin" type="button" class="pos-footer-item pos-footer-btn pos-footer-emerald" onclick="openCashierSwitchModal()" title="Kasiyer Değiştir / Giriş">
     <span>👤</span> ADMİN
   </button>
 
   <!-- 4. ARA MUTABAKAT (X RAPORU) -->
-  <button id="btn-pos-footer-x-report" type="button" class="pos-footer-item pos-footer-btn" onclick="openPosXReportModal()" style="background: rgba(2,132,199,0.25); border: 1px solid rgba(56,189,248,0.5); color: #38bdf8; font-weight: 800;" title="Gün İçi Ara Mutabakat (X Raporu)">
+  <button id="btn-pos-footer-x-report" type="button" class="pos-footer-item pos-footer-btn pos-footer-blue" onclick="openPosXReportModal()" title="Gün İçi Ara Mutabakat (X Raporu)">
     <span>📊</span> X RAPORU
   </button>
 
   <!-- 5. CANLI TARİH -->
-  <div id="pos-footer-date" class="pos-footer-item" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); font-family: monospace; color: #f8fafc;" title="Tarih">
+  <div id="pos-footer-date" class="pos-footer-item pos-footer-card" title="Tarih">
     23.08.2026
   </div>
 
   <!-- 6. CANLI SAAT -->
-  <div id="pos-footer-time" class="pos-footer-item" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.08); font-family: monospace; color: #fbbf24; font-weight: 900;" title="Saat">
+  <div id="pos-footer-time" class="pos-footer-item pos-footer-card pos-footer-amber-text" title="Saat">
     11:00:00
   </div>
 
   <!-- 7. ONLİNE DURUMU -->
-  <button id="btn-pos-footer-online" type="button" class="pos-footer-item pos-footer-btn" onclick="checkOnlineServerStatus()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); color: #34d399;" title="Canlı Bağlantı Durumu">
+  <button id="btn-pos-footer-online" type="button" class="pos-footer-item pos-footer-btn pos-footer-emerald" onclick="checkOnlineServerStatus()" title="Canlı Bağlantı Durumu">
     <span>🟢</span> ONLINE
   </button>
 
   <!-- 8. ANA MENÜ -->
-  <button id="btn-pos-footer-home" type="button" class="pos-footer-item pos-footer-btn" onclick="exitPosToHome()" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24;" title="Ana Menüye Dön [ESC]">
+  <button id="btn-pos-footer-home" type="button" class="pos-footer-item pos-footer-btn pos-footer-amber" onclick="exitPosToHome()" title="Ana Menüye Dön [ESC]">
     <span>🏠</span> ANA MENÜ
   </button>
 

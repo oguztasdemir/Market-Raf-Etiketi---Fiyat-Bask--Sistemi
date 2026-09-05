@@ -1,0 +1,1 @@
+Regasm UyumSoftService.dll /codebase

@@ -10,8 +10,16 @@ __pycache__/
 
 # Dağıtım ve Derleme Klasörleri (Büyük dosyalar Git'e yüklenmemeli)
 build/
+build_pyinstaller/
 dist/
+dist_pyinstaller/
+dist_zip_package/
+test_win7_deploy/
+temp_test/
+temp_petkom/
+temp_petkom_kur/
 *.spec.bak
+*.exe
 
 # Log ve geçici dosyalar
 *.log
@@ -30,7 +38,7 @@ data/
 *.sqlite3
 *.db
 
-# Geçici Excel / Zip dosyaları
+# Geçici Excel / Zip / Rar dosyaları
 *.zip
 *.rar
 *.tar.gz

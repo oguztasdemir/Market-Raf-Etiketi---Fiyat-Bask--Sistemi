@@ -1,0 +1,24 @@
+/* =========================================================
+   13. AYARLAR SEKMESİ STİLLERİ
+   ========================================================= */
+
+.settings-container {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+#tab-settings {
+  background: var(--bg-dark);
+}
+
+#tab-settings .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.settings-header-card {
+  background: #0b1329;
+  border: 1px solid rgba(255,255,255,0.08);
+}
