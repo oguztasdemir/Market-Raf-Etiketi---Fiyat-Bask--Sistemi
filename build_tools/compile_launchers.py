@@ -172,7 +172,13 @@ namespace OymaposLaunchers
                                 catch { }
                             }
 
-                            // Detaylı ve Kopyalanabilir Hata Teşhis Penceresi Göster
+                            // Eger Python doğrudan GUI açamazsa, arka planda Flask'ı başlatıp Native Windows Kiosk Arayüzünü (.NET WebBrowser) aç
+                            if (TryLaunchNativeWebShell(pyExe, mainScript, passedArgs, rootDir, targetArg))
+                            {
+                                return;
+                            }
+
+                            // Aksi halde detaylı ve kopyalanabilir teşhis penceresini göster
                             ShowDiagnosticDialog(proc.ExitCode, err, rootDir);
                         }
                     }
@@ -180,8 +186,78 @@ namespace OymaposLaunchers
             }
             catch (Exception ex)
             {
-                ShowDiagnosticDialog(-1, ex.ToString(), rootDir);
+                if (!TryLaunchNativeWebShell(pyExe, mainScript, passedArgs, rootDir, targetArg))
+                {
+                    ShowDiagnosticDialog(-1, ex.ToString(), rootDir);
+                }
             }
+        }
+
+        static bool TryLaunchNativeWebShell(string pyExe, string mainScript, string passedArgs, string rootDir, string targetArg)
+        {
+            try
+            {
+                // 1. Arka planda sunucuyu başlat (Hata verse bile yeniden dene)
+                ProcessStartInfo bgPsi = new ProcessStartInfo();
+                bgPsi.FileName = pyExe;
+                bgPsi.Arguments = "\\"" + Path.Combine(rootDir, "main.py") + "\\"";
+                bgPsi.WorkingDirectory = rootDir;
+                bgPsi.UseShellExecute = false;
+                bgPsi.CreateNoWindow = true;
+                bgPsi.EnvironmentVariables["PATH"] = Path.Combine(rootDir, "python_runtime") + ";" + Environment.GetEnvironmentVariable("PATH");
+                Process.Start(bgPsi);
+
+                // 2. Sayfanın URL'sini hazırla
+                string targetTab = targetArg.Replace("--module=", "").Trim();
+                string url = "http://127.0.0.1:5000" + (!string.IsNullOrEmpty(targetTab) ? "?tab=tab-" + targetTab : "");
+
+                // 3. Kurulu Tarayıcılarda Bağımsız Kiosk Penceresi Olarak Açmayı Dene
+                string[] browsers = new string[] {
+                    @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                    @"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                    @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+                    @"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+                    @"C:\Program Files\Mozilla Firefox\firefox.exe",
+                    @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+                };
+
+                foreach (string bExe in browsers)
+                {
+                    if (File.Exists(bExe))
+                    {
+                        ProcessStartInfo bPsi = new ProcessStartInfo(bExe, "--app=" + url + " --start-maximized");
+                        Process.Start(bPsi);
+                        return true;
+                    }
+                }
+
+                // 4. Tarayıcı yoksa Native .NET WebBrowser Form Aç (Windows 7 ile %100 Uyumlu)
+                LaunchEmbeddedWin7Kiosk(url, targetTab);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        static void LaunchEmbeddedWin7Kiosk(string url, string targetTab)
+        {
+            Form kioskForm = new Form();
+            kioskForm.Text = "OYMAPOS - " + (string.IsNullOrEmpty(targetTab) ? "Ana Sistem" : targetTab.ToUpper());
+            kioskForm.Size = new System.Drawing.Size(1280, 800);
+            kioskForm.WindowState = FormWindowState.Maximized;
+            kioskForm.StartPosition = FormStartPosition.CenterScreen;
+            kioskForm.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
+
+            WebBrowser wb = new WebBrowser();
+            wb.Dock = DockStyle.Fill;
+            wb.ScriptErrorsSuppressed = true;
+            wb.ScrollBarsEnabled = true;
+            wb.Navigate(url);
+            kioskForm.Controls.Add(wb);
+
+            Application.Run(kioskForm);
         }
 
         static void ShowDiagnosticDialog(int exitCode, string errDetail, string rootDir)
